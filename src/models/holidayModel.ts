@@ -3,5 +3,6 @@ export interface Holiday {
   name: string;
   typeId: string;
   typeName: string;
-  weight: number[];
+  workWeight: number;
+  extraWeight: number;
 }

@@ -6,10 +6,10 @@
   >
     <button
       class="flex items-center justify-between w-full h-12 px-2 border rounded-lg"
-      @click="select"
+      @click.prevent="select"
       :class="currentOption.data.label.length > 0 ? '' : 'text-gray-400'"
     >
-      <span>{{ currentOption.data.label || props.placeholder }}</span>
+      <span>{{ currentOption.data.label || placeholder }}</span>
       <div
         class="w-0 h-0 ml-2 border-t-8 border-l-8 border-r-8 border-t-gray-300 border-r-transparent border-l-transparent"
       ></div>
@@ -20,7 +20,7 @@
     >
       <ul>
         <li
-          v-for="option in props.options"
+          v-for="option in options"
           :key="option.key"
           class="flex items-center h-12 px-2 py-1 hover:bg-blue-500 hover:text-white"
           @click="selectOption(option)"
@@ -82,4 +82,3 @@ const selectOption = (option: Option) => {
   visible.value = false;
 };
 </script>
-<style lang="scss" scoped></style>

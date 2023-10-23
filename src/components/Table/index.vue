@@ -1,56 +1,39 @@
 <template>
-  <div
-    class="relative overflow-x-auto border shadow-md border-b-none sm:rounded-lg"
-  >
-    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-      <thead
-        class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
-      >
+  <div class="relative border shadow-md border-b-none">
+    <table class="w-full text-left text-gray-500">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-50">
         <tr>
-          <th scope="col" class="px-6 py-3" v-for="header in props.headers">
-            {{ header }}
+          <th
+            scope="col"
+            class="px-6 py-3 text-sm text-center"
+            v-for="header in rows[0]"
+            :key="header.key"
+          >
+            {{ header.label }}
           </th>
-          <!-- <th scope="col" class="px-6 py-3">Color</th>
-          <th scope="col" class="px-6 py-3">Category</th>
-          <th scope="col" class="px-6 py-3">Price</th>
-          <th scope="col" class="px-6 py-3">Action</th> -->
+          <th v-if="isAction" scope="col" class="px-6 py-3 text-sm text-center">
+            操作
+          </th>
         </tr>
       </thead>
       <tbody>
-        <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
+        <tr
+          scope="row"
+          class="border-b hover:bg-gray-200"
+          v-for="(row, i) in rows[1]"
+          :key="row.label"
+          :class="i % 2 == 0 ? 'bg-white' : 'bg-gray-100'"
+        >
           <th
-            scope="row"
-            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+            v-for="index of rows[0].length"
+            :key="index"
+            class="px-6 py-4 text-sm font-medium text-center text-gray-500 whitespace-nowrap"
           >
-            Apple MacBook Pro 17"
+            {{ row[rows[0][index - 1].key] }}
           </th>
-          <td class="px-6 py-4">Silver</td>
-          <td class="px-6 py-4">Laptop</td>
-          <td class="px-6 py-4">$2999</td>
-          <td class="px-6 py-4">
-            <a
-              href="#"
-              class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-              >Edit</a
-            >
-          </td>
-        </tr>
-        <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-          <th
-            scope="row"
-            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-          >
-            Microsoft Surface Pro
-          </th>
-          <td class="px-6 py-4">White</td>
-          <td class="px-6 py-4">Laptop PC</td>
-          <td class="px-6 py-4">$1999</td>
-          <td class="px-6 py-4">
-            <a
-              href="#"
-              class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-              >Edit</a
-            >
+          <td class="px-6 py-4" v-if="isAction">
+            <Button class="mr-1" @click="edit(row)">编辑</Button>
+            <Button type="danger" @click="remove(row)">删除</Button>
           </td>
         </tr>
       </tbody>
@@ -59,8 +42,29 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
-  headers: string[];
+import Button from "../Button/index.vue";
+import { TableHeader } from "./type";
+
+withDefaults(
+  defineProps<{
+    isAction?: boolean;
+    rows: [TableHeader[], any[]];
+  }>(),
+  {
+    isAction: false,
+  }
+);
+
+const emit = defineEmits<{
+  edit: any;
+  remove: any;
 }>();
+
+const edit = (row: any) => {
+  emit("edit", row);
+};
+
+const remove = (row: any) => {
+  emit("remove", row);
+};
 </script>
-<style lang="scss" scoped></style>

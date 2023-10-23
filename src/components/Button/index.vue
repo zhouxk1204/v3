@@ -1,5 +1,10 @@
 <template>
-  <button class="px-4 rounded-lg" :class="color" @click="clickButton">
+  <button
+    type="button"
+    class="focus:ring-4 focus:outline-none rounded-lg border text-sm font-medium px-5 py-2.5 focus:z-10"
+    :class="color"
+    @click="clickButton"
+  >
     <slot></slot>
   </button>
 </template>
@@ -10,20 +15,19 @@ type ButtonType = "disabled" | "default" | "primary" | "success" | "danger";
 
 const className = {
   disabled: "bg-gray-200 text-gray-500 cursor-not-allowed",
-  default: "bg-gray-100 hover:bg-gray-200 active:bg-gray-300",
-  primary: "bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white",
-  success: "bg-green-500 hover:bg-green-600 active:bg-green-700 text-white",
-  danger: "bg-red-500 hover:bg-red-600 active::bg-red-700 text-white",
+  default:
+    "hover:bg-gray-100 text-gray-500 focus:ring-gray-200 border-gray-200 hover:text-gray-900 bg-white",
+  primary: "text-blue bg-green-600 hover:bg-blue-800 focus:ring-blue-300",
+  success: "text-white bg-green-600 hover:bg-green-800 focus:ring-green-300",
+  danger: "text-white bg-red-600 hover:bg-red-800 focus:ring-red-300",
 };
 
 const props = withDefaults(
   defineProps<{
-    type: ButtonType;
-    disibled: boolean;
+    type?: ButtonType;
   }>(),
   {
     type: "default",
-    disibled: false,
   }
 );
 
