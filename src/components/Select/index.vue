@@ -1,15 +1,11 @@
 <template>
-  <div
-    class="relative bg-white"
-    ref="selectDom"
-    :style="{ width: minWidth + 'px' }"
-  >
+  <div class="relative bg-white" ref="selectDom">
     <button
       class="flex items-center justify-between w-full h-12 px-2 border rounded-lg"
       @click.prevent="select"
-      :class="currentOption.data.label.length > 0 ? '' : 'text-gray-400'"
+      :class="modelValue.label.length > 0 ? '' : 'text-gray-400'"
     >
-      <span>{{ currentOption.data.label || placeholder }}</span>
+      <span>{{ modelValue.label || placeholder }}</span>
       <div
         class="w-0 h-0 ml-2 border-t-8 border-l-8 border-r-8 border-t-gray-300 border-r-transparent border-l-transparent"
       ></div>
@@ -33,28 +29,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { Option } from "./types";
-const props = defineProps<{ options: Option[]; placeholder?: string }>();
+defineProps<{ modelValue: Option; options: Option[]; placeholder?: string }>();
 const emit = defineEmits<{
   (e: "select", data: Option): void;
+  (e: "update:modelValue", data: Option): void;
 }>();
-
-const currentOption = reactive<{ data: Option }>({
-  data: { key: "", label: "" },
-});
-
-const minWidth = computed(() => {
-  return (
-    (Math.max(
-      ...props.options
-        .map((e) => e.label.length)
-        .concat(props.placeholder?.length ?? 0)
-    ) +
-      2) *
-    18
-  );
-});
 
 const visible = ref<boolean>(false);
 
@@ -77,8 +58,8 @@ onMounted(() => {
 });
 
 const selectOption = (option: Option) => {
-  currentOption.data = option;
   emit("select", option);
+  emit("update:modelValue", option);
   visible.value = false;
 };
 </script>

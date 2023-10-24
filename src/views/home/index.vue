@@ -5,14 +5,11 @@
     HOME CPN
   </h2>
 
-  <Button>ok</Button>
+  <!-- <Button>ok</Button>
   <Button type="primary">primary</Button>
   <Button type="success">success</Button>
   <Button type="danger">danger</Button>
-  <Record></Record>
+  <Record></Record> -->
 </template>
 
-<script setup lang="ts">
-import Button from "@/components/Button/index.vue";
-import Record from "@/components/Record/index.vue";
-</script>
+<script setup lang="ts"></script>

@@ -1,12 +1,12 @@
 <template>
   <vue-tailwind-datepicker
-    class="max-w-[338px]"
+    class="min-w-[338px]"
     as-single
     v-model="modelValueCopy"
     :formatter="formatter"
     i18n="zh-cn"
     placeholder="请选择日期"
-    input-classes="rounded-lg h-11 border pl-2 focus-visible:outline-none h-12"
+    input-classes="rounded-lg h-11 border pl-2 focus-visible:outline-none h-12 mb-0"
   />
 </template>
 

@@ -4,8 +4,8 @@ import { createRouter, createWebHistory } from "vue-router";
 const routes = [
   {
     path: "/",
-    component: () => import("../layouts/index.vue"),
-    redirect: "/home",
+    component: () => import("@/layouts/index.vue"),
+    redirect: "home",
     children: [
       {
         path: "home",
@@ -13,22 +13,6 @@ const routes = [
         name: "home",
         meta: {
           title: "首页",
-        },
-      },
-      {
-        path: "report",
-        component: () => import("@/views/home/index.vue"),
-        name: "report",
-        meta: {
-          title: "报表",
-        },
-      },
-      {
-        path: "user",
-        component: () => import("@/views/home/index.vue"),
-        name: "user",
-        meta: {
-          title: "用户管理",
         },
       },
       {

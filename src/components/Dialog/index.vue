@@ -3,6 +3,7 @@
     <div class="fixed top-0 bottom-0 left-0 right-0 z-50" v-if="modelValue">
       <div class="relative w-full h-full bg-black bg-opacity-50">
         <div
+          v-if="message.length"
           class="min-w-[410px] absolute -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow top-1/2 left-1/2"
         >
           <button
@@ -48,12 +49,13 @@
             >
               {{ message }}
             </h3>
-            <Button type="danger" class="mr-2" @click="confirm">{{
+            <Button type="danger" class="w-20 mr-2" @click="confirm">{{
               confirmLabel
             }}</Button>
-            <Button @click="cancel">{{ cancelLabel }}</Button>
+            <Button @click="cancel" class="w-20">{{ cancelLabel }}</Button>
           </div>
         </div>
+        <slot></slot>
       </div>
     </div>
   </teleport>
@@ -70,7 +72,7 @@ withDefaults(
     confirmLabel?: string;
   }>(),
   {
-    message: "Are you sure?",
+    message: "",
     cancelLabel: "取消",
     confirmLabel: "确认",
   }

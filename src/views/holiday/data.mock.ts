@@ -1,4 +1,4 @@
-export const MOCK_HOLIDAY = [
+export const MOCK_HOLIDAY_LIST = [
   {
     date: "2023/01/01",
     name: "元旦节",

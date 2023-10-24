@@ -34,7 +34,7 @@ export const HOLIDAY_TABLE_HEADERS: TableHeader[] = [
   },
   {
     key: "typeName",
-    label: "放假 or 补班",
+    label: "放假 Or 补班",
   },
   {
     key: "workWeight",
