@@ -16,6 +16,14 @@ const routes = [
         },
       },
       {
+        path: "employee",
+        component: () => import("@/views/employee/index.vue"),
+        name: "employee",
+        meta: {
+          title: "职工管理",
+        },
+      },
+      {
         path: "holiday",
         component: () => import("@/views/holiday/index.vue"),
         name: "holiday",

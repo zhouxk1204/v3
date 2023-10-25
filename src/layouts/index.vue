@@ -9,7 +9,11 @@
       class="fixed left-0 h-screen pb-24 overflow-y-auto border-r border-gray-200 w-60 top-14"
     >
       <section class="flex flex-col px-4 pt-2">
-        <router-link :to="menu.route" v-for="menu in menuList">
+        <router-link
+          :to="menu.route"
+          v-for="menu in menuList"
+          :key="menu.route"
+        >
           <p
             class="px-2 py-2 mt-1 text-sm rounded hover:bg-blue-500 hover:text-white"
             :class="
@@ -36,7 +40,6 @@ import { ref } from "vue";
 import { onBeforeRouteUpdate } from "vue-router";
 import { Menu } from "./type";
 
-//在setup中
 onBeforeRouteUpdate((to) => {
   currentRoute.value = to.path;
 });

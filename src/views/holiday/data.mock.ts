@@ -48,3 +48,14 @@ export const MOCK_HOLIDAY_LIST = [
     extraWeight: 3,
   },
 ];
+
+export const FORM_MODE = {
+  CREATE: {
+    key: "create",
+    value: "添加",
+  },
+  UPDATE: {
+    key: "update",
+    value: "更新",
+  },
+};

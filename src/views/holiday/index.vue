@@ -1,21 +1,15 @@
 <template>
-  <Button type="primary" @click="onAddHoliday" class="w-20">添加</Button>
+  <Button type="primary" @click="onAdd" class="w-20 mb-4">添加</Button>
 
-  <Table
-    class="mt-3"
-    :rows="rows"
-    :isAction="true"
-    @edit="onEdit"
-    @del="onDelete"
-  ></Table>
+  <Table :rows="rows" :isAction="true" @edit="onEdit" @del="onDelete"></Table>
 
   <Dialog v-model="visible">
     <form
       class="absolute flex flex-col p-6 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow left-1/2 top-1/2 w-96"
     >
       <div class="flex items-center justify-between mb-4">
-        <h1 class="text-xl">{{ mode === 0 ? "添加" : "更新" }}节假日信息</h1>
-        <Button @click="close"
+        <h1 class="text-xl">{{ mode.data.value }}节假日信息</h1>
+        <Button @click="closeFormPopUp"
           ><svg
             class="w-3 h-3"
             aria-hidden="true"
@@ -39,7 +33,7 @@
       <div class="mb-4">
         <h2 class="mb-1 text-sm">节假日</h2>
         <Select
-          v-model="selectedHoliday"
+          v-model="currentHoliday"
           :options="holidays"
           @select="onSelectHoliday"
           placeholder="请选择节假日"
@@ -48,7 +42,7 @@
       <div class="mb-4">
         <h2 class="mb-1 text-sm">节假日类型</h2>
         <Select
-          v-model="selectedAction"
+          v-model="currentHolidayAction"
           placeholder="请选择节假日类型"
           :options="actions"
           @select="onSelectHolidayAction"
@@ -73,37 +67,37 @@
         />
       </div>
 
-      <Button @click="submit" :type="buttonType">{{
-        mode === 0 ? "添加" : "更新"
-      }}</Button>
+      <Button @click="submit" :type="buttonType">{{ mode.data.value }} </Button>
     </form>
   </Dialog>
+
   <Dialog
     v-model="modelVisible"
     message="确定删除该节假日?"
-    @confirm="confirm"
+    @confirm="deleteHolidayConfirm"
   ></Dialog>
 </template>
 
 <script setup lang="ts">
-import Button from "@/components/Button/index.vue";
-import DatePicker from "@/components/DatePicker/index.vue";
-import Dialog from "@/components/Dialog/index.vue";
-import Select from "@/components/Select/index.vue";
 import { Option } from "@/components/Select/types";
-import Table from "@/components/Table/index.vue";
 import { TableHeader } from "@/components/Table/type";
 import {
   HOLIDAYS,
   HOLIDAY_ACTIONS,
   HOLIDAY_TABLE_HEADERS,
 } from "@/constants/index.ts";
-import { Holiday } from "@/models/holidayModel";
+import { Holiday } from "@/models/holiday.model";
 import useStore from "@/store";
+import { deepCopy } from "@/utils/index.ts";
 import { storeToRefs } from "pinia";
 import { computed, reactive, ref } from "vue";
+import { FORM_MODE } from "./data.mock";
+
 const holidays = HOLIDAYS;
 const actions = HOLIDAY_ACTIONS;
+// 节假日列表;
+const { holidayList } = storeToRefs(useStore().holiday);
+const rows: [TableHeader[], any[]] = [HOLIDAY_TABLE_HEADERS, holidayList.value];
 
 const form = reactive<{ data: Holiday }>({
   data: {
@@ -117,24 +111,30 @@ const form = reactive<{ data: Holiday }>({
   },
 });
 
-const mode = ref<number>(0);
-
-const selectedHoliday = computed(() => {
+const currentHoliday = computed(() => {
   return { key: form.data.id, label: form.data.name } as Option;
 });
 
-const selectedAction = computed(() => {
+const currentHolidayAction = computed(() => {
   return { key: form.data.typeId, label: form.data.typeName } as Option;
 });
 
-const onSelectHoliday = (data: Option) => {
-  form.data.name = data.label;
-  form.data.id = data.key;
+/**
+ * 节假日选择事件
+ * @param {Option} option
+ */
+const onSelectHoliday = (option: Option) => {
+  form.data.name = option.label;
+  form.data.id = option.key;
 };
 
-const onSelectHolidayAction = (data: Option) => {
-  form.data.typeName = data.label;
-  form.data.typeId = data.key;
+/**
+ * 补班加班选择事件
+ * @param {Option} option
+ */
+const onSelectHolidayAction = (option: Option) => {
+  form.data.typeName = option.label;
+  form.data.typeId = option.key;
 };
 
 const buttonType = computed(() => {
@@ -143,39 +143,74 @@ const buttonType = computed(() => {
     : "primary";
 });
 
-const submit = () => {
-  useStore().holiday.add(form.data);
-  close();
-};
-// 节假日列表;
-const { holidayList } = storeToRefs(useStore().holiday);
-const rows: [TableHeader[], any[]] = [HOLIDAY_TABLE_HEADERS, holidayList.value];
+// 表单模式
+const mode = reactive({ data: FORM_MODE.CREATE });
 
+/**
+ * 节假日form表单事件
+ */
+const submit = () => {
+  if (mode.data.key === "create") {
+    useStore().holiday.add(form.data);
+  } else if (mode.data.key === "update") {
+    useStore().holiday.update(form.data);
+  }
+  closeFormPopUp();
+};
+
+// 表单popup
 const visible = ref<boolean>(false);
+// 确认dialog
 const modelVisible = ref<boolean>(false);
 
-const onAddHoliday = () => {
-  mode.value = 0;
+/**
+ * 添加节假日
+ */
+const onAdd = (): void => {
+  mode.data = FORM_MODE.CREATE;
+  visible.value = true;
+  resetFormData();
+};
+
+/**
+ * 编辑按钮事件
+ * @param {Holiday} holiday
+ */
+const onEdit = (holiday: Holiday): void => {
+  mode.data = FORM_MODE.UPDATE;
+  form.data = deepCopy(holiday);
   visible.value = true;
 };
 
-const onEdit = (holiday: Holiday) => {
-  mode.value = 1;
+/**
+ * 删除按钮事件
+ * @param {Holiday} holiday
+ */
+const onDelete = (holiday: Holiday): void => {
   form.data = holiday;
-  visible.value = true;
-};
-
-const onDelete = (holiday: Holiday) => {
-  form.data = holiday;
+  // 打开确认弹窗
   modelVisible.value = true;
 };
 
-const close = () => {
+/**
+ * 确认删除节假日
+ */
+const deleteHolidayConfirm = (): void => {
+  useStore().holiday.remove(form.data.date);
+  resetFormData();
+};
+
+/**
+ * 关闭表单pop up
+ */
+const closeFormPopUp = (): void => {
   visible.value = false;
 };
 
-const confirm = () => {
-  useStore().holiday.remove(form.data.date);
+/**
+ * 重置表单数据
+ */
+const resetFormData = (): void => {
   form.data = {
     date: "",
     id: "",
@@ -188,3 +223,4 @@ const confirm = () => {
 };
 </script>
 <style lang="scss" scoped></style>
+@/models/holiday.model

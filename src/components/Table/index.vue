@@ -1,17 +1,23 @@
 <template>
-  <div class="relative overflow-hidden border-t border-l border-r rounded">
+  <div
+    class="relative overflow-hidden border-t border-l border-r rounded shadow"
+  >
     <table class="w-full text-left text-gray-500">
-      <thead class="text-gray-700 uppercase t bg-gray-50">
+      <thead class="text-gray-700">
         <tr class="border-b">
           <th
             scope="col"
-            class="py-4 text-center text-md"
+            class="py-4 pl-6 text-xs text-gray-400"
             v-for="header in rows[0]"
             :key="header.key"
           >
             {{ header.label }}
           </th>
-          <th v-if="isAction" scope="col" class="px-4 py-2 text-center text-md">
+          <th
+            v-if="isAction"
+            scope="col"
+            class="w-40 px-6 text-xs text-center text-gray-400"
+          >
             操作
           </th>
         </tr>
@@ -23,16 +29,18 @@
           v-for="row in rows[1]"
           :key="row.label"
         >
-          <th
+          <td
             v-for="j of rows[0].length"
             :key="j"
-            class="px-4 py-1 font-medium text-center text-gray-500 text-md hover:bg-gray-100 whitespace-nowrap"
+            class="h-12 pl-6 text-sm font-medium text-gray-700 hover:bg-gray-100 whitespace-nowrap"
           >
             {{ row[rows[0][j - 1].key] }}
-          </th>
-          <td class="flex justify-center px-4 py-2" v-if="isAction">
-            <Button class="mr-1" @click="edit(row)">编辑</Button>
-            <Button type="danger" @click="remove(row)">删除</Button>
+          </td>
+          <td class="flex justify-center w-40 h-12 p-2 px-6" v-if="isAction">
+            <Button class="mr-2 text-xs" @click="edit(row)">编辑</Button>
+            <Button type="danger" class="text-xs" @click="remove(row)"
+              >删除</Button
+            >
           </td>
         </tr>
       </tbody>
@@ -62,7 +70,6 @@
 </template>
 
 <script setup lang="ts">
-import Button from "../Button/index.vue";
 import { TableHeader } from "./type";
 
 withDefaults(

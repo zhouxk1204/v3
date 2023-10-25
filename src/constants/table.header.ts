@@ -1,7 +1,7 @@
 export const TABLE_HEADER_EMPLOYEE = [
   {
     key: "no",
-    label: "no",
+    label: "顺序",
   },
   {
     key: "name",
