@@ -23,6 +23,13 @@ export const HOLIDAY_ACTIONS: Option[] = ["补班", "放假"].map((e, i) => {
   };
 });
 
+export const GENDERS: Option[] = ["女性", "男性"].map((e, i) => {
+  return {
+    key: `${i}`,
+    label: e,
+  };
+});
+
 export const HOLIDAY_TABLE_HEADERS: TableHeader[] = [
   {
     key: "date",
