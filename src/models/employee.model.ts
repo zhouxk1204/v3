@@ -1,7 +1,8 @@
 export interface Employee {
+  uuid: string;
   no: string;
   name: string;
-  factor: number;
+  factor: string;
   genderId: string;
   gender: string;
   stateId: string;

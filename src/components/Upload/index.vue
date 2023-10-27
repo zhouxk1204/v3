@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Button @click="selectFile" type="primary">
+    <Button @click="selectFile" type="success">
       <slot></slot>
     </Button>
     <input

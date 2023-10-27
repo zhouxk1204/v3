@@ -30,6 +30,31 @@ export const GENDERS: Option[] = ["女性", "男性"].map((e, i) => {
   };
 });
 
+export const ROLES: Option[] = ["护士", "护士长"].map((e, i) => {
+  return {
+    key: `${i}`,
+    label: e,
+  };
+});
+
+export const STATES: Option[] = ["离职", "在职"].map((e, i) => {
+  return {
+    key: `${i}`,
+    label: e,
+  };
+});
+
+export const MODE_DIALOG = {
+  CREATE: {
+    key: "create",
+    label: "添加",
+  },
+  UPDATE: {
+    key: "update",
+    label: "更新",
+  },
+};
+
 export const HOLIDAY_TABLE_HEADERS: TableHeader[] = [
   {
     key: "date",

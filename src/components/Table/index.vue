@@ -36,11 +36,22 @@
           >
             {{ row[rows[0][j - 1].key] }}
           </td>
-          <td class="flex justify-center w-40 h-12 p-2 px-6" v-if="isAction">
-            <Button class="mr-2 text-xs" @click="edit(row)">编辑</Button>
-            <Button type="danger" class="text-xs" @click="remove(row)"
-              >删除</Button
-            >
+          <td
+            class="flex items-center justify-center w-40 h-12 px-6"
+            v-if="isAction"
+          >
+            <Button
+              class="mr-2 text-xs"
+              @click="edit(row)"
+              icon="material-symbols:edit"
+            ></Button>
+            <Button
+              type="danger"
+              class="text-xs"
+              @click="remove(row)"
+              :confirm="true"
+              icon="material-symbols:delete-outline"
+            ></Button>
           </td>
         </tr>
       </tbody>
@@ -83,8 +94,8 @@ withDefaults(
 );
 
 const emit = defineEmits<{
-  edit: any;
-  del: any;
+  (e: "edit", data: any): void;
+  (e: "del", data: any): void;
 }>();
 
 const edit = (row: any) => {

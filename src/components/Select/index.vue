@@ -31,7 +31,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { Option } from "./types";
-defineProps<{ modelValue: Option; options: Option[]; placeholder?: string }>();
+defineProps<{
+  modelValue: Option;
+  options: Option[];
+  placeholder?: string;
+}>();
 const emit = defineEmits<{
   (e: "select", data: Option): void;
   (e: "update:modelValue", data: Option): void;

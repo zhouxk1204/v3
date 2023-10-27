@@ -1,16 +1,25 @@
 <template>
-  <button
-    type="button"
-    class="p-2 font-medium text-center border rounded-lg focus:z-10"
-    :class="color"
-    @click="clickButton"
-  >
-    <slot></slot>
-  </button>
+  <div>
+    <button
+      type="button"
+      class="flex justify-center w-full p-2 font-medium border rounded-lg focus:z-10"
+      :class="color"
+      @click="clickButton"
+    >
+      <slot></slot>
+      <Icon v-if="icon.length" :icon="icon" :width="22"></Icon>
+    </button>
+
+    <Dialog
+      v-model="isConfirm"
+      :message="confirmMessage"
+      @confirm="onConfirm"
+    ></Dialog>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 type ButtonType = "disabled" | "default" | "primary" | "success" | "danger";
 
 const className = {
@@ -25,20 +34,37 @@ const className = {
 const props = withDefaults(
   defineProps<{
     type?: ButtonType;
+    icon?: string;
+    disabled?: boolean;
+    confirm?: boolean;
+    confirmMessage?: string;
   }>(),
   {
+    disabled: false,
     type: "default",
+    icon: "",
+    confirm: false,
+    confirmMessage: "Are you sure?",
   }
 );
 
 const emit = defineEmits(["click"]);
 
+const isConfirm = ref<boolean>(false);
 const clickButton = () => {
-  if (props.type === "disabled") return;
+  if (props.disabled) return;
+  if (props.confirm) {
+    isConfirm.value = true;
+  } else {
+    emit("click");
+  }
+};
+
+const onConfirm = () => {
   emit("click");
 };
 
 const color = computed(() => {
-  return className[props.type];
+  return props.disabled ? className["disabled"] : className[props.type];
 });
 </script>
