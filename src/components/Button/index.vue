@@ -2,7 +2,7 @@
   <div>
     <button
       type="button"
-      class="flex justify-center w-full p-2 font-medium border rounded-lg focus:z-10"
+      class="flex items-center justify-center w-full h-full p-2 font-medium border rounded-lg focus:z-10 hover:shadow-md"
       :class="color"
       @click="clickButton"
     >

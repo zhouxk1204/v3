@@ -3,6 +3,14 @@ import { createRouter, createWebHistory } from "vue-router";
 // 导入你的组件
 const routes = [
   {
+    path: "/login",
+    component: () => import("@/views/login/index.vue"),
+    name: "login",
+    meta: {
+      title: "登录",
+    },
+  },
+  {
     path: "/",
     component: () => import("@/layouts/index.vue"),
     redirect: "home",
