@@ -1,4 +1,6 @@
-export const TABLE_HEADER_EMPLOYEE = [
+import { TableHeader } from "@/components/Table/type";
+
+export const TABLE_HEADER_EMPLOYEE: TableHeader[] = [
   {
     key: "no",
     label: "顺序",
@@ -22,5 +24,28 @@ export const TABLE_HEADER_EMPLOYEE = [
   {
     key: "role",
     label: "职位",
+  },
+];
+
+export const HOLIDAY_TABLE_HEADERS: TableHeader[] = [
+  {
+    key: "date",
+    label: "日期",
+  },
+  {
+    key: "name",
+    label: "节假日名称",
+  },
+  {
+    key: "typeName",
+    label: "放假 Or 补班",
+  },
+  {
+    key: "workWeight",
+    label: "上班工分倍率",
+  },
+  {
+    key: "extraWeight",
+    label: "加班工分倍率",
   },
 ];

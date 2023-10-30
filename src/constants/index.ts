@@ -1,5 +1,5 @@
 import { Option } from "@/components/Select/types";
-import { TableHeader } from "@/components/Table/type";
+import { IDayType } from "@/types";
 
 export const HOLIDAYS: Option[] = [
   "元旦",
@@ -44,6 +44,21 @@ export const STATES: Option[] = ["离职", "在职"].map((e, i) => {
   };
 });
 
+export const DAY_TYPE_OBJ: Record<string, IDayType> = {
+  WEEKDAY_WORK: {
+    typeId: "0",
+    typeName: "工作日上班",
+  },
+  WEEKEND_OVERTIME: {
+    typeId: "1",
+    typeName: "周末加班",
+  },
+  HOLIDAY_OVERTIME: {
+    typeId: "2",
+    typeName: "节假日上班",
+  },
+};
+
 export const MODE_DIALOG = {
   CREATE: {
     key: "create",
@@ -55,25 +70,4 @@ export const MODE_DIALOG = {
   },
 };
 
-export const HOLIDAY_TABLE_HEADERS: TableHeader[] = [
-  {
-    key: "date",
-    label: "日期",
-  },
-  {
-    key: "name",
-    label: "节假日名称",
-  },
-  {
-    key: "typeName",
-    label: "放假 Or 补班",
-  },
-  {
-    key: "workWeight",
-    label: "上班工分倍率",
-  },
-  {
-    key: "extraWeight",
-    label: "加班工分倍率",
-  },
-];
+export const RECORD_MARK = ["➕+"];

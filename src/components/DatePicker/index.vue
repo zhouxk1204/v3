@@ -14,7 +14,7 @@
 import { ref, watch } from "vue";
 import VueTailwindDatepicker from "vue-tailwind-datepicker";
 const formatter = ref({
-  date: "YYYY年MM月DD日",
+  date: "YYYY/MM/DD",
   month: "MM",
 });
 

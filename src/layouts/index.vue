@@ -45,7 +45,7 @@ onBeforeRouteUpdate((to) => {
 });
 
 const menuList: Menu[] =
-  router.options.routes[0].children?.map((e) => {
+  router.options.routes[1].children?.map((e) => {
     return {
       label: (e.meta?.title as string) ?? "",
       route: `/${e.path}`,

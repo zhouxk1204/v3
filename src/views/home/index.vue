@@ -15,7 +15,12 @@
 </template>
 
 <script setup lang="ts">
+import { fullWidthToHalfWidth, removeSpaces } from "@/utils/string";
+
 const onFileData = (data: any[]) => {
   console.log("%c Line:20 🍔 data", "color:#42b983", data);
 };
+
+const res = removeSpaces(fullWidthToHalfWidth("　➕　／　 "));
+console.log("%c Line:24 🍷 res", "color:#2eafb0", res);
 </script>
