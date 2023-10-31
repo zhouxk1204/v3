@@ -2,7 +2,7 @@
   <div>
     <button
       type="button"
-      class="flex items-center justify-center w-full h-full p-2 font-medium border rounded-lg focus:z-10 hover:shadow-md"
+      class="flex items-center justify-center w-full h-full p-2 font-medium border rounded-lg focus:z-10"
       :class="color"
       @click="clickButton"
     >
@@ -25,10 +25,13 @@ type ButtonType = "disabled" | "default" | "primary" | "success" | "danger";
 const className = {
   disabled: "bg-gray-200 text-gray-500 cursor-not-allowed",
   default:
-    "hover:bg-gray-100 text-gray-500 border-gray-200 hover:text-gray-900 active:bg-gray-200 bg-white",
-  primary: "text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800",
-  success: "text-white bg-green-600 hover:bg-green-700 active:bg-green-800",
-  danger: "text-white bg-red-600 hover:bg-red-700 active:bg-red-800",
+    "hover:bg-gray-100 text-gray-500 border-gray-200 hover:text-gray-900 active:bg-gray-200 bg-white hover:shadow-md",
+  primary:
+    "text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 hover:shadow-md",
+  success:
+    "text-white bg-green-600 hover:bg-green-700 active:bg-green-800 hover:shadow-md",
+  danger:
+    "text-white bg-red-600 hover:bg-red-700 active:bg-red-800 hover:shadow-md",
 };
 
 const props = withDefaults(

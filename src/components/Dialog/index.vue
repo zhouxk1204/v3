@@ -1,10 +1,10 @@
 <template>
   <teleport to="body">
-    <div class="fixed top-0 bottom-0 left-0 right-0 z-50" v-if="modelValue">
+    <div v-if="modelValue" class="fixed top-0 bottom-0 left-0 right-0 z-50">
       <div class="relative w-full h-full bg-black bg-opacity-50">
         <div
           v-if="message.length"
-          class="min-w-[410px] absolute -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow top-1/2 left-1/2"
+          class="opacity-0 min-w-[410px] absolute -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow top-1/2 left-1/2"
         >
           <div
             class="flex flex-col items-center justify-center p-6 text-yellow-500"
@@ -23,13 +23,21 @@
             </div>
           </div>
         </div>
-        <slot></slot>
+        <div
+          class="opacity-0"
+          :class="{
+            'fade-in': isMounted,
+          }"
+        >
+          <slot></slot>
+        </div>
       </div>
     </div>
   </teleport>
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
 import Button from "../Button/index.vue";
 
 withDefaults(
@@ -57,4 +65,24 @@ const confirm = (): void => {
   emit("update:modelValue", false);
   emit("confirm");
 };
+
+const isMounted = ref(false);
+onMounted(() => {
+  isMounted.value = true;
+});
 </script>
+<style lang="scss" scoped>
+.fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+  animation-delay: 0.1s;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+</style>

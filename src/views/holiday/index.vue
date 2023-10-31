@@ -53,11 +53,8 @@
 <script setup lang="ts">
 import { Option } from "@/components/Select/types";
 import { TableHeader } from "@/components/Table/type";
-import {
-  HOLIDAYS,
-  HOLIDAY_ACTIONS,
-  HOLIDAY_TABLE_HEADERS,
-} from "@/constants/index.ts";
+import { HOLIDAYS, HOLIDAY_ACTIONS } from "@/constants/index.ts";
+import { HOLIDAY_TABLE_HEADERS } from "@/constants/table.header";
 import { useDialog } from "@/hooks/useDialog";
 import { Holiday } from "@/models/holiday.model";
 import useStore from "@/store";

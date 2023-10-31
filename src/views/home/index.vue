@@ -1,26 +1,22 @@
 <template>
-  <h2
-    class="text-2xl relative hover:before:content-['#'] hover:before:text-green-400 hover:before:absolute hover:before:-left-5 hover:before:z-10"
-  >
-    HOME WORD！
-  </h2>
+  <div :class="{ 'animate__animated animate__fadeInUp': isAnimate }">
+    Example
+  </div>
+  <Button class="w-14" @click="test">ok</Button>
 
-  <Button>ok</Button>
+  <!-- <Button>ok</Button>
   <Button type="primary">primary</Button>
   <Button type="success">success</Button>
   <Button type="danger">danger</Button>
-  <Record></Record>
-
-  <Upload @data="onFileData">123213</Upload>
+  <Record></Record> -->
 </template>
 
 <script setup lang="ts">
-import { fullWidthToHalfWidth, removeSpaces } from "@/utils/string";
+import { ref } from "vue";
 
-const onFileData = (data: any[]) => {
-  console.log("%c Line:20 🍔 data", "color:#42b983", data);
+const isAnimate = ref(false);
+
+const test = () => {
+  isAnimate.value = true;
 };
-
-const res = removeSpaces(fullWidthToHalfWidth("　➕　／　 "));
-console.log("%c Line:24 🍷 res", "color:#2eafb0", res);
 </script>
