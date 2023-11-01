@@ -1,8 +1,11 @@
-// import * as moment from "moment";
+import { TYPE_POINT_OBJ, TYPE_POST_OBJ } from "@/constants";
+import {
+  fullWidthToHalfWidth,
+  parsePositiveRealNumber,
+  removeSpaces,
+} from "@/utils/string";
 
-import { fullWidthToHalfWidth, removeSpaces } from "@/utils/string";
-
-import { IDayType } from "@/types";
+import { isStringExistArrayElement } from "@/utils";
 import { getTypeOfDay } from "@/utils/date";
 
 // import { Employee, EmployeeJson } from "src/app/models/employee.model";
@@ -316,49 +319,114 @@ import { getTypeOfDay } from "@/utils/date";
 
 export interface IPoint {
   type: string; // 类别
-  hour: number; // 岗位工分（小时）
-  postId: string; // 岗位id
-  postName: string; // 岗位名称
-  weight: number; // 岗位工分倍率
+  duration: number; // 岗位工分（小时）
+  postId?: string; // 岗位id
+  postName?: string; // 岗位名称
+  weight?: number; // 岗位工分倍率
 }
 
 export class Point {
   type: string; // 类别
-  hour: number; // 岗位工分（小时）
-  postId: string; // 岗位id
-  postName: string; // 岗位名称
-  weight: number; // 岗位工分倍率
+  duration: number; // 岗位工分（小时）
+  postId?: string; // 岗位id
+  postName?: string; // 岗位名称
+  weight?: number; // 岗位工分倍率
 
   constructor(data: IPoint) {
     this.type = data.type;
     this.postId = data.postId;
     this.postName = data.postName;
     this.weight = data.weight;
-    this.hour = data.hour;
+    this.duration = data.duration;
   }
 
   get point(): number {
-    return this.hour * this.weight;
+    return this.weight ? this.duration * this.weight : 0;
   }
 }
 
-export interface IDayReport {
+export interface IDailyRecord {
   date: string;
   record: string;
 }
 
-export class DayReport {
+export class DailyRecord {
   date: string;
-  type: IDayType; // 工作日；周末加班；节假日加班
+  typeId: string; // 工作日 0 ；周末加班 1；节假日加班 2
+  typeName: string; // 工作日；周末加班；节假日加班
+  record: string;
   pointList: Point[] = [];
-  constructor(data: IDayReport) {
+  constructor(data: IDailyRecord) {
     this.date = data.date;
-    this.type = getTypeOfDay(data.date);
+    this.record = removeSpaces(fullWidthToHalfWidth(data.record));
+    const { code, text } = getTypeOfDay(data.date);
+    this.typeId = code;
+    this.typeName = text;
   }
 
-  private parseRecord(record: string) {
-    const r = removeSpaces(fullWidthToHalfWidth(record));
-    // 胃9.5+3.5/手0+2.5
-    // 休，年休等
+  private parseRecord(record: string): Point[] {
+    if (/\d/.test(record)) {
+      const parts = record.split("/");
+      return parts.map((e) => this.parsePart(e)).flat();
+    } else {
+      // 休，年休等
+      let point = new Point({
+        type: "unknown",
+        duration: 1,
+      });
+      for (let item of Object.values(TYPE_POINT_OBJ.REST)) {
+        if (item.text.includes(record)) {
+          point = new Point({
+            type: item.code,
+            duration: 1,
+          });
+          break;
+        }
+      }
+      return [point];
+    }
+  }
+
+  private parsePart(part: string): Point[] {
+    // 0.x年假的时候
+    const annual = TYPE_POINT_OBJ.REST.ANNUAL_LEAVE;
+
+    if (isStringExistArrayElement(part, annual.text)) {
+      return [
+        new Point({
+          type: annual.code,
+          duration: parsePositiveRealNumber(part),
+        }),
+      ];
+    } else {
+      // 胃镜的场合
+      const detail = part.split("+").map((el) => parsePositiveRealNumber(el));
+      console.log("%c Line:404 🍡 detail", "color:#93c0a4", detail);
+      if (isStringExistArrayElement(part, TYPE_POST_OBJ.GASTROSCOPY.text)) {
+        return [
+          new Point({
+            type: TYPE_POINT_OBJ.ATTENDANCE.WORK.code,
+            duration: detail[0],
+            postId: TYPE_POST_OBJ.GASTROSCOPY.code,
+          }),
+          new Point({
+            type: TYPE_POINT_OBJ.ATTENDANCE.OVERTIME.code,
+            duration: detail[1],
+            postId: TYPE_POST_OBJ.GASTROSCOPY.code,
+          }),
+        ];
+      } else {
+        return [
+          new Point({
+            type: TYPE_POINT_OBJ.ATTENDANCE.WORK.code,
+            duration: detail[0],
+          }),
+          new Point({
+            type: TYPE_POINT_OBJ.ATTENDANCE.OVERTIME.code,
+            duration: detail[1],
+          }),
+        ];
+      }
+    }
   }
 }

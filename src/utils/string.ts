@@ -28,3 +28,24 @@ export function fullWidthToHalfWidth(inputString: string): string {
     return String.fromCharCode(charCode);
   });
 }
+
+/**
+ * 将字符串中的正小数取出
+ * @param {string} inputString
+ * @returns {number} 小数或数字
+ */
+export function parsePositiveRealNumber(inputString: string): number {
+  // 使用正则表达式匹配数字（包括小数点）
+  const match = inputString.match(/(\d+(\.\d+)?)/);
+
+  if (match) {
+    return parseFloat(match[0]);
+  } else {
+    console.error(
+      "%c Line:44 🍷 parsePositiveRealNumber",
+      "color:#ed9ec7",
+      "未找到有效的数字。"
+    );
+    return 0;
+  }
+}

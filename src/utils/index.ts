@@ -1,3 +1,5 @@
+import useStore from "@/store";
+
 /**
  * 引用类型深拷贝
  * @param {T} source
@@ -24,4 +26,28 @@ export function deepCopy<T>(source: T): T {
   }
 
   return objectCopy as T;
+}
+
+/**
+ * 职工是否存在
+ * @param {string} name
+ * @returns {boolean} true: employee is exist; false: employee is not exist
+ */
+export function isEmployeeExist(name: string): boolean {
+  return (
+    useStore().employee.employeeList.find((e) => e.name === name) !== undefined
+  );
+}
+
+/**
+ * 某字符串是否存在某数组中的元素
+ * @param {string} target 某字符串
+ * @param {string[]} array
+ * @returns {boolean} true: exist; false: not exist
+ */
+export function isStringExistArrayElement(
+  target: string,
+  array: string[]
+): boolean {
+  return array.map((item) => target.indexOf(item) > -1).some((el) => el);
 }

@@ -22,7 +22,7 @@
       class="absolute flex flex-col p-6 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow left-1/2 top-1/2 w-96"
     >
       <div class="flex items-center justify-between mb-4">
-        <h1 class="text-xl">{{ mode.label }}员工信息</h1>
+        <h1 class="text-xl">{{ mode.text }}员工信息</h1>
         <Button @click="closeDialog"
           ><Icon icon="material-symbols:close" color="#bbb" />
         </Button>
@@ -67,7 +67,7 @@
       </FormItem>
 
       <Button type="primary" @click="submit" :disabled="isFormValid">{{
-        mode.label
+        mode.text
       }}</Button>
     </form>
   </Dialog>
@@ -108,8 +108,8 @@ const currentGender = ref({
 });
 // 性别选择事件
 const onSelectGender = (option: Option) => {
-  form.value.gender = option.label;
-  form.value.genderId = option.key;
+  form.value.gender = option.text;
+  form.value.genderId = option.code;
 };
 
 // 职位选择框
@@ -117,8 +117,8 @@ const roles = ROLES;
 const currentRole = ref({ key: form.value.roleId, label: form.value.role });
 // 职位选择事件
 const onSelectRole = (option: Option) => {
-  form.value.role = option.label;
-  form.value.roleId = option.key;
+  form.value.role = option.text;
+  form.value.roleId = option.code;
 };
 
 // 状态选择框
@@ -126,8 +126,8 @@ const states = STATES;
 const currentState = ref({ key: form.value.stateId, label: form.value.state });
 // 状态选择事件
 const onSelectState = (option: Option) => {
-  form.value.state = option.label;
-  form.value.stateId = option.key;
+  form.value.state = option.text;
+  form.value.stateId = option.code;
 };
 
 const rows: [TableHeader[], any[]] = reactive([
@@ -150,10 +150,9 @@ const isFormValid = computed(() => {
 });
 
 const submit = () => {
-  if (mode.value.key == "create") {
+  if (mode.value.code == "create") {
     useStore().employee.add(form.value);
   } else {
-    console.log("%c Line:158 🍖 form.value", "color:#b03734", form.value);
     useStore().employee.update(form.value);
   }
   form.value = emptyForm();

@@ -51,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+import router from "@/router";
 import { onMounted, ref } from "vue";
 
 const form = ref({
@@ -92,6 +93,7 @@ onMounted(() => {
 
 const submit = () => {
   console.log("%c Line:95 🍖", "color:#465975", form);
+  router.push("/home");
 };
 </script>
 <style lang="scss" scoped>
