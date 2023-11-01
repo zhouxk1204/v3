@@ -4,9 +4,9 @@
     :style="{ backgroundImage: `url(${backgroundImage})` }"
   >
     <form
-      class="w-1/4 p-10 bg-white rounded-lg shadow-xl opacity-0"
+      class="p-10 bg-white rounded-lg shadow-xl opacity-0 min-w-[400px] "
       :class="{
-        'animate__animated animate__fadeInUp opacity-100 animate__delay-02s':
+        'animate__animated animate__fadeInUp animate__delay-02s':
           isMounted,
       }"
     >
@@ -80,7 +80,7 @@ const onNextBg = () => {
     backgroundImage.value = newBg;
     setTimeout(() => {
       isNextBgBtnVisible.value = true;
-    }, 2000);
+    }, 4000);
   } else {
     onNextBg();
   }
@@ -101,6 +101,6 @@ const submit = () => {
   animation-delay: 0.2s;
 }
 .bg-transition {
-  transition: background-image 0.5s ease;
+  transition: background-image 3s ease-out;
 }
 </style>
