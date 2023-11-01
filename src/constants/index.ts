@@ -1,5 +1,5 @@
+import { CodeText } from "@/types";
 import { Option } from "@/components/Select/types";
-import { CODE_TEXT } from "@/types";
 
 export const HOLIDAYS: Option[] = [
   "元旦",
@@ -45,7 +45,7 @@ export const STATES: Option[] = ["离职", "在职"].map((e, i) => {
 });
 
 //
-export const TYPE_DAY_OBJ: Record<string, CODE_TEXT> = {
+export const TYPE_DAY_OBJ: Record<string, CodeText> = {
   UNKNOWN: {
     code: "1",
     text: "未知",
@@ -114,7 +114,7 @@ export const TYPE_POINT_OBJ = {
 export const TYPE_POST_OBJ = {
   OPERATION: {
     code: "0",
-    text: ["手"],
+    text: ["手术","手"],
   },
   GASTROSCOPY: {
     code: "1",

@@ -8,7 +8,7 @@
       class="absolute flex flex-col p-6 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow left-1/2 top-1/2 w-96"
     >
       <div class="flex items-center justify-between mb-4">
-        <h1 class="text-xl">{{ mode.label }}节假日信息</h1>
+        <h1 class="text-xl font-bold">{{ mode.text }}节假日信息</h1>
         <Button @click="onClose"
           ><Icon icon="material-symbols:close" color="#bbb"
         /></Button>
@@ -44,7 +44,7 @@
         <Input type="number" v-model="form.extraWeight"></Input>
       </FormItem>
       <Button @click="submit" type="primary" :disabled="isFormValid"
-        >{{ mode.label }}
+        >{{ mode.text }}
       </Button>
     </form>
   </Dialog>
@@ -84,30 +84,30 @@ const form = ref<Holiday>(emptyForm());
 
 const holidays = HOLIDAYS;
 const currentHoliday = ref({
-  key: form.value.id,
-  label: form.value.name,
+  code:form.value.id,
+  text: form.value.name,
 });
 /**
  * 节假日选择事件
  * @param {Option} option
  */
 const onSelectHoliday = (option: Option) => {
-  form.value.name = option.label;
-  form.value.id = option.key;
+  form.value.name = option.text;
+  form.value.id = option.code;
 };
 
 const actions = HOLIDAY_ACTIONS;
 const currentHolidayAction = ref({
-  key: form.value.typeId,
-  label: form.value.typeName,
+  code:form.value.typeId,
+  text: form.value.typeName,
 } as Option);
 /**
  * 补班加班选择事件
  * @param {Option} option
  */
 const onSelectHolidayAction = (option: Option) => {
-  form.value.typeName = option.label;
-  form.value.typeId = option.key;
+  form.value.typeName = option.text;
+  form.value.typeId = option.code;
 };
 
 const isFormValid = computed(() => {
@@ -118,9 +118,9 @@ const isFormValid = computed(() => {
  * 节假日form表单事件
  */
 const submit = () => {
-  if (mode.value.key === "create") {
+  if (mode.value.code === "create") {
     useStore().holiday.add(form.value);
-  } else if (mode.value.key === "update") {
+  } else if (mode.value.code === "update") {
     useStore().holiday.update(form.value);
   }
   form.value = emptyForm();
@@ -133,10 +133,10 @@ const submit = () => {
  */
 const onEdit = (holiday: Holiday): void => {
   form.value = deepCopy(holiday);
-  currentHoliday.value.key = holiday.id;
-  currentHoliday.value.label = holiday.name;
-  currentHolidayAction.value.key = holiday.typeId;
-  currentHolidayAction.value.label = holiday.typeName;
+  currentHoliday.value.code = holiday.id;
+  currentHoliday.value.text = holiday.name;
+  currentHolidayAction.value.code = holiday.typeId;
+  currentHolidayAction.value.text = holiday.typeName;
   openDialog(false);
 };
 

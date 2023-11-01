@@ -4,13 +4,13 @@
       <div class="relative w-full h-full bg-black bg-opacity-50">
         <div
           v-if="message.length"
-          class="opacity-0 min-w-[410px] absolute -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow top-1/2 left-1/2"
+          class="min-w-[410px] absolute -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow top-1/2 left-1/2"
         >
           <div
             class="flex flex-col items-center justify-center p-6 text-yellow-500"
           >
             <Icon icon="mdi:alert-circle-outline" :width="60"></Icon>
-            <h3 class="mb-5 text-xl text-gray-400">
+            <h3 class="mb-5 text-lg text-gray-400 mt-2">
               {{ message }}
             </h3>
             <div class="flex w-full">

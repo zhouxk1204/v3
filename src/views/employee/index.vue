@@ -102,9 +102,9 @@ const emptyForm = () => {
 const form = ref<Employee>(emptyForm());
 // 性别选择框
 const genders = GENDERS;
-const currentGender = ref({
-  key: form.value.genderId,
-  label: form.value.gender,
+const currentGender = ref<Option>({
+  code: form.value.genderId,
+  text: form.value.gender,
 });
 // 性别选择事件
 const onSelectGender = (option: Option) => {
@@ -114,7 +114,7 @@ const onSelectGender = (option: Option) => {
 
 // 职位选择框
 const roles = ROLES;
-const currentRole = ref({ key: form.value.roleId, label: form.value.role });
+const currentRole = ref<Option>({ code: form.value.roleId, text: form.value.role });
 // 职位选择事件
 const onSelectRole = (option: Option) => {
   form.value.role = option.text;
@@ -123,7 +123,7 @@ const onSelectRole = (option: Option) => {
 
 // 状态选择框
 const states = STATES;
-const currentState = ref({ key: form.value.stateId, label: form.value.state });
+const currentState = ref<Option>({ code: form.value.stateId, text: form.value.state });
 // 状态选择事件
 const onSelectState = (option: Option) => {
   form.value.state = option.text;
@@ -165,9 +165,9 @@ const onDel = (data: Employee) => {
 
 const onEdit = (data: Employee) => {
   form.value = deepCopy(data);
-  currentGender.value = { key: data.genderId, label: data.gender };
-  currentRole.value = { key: data.roleId, label: data.role };
-  currentState.value = { key: data.stateId, label: data.state };
+  currentGender.value = { code: data.genderId, text: data.gender };
+  currentRole.value = { code: data.roleId, text: data.role };
+  currentState.value = { code: data.stateId, text: data.state };
   openDialog(false);
 };
 </script>

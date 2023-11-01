@@ -5,8 +5,8 @@ import {
   removeSpaces,
 } from "@/utils/string";
 
-import { isStringExistArrayElement } from "@/utils";
 import { getTypeOfDay } from "@/utils/date";
+import { isStringExistArrayElement } from "@/utils";
 
 // import { Employee, EmployeeJson } from "src/app/models/employee.model";
 // import {
@@ -362,6 +362,7 @@ export class DailyRecord {
     const { code, text } = getTypeOfDay(data.date);
     this.typeId = code;
     this.typeName = text;
+    this.pointList = this.parseRecord(this.record);
   }
 
   private parseRecord(record: string): Point[] {
@@ -401,31 +402,66 @@ export class DailyRecord {
     } else {
       // 胃镜的场合
       const detail = part.split("+").map((el) => parsePositiveRealNumber(el));
-      console.log("%c Line:404 🍡 detail", "color:#93c0a4", detail);
+
       if (isStringExistArrayElement(part, TYPE_POST_OBJ.GASTROSCOPY.text)) {
-        return [
-          new Point({
-            type: TYPE_POINT_OBJ.ATTENDANCE.WORK.code,
-            duration: detail[0],
-            postId: TYPE_POST_OBJ.GASTROSCOPY.code,
-          }),
-          new Point({
-            type: TYPE_POINT_OBJ.ATTENDANCE.OVERTIME.code,
-            duration: detail[1],
-            postId: TYPE_POST_OBJ.GASTROSCOPY.code,
-          }),
-        ];
+
+        if(detail.length > 1) {
+          return [
+            // 胃镜上班
+            new Point({
+              type: TYPE_POINT_OBJ.ATTENDANCE.WORK.code,
+              duration: detail[0],
+              postId: TYPE_POST_OBJ.GASTROSCOPY.code,
+              postName: TYPE_POST_OBJ.GASTROSCOPY.text[0],
+            }),
+            // 胃镜加班
+            new Point({
+              type: TYPE_POINT_OBJ.ATTENDANCE.OVERTIME.code,
+              duration: detail[1],
+              postId: TYPE_POST_OBJ.GASTROSCOPY.code,
+              postName: TYPE_POST_OBJ.GASTROSCOPY.text[0],
+            }),
+          ];
+        }else{
+          return [
+            // 胃镜上班
+            new Point({
+              type: TYPE_POINT_OBJ.ATTENDANCE.WORK.code,
+              duration: detail[0],
+              postId: TYPE_POST_OBJ.GASTROSCOPY.code,
+              postName: TYPE_POST_OBJ.GASTROSCOPY.text[0],
+            }),
+          ];
+        }
       } else {
-        return [
-          new Point({
-            type: TYPE_POINT_OBJ.ATTENDANCE.WORK.code,
-            duration: detail[0],
-          }),
-          new Point({
-            type: TYPE_POINT_OBJ.ATTENDANCE.OVERTIME.code,
-            duration: detail[1],
-          }),
-        ];
+        if(detail.length > 1) {
+          return [
+            // 胃镜上班
+            new Point({
+              type: TYPE_POINT_OBJ.ATTENDANCE.WORK.code,
+              duration: detail[0],
+              postId: TYPE_POST_OBJ.OPERATION.code,
+              postName: TYPE_POST_OBJ.OPERATION.text[0],
+            }),
+            // 胃镜加班
+            new Point({
+              type: TYPE_POINT_OBJ.ATTENDANCE.OVERTIME.code,
+              duration: detail[1],
+              postId: TYPE_POST_OBJ.OPERATION.code,
+              postName: TYPE_POST_OBJ.OPERATION.text[0],
+            }),
+          ];
+        }else{
+          return [
+            // 胃镜上班
+            new Point({
+              type: TYPE_POINT_OBJ.ATTENDANCE.WORK.code,
+              duration: detail[0],
+              postId: TYPE_POST_OBJ.OPERATION.code,
+              postName: TYPE_POST_OBJ.OPERATION.text[0],
+            }),
+          ];
+        }
       }
     }
   }

@@ -51,6 +51,7 @@
               @click="remove(row)"
               :confirm="true"
               icon="material-symbols:delete-outline"
+              confirmMessage="确定删除这条记录吗？"
             ></Button>
           </td>
         </tr>

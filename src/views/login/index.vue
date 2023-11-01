@@ -4,7 +4,7 @@
     :style="{ backgroundImage: `url(${backgroundImage})` }"
   >
     <form
-      class="w-1/3 p-10 bg-white rounded-lg shadow-xl opacity-0 h-[421px]"
+      class="w-1/4 p-10 bg-white rounded-lg shadow-xl opacity-0"
       :class="{
         'animate__animated animate__fadeInUp opacity-100 animate__delay-02s':
           isMounted,
@@ -101,6 +101,6 @@ const submit = () => {
   animation-delay: 0.2s;
 }
 .bg-transition {
-  transition: background-image 0.5s ease-in-out;
+  transition: background-image 0.5s ease;
 }
 </style>
