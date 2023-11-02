@@ -11,10 +11,11 @@
 </template>
 
 <script setup lang="ts">
+import { DEFAULT } from "@/constants";
 import { ref, watch } from "vue";
 import VueTailwindDatepicker from "vue-tailwind-datepicker";
 const formatter = ref({
-  date: "YYYY/MM/DD",
+  date: DEFAULT.DATE_FORMAT,
   month: "MM",
 });
 

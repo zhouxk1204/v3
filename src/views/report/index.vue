@@ -10,46 +10,44 @@
 </template>
 
 <script setup lang="ts">
+import { DEFAULT } from "@/constants";
 import { DailyRecord } from "@/models/report.model";
-import { isEmployeeExist } from "@/utils";
 import { getDateStringFromMonthDay } from "@/utils/date";
 import * as dayjs from "dayjs";
 
 const onData = (data: any[]): void => {
-  const map = new Map<string, DailyRecord[]>();
   let header: string[] = [];
+  const dailyRecordList: DailyRecord[] = [];
 
-  for (let item of data) {
+  data.forEach((item) => {
     const name = item["__EMPTY"];
     if (name === undefined) {
+      // 表头日期行
       header = Object.values(item).map((e) =>
         dayjs("1900-01-01")
           .add((e as number) - 2, "day")
-          .format("YYYY/MM/DD")
+          .format(DEFAULT.DATE_FORMAT)
       );
     } else {
-      if (!isEmployeeExist(name)) {
-        continue;
-      } else {
-        const arr = map.get(name);
-        const list = Object.keys(item)
-          .filter((e) => e !== "__EMPTY")
-          .map((e2, i) => {
-            return new DailyRecord({
-              date:
-                header.length === 0 ? getDateStringFromMonthDay(e2) : header[i],
-              record: item[e2] + "",
-            });
+      const list = Object.keys(item)
+        .filter((e) => e !== "__EMPTY")
+        .map((e2, i) => {
+          return new DailyRecord({
+            date:
+              header.length === 0 ? getDateStringFromMonthDay(e2) : header[i],
+            record: item[e2] + "",
+            employeeName: name,
           });
-        if (arr && arr.length > 0) {
-          arr.push(...list);
-        } else {
-          map.set(name, list);
-        }
-      }
+        });
+      dailyRecordList.push(...list);
     }
-  }
-  console.log("%c Line:40 🍉 map", "color:#42b983", map);
+  });
+
+  console.log(
+    "%c Line:48 🍉 dailyRecordList",
+    "color:#42b983",
+    dailyRecordList
+  );
 };
 </script>
 <style lang="scss" scoped></style>

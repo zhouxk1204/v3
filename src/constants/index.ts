@@ -1,5 +1,5 @@
-import { CodeText } from "@/types";
 import { Option } from "@/components/Select/types";
+import { CodeText } from "@/types";
 
 export const HOLIDAYS: Option[] = [
   "元旦",
@@ -44,7 +44,7 @@ export const STATES: Option[] = ["离职", "在职"].map((e, i) => {
   };
 });
 
-//
+// 当日属性
 export const TYPE_DAY_OBJ: Record<string, CodeText> = {
   UNKNOWN: {
     code: "1",
@@ -68,6 +68,7 @@ export const TYPE_DAY_OBJ: Record<string, CodeText> = {
   },
 };
 
+// 工分种别
 export const TYPE_POINT_OBJ = {
   ATTENDANCE: {
     WORK: {
@@ -111,10 +112,11 @@ export const TYPE_POINT_OBJ = {
   },
 };
 
+// 岗位
 export const TYPE_POST_OBJ = {
   OPERATION: {
     code: "0",
-    text: ["手术","手"],
+    text: ["手术", "手"],
   },
   GASTROSCOPY: {
     code: "1",
@@ -131,6 +133,14 @@ export const MODE_DIALOG = {
     code: "update",
     text: "更新",
   },
+};
+
+export const DEFAULT = {
+  RATIO: {
+    WORK: 1,
+    OVERTIME: 1.5,
+  },
+  DATE_FORMAT: "YYYY/MM/DD",
 };
 
 export const RECORD_MARK = ["➕+"];

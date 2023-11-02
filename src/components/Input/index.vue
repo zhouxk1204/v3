@@ -49,4 +49,3 @@ watch(modelValueCopy, (newValue) => {
   emit("update:modelValue", newValue);
 });
 </script>
-<style scoped></style>
