@@ -1,7 +1,13 @@
 <template>
   <Button type="primary" @click="openDialog" class="w-20 mb-4">添加</Button>
 
-  <Table :rows="rows" :isAction="true" @edit="onEdit" @del="onDel"></Table>
+  <Table
+    :headers="headers"
+    :data="list"
+    :isAction="true"
+    @edit="onEdit"
+    @del="onDel"
+  ></Table>
 
   <Dialog v-model="isOpen">
     <form
@@ -52,7 +58,6 @@
 
 <script setup lang="ts">
 import { Option } from "@/components/Select/types";
-import { TableHeader } from "@/components/Table/type";
 import { HOLIDAYS, HOLIDAY_ACTIONS } from "@/constants/index.ts";
 import { HOLIDAY_TABLE_HEADERS } from "@/constants/table.header";
 import { useDialog } from "@/hooks/useDialog";
@@ -63,10 +68,8 @@ import { computed, ref } from "vue";
 
 const { mode, isOpen, openDialog, closeDialog } = useDialog();
 // 节假日列表;
-const rows: [TableHeader[], any[]] = [
-  HOLIDAY_TABLE_HEADERS,
-  useStore().holiday.holidayList,
-];
+const headers = HOLIDAY_TABLE_HEADERS;
+const list = useStore().holiday.holidayList;
 
 const emptyForm = (): Holiday => {
   return {
@@ -84,7 +87,7 @@ const form = ref<Holiday>(emptyForm());
 
 const holidays = HOLIDAYS;
 const currentHoliday = ref({
-  code:form.value.id,
+  code: form.value.id,
   text: form.value.name,
 });
 /**
@@ -98,7 +101,7 @@ const onSelectHoliday = (option: Option) => {
 
 const actions = HOLIDAY_ACTIONS;
 const currentHolidayAction = ref({
-  code:form.value.typeId,
+  code: form.value.typeId,
   text: form.value.typeName,
 } as Option);
 /**

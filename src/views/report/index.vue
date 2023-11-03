@@ -1,53 +1,56 @@
 <template>
-  <div class="flex">
-    <Upload @data="onData">
-      <div class="flex items-center">
-        <span>一键导入</span>
-        <Icon icon="material-symbols:upload" class="ml-1" :width="22"></Icon>
-      </div>
-    </Upload>
+  <div>
+    <div class="flex mb-4">
+      <Upload @data="onData">
+        <div class="flex items-center">
+          <span>一键导入</span>
+          <Icon icon="material-symbols:upload" class="ml-1" :width="22"></Icon>
+        </div>
+      </Upload>
+    </div>
+    <Table :headers="headers" :data="dataList"></Table>
   </div>
 </template>
 
 <script setup lang="ts">
-import { DEFAULT } from "@/constants";
-import { DailyRecord } from "@/models/report.model";
-import { getDateStringFromMonthDay } from "@/utils/date";
-import * as dayjs from "dayjs";
+import { REPORT_TABLE_HEADERS } from "@/constants/table.header";
+import { useReport } from "@/hooks/useReport";
+import { IDailyRecord } from "@/models/report.model";
+import useStore from "@/store";
+import { getDateStringFromMonthDay, parseExcelDateNumber } from "@/utils/date";
+
+const headers = REPORT_TABLE_HEADERS;
+
+const dataList = useStore().report.iEmployeeReportList;
 
 const onData = (data: any[]): void => {
   let header: string[] = [];
-  const dailyRecordList: DailyRecord[] = [];
-
+  const map: Map<string, IDailyRecord[]> = new Map();
   data.forEach((item) => {
-    const name = item["__EMPTY"];
-    if (name === undefined) {
+    const employeeName = item["__EMPTY"];
+    if (!employeeName) {
       // 表头日期行
       header = Object.values(item).map((e) =>
-        dayjs("1900-01-01")
-          .add((e as number) - 2, "day")
-          .format(DEFAULT.DATE_FORMAT)
+        parseExcelDateNumber(e as number)
       );
     } else {
-      const list = Object.keys(item)
+      const dailyRecordList = map.get(employeeName) ?? [];
+      const l = Object.keys(item)
         .filter((e) => e !== "__EMPTY")
         .map((e2, i) => {
-          return new DailyRecord({
+          return {
             date:
               header.length === 0 ? getDateStringFromMonthDay(e2) : header[i],
-            record: item[e2] + "",
-            employeeName: name,
-          });
+            record: item[e2].toString(),
+            employeeName,
+          };
         });
-      dailyRecordList.push(...list);
+      dailyRecordList.push(...l);
+      map.set(employeeName, dailyRecordList);
     }
   });
+  const { iEmployeeReportList } = useReport(Array.from(map.values()));
 
-  console.log(
-    "%c Line:48 🍉 dailyRecordList",
-    "color:#42b983",
-    dailyRecordList
-  );
+  useStore().report.save(iEmployeeReportList);
 };
 </script>
-<style lang="scss" scoped></style>

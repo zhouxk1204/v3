@@ -7,8 +7,8 @@
         <tr class="border-b">
           <th
             scope="col"
-            class="py-4 pl-6 text-xs text-gray-400"
-            v-for="header in rows[0]"
+            class="py-4 pl-6 text-xs text-center text-gray-400"
+            v-for="header in headers"
             :key="header.key"
           >
             {{ header.label }}
@@ -26,15 +26,15 @@
         <tr
           scope="row"
           class="border-b hover:bg-gray-100"
-          v-for="row in rows[1]"
-          :key="row.label"
+          v-for="item in data"
+          :key="item.label"
         >
           <td
-            v-for="j of rows[0].length"
-            :key="j"
-            class="h-12 pl-6 text-sm font-medium text-gray-700 hover:bg-gray-100 whitespace-nowrap"
+            v-for="item2 in keys"
+            :key="item2"
+            class="h-12 pl-6 text-sm font-medium text-center text-gray-700 hover:bg-gray-100 whitespace-nowrap"
           >
-            {{ row[rows[0][j - 1].key] }}
+            {{ item[item2] }}
           </td>
           <td
             class="flex items-center justify-center w-40 h-12 px-6"
@@ -42,13 +42,13 @@
           >
             <Button
               class="mr-2 text-xs"
-              @click="edit(row)"
+              @click="edit(item)"
               icon="material-symbols:edit"
             ></Button>
             <Button
               type="danger"
               class="text-xs"
-              @click="remove(row)"
+              @click="remove(item)"
               :confirm="true"
               icon="material-symbols:delete-outline"
               confirmMessage="确定删除这条记录吗？"
@@ -58,7 +58,7 @@
       </tbody>
     </table>
     <div
-      v-if="rows[1].length === 0"
+      v-if="data && data.length === 0"
       class="flex flex-col items-center justify-center h-40 text-gray-300 border-b"
     >
       <svg
@@ -84,15 +84,18 @@
 <script setup lang="ts">
 import { TableHeader } from "./type";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     isAction?: boolean;
-    rows: [TableHeader[], any[]];
+    headers: TableHeader[];
+    data: any[];
   }>(),
   {
     isAction: false,
   }
 );
+
+const keys = props.headers.map((e) => e.key);
 
 const emit = defineEmits<{
   (e: "edit", data: any): void;

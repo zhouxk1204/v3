@@ -66,3 +66,14 @@ export function getDateStringFromMonthDay(target: string): string {
     return "";
   }
 }
+
+/**
+ * 将Excel date number 格式化
+ * @param {number} excel date number
+ * @returns {string} YYYY/MM/DD
+ */
+export function parseExcelDateNumber(date: number): string {
+  return dayjs("1900-01-01")
+    .add(date - 2, "day")
+    .format(DEFAULT.DATE_FORMAT);
+}

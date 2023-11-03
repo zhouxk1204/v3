@@ -49,3 +49,38 @@ export const HOLIDAY_TABLE_HEADERS: TableHeader[] = [
     label: "加班工分倍率",
   },
 ];
+
+export const REPORT_TABLE_HEADERS: TableHeader[] = [
+  {
+    key: "employeeName",
+    label: "姓名",
+  },
+  {
+    key: "factor",
+    label: "系数",
+  },
+  {
+    key: "totalOtherRatioPoint",
+    label: "其他岗位工分",
+  },
+  {
+    key: "totalGastroscopyRatioPoint",
+    label: "胃2岗位工分",
+  },
+  {
+    key: "totalTimeRatioPoint",
+    label: "时间总工分",
+  },
+  {
+    key: "annual",
+    label: "年休天数",
+  },
+  {
+    key: "attendanceCount",
+    label: "本月总出勤天数",
+  },
+  {
+    key: "workdayCount",
+    label: "工作日出勤天数",
+  },
+];

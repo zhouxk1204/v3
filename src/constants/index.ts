@@ -47,7 +47,7 @@ export const STATES: Option[] = ["离职", "在职"].map((e, i) => {
 // 当日属性
 export const TYPE_DAY_OBJ: Record<string, CodeText> = {
   UNKNOWN: {
-    code: "1",
+    code: "-1",
     text: "未知",
   },
   WEEKDAY: {
@@ -114,7 +114,7 @@ export const TYPE_POINT_OBJ = {
 
 // 岗位
 export const TYPE_POST_OBJ = {
-  OPERATION: {
+  OTHER: {
     code: "0",
     text: ["手术", "手"],
   },

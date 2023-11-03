@@ -15,7 +15,13 @@
     </Upload>
   </div>
 
-  <Table :rows="rows" :isAction="true" @del="onDel" @edit="onEdit"></Table>
+  <Table
+    :headers="headers"
+    :data="list"
+    :isAction="true"
+    @del="onDel"
+    @edit="onEdit"
+  ></Table>
 
   <Dialog v-model="isOpen">
     <form
@@ -75,14 +81,13 @@
 
 <script setup lang="ts">
 import { Option } from "@/components/Select/types";
-import { TableHeader } from "@/components/Table/type";
 import { GENDERS, ROLES, STATES } from "@/constants";
 import { TABLE_HEADER_EMPLOYEE } from "@/constants/table.header";
 import { useDialog } from "@/hooks/useDialog";
 import { Employee } from "@/models/employee.model";
 import useStore from "@/store";
 import { deepCopy } from "@/utils";
-import { computed, reactive, ref } from "vue";
+import { computed, ref } from "vue";
 const { mode, isOpen, openDialog, closeDialog } = useDialog();
 
 const emptyForm = () => {
@@ -114,7 +119,10 @@ const onSelectGender = (option: Option) => {
 
 // 职位选择框
 const roles = ROLES;
-const currentRole = ref<Option>({ code: form.value.roleId, text: form.value.role });
+const currentRole = ref<Option>({
+  code: form.value.roleId,
+  text: form.value.role,
+});
 // 职位选择事件
 const onSelectRole = (option: Option) => {
   form.value.role = option.text;
@@ -123,24 +131,24 @@ const onSelectRole = (option: Option) => {
 
 // 状态选择框
 const states = STATES;
-const currentState = ref<Option>({ code: form.value.stateId, text: form.value.state });
+const currentState = ref<Option>({
+  code: form.value.stateId,
+  text: form.value.state,
+});
 // 状态选择事件
 const onSelectState = (option: Option) => {
   form.value.state = option.text;
   form.value.stateId = option.code;
 };
 
-const rows: [TableHeader[], any[]] = reactive([
-  TABLE_HEADER_EMPLOYEE,
-  useStore().employee.employeeList,
-]);
+const headers = TABLE_HEADER_EMPLOYEE;
+const list = useStore().employee.employeeList;
 
 const onData = (data: any[]): void => {
   // 按工号（升序）排序
 
   data.sort((a, b) => +a.no - +b.no);
 
-  rows.splice(1, 1, data);
   // 保存到Store
   useStore().employee.addList(data);
 };
