@@ -23,4 +23,5 @@ export interface IEmployeeReport {
   attendanceCount: number;
   workdayCount: number;
   totalTimeRatioPoint: number;
+  serve: number;
 }

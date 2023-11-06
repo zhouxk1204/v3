@@ -83,4 +83,8 @@ export const REPORT_TABLE_HEADERS: TableHeader[] = [
     key: "workdayCount",
     label: "工作日出勤天数",
   },
+  {
+    key: "serve",
+    label: "科务天数",
+  },
 ];

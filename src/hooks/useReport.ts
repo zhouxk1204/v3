@@ -1,4 +1,9 @@
-import { TYPE_DAY_OBJ, TYPE_POINT_OBJ, TYPE_POST_OBJ } from "@/constants";
+import {
+  ROLES,
+  TYPE_DAY_OBJ,
+  TYPE_POINT_OBJ,
+  TYPE_POST_OBJ,
+} from "@/constants";
 import { IDailyRecord, IEmployeeReport, IPoint } from "@/models/report.model";
 import {
   fullWidthToHalfWidth,
@@ -13,7 +18,8 @@ import Decimal from "decimal.js";
 
 export function useReport(data: IDailyRecord[][]) {
   const iEmployeeReportList: IEmployeeReport[] = [];
-
+  const date = data[0][0].date;
+  const errorList: string[] = [];
   data.forEach((item) => {
     const obj: any = {};
 
@@ -25,6 +31,7 @@ export function useReport(data: IDailyRecord[][]) {
       (el2) => el2.name === employeeName
     );
     obj.factor = employee?.factor ?? "0";
+    const roleId = employee?.roleId ?? ROLES[0].code;
 
     const reportList = item.map((item2) => {
       const { record, date } = item2;
@@ -82,6 +89,8 @@ export function useReport(data: IDailyRecord[][]) {
     obj.totalTimeRatioPoint = new Decimal(totalOtherRatioPoint)
       .plus(totalGastroscopyRatioPoint)
       .toNumber();
+
+    obj.serve = roleId === ROLES[1].code ? 2 : 0;
 
     iEmployeeReportList.push(obj);
   });
@@ -154,9 +163,9 @@ export function useReport(data: IDailyRecord[][]) {
       for (let i = 0; i < detail.length; i++) {
         // 无法解析的时候
         if (i > 1) {
-          console.error(
-            `${employeeName}：${date} 的工分记录：${part} 填写错误，无法解析，请核对！！！`
-          );
+          const error = `${employeeName}：${date} 的工分记录：${part} 填写错误，无法解析，请核对！！！`;
+          errorList.push(error);
+          console.error(error);
           continue;
         }
 
@@ -197,5 +206,7 @@ export function useReport(data: IDailyRecord[][]) {
 
   return {
     iEmployeeReportList,
+    date,
+    errorList,
   };
 }

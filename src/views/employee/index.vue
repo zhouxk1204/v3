@@ -148,7 +148,12 @@ const onData = (data: any[]): void => {
   // 按工号（升序）排序
 
   data.sort((a, b) => +a.no - +b.no);
-
+  data.forEach((item) => {
+    item.roleId = ROLES.find((e2) => e2.text === item.role)?.code ?? "-1";
+    item.genderId =
+      GENDERS.find((e2) => e2.text.indexOf(item.gender) > -1)?.code ?? "-1";
+    item.stateId = STATES.find((e2) => e2.text === item.state)?.code ?? "-1";
+  });
   // 保存到Store
   useStore().employee.addList(data);
 };

@@ -11,7 +11,11 @@ const useReportStore = defineStore(
       iEmployeeReportList.value.push(...data);
     };
 
-    return { iEmployeeReportList, save };
+    const clear = (): void => {
+      iEmployeeReportList.value.splice(0, iEmployeeReportList.value.length);
+    };
+
+    return { iEmployeeReportList, save, clear };
   },
   {
     persist: true,
