@@ -18,8 +18,8 @@ import Decimal from "decimal.js";
 
 export function useReport(data: IDailyRecord[][]) {
   const iEmployeeReportList: IEmployeeReport[] = [];
-  const date = data[0][0].date;
-  const errorList: string[] = [];
+  // 保存报表所在的日期
+  useStore().report.setReportDate(data[0][0].date);
   data.forEach((item) => {
     const obj: any = {};
 
@@ -164,7 +164,7 @@ export function useReport(data: IDailyRecord[][]) {
         // 无法解析的时候
         if (i > 1) {
           const error = `${employeeName}：${date} 的工分记录：${part} 填写错误，无法解析，请核对！！！`;
-          errorList.push(error);
+          useStore().report.reportError.push(error);
           console.error(error);
           continue;
         }
@@ -206,7 +206,5 @@ export function useReport(data: IDailyRecord[][]) {
 
   return {
     iEmployeeReportList,
-    date,
-    errorList,
   };
 }

@@ -14,7 +14,10 @@
 
     <div class="mt-4">
       <h3>以下记录无法识别，请检查</h3>
-      <div v-for="item in errors" class="mt-3 ml-3 text-sm text-red-500">
+      <div
+        v-for="item in reportErrorList"
+        class="mt-3 ml-3 text-sm text-red-500"
+      >
         {{ item }}
       </div>
     </div>
@@ -28,11 +31,11 @@ import { useReport } from "@/hooks/useReport";
 import { IDailyRecord } from "@/models/report.model";
 import useStore from "@/store";
 import { getDateStringFromMonthDay, parseExcelDateNumber } from "@/utils/date";
-import { ref, toRaw } from "vue";
+import { ref } from "vue";
 
 const headers = REPORT_TABLE_HEADERS;
-const errors = ref<string[]>([]);
-const currentDate = ref<string>("");
+const reportErrorList = ref(useStore().report.reportErrorList);
+const reportDate = ref(useStore().report.reportDate);
 const dataList = ref(useStore().report.iEmployeeReportList);
 
 const importExcel = (data: any[]): void => {
@@ -61,11 +64,7 @@ const importExcel = (data: any[]): void => {
       map.set(employeeName, dailyRecordList);
     }
   });
-  const { iEmployeeReportList, errorList, date } = useReport(
-    Array.from(map.values())
-  );
-  errors.value = errorList;
-  currentDate.value = date;
+  const { iEmployeeReportList } = useReport(Array.from(map.values()));
   useStore().report.save(iEmployeeReportList);
 };
 
@@ -73,14 +72,14 @@ const exportExcel = () => {
   useExportExcel(
     [
       {
-        title: "text1213",
+        title: reportDate.value,
         headers: REPORT_TABLE_HEADERS.map((e) => e.label),
-        data: toRaw(dataList).map((item: any) =>
+        data: dataList.value.map((item: any) =>
           REPORT_TABLE_HEADERS.map((e) => e.key).map((key) => item[key])
         ),
       },
     ],
-    "test"
+    reportDate.value
   );
 };
 
