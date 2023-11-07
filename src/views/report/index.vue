@@ -7,12 +7,18 @@
           <Icon icon="material-symbols:upload" class="ml-1" :width="22"></Icon>
         </div>
       </Upload>
-      <Button type="primary" class="ml-2" @click="exportExcel">导出</Button>
+      <Button
+        type="primary"
+        class="ml-2"
+        @click="exportExcel"
+        :disabled="reportErrorList.length"
+        >导出</Button
+      >
       <Button type="danger" class="ml-2" @click="clear">清空</Button>
     </div>
     <Table :headers="headers" :data="dataList"></Table>
 
-    <div class="mt-4">
+    <div class="mt-4" v-if="reportErrorList.length">
       <h3>以下记录无法识别，请检查</h3>
       <div
         v-for="item in reportErrorList"
@@ -31,6 +37,7 @@ import { useReport } from "@/hooks/useReport";
 import { IDailyRecord } from "@/models/report.model";
 import useStore from "@/store";
 import { getDateStringFromMonthDay, parseExcelDateNumber } from "@/utils/date";
+import * as dayjs from "dayjs";
 import { ref } from "vue";
 
 const headers = REPORT_TABLE_HEADERS;
@@ -68,18 +75,24 @@ const importExcel = (data: any[]): void => {
   useStore().report.save(iEmployeeReportList);
 };
 
+/**
+ * 导出结果
+ */
 const exportExcel = () => {
+  const sheetName = dayjs(reportDate.value).format("YYYY年MM月");
+  const fileName = `${sheetName}月上班（加班）工分汇算`;
   useExportExcel(
     [
       {
-        title: reportDate.value,
+        title: fileName,
         headers: REPORT_TABLE_HEADERS.map((e) => e.label),
         data: dataList.value.map((item: any) =>
           REPORT_TABLE_HEADERS.map((e) => e.key).map((key) => item[key])
         ),
       },
     ],
-    reportDate.value
+    fileName,
+    sheetName
   );
 };
 

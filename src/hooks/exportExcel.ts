@@ -7,7 +7,7 @@ import saveAs from "file-saver";
 export function useExportExcel(
   excelOptionList: ExcelOption[],
   fileName: string,
-  sheetName: string = "Sheet1"
+  sheetName: string
 ) {
   // 创建 Workbook 和 Worksheet
   const workbook = new Workbook();
@@ -17,7 +17,6 @@ export function useExportExcel(
     const { title = "", headers, data, position = "A1" } = excelOption;
 
     const r = +position.replace(/[a-zA-Z]+/g, ""); // 1
-    const c = position.replace(/\d+/g, ""); // A
 
     // 标题行
     if (title.length > 0) {
@@ -39,9 +38,16 @@ export function useExportExcel(
         headerStartCell.row,
         headerStartCell.col + i
       );
-      cell.value = headers[i];
+      const val = headers[i] ?? "";
+      cell.value = val;
       setCellBorder(cell);
       setCellAlignment(cell);
+      let chVal = val.match(/[\u4e00-\u9fa5]/g)
+        ? val.match(/[\u4e00-\u9fa5]/g)?.join("") ?? ""
+        : "";
+      let engVal = val.replace(/([^\u0000-\u00FF])/g, "") || "";
+      const strLen = chVal.length * 2 + engVal.length * 1.5 + 4;
+      worksheet.getColumn(i + 1).width = strLen;
     }
 
     // 数据行

@@ -164,7 +164,7 @@ export function useReport(data: IDailyRecord[][]) {
         // 无法解析的时候
         if (i > 1) {
           const error = `${employeeName}：${date} 的工分记录：${part} 填写错误，无法解析，请核对！！！`;
-          useStore().report.reportError.push(error);
+          useStore().report.reportErrorList.push(error);
           console.error(error);
           continue;
         }
