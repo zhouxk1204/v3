@@ -2,7 +2,7 @@
   <div class="h-screen overflow-x-hidden overflow-y-scroll">
     <Banner></Banner>
     <aside
-      class="fixed left-0 h-screen pb-24 overflow-y-auto border-r border-gray-200 w-60 top-20"
+      class="fixed left-0 h-screen pb-12 overflow-y-auto border-r border-gray-200 w-60 top-28"
     >
       <section class="flex flex-col px-4 pt-2">
         <router-link

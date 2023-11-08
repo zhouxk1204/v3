@@ -4,7 +4,11 @@
       <Upload @data="importExcel">
         <div class="flex items-center">
           <span>一键导入</span>
-          <Icon icon="material-symbols:upload" class="ml-1" :width="22"></Icon>
+          <Icon
+            icon="material-symbols:upload-file-outline-rounded"
+            class="ml-1"
+            :width="22"
+          ></Icon>
         </div>
       </Upload>
       <Button
@@ -12,9 +16,13 @@
         class="ml-2"
         @click="exportExcel"
         :disabled="reportErrorList.length"
-        >导出</Button
-      >
-      <Button type="danger" class="ml-2" @click="clear">清空</Button>
+        >导出
+        <Icon icon="file-icons:microsoft-excel" class="ml-1" :width="22"></Icon>
+      </Button>
+      <Button type="danger" class="ml-2" @click="clear">
+        清空
+        <Icon icon="grommet-icons:power-reset" class="ml-1" :width="22"></Icon>
+      </Button>
     </div>
     <Table :headers="headers" :data="dataList"></Table>
 

@@ -1,7 +1,11 @@
 <template>
-  <header class="relative h-20" @mousemove="mousemove" ref="headerRef">
-    <div v-for="item in banners" class="absolute top-0 left-0 w-full h-20">
-      <img :src="item" class="h-20 w-[110%] object-cover" ref="imageRefs" />
+  <header
+    class="relative overflow-hidden h-28"
+    @mousemove="mousemove"
+    ref="headerRef"
+  >
+    <div v-for="item in banners" class="absolute top-0 left-0 w-full h-full">
+      <img :src="item" class="h-full w-[110%] object-cover" ref="imageRefs" />
     </div>
   </header>
 </template>

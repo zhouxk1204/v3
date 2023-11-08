@@ -41,7 +41,7 @@ export function useTypewriter(textToType: string, delay: number) {
       ) {
         clearInterval(timer);
         cursorFlash.value = true;
-        const d = direction.value === 1 ? 400 : 200;
+        const d = direction.value === 1 ? 100 : 250;
         // Optionally, you can restart the animation here
         setTimeout(() => {
           timer = setInterval(typeText, d);

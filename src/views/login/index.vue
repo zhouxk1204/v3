@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex items-center justify-center w-screen h-screen overflow-hidden bg-center bg-no-repeat bg-cover bg-transition"
+    class="relative flex items-center justify-center w-screen h-screen overflow-hidden bg-bottom bg-cover bg-transition"
     :style="{ backgroundImage: `url(${backgroundImage})` }"
   >
     <form
@@ -36,7 +36,7 @@
         >
       </div>
 
-      <Button type="primary" class="h-12" @click="submit">登入</Button>
+      <Button type="primary" class="h-12" @click="submit">注册 / 登录</Button>
     </form>
 
     <label
