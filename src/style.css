@@ -3,3 +3,11 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 @import "animate.css";
+
+.infinite-iteration {
+  animation-iteration-count: infinite;
+}
+
+.animation-duration-1s {
+  animation-duration: 1s;
+}

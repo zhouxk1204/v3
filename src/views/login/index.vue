@@ -4,10 +4,9 @@
     :style="{ backgroundImage: `url(${backgroundImage})` }"
   >
     <form
-      class="p-10 bg-white rounded-lg shadow-xl opacity-0 min-w-[400px] "
+      class="p-10 bg-white rounded-lg shadow-xl opacity-0 min-w-[400px]"
       :class="{
-        'animate__animated animate__fadeInUp animate__delay-02s':
-          isMounted,
+        'animate__animated animate__fadeInUp animate__delay-02s': isMounted,
       }"
     >
       <h1 class="pb-2 mb-6 text-4xl text-center border-b border-gray-200">

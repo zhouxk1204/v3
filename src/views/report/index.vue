@@ -96,6 +96,9 @@ const exportExcel = () => {
   );
 };
 
+/**
+ * 清空结果
+ */
 const clear = () => {
   dataList.value = [];
   useStore().report.clear();

@@ -1,12 +1,8 @@
 <template>
   <div class="h-screen overflow-x-hidden overflow-y-scroll">
-    <header
-      class="fixed top-0 left-0 z-10 w-[calc(100vw-15px)] bg-white border-b border-gray-200 h-14 flex items-center px-8"
-    >
-      <span class="text-3xl">😂</span>
-    </header>
+    <Banner></Banner>
     <aside
-      class="fixed left-0 h-screen pb-24 overflow-y-auto border-r border-gray-200 w-60 top-14"
+      class="fixed left-0 h-screen pb-24 overflow-y-auto border-r border-gray-200 w-60 top-20"
     >
       <section class="flex flex-col px-4 pt-2">
         <router-link
@@ -28,7 +24,7 @@
         </router-link>
       </section>
     </aside>
-    <div class="px-24 pt-16 ml-60 mt-14">
+    <div class="px-24 ml-60 mt-14">
       <router-view></router-view>
     </div>
   </div>
