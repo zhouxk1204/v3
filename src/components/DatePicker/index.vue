@@ -25,6 +25,12 @@ const props = defineProps<{
 const emit = defineEmits(["update:modelValue"]);
 
 const modelValueCopy = ref(props.modelValue);
+// watch(
+//   () => props.modelValue,
+//   (newValue) => {
+//     modelValueCopy.value = newValue;
+//   }
+// );
 
 watch(modelValueCopy, (newValue) => {
   emit("update:modelValue", newValue);

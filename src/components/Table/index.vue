@@ -1,13 +1,11 @@
 <template>
-  <div
-    class="relative overflow-hidden border-t border-l border-r rounded shadow"
-  >
+  <div class="relative overflow-hidden border-t border-l border-r rounded">
     <table class="w-full text-left text-gray-500">
       <thead class="text-gray-700">
         <tr class="border-b">
           <th
             scope="col"
-            class="py-4 pl-6 text-xs text-center text-gray-400"
+            class="h-12 px-3 text-xs text-center text-gray-400"
             v-for="header in headers"
             :key="header.key"
           >
@@ -32,7 +30,7 @@
           <td
             v-for="item2 in keys"
             :key="item2"
-            class="h-12 pl-6 text-sm font-medium text-center text-gray-700 hover:bg-gray-100 whitespace-nowrap"
+            class="h-12 px-3 text-sm font-medium text-center text-gray-700 hover:bg-gray-100 whitespace-nowrap"
           >
             {{ item[item2] }}
           </td>

@@ -4,11 +4,6 @@
       <Upload @data="importExcel">
         <div class="flex items-center">
           <span>一键导入</span>
-          <Icon
-            icon="material-symbols:upload-file-outline-rounded"
-            class="ml-1"
-            :width="22"
-          ></Icon>
         </div>
       </Upload>
       <Button
@@ -17,23 +12,21 @@
         @click="exportExcel"
         :disabled="reportErrorList.length"
         >导出
-        <Icon icon="file-icons:microsoft-excel" class="ml-1" :width="22"></Icon>
       </Button>
-      <Button type="danger" class="ml-2" @click="clear">
-        清空
-        <Icon icon="grommet-icons:power-reset" class="ml-1" :width="22"></Icon>
-      </Button>
+      <Button type="danger" class="ml-2" @click="clear"> 清空 </Button>
     </div>
     <Table :headers="headers" :data="dataList"></Table>
 
-    <div class="mt-4" v-if="reportErrorList.length">
-      <h3>以下记录无法识别，请检查</h3>
-      <div
-        v-for="item in reportErrorList"
-        class="mt-3 ml-3 text-sm text-red-500"
-      >
-        {{ item }}
-      </div>
+    <div class="mt-4 font-bold" v-if="reportErrorList.length">
+      <h1 class="pb-1 text-xl border-b border-gray-200">异常记录</h1>
+      <ul>
+        <li
+          v-for="item in reportErrorList"
+          class="mt-2 ml-3 text-sm text-red-500"
+        >
+          {{ item }}
+        </li>
+      </ul>
     </div>
   </div>
 </template>

@@ -1,5 +1,5 @@
 <template>
-  <Button type="primary" @click="openDialog" class="w-20 mb-4">添加</Button>
+  <Button type="primary" @click="open" class="w-20 mb-4">添加</Button>
 
   <Table
     :headers="headers"
@@ -42,7 +42,7 @@
         ></Select>
       </FormItem>
       <!-- 上班工分倍率 -->
-      <FormItem title="上班工分倍率">
+      <FormItem title="上班工分倍率" v-show="currentHolidayAction.code === '0'">
         <Input type="number" v-model="form.workWeight"></Input>
       </FormItem>
       <!-- 加班工分倍率 -->
@@ -154,6 +154,18 @@ const onDel = (holiday: Holiday): void => {
 const onClose = () => {
   form.value = emptyForm();
   closeDialog();
+};
+
+const open = () => {
+  currentHolidayAction.value = {
+    code: form.value.typeId,
+    text: form.value.typeName,
+  };
+  currentHoliday.value = {
+    code: form.value.id,
+    text: form.value.name,
+  };
+  openDialog();
 };
 </script>
 <style lang="scss" scoped></style>

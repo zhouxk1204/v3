@@ -91,7 +91,6 @@ onMounted(() => {
 });
 
 const submit = () => {
-  console.log("%c Line:95 🍖", "color:#465975", form);
   router.push("/home");
 };
 </script>

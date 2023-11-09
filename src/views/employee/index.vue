@@ -1,16 +1,9 @@
 <template>
   <div class="flex mb-4">
-    <Button
-      type="primary"
-      class="mr-2"
-      @click="openDialog"
-      icon="material-symbols:add"
-      >添加</Button
-    >
+    <Button type="primary" class="mr-2" @click="openDialog">添加</Button>
     <Upload @data="onData">
       <div class="flex items-center">
         <span>一键导入</span>
-        <Icon icon="material-symbols:upload" class="ml-1" :width="22"></Icon>
       </div>
     </Upload>
   </div>
