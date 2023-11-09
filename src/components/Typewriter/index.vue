@@ -1,6 +1,10 @@
 <template>
   <div class="text-3xl">
-    <p class="inline font-bold text-blue-500 transition-all">{{ typedText }}</p>
+    <p
+      class="inline font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
+    >
+      {{ typedText }}
+    </p>
     <span
       class="relative -top-[2px]"
       :class="{
@@ -14,7 +18,12 @@
 <script setup lang="ts">
 import { useTypewriter } from "@/hooks/useTypewriter.ts";
 const { typedText, cursorFlash } = useTypewriter(
-  "最美的相遇，不言过往；最好的离别，不问归期。",
+  [
+    "别更新了，学不动了。",
+    "清一下缓存再试试。",
+    "我本地没有问题。",
+    "扫码提需求，谢谢。",
+  ],
   180
 );
 </script>

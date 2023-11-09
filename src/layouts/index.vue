@@ -2,7 +2,7 @@
   <div class="h-screen overflow-x-hidden overflow-y-scroll">
     <Banner></Banner>
     <aside
-      class="fixed left-0 h-screen pb-12 overflow-y-auto border-r border-gray-200 w-60 top-28"
+      class="fixed left-0 h-screen pb-12 overflow-y-auto border-r border-gray-200 w-60 top-20"
     >
       <section class="flex flex-col px-4 pt-2">
         <router-link
@@ -24,17 +24,20 @@
         </router-link>
       </section>
     </aside>
-    <div class="px-24 ml-60 mt-14">
+    <div class="px-24 pt-10 ml-60">
       <router-view></router-view>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import avatarSrc from "@/assets/img/avatar.jpg";
 import router from "@/router";
 import { ref } from "vue";
 import { onBeforeRouteUpdate } from "vue-router";
 import { Menu } from "./type";
+
+const avatar = avatarSrc;
 
 onBeforeRouteUpdate((to) => {
   currentRoute.value = to.path;

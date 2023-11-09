@@ -1,15 +1,22 @@
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
-export function useTypewriter(textToType: string, delay: number) {
+export function useTypewriter(textToType: string[], delay: number) {
   const typedText = ref("");
   const currentIndex = ref(0);
   const currentLine = ref(0);
   let direction = ref(1); // 1 for forward, -1 for backward
   const cursorFlash = ref(false);
 
+  const currentTextToType = computed(() => {
+    return textToType[currentLine.value];
+  });
+
   const typeText = () => {
     cursorFlash.value = false;
-    if (currentIndex.value >= textToType.length || currentIndex.value < 0) {
+    if (
+      currentIndex.value >= currentTextToType.value.length ||
+      currentIndex.value < 0
+    ) {
       direction.value *= -1; // Change directioù
     }
 
@@ -17,11 +24,8 @@ export function useTypewriter(textToType: string, delay: number) {
       currentIndex.value = 0;
     }
 
-    if (currentLine.value === textToType.length) {
-    }
-
     if (direction.value === 1) {
-      typedText.value += textToType[currentIndex.value];
+      typedText.value += currentTextToType.value[currentIndex.value];
     } else {
       if (typedText.value.length > 0) {
         typedText.value = typedText.value.slice(0, -1);
@@ -36,16 +40,24 @@ export function useTypewriter(textToType: string, delay: number) {
 
     watch(currentIndex, () => {
       if (
-        currentIndex.value === textToType.length ||
+        currentIndex.value === currentTextToType.value.length ||
         currentIndex.value === 0
       ) {
         clearInterval(timer);
         cursorFlash.value = true;
-        const d = direction.value === 1 ? 100 : 250;
-        // Optionally, you can restart the animation here
+        const d = direction.value === 1 ? 100 : delay;
+
+        if (currentIndex.value === 0) {
+          if (currentLine.value === textToType.length - 1) {
+            currentLine.value = 0;
+          } else {
+            currentLine.value = currentLine.value + 1;
+          }
+        }
+
         setTimeout(() => {
           timer = setInterval(typeText, d);
-        }, 1000); // Wait for 1 second before restarting
+        }, 1500); // Wait for 1 second before restarting
       }
     });
   });

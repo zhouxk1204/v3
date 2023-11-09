@@ -1,6 +1,6 @@
 <template>
   <header
-    class="relative overflow-hidden h-28"
+    class="relative h-20 overflow-hidden"
     @mousemove="mousemove"
     ref="headerRef"
   >
