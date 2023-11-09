@@ -45,7 +45,7 @@ export function useTypewriter(textToType: string[], delay: number) {
       ) {
         clearInterval(timer);
         cursorFlash.value = true;
-        const d = direction.value === 1 ? 100 : delay;
+        const d = direction.value === 1 ? 80 : delay;
 
         if (currentIndex.value === 0) {
           if (currentLine.value === textToType.length - 1) {

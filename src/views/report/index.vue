@@ -10,7 +10,7 @@
         type="primary"
         class="ml-2"
         @click="exportExcel"
-        :disabled="reportErrorList.length"
+        :disabled="reportErrorList.length || !dataList.length"
         >导出
       </Button>
       <Button type="danger" class="ml-2" @click="clear"> 清空 </Button>
@@ -102,6 +102,7 @@ const exportExcel = () => {
  */
 const clear = () => {
   dataList.value = [];
+  reportErrorList.value = [];
   useStore().report.clear();
 };
 </script>

@@ -23,6 +23,7 @@ const useReportStore = defineStore(
 
     const clear = (): void => {
       reportDate.value = "";
+      reportErrorList.value = [];
       iEmployeeReportList.value = [];
     };
 
