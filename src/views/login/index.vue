@@ -60,7 +60,9 @@ const form = ref({
 });
 
 const getBackgroundImages = () => {
-  return Object.keys(import.meta.glob("@/assets/img/bg/*.{png,jpg,gif,svg}"));
+  return Object.keys(
+    import.meta.glob("@/assets/img/bg/*.{png,jpg,gif,svg,avif}")
+  );
 };
 
 const getRandomBackgroundImage = (): string => {
@@ -96,7 +98,7 @@ const submit = () => {
 </script>
 <style lang="scss" scoped>
 .animate__delay-02s {
-  animation-delay: 0.2s;
+  animation-delay: 0.3s;
 }
 .bg-transition {
   transition: background-image 3s ease-out;
