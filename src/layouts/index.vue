@@ -31,20 +31,20 @@
 </template>
 
 <script lang="ts" setup>
-import avatarSrc from "@/assets/img/avatar.jpg";
 import router from "@/router";
 import { ref } from "vue";
 import { onBeforeRouteUpdate } from "vue-router";
 import { Menu } from "./type";
 
-const avatar = avatarSrc;
-
 onBeforeRouteUpdate((to) => {
   currentRoute.value = to.path;
 });
 
+const menuRoutes =
+  router.options.routes.find((e) => e.path === "/")?.children ?? [];
+
 const menuList: Menu[] =
-  router.options.routes[1].children?.map((e) => {
+  menuRoutes.map((e) => {
     return {
       label: (e.meta?.title as string) ?? "",
       route: `/${e.path}`,

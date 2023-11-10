@@ -11,6 +11,14 @@ const routes = [
     },
   },
   {
+    path: "/photo",
+    component: () => import("@/views/photo/index.vue"),
+    name: "photo",
+    meta: {
+      title: "图片",
+    },
+  },
+  {
     path: "/",
     component: () => import("@/layouts/index.vue"),
     redirect: "home",
