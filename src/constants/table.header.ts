@@ -76,6 +76,10 @@ export const REPORT_TABLE_HEADERS: TableHeader[] = [
     label: "年休天数",
   },
   {
+    key: "marriage",
+    label: "婚假天数",
+  },
+  {
     key: "attendanceCount",
     label: "本月总出勤天数",
   },

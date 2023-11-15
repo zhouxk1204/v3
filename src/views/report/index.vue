@@ -17,7 +17,7 @@
     </div>
     <Table :headers="headers" :data="dataList"></Table>
 
-    <div class="mt-4 font-bold" v-if="reportErrorList.length">
+    <div class="mt-4 mb-10 font-bold" v-if="reportErrorList.length">
       <h1 class="pb-1 text-xl border-b border-gray-200">异常记录</h1>
       <ul>
         <li

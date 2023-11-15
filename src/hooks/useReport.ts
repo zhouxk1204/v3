@@ -1,20 +1,20 @@
+import { IDailyRecord, IEmployeeReport, IPoint } from "@/models/report.model";
 import {
   ROLES,
   TYPE_DAY_OBJ,
   TYPE_POINT_OBJ,
   TYPE_POST_OBJ,
 } from "@/constants";
-import { IDailyRecord, IEmployeeReport, IPoint } from "@/models/report.model";
 import {
   fullWidthToHalfWidth,
   parsePositiveRealNumber,
   removeSpaces,
 } from "@/utils/string";
 
-import useStore from "@/store";
-import { isStringExistArrayElement } from "@/utils";
-import { getTypeAndRatioOfDay } from "@/utils/date";
 import Decimal from "decimal.js";
+import { getTypeAndRatioOfDay } from "@/utils/date";
+import { isStringExistArrayElement } from "@/utils";
+import useStore from "@/store";
 
 export function useReport(data: IDailyRecord[][]) {
   const iEmployeeReportList: IEmployeeReport[] = [];
@@ -50,6 +50,11 @@ export function useReport(data: IDailyRecord[][]) {
           (p) => p.typeId === TYPE_POINT_OBJ.REST.ANNUAL_LEAVE.code
         )?.point ?? 0;
 
+        const marriage =
+        pointList.find(
+          (p) => p.typeId === TYPE_POINT_OBJ.REST.MARRIAGE_LEAVE.code
+        )?.point ?? 0;
+
       return {
         employeeName,
         factor: employee?.factor ?? "0",
@@ -60,6 +65,7 @@ export function useReport(data: IDailyRecord[][]) {
         dailyOtherRatioPoint,
         dailyGastroscopyRatioPoint,
         annual,
+        marriage,
         isWork: dailyOtherRatioPoint > 0 || dailyGastroscopyRatioPoint > 0,
       };
     });
@@ -77,6 +83,10 @@ export function useReport(data: IDailyRecord[][]) {
     obj.annual = reportList
       .reduce((a, b) => a.plus(b.annual), new Decimal(0))
       .toNumber();
+
+    obj.marriage = reportList
+    .reduce((a, b) => a.plus(b.marriage), new Decimal(0))
+    .toNumber();
 
     const attendanceList = reportList.filter((e) => e.isWork);
 
@@ -110,7 +120,17 @@ export function useReport(data: IDailyRecord[][]) {
 
     if (/\d/.test(nRecord)) {
       const parts = nRecord.split("/");
-      return parts.map((e) => parsePart(e, employeeName, ratio, date)).flat();
+      const arr = [];
+      parts.forEach(part => {
+        const p = parsePart(part, employeeName, ratio, date)
+        if(p){
+          arr.push(p)
+        }else{
+          const error = `${employeeName}：${date} 的工分记录：${nRecord} 填写错误，无法解析，请核对！！！`;
+          useStore().report.reportErrorList.push(error);
+        }
+      })
+      return parts.map((e) => parsePart(e, employeeName, ratio, date)).flat().filter(e => e !== undefined) as IPoint[];
     } else {
       // 休，年休等
       let point = {
@@ -119,7 +139,6 @@ export function useReport(data: IDailyRecord[][]) {
         point: 1,
       };
       for (let item of Object.values(TYPE_POINT_OBJ.REST)) {
-        // this.isAttendance = false;
         if (item.text.includes(nRecord)) {
           point = {
             typeId: item.code,
@@ -143,15 +162,40 @@ export function useReport(data: IDailyRecord[][]) {
     employeeName: string,
     ratio: number[],
     date: string
-  ): IPoint[] {
+  ): IPoint[] | undefined {
+
+    // xx+胃 的情况
+    if(isStringExistArrayElement(part, TYPE_POST_OBJ.GASTROSCOPY.text) && TYPE_POST_OBJ.GASTROSCOPY.text.map(e => part.indexOf(e)).filter(e => e > 0).length > 0){
+      return undefined;
+    }
+
+    // xx+手 的情况
+    if(isStringExistArrayElement(part, TYPE_POST_OBJ.OTHER.text) && TYPE_POST_OBJ.OTHER.text.map(e => part.indexOf(e)).filter(e => e > 0).length > 0){
+      return undefined;
+    }
+
+    // 手7.5胃1.5的情况
+    if(isStringExistArrayElement(part, TYPE_POST_OBJ.GASTROSCOPY.text) && isStringExistArrayElement(part, TYPE_POST_OBJ.OTHER.text)){ 
+      return undefined;
+    }
+
     // 0.x年假的时候
     const annual = TYPE_POINT_OBJ.REST.ANNUAL_LEAVE;
+    const marriage = TYPE_POINT_OBJ.REST.MARRIAGE_LEAVE;
 
     if (isStringExistArrayElement(part, annual.text)) {
       return [
         {
           typeId: annual.code,
           typeName: annual.text[0],
+          point: parsePositiveRealNumber(part),
+        },
+      ];
+    }else if(isStringExistArrayElement(part, [marriage.text])) {
+      return [
+        {
+          typeId: marriage.code,
+          typeName: marriage.text,
           point: parsePositiveRealNumber(part),
         },
       ];

@@ -20,6 +20,7 @@ export interface IEmployeeReport {
   totalOtherRatioPoint: number;
   totalGastroscopyRatioPoint: number;
   annual: number;
+  marriage: number;
   attendanceCount: number;
   workdayCount: number;
   totalTimeRatioPoint: number;
