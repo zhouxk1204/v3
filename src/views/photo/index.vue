@@ -10,7 +10,7 @@
     <div class="flex w-screen h-screen" v-for="image in data">
       <div
         v-for="(img, i) in image"
-        class="object-cover w-1/3 h-full transition-transform ease-in-out duration-[2000ms]"
+        class="bg-center h-screen w-1/3 transition-transform ease-in-out duration-[2000ms]"
         :style="{
           'background-image': `url(${img})`,
           'background-position': (-100 / 3) * (i + 1) + 'vw',
@@ -25,7 +25,7 @@
     <h1
       class="absolute z-50 text-5xl text-center text-white -translate-x-1/2 -translate-y-1/2 pointer-events-none top-1/2 left-1/2 mix-blend-overlay"
     >
-      sometimes
+      love is everywhere
     </h1>
     <!-- tips -->
     <div
@@ -71,11 +71,11 @@ const images = [
   "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2700&q=80",
 ];
 
-// const getBackgroundImages = () => {
-//   return Object.keys(
-//     import.meta.glob("@/assets/img/bg/*.{png,jpg,gif,svg,avif}")
-//   );
-// };
+const getBackgroundImages = () => {
+  return Object.keys(
+    import.meta.glob("@/assets/img/photo/*.{png,jpg,gif,svg,avif}")
+  );
+};
 
 const swipeBox = ref();
 onMounted(() => {

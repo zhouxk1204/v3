@@ -11,3 +11,13 @@
 .animation-duration-1s {
   animation-duration: 1s;
 }
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    line-height: 1.2em;
+  }
+}
