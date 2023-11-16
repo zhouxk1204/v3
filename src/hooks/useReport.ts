@@ -1,20 +1,20 @@
-import { IDailyRecord, IEmployeeReport, IPoint } from "@/models/report.model";
 import {
   ROLES,
   TYPE_DAY_OBJ,
   TYPE_POINT_OBJ,
   TYPE_POST_OBJ,
 } from "@/constants";
+import { IDailyRecord, IEmployeeReport, IPoint } from "@/models/report.model";
 import {
   fullWidthToHalfWidth,
   parsePositiveRealNumber,
   removeSpaces,
 } from "@/utils/string";
 
-import Decimal from "decimal.js";
-import { getTypeAndRatioOfDay } from "@/utils/date";
-import { isStringExistArrayElement } from "@/utils";
 import useStore from "@/store";
+import { isStringExistArrayElement } from "@/utils";
+import { getTypeAndRatioOfDay } from "@/utils/date";
+import Decimal from "decimal.js";
 
 export function useReport(data: IDailyRecord[][]) {
   const iEmployeeReportList: IEmployeeReport[] = [];
@@ -36,7 +36,7 @@ export function useReport(data: IDailyRecord[][]) {
     const reportList = item.map((item2) => {
       const { record, date } = item2;
       const { code, text, ratio } = getTypeAndRatioOfDay(date);
-      const pointList = parseRecord(employeeName, record, ratio, date);
+      const pointList = parseRecord(employeeName, record, ratio, date, code);
       const dailyOtherRatioPoint = getRatioPointByPostId(
         pointList,
         TYPE_POST_OBJ.OTHER.code
@@ -50,7 +50,7 @@ export function useReport(data: IDailyRecord[][]) {
           (p) => p.typeId === TYPE_POINT_OBJ.REST.ANNUAL_LEAVE.code
         )?.point ?? 0;
 
-        const marriage =
+      const marriage =
         pointList.find(
           (p) => p.typeId === TYPE_POINT_OBJ.REST.MARRIAGE_LEAVE.code
         )?.point ?? 0;
@@ -70,6 +70,8 @@ export function useReport(data: IDailyRecord[][]) {
       };
     });
 
+    console.log("%c Line:37 🍆 reportList", "color:#ea7e5c", reportList);
+
     const totalOtherRatioPoint = reportList
       .reduce((a, b) => a.plus(b.dailyOtherRatioPoint), new Decimal(0))
       .toNumber();
@@ -85,8 +87,8 @@ export function useReport(data: IDailyRecord[][]) {
       .toNumber();
 
     obj.marriage = reportList
-    .reduce((a, b) => a.plus(b.marriage), new Decimal(0))
-    .toNumber();
+      .reduce((a, b) => a.plus(b.marriage), new Decimal(0))
+      .toNumber();
 
     const attendanceList = reportList.filter((e) => e.isWork);
 
@@ -114,23 +116,41 @@ export function useReport(data: IDailyRecord[][]) {
     employeeName: string,
     record: string,
     ratio: number[],
-    date: string
+    date: string,
+    code: string
   ): IPoint[] {
+    // 节假日, 周末上班
+    const isWeekendOrHolidayOvertime = [
+      TYPE_DAY_OBJ.HOLIDAY.code,
+      TYPE_DAY_OBJ.WEEKEND.code,
+    ].includes(code);
+
     const nRecord = removeSpaces(fullWidthToHalfWidth(record));
 
     if (/\d/.test(nRecord)) {
       const parts = nRecord.split("/");
       const arr = [];
-      parts.forEach(part => {
-        const p = parsePart(part, employeeName, ratio, date)
-        if(p){
-          arr.push(p)
-        }else{
+      parts.forEach((part) => {
+        const p = parsePart(
+          part,
+          employeeName,
+          ratio,
+          date,
+          isWeekendOrHolidayOvertime
+        );
+        if (p) {
+          arr.push(p);
+        } else {
           const error = `${employeeName}：${date} 的工分记录：${nRecord} 填写错误，无法解析，请核对！！！`;
           useStore().report.reportErrorList.push(error);
         }
-      })
-      return parts.map((e) => parsePart(e, employeeName, ratio, date)).flat().filter(e => e !== undefined) as IPoint[];
+      });
+      return parts
+        .map((e) =>
+          parsePart(e, employeeName, ratio, date, isWeekendOrHolidayOvertime)
+        )
+        .flat()
+        .filter((e) => e !== undefined) as IPoint[];
     } else {
       // 休，年休等
       let point = {
@@ -161,21 +181,33 @@ export function useReport(data: IDailyRecord[][]) {
     part: string,
     employeeName: string,
     ratio: number[],
-    date: string
+    date: string,
+    isWeekendOrHolidayOvertime: boolean
   ): IPoint[] | undefined {
-
     // xx+胃 的情况
-    if(isStringExistArrayElement(part, TYPE_POST_OBJ.GASTROSCOPY.text) && TYPE_POST_OBJ.GASTROSCOPY.text.map(e => part.indexOf(e)).filter(e => e > 0).length > 0){
+    if (
+      isStringExistArrayElement(part, TYPE_POST_OBJ.GASTROSCOPY.text) &&
+      TYPE_POST_OBJ.GASTROSCOPY.text
+        .map((e) => part.indexOf(e))
+        .filter((e) => e > 0).length > 0
+    ) {
       return undefined;
     }
 
     // xx+手 的情况
-    if(isStringExistArrayElement(part, TYPE_POST_OBJ.OTHER.text) && TYPE_POST_OBJ.OTHER.text.map(e => part.indexOf(e)).filter(e => e > 0).length > 0){
+    if (
+      isStringExistArrayElement(part, TYPE_POST_OBJ.OTHER.text) &&
+      TYPE_POST_OBJ.OTHER.text.map((e) => part.indexOf(e)).filter((e) => e > 0)
+        .length > 0
+    ) {
       return undefined;
     }
 
     // 手7.5胃1.5的情况
-    if(isStringExistArrayElement(part, TYPE_POST_OBJ.GASTROSCOPY.text) && isStringExistArrayElement(part, TYPE_POST_OBJ.OTHER.text)){ 
+    if (
+      isStringExistArrayElement(part, TYPE_POST_OBJ.GASTROSCOPY.text) &&
+      isStringExistArrayElement(part, TYPE_POST_OBJ.OTHER.text)
+    ) {
       return undefined;
     }
 
@@ -191,7 +223,7 @@ export function useReport(data: IDailyRecord[][]) {
           point: parsePositiveRealNumber(part),
         },
       ];
-    }else if(isStringExistArrayElement(part, [marriage.text])) {
+    } else if (isStringExistArrayElement(part, [marriage.text])) {
       return [
         {
           typeId: marriage.code,
@@ -202,7 +234,6 @@ export function useReport(data: IDailyRecord[][]) {
     } else {
       // 胃镜的场合
       const detail = part.split("+").map((el) => parsePositiveRealNumber(el));
-
       const pointList: any[] = [];
       for (let i = 0; i < detail.length; i++) {
         // 无法解析的时候
@@ -214,14 +245,19 @@ export function useReport(data: IDailyRecord[][]) {
         }
 
         const point = detail[i];
-        const pointRatio = ratio[i];
+
+        const pointRatio = isWeekendOrHolidayOvertime ? ratio[1] : ratio[i];
+        console.log("%c Line:246 🍔 pointRatio", "color:#42b983", pointRatio);
         const post = isStringExistArrayElement(
           part,
           TYPE_POST_OBJ.GASTROSCOPY.text
         )
           ? TYPE_POST_OBJ.GASTROSCOPY
           : TYPE_POST_OBJ.OTHER;
-        const type = Object.values(TYPE_POINT_OBJ.ATTENDANCE)[i];
+        const type = isWeekendOrHolidayOvertime
+          ? TYPE_POINT_OBJ.ATTENDANCE.OVERTIME
+          : Object.values(TYPE_POINT_OBJ.ATTENDANCE)[i];
+        console.log("%c Line:254 🥚 type", "color:#42b983", type);
         pointList.push({
           typeId: type.code,
           typeName: type.text,

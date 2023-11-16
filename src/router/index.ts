@@ -19,6 +19,14 @@ const routes = [
     },
   },
   {
+    path: "/marriage",
+    component: () => import("@/views/marriage/index.vue"),
+    name: "marriage",
+    meta: {
+      title: "Love",
+    },
+  },
+  {
     path: "/",
     component: () => import("@/layouts/index.vue"),
     redirect: "home",

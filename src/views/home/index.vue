@@ -1,6 +1,7 @@
 <template>
   <div>
     <Typewriter class="text-4xl"></Typewriter>
+    <FillUp text="Love to the depths, is lonely."></FillUp>
     <StepFadeIn :text="text"></StepFadeIn>
   </div>
 </template>

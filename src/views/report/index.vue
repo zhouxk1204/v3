@@ -10,12 +10,12 @@
         type="primary"
         class="ml-2"
         @click="exportExcel"
-        :disabled="reportErrorList.length || !dataList.length"
+        :disabled="reportErrorList.length || !dataList2.length"
         >导出
       </Button>
       <Button type="danger" class="ml-2" @click="clear"> 清空 </Button>
     </div>
-    <Table :headers="headers" :data="dataList"></Table>
+    <Table :headers="headers" :data="dataList2"></Table>
 
     <div class="mt-4 mb-10 font-bold" v-if="reportErrorList.length">
       <h1 class="pb-1 text-xl border-b border-gray-200">异常记录</h1>
@@ -44,35 +44,43 @@ import { ref } from "vue";
 const headers = REPORT_TABLE_HEADERS;
 const reportErrorList = ref(useStore().report.reportErrorList);
 const reportDate = ref(useStore().report.reportDate);
-const dataList = ref(useStore().report.iEmployeeReportList);
+
+const iRecordList = useStore().report.iRecordList;
+
+const dataList2 = ref<any>([]);
+
+if (iRecordList.length > 0) {
+  dataList2.value = useReport(iRecordList);
+  console.log("%c Line:54 🥐 dataList2", "color:#7f2b82", dataList2.value);
+}
 
 const importExcel = (data: any[]): void => {
-  let header: string[] = [];
+  let header: any = {};
   const map: Map<string, IDailyRecord[]> = new Map();
   data.forEach((item) => {
     const employeeName = item["__EMPTY"];
     if (!employeeName) {
       // 表头日期行
-      header = Object.values(item).map((e) =>
-        parseExcelDateNumber(e as number)
-      );
+      header = item;
     } else {
       const dailyRecordList = map.get(employeeName) ?? [];
-      const l = Object.keys(item)
-        .filter((e) => e !== "__EMPTY")
-        .map((e2, i) => {
-          return {
-            date:
-              header.length === 0 ? getDateStringFromMonthDay(e2) : header[i],
-            record: item[e2].toString(),
-            employeeName,
-          };
-        });
+      const items = Object.keys(item).filter((e) => e !== "__EMPTY");
+      const l = items.map((e2) => {
+        const date = parseExcelDateNumber(header[e2] as number);
+        return {
+          date: header.length === 0 ? getDateStringFromMonthDay(e2) : date,
+          record: item[e2].toString(),
+          employeeName,
+        };
+      });
       dailyRecordList.push(...l);
       map.set(employeeName, dailyRecordList);
     }
   });
-  const { iEmployeeReportList } = useReport(Array.from(map.values()));
+
+  const arr = Array.from(map.values());
+  useStore().report.saveIRecordList(arr);
+  const { iEmployeeReportList } = useReport(arr);
   useStore().report.save(iEmployeeReportList);
 };
 
@@ -87,7 +95,7 @@ const exportExcel = () => {
       {
         title: fileName,
         headers: REPORT_TABLE_HEADERS.map((e) => e.label),
-        data: dataList.value.map((item: any) =>
+        data: dataList2.value.map((item: any) =>
           REPORT_TABLE_HEADERS.map((e) => e.key).map((key) => item[key])
         ),
       },
@@ -101,7 +109,7 @@ const exportExcel = () => {
  * 清空结果
  */
 const clear = () => {
-  dataList.value = [];
+  dataList2.value = [];
   reportErrorList.value = [];
   useStore().report.clear();
 };

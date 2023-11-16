@@ -1,3 +1,9 @@
+export interface IRecord {
+  date: string;
+  employeeName: string;
+  record: string;
+}
+
 export interface IPoint {
   typeId: string; // 类别
   typeName: string; // 类别

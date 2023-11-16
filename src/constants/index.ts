@@ -52,15 +52,15 @@ export const TYPE_DAY_OBJ: Record<string, CodeText> = {
   },
   WEEKDAY: {
     code: "0",
-    text: "工作日",
+    text: "工作日上班",
   },
   WEEKEND: {
     code: "1",
-    text: "周末",
+    text: "周末加班",
   },
   HOLIDAY: {
     code: "2",
-    text: "节假日放假",
+    text: "节假日加班",
   },
   MAKEUP: {
     code: "3",
