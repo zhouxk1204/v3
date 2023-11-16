@@ -1,25 +1,29 @@
+import { IDailyRecord, IEmployeeReport, IPoint } from "@/models/report.model";
 import {
   ROLES,
   TYPE_DAY_OBJ,
   TYPE_POINT_OBJ,
   TYPE_POST_OBJ,
 } from "@/constants";
-import { IDailyRecord, IEmployeeReport, IPoint } from "@/models/report.model";
 import {
   fullWidthToHalfWidth,
   parsePositiveRealNumber,
   removeSpaces,
 } from "@/utils/string";
 
-import useStore from "@/store";
-import { isStringExistArrayElement } from "@/utils";
-import { getTypeAndRatioOfDay } from "@/utils/date";
 import Decimal from "decimal.js";
+import { getTypeAndRatioOfDay } from "@/utils/date";
+import { isStringExistArrayElement } from "@/utils";
+import useStore from "@/store";
 
 export function useReport(data: IDailyRecord[][]) {
   const iEmployeeReportList: IEmployeeReport[] = [];
+
   // 保存报表所在的日期
-  useStore().report.setReportDate(data[0][0].date);
+  const currentDate = data[0][0].date;
+
+  const errorList:string[] = [];
+
   data.forEach((item) => {
     const obj: any = {};
 
@@ -29,7 +33,7 @@ export function useReport(data: IDailyRecord[][]) {
     // 获取职工信息
     const employee = useStore().employee.employeeList.find(
       (el2) => el2.name === employeeName
-    );
+      );
     obj.factor = employee?.factor ?? "0";
     const roleId = employee?.roleId ?? ROLES[0].code;
 
@@ -69,8 +73,6 @@ export function useReport(data: IDailyRecord[][]) {
         isWork: dailyOtherRatioPoint > 0 || dailyGastroscopyRatioPoint > 0,
       };
     });
-
-    console.log("%c Line:37 🍆 reportList", "color:#ea7e5c", reportList);
 
     const totalOtherRatioPoint = reportList
       .reduce((a, b) => a.plus(b.dailyOtherRatioPoint), new Decimal(0))
@@ -142,7 +144,7 @@ export function useReport(data: IDailyRecord[][]) {
           arr.push(p);
         } else {
           const error = `${employeeName}：${date} 的工分记录：${nRecord} 填写错误，无法解析，请核对！！！`;
-          useStore().report.reportErrorList.push(error);
+          errorList.push(error);
         }
       });
       return parts
@@ -239,15 +241,13 @@ export function useReport(data: IDailyRecord[][]) {
         // 无法解析的时候
         if (i > 1) {
           const error = `${employeeName}：${date} 的工分记录：${part} 填写错误，无法解析，请核对！！！`;
-          useStore().report.reportErrorList.push(error);
-          console.error(error);
+          errorList.push(error);
           continue;
         }
 
         const point = detail[i];
 
         const pointRatio = isWeekendOrHolidayOvertime ? ratio[1] : ratio[i];
-        console.log("%c Line:246 🍔 pointRatio", "color:#42b983", pointRatio);
         const post = isStringExistArrayElement(
           part,
           TYPE_POST_OBJ.GASTROSCOPY.text
@@ -257,7 +257,6 @@ export function useReport(data: IDailyRecord[][]) {
         const type = isWeekendOrHolidayOvertime
           ? TYPE_POINT_OBJ.ATTENDANCE.OVERTIME
           : Object.values(TYPE_POINT_OBJ.ATTENDANCE)[i];
-        console.log("%c Line:254 🥚 type", "color:#42b983", type);
         pointList.push({
           typeId: type.code,
           typeName: type.text,
@@ -286,5 +285,7 @@ export function useReport(data: IDailyRecord[][]) {
 
   return {
     iEmployeeReportList,
+    currentDate,
+    errorList
   };
 }

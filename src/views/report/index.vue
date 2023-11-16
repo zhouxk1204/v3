@@ -10,18 +10,18 @@
         type="primary"
         class="ml-2"
         @click="exportExcel"
-        :disabled="reportErrorList.length || !dataList2.length"
+        :disabled="errors.length || !list"
         >导出
       </Button>
       <Button type="danger" class="ml-2" @click="clear"> 清空 </Button>
     </div>
-    <Table :headers="headers" :data="dataList2"></Table>
+    <Table :headers="headers" :data="list"></Table>
 
-    <div class="mt-4 mb-10 font-bold" v-if="reportErrorList.length">
+    <div class="mt-4 mb-10 font-bold" v-if="errors.length">
       <h1 class="pb-1 text-xl border-b border-gray-200">异常记录</h1>
       <ul>
         <li
-          v-for="item in reportErrorList"
+          v-for="item in errors"
           class="mt-2 ml-3 text-sm text-red-500"
         >
           {{ item }}
@@ -35,24 +35,33 @@
 import { REPORT_TABLE_HEADERS } from "@/constants/table.header";
 import { useExportExcel } from "@/hooks/exportExcel";
 import { useReport } from "@/hooks/useReport";
-import { IDailyRecord } from "@/models/report.model";
+import { IDailyRecord, IRecord } from "@/models/report.model";
 import useStore from "@/store";
 import { getDateStringFromMonthDay, parseExcelDateNumber } from "@/utils/date";
 import * as dayjs from "dayjs";
-import { ref } from "vue";
+import {  ref, toRaw, watch } from "vue";
 
 const headers = REPORT_TABLE_HEADERS;
-const reportErrorList = ref(useStore().report.reportErrorList);
-const reportDate = ref(useStore().report.reportDate);
+const errors = ref<string[]>([]);
+const date = ref<string>('');
+const list = ref();
 
-const iRecordList = useStore().report.iRecordList;
+const origin = toRaw(useStore().report.getIRecordList());
+const iRecordList = ref(origin);
 
-const dataList2 = ref<any>([]);
-
-if (iRecordList.length > 0) {
-  dataList2.value = useReport(iRecordList);
-  console.log("%c Line:54 🥐 dataList2", "color:#7f2b82", dataList2.value);
+const refreshData = (value: IRecord[][]) => {
+  if(value.length === 0) return;
+  const {iEmployeeReportList, errorList, currentDate} = useReport(value);
+  date.value = currentDate;
+  errors.value = errorList;
+  list.value = iEmployeeReportList;
 }
+
+refreshData(iRecordList.value)
+
+watch(iRecordList, (value)=>{
+  refreshData(value);
+})
 
 const importExcel = (data: any[]): void => {
   let header: any = {};
@@ -77,25 +86,23 @@ const importExcel = (data: any[]): void => {
       map.set(employeeName, dailyRecordList);
     }
   });
-
-  const arr = Array.from(map.values());
-  useStore().report.saveIRecordList(arr);
-  const { iEmployeeReportList } = useReport(arr);
-  useStore().report.save(iEmployeeReportList);
+  const list = Array.from(map.values());
+  iRecordList.value = list;
+  useStore().report.saveIRecordList(list); 
 };
 
 /**
  * 导出结果
  */
 const exportExcel = () => {
-  const sheetName = dayjs(reportDate.value).format("YYYY年MM月");
+  const sheetName = dayjs(date.value).format("YYYY年MM月");
   const fileName = `${sheetName}月上班（加班）工分汇算`;
   useExportExcel(
     [
       {
         title: fileName,
         headers: REPORT_TABLE_HEADERS.map((e) => e.label),
-        data: dataList2.value.map((item: any) =>
+        data: list.value.map((item: any) =>
           REPORT_TABLE_HEADERS.map((e) => e.key).map((key) => item[key])
         ),
       },
@@ -109,8 +116,6 @@ const exportExcel = () => {
  * 清空结果
  */
 const clear = () => {
-  dataList2.value = [];
-  reportErrorList.value = [];
-  useStore().report.clear();
+  iRecordList.value = [];
 };
 </script>

@@ -1,6 +1,8 @@
 <template>
   <div class="fixed bottom-5 right-5">
-    <audio ref="audioElement" :src="audioSrc"></audio>
+    <audio ref="audioRef" @timeupdate="test">
+      <source :src="src" />
+    </audio>
     <div>
       <div
         class="z-20 flex items-center overflow-hidden bg-white border shadow-2xl rounded-2xl"
@@ -31,10 +33,28 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import audio from '@/assets/audio/tower_of_flower.mp3';
+const audioRef = ref<HTMLAudioElement>();
 
-const audioSrc =
-  "http://music.dawnfoxes.com/_fxs_/_upls_/_sngs_/USA/khalid-angels.mp3";
+// 播放
+const handlePlay = () => {
+  // 播放 暂停也同理
+  console.log("%c Line:41 🍔 audioRef.value", "color:#fca650", audioRef.value);
+  audioRef.value?.play();
+};
 
+const handlePause = () => {
+  // 播放 暂停也同理
+  console.log("%c Line:41 🍔 audioRef.value", "color:#fca650", audioRef.value);
+  audioRef.value?.pause();
+};
+
+const test = (e:any) => {
+  console.log("%c Line:53 🍉 e", "color:#42b983", e);
+}
+
+const src = audio;
+console.log("%c Line:46 🥝 src", "color:#7f2b82", src);
 const isPlay = ref(false);
 
 const icons = computed(() => {
@@ -75,8 +95,10 @@ const icons = computed(() => {
 const onClickButton = (key: string) => {
   if (key === "play") {
     isPlay.value = true;
+    handlePlay();
   } else if (key === "pause") {
     isPlay.value = false;
+    handlePause();
   }
 };
 </script>

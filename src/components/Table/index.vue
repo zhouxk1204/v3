@@ -20,7 +20,7 @@
           </th>
         </tr>
       </thead>
-      <tbody>
+      <tbody v-if="data">
         <tr
           scope="row"
           class="border-b hover:bg-gray-100"
@@ -56,7 +56,7 @@
       </tbody>
     </table>
     <div
-      v-if="data && data.length === 0"
+      v-if="!data"
       class="flex flex-col items-center justify-center h-40 text-gray-300 border-b"
     >
       <svg

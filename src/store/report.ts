@@ -20,6 +20,10 @@ const useReportStore = defineStore(
       iEmployeeReportList.value.push(...data);
     };
 
+    const getIRecordList = (): IRecord[][]  => {
+      return iRecordList.value;
+    }
+
     const setReportDate = (date: string): void => {
       reportDate.value = date;
     };
@@ -44,6 +48,7 @@ const useReportStore = defineStore(
       addReportError,
       iRecordList,
       saveIRecordList,
+      getIRecordList,
     };
   },
   {
