@@ -39,14 +39,14 @@ const routes = [
           title: "首页",
         },
       },
-      // {
-      //   path: "report",
-      //   component: () => import("@/views/report/index.vue"),
-      //   name: "report",
-      //   meta: {
-      //     title: "月次工分汇算",
-      //   },
-      // },
+      {
+        path: "report",
+        component: () => import("@/views/report/index.vue"),
+        name: "report",
+        meta: {
+          title: "月次工分汇算",
+        },
+      },
       {
         path: "employee",
         component: () => import("@/views/employee/index.vue"),
