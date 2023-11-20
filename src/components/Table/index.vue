@@ -32,7 +32,21 @@
             :key="item2"
             class="h-12 px-3 text-sm font-medium text-center text-gray-700 hover:bg-gray-100 whitespace-nowrap"
           >
-            {{ item[item2] }}
+            <div
+              v-if="item2 === 'state'"
+              class="inline-block px-3 py-1 border rounded-md"
+              :class="{
+                'text-red-600 border-red-600 bg-red-100':
+                  item[item2] === '离职',
+                'text-green-600 border-green-600 bg-green-100':
+                  item[item2] === '在职',
+              }"
+            >
+              {{ item[item2] }}
+            </div>
+            <div v-else>
+              {{ item[item2] }}
+            </div>
           </td>
           <td
             class="flex items-center justify-center w-40 h-12 px-6"

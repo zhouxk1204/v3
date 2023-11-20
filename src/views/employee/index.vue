@@ -8,13 +8,27 @@
     </Upload>
   </div>
 
+  <div class="mb-4">
+    <div class="flex items-center">
+      <input
+        type="checkbox"
+        name=""
+        id="state"
+        class="w-5 h-5"
+        v-model="active"
+      />
+      <label for="state" class="ml-2 select-none">只看在职</label>
+    </div>
+  </div>
+
   <Table
     :headers="headers"
     :data="list"
     :isAction="true"
     @del="onDel"
     @edit="onEdit"
-  ></Table>
+  >
+  </Table>
 
   <Dialog v-model="isOpen">
     <form
@@ -80,7 +94,7 @@ import { useDialog } from "@/hooks/useDialog";
 import { Employee } from "@/models/employee.model";
 import useStore from "@/store";
 import { deepCopy } from "@/utils";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 const { mode, isOpen, openDialog, closeDialog } = useDialog();
 
 const emptyForm = () => {
@@ -135,7 +149,7 @@ const onSelectState = (option: Option) => {
 };
 
 const headers = TABLE_HEADER_EMPLOYEE;
-const list = useStore().employee.employeeList;
+const list = ref(useStore().employee.employeeList);
 
 const onData = (data: any[]): void => {
   // 按工号（升序）排序
@@ -176,5 +190,15 @@ const onEdit = (data: Employee) => {
   currentState.value = { code: data.stateId, text: data.state };
   openDialog(false);
 };
+
+const active = ref<boolean>(false);
+
+watch(active, (newValue: boolean) => {
+  if (newValue) {
+    list.value = list.value.filter((e) => e.stateId === "1");
+  } else {
+    list.value = useStore().employee.employeeList;
+  }
+});
 </script>
 <style lang="scss" scoped></style>
