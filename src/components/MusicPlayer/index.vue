@@ -10,24 +10,32 @@
       <div
         class="z-20 flex items-center overflow-hidden border shadow bg-opacity-5 rounded-2xl"
       >
-        <div class="flex items-center justify-center flex-none pl-2 w-14">
+        <div class="flex items-center justify-center flex-none w-16 pl-2">
           <img
             :src="meta.cover"
             :style="{ 'animation-play-state': isPlay ? 'running' : 'paused' }"
             :class="{ 'shadow-2xl': isPlay }"
-            class="transition-all ease-in-out border rounded-full animation-rotated"
+            class="transition-all ease-in-out border-2 rounded-full animation-rotated"
             alt="album"
           />
         </div>
-        <div class="pl-2">
-          <div class="text-sm text-gray-500">{{ meta.title }}</div>
-          <div class="mt-1 text-xs text-gray-400">{{ meta.artist }}</div>
+        <div class="w-24 pl-2">
+          <div
+            class="overflow-hidden text-sm font-bold text-gray-500 whitespace-nowrap text-ellipsis"
+          >
+            {{ meta.title }}
+          </div>
+          <div
+            class="mt-2 text-xs text-gray-400 whitespace-nowrap text-ellipsis"
+          >
+            {{ meta.artist }}
+          </div>
         </div>
         <div class="p-2">
           <div class="flex justify-between overflow-hidden select-none">
             <template v-for="item in icons">
               <div
-                class="flex items-center justify-center w-8 h-8 text-gray-300 rounded-md cursor-pointer hover:text-white hover:bg-gray-300"
+                class="flex items-center justify-center w-8 h-8 text-gray-400 rounded-md cursor-pointer hover:text-white hover:bg-gray-400"
                 @click="onAction(item.action)"
               >
                 <Icon :icon="item.icon" width="24"></Icon>
@@ -37,7 +45,7 @@
           <div class="flex items-center">
             <div
               @click="onMute"
-              class="mr-1 flex items-center justify-center p-[2px] text-gray-300 rounded-md cursor-pointer hover:text-white hover:bg-gray-300"
+              class="mr-1 flex items-center justify-center p-[2px] text-gray-400 rounded-md cursor-pointer hover:text-white hover:bg-gray-400"
             >
               <Icon class="w-5 h-5" icon="ic:round-volume-mute"></Icon>
             </div>
@@ -57,7 +65,7 @@
             />
             <div
               @click="onMax"
-              class="flex items-center justify-center text-gray-300 rounded-md cursor-pointer p-[2px] hover:text-white hover:bg-gray-300 ml-1"
+              class="flex items-center justify-center text-gray-400 rounded-md cursor-pointer p-[2px] hover:text-white hover:bg-gray-400 ml-1"
             >
               <Icon class="w-5 h-5" icon="ic:round-volume-up"></Icon>
             </div>
@@ -70,7 +78,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { Action, NEXT, PAUSE, PLAY, PREV } from "./type";
+import { Action, AudioMeta, NEXT, PAUSE, PLAY, PREV } from "./type";
 
 const audioRef = ref<HTMLAudioElement>();
 const audios = ref<string[]>([]);
@@ -79,39 +87,59 @@ const currentAudio = computed(() => {
   return audios.value.length > 0 ? audios.value[currentAudioIndex.value] : "";
 });
 
-const meta = ref({
-  title: "",
-  artist: "",
-  cover: "",
-});
+const currentAudioSrc = ref<string>();
 
-const audioContext = import.meta.glob("@/assets/audio/*.mp3");
-audios.value = Object.keys(audioContext);
+const metaMap = ref<Map<string, AudioMeta>>(new Map());
+audios.value = Object.keys(import.meta.glob("@/assets/audio/*.mp3"));
+
+const meta = computed(() => {
+  return (
+    metaMap.value.get(currentAudioSrc.value ?? "") ?? {
+      title: "unknown",
+      artist: "unknown",
+      cover: "",
+    }
+  );
+});
 
 onMounted(() => {
   getAudioMeta();
-  setVolume();
+  setVolume(volume.value);
 });
 
 const volume = ref(0.2);
 const handleVolumeChange = () => {
-  setVolume();
+  setVolume(volume.value);
 };
 
-const setVolume = () => {
+const setVolume = (volume: number) => {
   if (audioRef.value) {
-    audioRef.value.volume = volume.value;
+    audioRef.value.volume = volume;
   }
 };
 
-const onMute = () => {
-  volume.value = 0;
-  setVolume();
+/**
+ * Mute audio
+ */
+const onMute = (): void => {
+  setVolume(0);
 };
 
-const onMax = () => {
-  volume.value = 1;
-  setVolume();
+/**
+ * Max volume
+ */
+const onMax = (): void => {
+  setVolume(1);
+};
+
+const loadCurrentSong = (): void => {
+  if (audioRef.value) {
+    audioRef.value.src = currentAudio.value;
+    audioRef.value.load();
+    if (isPlay.value) {
+      audioRef.value.play();
+    }
+  }
 };
 
 /**
@@ -128,6 +156,7 @@ const togglePlay = () => {
     }
     isPlay.value = !isPlay.value;
   }
+  loadCurrentSong();
 };
 
 /**
@@ -201,20 +230,36 @@ const onAction = (action: Action) => {
 // };
 
 const getAudioMeta = async () => {
-  const audioUrl = audioRef.value?.src;
+  const audioUrl = audioRef.value?.src ?? "";
+  if (audioUrl === "" || metaMap.value.has(audioUrl)) return;
+  currentAudioSrc.value = audioUrl;
   window.jsmediatags.read(audioUrl, {
     onSuccess: (tag) => {
-      const { title, artist, picture } = tag.tags;
-      meta.value.title = title ?? "unknown title";
-      meta.value.artist = artist ?? "unknown artist";
+      const {
+        title = "unknown title",
+        artist = "unknown artist",
+        picture,
+      } = tag.tags;
+
+      const audioMeta = {
+        title,
+        artist,
+        cover: "",
+      };
+
       if (picture) {
         const arrayBuffer = new Uint8Array(picture.data).buffer;
         // Create a Blob from the picture data
         const blob = new Blob([arrayBuffer], { type: picture.format });
         // Create a URL for the Blob
-        const imgUrl = URL.createObjectURL(blob);
-        meta.value.cover = imgUrl;
+        audioMeta.cover = URL.createObjectURL(blob);
       }
+      metaMap.value.set(audioUrl, audioMeta);
+      console.log(
+        "%c Line:250 🥐 metaMap.value",
+        "color:#42b983",
+        metaMap.value
+      );
     },
     onError: function (error) {
       console.log("Error reading tags:", error.type, error.info);
