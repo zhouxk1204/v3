@@ -10,25 +10,25 @@
       <div
         class="z-20 flex items-center overflow-hidden border shadow bg-opacity-5 rounded-2xl"
       >
-        <div class="flex items-center justify-center flex-none w-16 pl-2">
+        <div class="flex items-center justify-center flex-none  pl-2">
           <img
-            :src="meta.cover"
+            :src="currentMeta.cover"
             :style="{ 'animation-play-state': isPlay ? 'running' : 'paused' }"
             :class="{ 'shadow-2xl': isPlay }"
-            class="transition-all ease-in-out border-2 rounded-full animation-rotated"
+            class="transition-all ease-in-out border-2 rounded-full animation-rotated w-16 h-16 flex-none object-cover"
             alt="album"
           />
         </div>
-        <div class="w-24 pl-2">
+        <div class="w-30 pl-2">
           <div
             class="overflow-hidden text-sm font-bold text-gray-500 whitespace-nowrap text-ellipsis"
           >
-            {{ meta.title }}
+            {{ currentMeta.title }}
           </div>
           <div
             class="mt-2 text-xs text-gray-400 whitespace-nowrap text-ellipsis"
           >
-            {{ meta.artist }}
+            {{ currentMeta.artist }}
           </div>
         </div>
         <div class="p-2">
@@ -87,20 +87,13 @@ const currentAudio = computed(() => {
   return audios.value.length > 0 ? audios.value[currentAudioIndex.value] : "";
 });
 
-const currentAudioSrc = ref<string>();
-
-const metaMap = ref<Map<string, AudioMeta>>(new Map());
-audios.value = Object.keys(import.meta.glob("@/assets/audio/*.mp3"));
-
-const meta = computed(() => {
-  return (
-    metaMap.value.get(currentAudioSrc.value ?? "") ?? {
-      title: "unknown",
-      artist: "unknown",
-      cover: "",
-    }
-  );
+const currentMeta = ref<AudioMeta>({
+  title: "",
+  artist: "",
+  cover: "",
 });
+const audioMetaList = ref<AudioMeta[]>([]);
+audios.value = Object.keys(import.meta.glob("@/assets/audio/*.mp3"));
 
 onMounted(() => {
   getAudioMeta();
@@ -156,7 +149,6 @@ const togglePlay = () => {
     }
     isPlay.value = !isPlay.value;
   }
-  loadCurrentSong();
 };
 
 /**
@@ -165,10 +157,23 @@ const togglePlay = () => {
  */
 const track = (action: Action) => {
   if (action === PREV) {
-    currentAudioIndex.value -= 1;
+    if (currentAudioIndex.value > 0) {
+      currentAudioIndex.value -= 1;
+    } else {
+      currentAudioIndex.value = audios.value.length - 1;
+    }
   } else if (action === NEXT) {
-    currentAudioIndex.value += 1;
+    if (currentAudioIndex.value < audios.value.length - 1) {
+      currentAudioIndex.value += 1;
+    } else {
+      currentAudioIndex.value = 0;
+    }
   }
+  console.log("%c Line:170 🍒 currentAudioIndex.value", "color:#ffdd4d", currentAudioIndex.value);
+  setTimeout(() => {
+    loadCurrentSong();
+    getAudioMeta();
+  }, 200);
 };
 
 const icons = computed(() => {
@@ -231,37 +236,43 @@ const onAction = (action: Action) => {
 
 const getAudioMeta = async () => {
   const audioUrl = audioRef.value?.src ?? "";
-  if (audioUrl === "" || metaMap.value.has(audioUrl)) return;
-  currentAudioSrc.value = audioUrl;
+  if (audioUrl === "") return;
+
+  console.log("%c Line:243 🍉 currentAudioIndex.value", "color:#fca650", currentAudioIndex.value);
+  const meta = audioMetaList.value[currentAudioIndex.value];
+  if (meta) {
+    console.log("%c Line:242 🍊 meta", "color:#b03734", meta);
+    currentMeta.value = meta;
+    return;
+  }
+
   window.jsmediatags.read(audioUrl, {
-    onSuccess: (tag) => {
+    onSuccess: (tag: any) => {
+
+      const meta: any = {};
+
       const {
         title = "unknown title",
         artist = "unknown artist",
         picture,
       } = tag.tags;
 
-      const audioMeta = {
-        title,
-        artist,
-        cover: "",
-      };
+      meta.title = title;
+      meta.artist = artist;
 
       if (picture) {
         const arrayBuffer = new Uint8Array(picture.data).buffer;
         // Create a Blob from the picture data
         const blob = new Blob([arrayBuffer], { type: picture.format });
         // Create a URL for the Blob
-        audioMeta.cover = URL.createObjectURL(blob);
+        meta.cover = URL.createObjectURL(blob);
+      } else {
+        meta.cover = "";
       }
-      metaMap.value.set(audioUrl, audioMeta);
-      console.log(
-        "%c Line:250 🥐 metaMap.value",
-        "color:#42b983",
-        metaMap.value
-      );
+      currentMeta.value = meta;
+      audioMetaList.value.push(meta);
     },
-    onError: function (error) {
+    onError: function (error: any) {
       console.log("Error reading tags:", error.type, error.info);
     },
   });
