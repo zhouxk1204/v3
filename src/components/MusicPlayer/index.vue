@@ -10,16 +10,15 @@
       <div
         class="z-20 flex items-center overflow-hidden border shadow bg-opacity-5 rounded-2xl"
       >
-        <div class="flex items-center justify-center flex-none  pl-2">
-          <img
-            :src="currentMeta.cover"
+        <div class="flex items-center justify-center flex-none pl-2">
+          <ScaleInOut
+            :index="currentAudioIndex"
+            :imageSrc="currentMeta.cover"
             :style="{ 'animation-play-state': isPlay ? 'running' : 'paused' }"
-            :class="{ 'shadow-2xl': isPlay }"
-            class="transition-all ease-in-out border-2 rounded-full animation-rotated w-16 h-16 flex-none object-cover"
-            alt="album"
-          />
+            class="animation-rotated"
+          ></ScaleInOut>
         </div>
-        <div class="w-30 pl-2">
+        <div class="w-32 pl-2">
           <div
             class="overflow-hidden text-sm font-bold text-gray-500 whitespace-nowrap text-ellipsis"
           >
@@ -169,7 +168,11 @@ const track = (action: Action) => {
       currentAudioIndex.value = 0;
     }
   }
-  console.log("%c Line:170 🍒 currentAudioIndex.value", "color:#ffdd4d", currentAudioIndex.value);
+  console.log(
+    "%c Line:170 🍒 currentAudioIndex.value",
+    "color:#ffdd4d",
+    currentAudioIndex.value
+  );
   setTimeout(() => {
     loadCurrentSong();
     getAudioMeta();
@@ -238,7 +241,11 @@ const getAudioMeta = async () => {
   const audioUrl = audioRef.value?.src ?? "";
   if (audioUrl === "") return;
 
-  console.log("%c Line:243 🍉 currentAudioIndex.value", "color:#fca650", currentAudioIndex.value);
+  console.log(
+    "%c Line:243 🍉 currentAudioIndex.value",
+    "color:#fca650",
+    currentAudioIndex.value
+  );
   const meta = audioMetaList.value[currentAudioIndex.value];
   if (meta) {
     console.log("%c Line:242 🍊 meta", "color:#b03734", meta);
@@ -248,7 +255,6 @@ const getAudioMeta = async () => {
 
   window.jsmediatags.read(audioUrl, {
     onSuccess: (tag: any) => {
-
       const meta: any = {};
 
       const {
