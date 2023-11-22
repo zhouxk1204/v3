@@ -77,3 +77,52 @@ export function parseExcelDateNumber(date: number): string {
     .add(date - 2, "day")
     .format(DEFAULT.DATE_FORMAT);
 }
+
+/**
+ * 获取某月的第一个星期一
+ * @param {number} year
+ * @param {number} month
+ * @returns {dayjs.Dayjs} 第一个星期一
+ */
+export function getFirstMonDayOfMonth(
+  year: number,
+  month: number
+): dayjs.Dayjs {
+  return dayjs(`${year}-${month}`)
+    .startOf("month")
+    .startOf("week")
+    .add(1, "day");
+}
+
+/**
+ * 获取某月的最后一个星期天
+ * @param {number} year
+ * @param {number} month
+ * @returns {dayjs.Dayjs} 最后一个星期天
+ */
+export function getLastSunDayOfMonth(year: number, month: number): dayjs.Dayjs {
+  const day = dayjs(`${year}-${month}`).endOf("month");
+  return day.day() === 0 ? day : day.endOf("week").add(1, "day");
+}
+
+/**
+ * 获取某月的所有日期
+ * @param {number} year
+ * @param {number} month
+ * @param {string} pattern
+ * @returns {string[]} 所有日期
+ */
+export function getWeekDatesArrayOfMonthYear(
+  year: number,
+  month: number,
+  pattern: string = "YYYY-MM-DD"
+): string[] {
+  let start = getFirstMonDayOfMonth(year, month);
+  const end = getLastSunDayOfMonth(year, month);
+  const result: string[] = [];
+  while (dayjs(start).isSame(end, "day") || dayjs(start).isBefore(end, "day")) {
+    result.push(start.format(pattern));
+    start = start.add(1, "day");
+  }
+  return result;
+}

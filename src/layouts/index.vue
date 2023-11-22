@@ -1,8 +1,8 @@
 <template>
-  <div class="h-screen overflow-x-hidden overflow-y-scroll">
+  <div class="h-screen overflow-hidden">
     <Banner></Banner>
     <aside
-      class="fixed left-0 h-screen pb-12 overflow-y-auto border-r border-gray-200 w-60 top-20"
+      class="fixed left-0 h-screen pb-12 border-r border-gray-200 w-60 top-20"
     >
       <section class="flex flex-col px-4 pt-2">
         <router-link
@@ -24,7 +24,9 @@
         </router-link>
       </section>
     </aside>
-    <div class="px-24 pt-10 ml-60">
+    <div
+      class="fixed bottom-0 right-0 px-20 py-10 overflow-y-auto left-60 h-[calc(100vh-80px)]"
+    >
       <router-view></router-view>
     </div>
   </div>

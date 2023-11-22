@@ -48,6 +48,14 @@ const routes = [
         },
       },
       {
+        path: "record",
+        component: () => import("@/views/record/index.vue"),
+        name: "record",
+        meta: {
+          title: "月次工分记录",
+        },
+      },
+      {
         path: "employee",
         component: () => import("@/views/employee/index.vue"),
         name: "employee",
