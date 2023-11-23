@@ -57,7 +57,7 @@ export function useTypewriter(textToType: string[], delay: number) {
 
         setTimeout(() => {
           timer = setInterval(typeText, d);
-        }, 1500); // Wait for 1 second before restarting
+        }, 2000); // Wait for 1 second before restarting
       }
     });
   });

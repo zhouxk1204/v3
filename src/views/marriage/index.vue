@@ -16,7 +16,7 @@
         {{ date }}
       </div>
 
-      <div class="flex font-arvo" id="box">
+      <div class="flex w-2/3 mx-auto font-arvo">
         <div class="flex-1 text-center">
           <p class="text-xl">{{ days }}</p>
           <h2 class="mt-2 text-sm">DAYS</h2>
@@ -35,7 +35,11 @@
         </div>
       </div>
 
-      <hr class="w-[70%] mx-[15%] my-6" />
+      <hr class="w-1/2 mx-auto my-6" />
+
+      <div class="flex justify-center">
+        <Typewriter class="text-xl font-arvo"></Typewriter>
+      </div>
     </div>
   </div>
 </template>
@@ -57,14 +61,3 @@ setInterval(() => {
   remainingSeconds.value = Math.floor(seconds % 60);
 }, 1000);
 </script>
-<style lang="scss" scoped>
-@import url("https://fonts.googleapis.com/css?family=Arvo|Cookie|Josefin+Sans|Lora|Roboto+Slab:300|Sanchez|Teko:500");
-
-.font-teko {
-  font-family: "Teko", sans-serif;
-}
-
-.font-arvo {
-  font-family: "Arvo", serif;
-}
-</style>

@@ -4,6 +4,16 @@
 @import "tailwindcss/utilities";
 @import "animate.css";
 
+@import url("https://fonts.googleapis.com/css?family=Arvo|Cookie|Josefin+Sans|Lora|Roboto+Slab:300|Sanchez|Teko:500");
+
+.font-teko {
+  font-family: "Teko", sans-serif;
+}
+
+.font-arvo {
+  font-family: "Arvo", serif;
+}
+
 .infinite-iteration {
   animation-iteration-count: infinite;
 }

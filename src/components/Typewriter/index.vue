@@ -1,8 +1,6 @@
 <template>
-  <div>
-    <p
-      class="inline font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
-    >
+  <div class="inline-block font-bold">
+    <p class="inline">
       {{ typedText }}
     </p>
     <span
@@ -30,7 +28,6 @@ const { typedText, cursorFlash } = useTypewriter(
     // "冗长的黑夜里，你是我唯一的光"
     "Love to the depths, is lonely.",
     "In love folly is always sweet.",
-    "Love is not a matter of counting the days. It's making the days count.",
   ],
   100
 );
