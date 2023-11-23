@@ -1,10 +1,10 @@
 <template>
-  <div class="relative w-16 h-16 bg-transparent">
+  <div class="relative bg-transparent">
     <transition :name="transition">
       <img
         :src="imageSrc"
         :key="index"
-        class="absolute object-cover w-full h-full overflow-hidden rounded-full shadow-2xl"
+        class="absolute object-cover w-full h-full overflow-hidden shadow-2xl"
       />
     </transition>
   </div>
@@ -66,14 +66,14 @@ watch(
 }
 
 .scale-in-enter-active {
-  transition: all 0.3s ease-in-out;
+  transition: all 1s ease-in-out;
 }
 .scale-in-leave-active {
-  transition: all 0.3s ease-in-out;
+  transition: all 1s ease-in-out;
 }
 
 .scale-in-leave-to {
-  transform: scale(0.55);
+  transform: scale(0.5);
   opacity: 0;
 }
 </style>

@@ -26,6 +26,10 @@
   animation: fadeIn 0.3s ease-in-out forwards;
 }
 
+.bg-transition {
+  transition: background-image 3s ease-out;
+}
+
 @keyframes fadeIn {
   to {
     line-height: 1.2em;

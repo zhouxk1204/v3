@@ -11,12 +11,12 @@
         class="z-20 flex items-center overflow-hidden border shadow bg-opacity-5 rounded-2xl"
       >
         <div class="flex items-center justify-center flex-none pl-2">
-          <ScaleInOut
-            :index="currentAudioIndex"
-            :imageSrc="currentMeta.cover"
+          <img
+            :src="currentMeta.cover"
+            alt="cover"
+            class="object-cover w-16 h-16 rounded-full animation-rotated"
             :style="{ 'animation-play-state': isPlay ? 'running' : 'paused' }"
-            class="animation-rotated"
-          ></ScaleInOut>
+          />
         </div>
         <div class="w-32 pl-2">
           <div

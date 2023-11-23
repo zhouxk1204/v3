@@ -100,7 +100,4 @@ const submit = () => {
 .animate__delay-02s {
   animation-delay: 0.3s;
 }
-.bg-transition {
-  transition: background-image 3s ease-out;
-}
 </style>

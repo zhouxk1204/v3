@@ -1,6 +1,10 @@
 <template>
   <div class="flex items-center w-screen h-screen overflow-hidden">
-    <img :src="src" alt="" class="object-cover w-1/2 h-full" />
+    <ScaleInOut
+      :imageSrc="backgroundImage"
+      :index="srcIndex"
+      class="w-1/2 h-full"
+    ></ScaleInOut>
     <div class="flex-1">
       <div class="flex items-center justify-center font-teko">
         <h1 class="tracking-wide text-7xl">ZHOUXK</h1>
@@ -13,19 +17,19 @@
       </div>
 
       <div class="flex w-2/3 mx-auto font-arvo">
-        <div class="flex-1 text-center">
+        <div class="flex flex-col items-center justify-between flex-1">
           <p class="text-xl">{{ days }}</p>
           <h2 class="mt-2 text-sm">DAYS</h2>
         </div>
-        <div class="flex-1 text-center">
+        <div class="flex flex-col items-center justify-between flex-1">
           <p class="text-xl">{{ hours }}</p>
           <h2 class="mt-2 text-sm">HOURS</h2>
         </div>
-        <div class="flex-1 text-center">
+        <div class="flex flex-col items-center justify-between flex-1">
           <p class="text-xl">{{ minutes }}</p>
           <h2 class="mt-2 text-sm">MINUTES</h2>
         </div>
-        <div class="flex-1 text-center">
+        <div class="flex flex-col items-center justify-between flex-1">
           <p class="text-xl">{{ remainingSeconds }}</p>
           <h2 class="mt-2 text-sm">SECONDS</h2>
         </div>
@@ -41,11 +45,26 @@
 </template>
 
 <script setup lang="ts">
-import rose from "@/assets/img/rose3.avif";
 import * as dayjs from "dayjs";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
-const src = rose;
+const roseImgSrcList = Object.keys(
+  import.meta.glob("@/assets/img/rose/*.{png,jpg,gif,svg,avif}")
+);
+
+const srcIndex = ref(0);
+
+setInterval(() => {
+  if (srcIndex.value === roseImgSrcList.length - 1) {
+    srcIndex.value = 0;
+  } else {
+    srcIndex.value += 1;
+  }
+}, 2500);
+
+const backgroundImage = computed(() => {
+  return roseImgSrcList[srcIndex.value];
+});
 
 const date = dayjs("2024-05-19").format("dddd MMMM D, YYYY");
 const days = ref(0);
