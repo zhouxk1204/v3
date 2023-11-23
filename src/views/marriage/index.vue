@@ -1,10 +1,6 @@
 <template>
   <div class="flex items-center w-screen h-screen overflow-hidden">
-    <img
-      src="https://images.unsplash.com/photo-1487530811176-3780de880c2d"
-      alt=""
-      class="object-cover w-1/2 h-full"
-    />
+    <img :src="src" alt="" class="object-cover w-1/2 h-full" />
     <div class="flex-1">
       <div class="flex items-center justify-center font-teko">
         <h1 class="tracking-wide text-7xl">ZHOUXK</h1>
@@ -45,8 +41,11 @@
 </template>
 
 <script setup lang="ts">
+import rose from "@/assets/img/rose3.avif";
 import * as dayjs from "dayjs";
 import { ref } from "vue";
+
+const src = rose;
 
 const date = dayjs("2024-05-19").format("dddd MMMM D, YYYY");
 const days = ref(0);
