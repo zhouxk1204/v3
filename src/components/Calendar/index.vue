@@ -27,33 +27,46 @@
       {{ item }}
     </div>
     <div
+      @click="onClickDate(item.date)"
       v-for="item in dateList"
-      class="h-32 pt-2 pr-2 text-right border-b border-r cursor-pointer"
-      :class="{ 'bg-disable': +item.split('-')[1] !== currentMonth }"
+      class="h-32 pt-2 pr-2 font-bold text-right border-b border-r cursor-pointer"
+      :class="{
+        'bg-disable': item.month !== currentMonth,
+        'bg-blue-400 text-white shadow-2xl':
+          item.month === currentMonth && item.date === selectDate,
+      }"
     >
       <span
-        class="inline-flex items-center justify-center w-10 h-10"
+        class="inline-flex items-center justify-center w-10 h-10 font-bold"
         :class="{
-          ' text-white bg-green-500 rounded-full': item === currentDate,
+          'text-white bg-green-500 rounded-full': item.date === currentDate,
+          'text-red-500':
+            item.month === currentMonth && [0, 6].includes(item.dayOfWeek),
+          'text-red-300':
+            item.month !== currentMonth && [0, 6].includes(item.dayOfWeek),
         }"
       >
-        {{ +item.split("-")[2] }}
+        {{ item.dayOfMonth }}
       </span>
+      <!-- <div>国庆节</div> -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { DATE_FORMAT } from "@/constants";
+import { useCalendar } from "@/hooks/useCalendar";
 import * as dayjs from "dayjs";
 import { computed, ref } from "vue";
-import { getWeekDatesArrayOfMonthYear } from "../../utils/date";
 const dateHeader = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
-const currentDate = dayjs().format("YYYY-MM-DD");
+const currentDate = dayjs().format(DATE_FORMAT);
 const currentMonth = ref<number>(dayjs().month() + 1);
 const currentYear = ref<number>(dayjs().year());
 
+const selectDate = ref("");
+
 const dateList = computed(() => {
-  return getWeekDatesArrayOfMonthYear(currentYear.value, currentMonth.value);
+  return useCalendar(currentYear.value, currentMonth.value).list;
 });
 
 const monthChange = (value: number) => {
@@ -65,6 +78,10 @@ const monthChange = (value: number) => {
   const year = yearMonth.year();
   currentMonth.value = month;
   currentYear.value = year;
+};
+
+const onClickDate = (date: string) => {
+  selectDate.value = date;
 };
 </script>
 <style lang="scss" scoped>
