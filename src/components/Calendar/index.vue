@@ -17,9 +17,9 @@
         @click="monthChange(1)"
       ></Icon>
     </div>
-    <div class="my-2 text-sm text-gray-400">{{ currentYear }}</div>
+    <div class="my-2 text-sm text-gray-500">{{ currentYear }}</div>
   </div>
-  <div class="grid grid-cols-7 text-gray-400 border-l bg-my">
+  <div class="grid grid-cols-7 text-gray-500 border-l bg-my">
     <div
       v-for="item in dateHeader"
       class="py-3 text-center border-t border-b border-r text-bold"
@@ -29,26 +29,37 @@
     <div
       @click="onClickDate(item.date)"
       v-for="item in dateList"
-      class="h-32 pt-2 pr-2 font-bold text-right border-b border-r cursor-pointer"
+      class="pt-2 pr-2 text-right border-b border-r cursor-pointer h-28"
       :class="{
         'bg-disable': item.month !== currentMonth,
-        'bg-blue-400 text-white shadow-2xl':
+        'border-b-4 border-b-blue-400':
           item.month === currentMonth && item.date === selectDate,
       }"
     >
-      <span
-        class="inline-flex items-center justify-center w-10 h-10 font-bold"
+      <div
+        class="relative flex flex-col items-end justify-end p-2"
         :class="{
-          'text-white bg-green-500 rounded-full': item.date === currentDate,
           'text-red-500':
             item.month === currentMonth && [0, 6].includes(item.dayOfWeek),
           'text-red-300':
             item.month !== currentMonth && [0, 6].includes(item.dayOfWeek),
         }"
       >
-        {{ item.dayOfMonth }}
-      </span>
-      <!-- <div>国庆节</div> -->
+        <span
+          class="text-xl"
+          :class="{
+            'text-green-500 font-bold': item.date === currentDate,
+          }"
+        >
+          {{ item.dayOfMonth }}
+        </span>
+        <span v-if="item.name" class="text-xs">{{ item.name }}</span>
+        <span
+          v-if="item.type.length > 0"
+          class="absolute flex items-center justify-center w-4 h-4 text-xs text-red-500 bg-red-200 rounded-full -top-1 -right-1"
+          >{{ item.type === "0" ? "班" : "休" }}
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -82,6 +93,10 @@ const monthChange = (value: number) => {
 
 const onClickDate = (date: string) => {
   selectDate.value = date;
+  const selectDateMonth = dayjs(date).month() + 1;
+  if (selectDateMonth !== currentMonth.value) {
+    currentMonth.value = selectDateMonth;
+  }
 };
 </script>
 <style lang="scss" scoped>
