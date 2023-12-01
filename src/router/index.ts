@@ -40,6 +40,14 @@ const routes = [
         },
       },
       {
+        path: "game",
+        component: () => import("@/views/game/index.vue"),
+        name: "game",
+        meta: {
+          title: "游戏",
+        },
+      },
+      {
         path: "report",
         component: () => import("@/views/report/index.vue"),
         name: "report",
