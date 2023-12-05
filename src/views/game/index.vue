@@ -1,40 +1,54 @@
 <template>
-  <div class="relative">
-    <div class="grid grid-cols-4 grid-rows-4 gap-4 w-[400px] bg-[#9a9a95] p-4">
-      <template v-for="index of defaultSize">
+  <div
+    class="bg-[#f9ffe7] relative"
+    :style="{ width: boardSize + 'px', height: boardSize + 'px' }"
+  >
+    <div
+      class="absolute left-0 right-0 h-4 bg-gray-300"
+      :style="{ top: (index - 1) * blockSize + (index - 1) * space + 'px' }"
+      v-for="index of defaultSize + 1"
+      :key="index"
+    ></div>
+    <div
+      class="absolute top-0 bottom-0 bg-gray-300"
+      :style="{
+        left: (index - 1) * blockSize + (index - 1) * space + 'px',
+        width: space + 'px',
+      }"
+      v-for="index of defaultSize + 1"
+      :key="index"
+    ></div>
+    <template v-for="item in matrix">
+      <transition>
         <div
-          v-for="index2 of defaultSize"
-          class="bg-[#f9ffe7] rounded-sm w-20 h-20"
-        >
-          <div>&nbsp;</div>
-        </div>
-      </template>
-    </div>
-
-    <template v-for="row in matrix">
-      <template v-for="item in row">
-        <span
           :style="{
-            transform: `translateY(${dir}px)`,
-            top: `${item.x * 96 + 16}px`,
-            left: `${item.y * 96 + 16}px`,
-            'background-color': item.bgc,
+            top: `${item.row * blockSize + (item.row + 1) * space}px`,
+            left: `${item.col * blockSize + (item.col + 1) * space}px`,
+            'background-color': color[item.val],
+            width: blockSize + 'px',
+            height: blockSize + 'px',
           }"
-          class="absolute inline-flex items-center justify-center w-20 h-20 text-6xl font-bold text-white transition-all translate-y-20"
+          class="absolute flex items-center justify-center text-6xl font-bold text-white zoom-out"
         >
-          {{ item.value }}
-        </span>
-      </template>
+          {{ item.val }}
+        </div>
+      </transition>
     </template>
   </div>
 
-  <Button @click="down">down</Button>
+  <Button @click="newEl">new</Button>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+import { Direction, MatrixElement } from "./type";
+
+const space = 16;
+const blockSize = 100;
+const boardSize = 100 * 4 + 5 * 16;
 
 const color: any = {
+  0: "#f9ffe7",
   2: "#f6c659",
   4: "#dd5471",
   8: "#4998a8",
@@ -55,9 +69,9 @@ const radom = (range: number) => {
 
 const getRadomCell = () => {
   return {
-    x: radom(defaultSize),
-    y: radom(defaultSize),
-    value: [2, 4][Math.round(Math.random())],
+    row: radom(defaultSize),
+    col: radom(defaultSize),
+    val: [2, 4][Math.round(Math.random())],
   };
 };
 
@@ -66,8 +80,8 @@ const radomCoordinate = () => {
   while (result.length < 2) {
     const cell = getRadomCell();
     if (result.length === 1) {
-      if (result[0].x !== cell.x || result[0].y !== cell.y) {
-        if (result[0].value + cell.value !== 8) {
+      if (result[0].row !== cell.row || result[0].col !== cell.col) {
+        if (result[0].val + cell.val !== 8) {
           result.push(cell);
         }
       }
@@ -78,68 +92,43 @@ const radomCoordinate = () => {
   return result;
 };
 
-const newGame = (size: number) => {
-  const data = radomCoordinate();
-  const matrix = [];
-  for (let x = 0; x < size; x++) {
-    const row = [];
-    for (let y = 0; y < size; y++) {
-      const hasValue = data.find((e) => e.x === x && e.y === y);
-      const value = hasValue ? hasValue.value : 0;
-      row.push({
-        x,
-        y,
-        value,
-        bgc: color[value],
-      });
-    }
-    matrix.push(row);
-  }
-
-  return matrix;
+const newGame = (): MatrixElement[] => {
+  // const data = radomCoordinate();
+  // const matrix = [];
+  // for (let row = 0; row < size; row++) {
+  //   for (let col = 0; col < size; col++) {
+  //     const hasValue = data.find((e) => e.row === row && e.col === col);
+  //     const val = hasValue ? hasValue.val : 0;
+  //     matrix.push({
+  //       row,
+  //       col,
+  //       val,
+  //     });
+  //   }
+  // }
+  return radomCoordinate();
 };
 
-const matrix = ref(newGame(defaultSize));
+const matrix = ref(newGame());
+console.log("%c Line:111 🍐 matrix", "color:#93c0a4", matrix);
 
-const dir = ref(0);
-const isCoordinateExist = (x: number, y: number) => {
-  if (x < 0 || x > defaultSize) return false;
-  if (y < 0 || y > defaultSize) return false;
-  return true;
-};
-
-const next = {
-  up: (x: number, y: number) => {
-    return { x: x - 1, y };
-  },
-  left: (x: number, y: number) => {
-    return { x, y: y - 1 };
-  },
-  right: (x: number, y: number) => {
-    return { x, y: y + 1 };
-  },
-  down: (x: number, y: number) => {
-    return { x: x + 1, y };
-  },
-};
-
-const nextUnNullableValue = (
-  xC: number,
-  yC: number,
-  direction: "up" | "left" | "right" | "down"
-) => {
-  const { x, y } = next[direction](xC, yC);
-  if (isCoordinateExist(x, y)) {
-    const cell = matrix.value[x][y];
-    if (cell.value === 0) {
-      nextUnNullableValue(x, y, direction);
-    } else {
-      return matrix.value[x][y];
-    }
-  } else {
-    return null;
-  }
-};
+// const nextUnNullableValue = (
+//   xC: number,
+//   yC: number,
+//   direction: "up" | "left" | "right" | "down"
+// ) => {
+//   const { x, y } = next[direction](xC, yC);
+//   if (isCoordinateExist(x, y)) {
+//     const cell = matrix.value[x][y];
+//     if (cell.val === 0) {
+//       nextUnNullableValue(x, y, direction);
+//     } else {
+//       return matrix.value[x][y];
+//     }
+//   } else {
+//     return null;
+//   }
+// };
 
 // const next = (x: number, y: number) => {
 //   return {
@@ -150,20 +139,131 @@ const nextUnNullableValue = (
 //   }
 // }
 
-const down = () => {
-  const j = 0;
-  for (let i = 0; i < 4; i++) {
-    const cur = matrix.value[i][j];
-    if (cur.value !== 0) {
-      const next = nextUnNullableValue(i, j, "down");
-      if (next) {
-        if (cur.value === next.value) {
-          next.value *= 2;
-        } else {
-        }
-      }
-    }
+const move = (direction: Direction) => {
+  for (let item of matrix.value) {
+    const { row, col, value } = item;
+    const nextItem = getNextMatrixElement(row, col, direction);
+  }
+
+  // for (let i = 0; i < defaultSize; i++) {
+  //   for (let j = 0; j < defaultSize; j++) {
+  //     const curEl = matrix.value[i][j];
+  //     if (curEl.val !== 0) {
+  //       const nextEl = findNextUnZeroValue(i, j, direction);
+  //       if (!nextEl) {
+  //         curEl.row = defaultSize - 1;
+  //       } else {
+  //         if (curEl.val === nextEl.val) {
+  //           nextEl.val *= 2;
+  //           curEl.row = nextEl.row;
+  //           curEl.val = 0;
+  //         } else {
+  //           curEl.row = nextEl.row - 1;
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
+  // const el = generateElement(getExistList());
+  // matrix.value[el.row][el.col] = el;
+};
+
+const next = {
+  ArrowUp: (x: number, y: number) => {
+    return { x: x - 1, y };
+  },
+  ArrowLeft: (x: number, y: number) => {
+    return { x, y: y - 1 };
+  },
+  ArrowRight: (x: number, y: number) => {
+    return { x, y: y + 1 };
+  },
+  ArrowDown: (x: number, y: number) => {
+    return { x: x + 1, y };
+  },
+};
+
+const isCoordinateExist = (x: number, y: number) => {
+  if (x < 0 || x > defaultSize - 1) return false;
+  if (y < 0 || y > defaultSize - 1) return false;
+  return true;
+};
+
+const getNextMatrixElement = (
+  row: number,
+  col: number,
+  direction: Direction
+) => {
+  const { x, y } = next[direction](row, col);
+  if (!isCoordinateExist(x, y)) {
+    return null;
+  }
+  return getMatrixElement(x, y);
+};
+
+const generateElement = (existList: any[]): MatrixElement => {
+  const row = radom(defaultSize);
+  const col = radom(defaultSize);
+  if (existList.find((e) => e.row === row && e.col === col)) {
+    return generateElement(existList);
+  } else {
+    return {
+      row,
+      col,
+      val: [2, 4][Math.round(Math.random())],
+    };
+  }
+};
+
+const getMatrixElement = (
+  row: number,
+  col: number
+): MatrixElement | undefined => {
+  return matrix.value.find((e) => e.row === row && e.col === col);
+};
+// const getExistList = () => {
+//   if (matrix.value.length > 0) {
+//     const existList = matrix.value
+//       .flat(1)
+//       .filter((e) => e.val > 0)
+//       .map((e) => {
+//         return { row: e.row, col: e.col };
+//       });
+//     return existList;
+//   }
+//   return [];
+// };
+
+onMounted(() => {
+  // document.onkeydown = (keyboardEvent: KeyboardEvent) => {
+  //   console.log("%c Line:231 🍧 keyboardEvent", "color:#6ec1c2", keyboardEvent);
+  //   // move(keyboardEvent.code as Direction);
+  // };
+});
+
+const newEl = () => {
+  if (matrix.value.length < Math.pow(defaultSize, 2)) {
+    matrix.value.push(generateElement(matrix.value));
   }
 };
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.zoom-out {
+  animation: zoom 0.3s ease-in-out;
+}
+
+@keyframes zoom {
+  0% {
+    transform: scale(0.3);
+    transform-origin: center;
+  }
+  70% {
+    transform: scale(1.2);
+    transform-origin: center;
+  }
+  100% {
+    transform: scale(1);
+    transform-origin: center;
+  }
+}
+</style>
