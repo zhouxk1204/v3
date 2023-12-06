@@ -46,7 +46,7 @@
                 ? '#756e66'
                 : '#f8f6f2',
           }"
-          class="absolute flex items-center justify-center text-6xl font-bold transition-all rounded-md zoom-out"
+          class="absolute flex items-center justify-center text-6xl font-bold transition-all rounded-md m-el zoom-out"
         >
           {{ item.val }}
         </div>
@@ -269,9 +269,6 @@ const move = (direction: Direction): void => {
       calculate(j, defaultSize - 1, direction);
     }
   }
-  setTimeout(() => {
-    matrix.value.push(generateMatrixElement());
-  }, 200);
 };
 
 onMounted(() => {
@@ -282,18 +279,35 @@ onMounted(() => {
       )
     ) {
       move(keyboardEvent.code as Direction);
+      if (
+        matrix.value.filter((e) => e.val > 0).length <
+        defaultSize * defaultSize
+      ) {
+        matrix.value.push(generateMatrixElement());
+        setTimeout(() => {
+          const elements = document.getElementsByClassName("m-el");
+          const elementsArray = Array.from(elements);
+          // Iterate through the elements
+          elementsArray.forEach((element) => {
+            // Check if innerHTML is "0"
+            if (element.innerHTML.trim() === "0") {
+              element.parentNode?.removeChild(element);
+            }
+          });
+        }, 250);
+      }
     }
   };
 });
 </script>
 <style lang="scss" scoped>
 .zoom-out {
-  animation: zoom 0.4s ease-in-out;
+  animation: zoom 0.3s ease-in-out;
 }
 
 @keyframes zoom {
   0% {
-    transform: scale(0.5);
+    transform: scale(0.8);
     transform-origin: center;
   }
   75% {
