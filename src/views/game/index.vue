@@ -46,7 +46,7 @@
                 ? '#756e66'
                 : '#f8f6f2',
           }"
-          class="absolute flex items-center justify-center text-6xl font-bold transition-all rounded-md shadow-sm zoom-out"
+          class="absolute flex items-center justify-center text-6xl font-bold transition-all rounded-md zoom-out"
         >
           {{ item.val }}
         </div>
