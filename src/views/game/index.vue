@@ -1,42 +1,58 @@
 <template>
   <div
-    class="bg-[#f9ffe7] relative"
-    :style="{ width: boardSize + 'px', height: boardSize + 'px' }"
+    class="flex items-center justify-between mb-4"
+    :style="{ width: boardSize + 'px' }"
+  >
+    <h1 class="font-bold text-7xl text-[#756e66]">2048</h1>
+    <div class="bg-[#bbada0] rounded-md inline-block px-2 py-1 font-bold">
+      <div class="text-[#ebe3da]">SCORE</div>
+      <div class="text-2xl text-center text-white">{{ score }}</div>
+    </div>
+  </div>
+  <div
+    class="bg-[#b9ada1] relative rounded-md overflow-hidden grid grid-cols-4 grid-rows-4"
+    :style="{
+      width: boardSize + 'px',
+      height: boardSize + 'px',
+      gap: space + 'px',
+      padding: space + 'px',
+    }"
   >
     <div
-      class="absolute left-0 right-0 h-4 bg-gray-300"
-      :style="{ top: (index - 1) * blockSize + (index - 1) * space + 'px' }"
-      v-for="index of defaultSize + 1"
-      :key="index"
-    ></div>
-    <div
-      class="absolute top-0 bottom-0 bg-gray-300"
       :style="{
-        left: (index - 1) * blockSize + (index - 1) * space + 'px',
-        width: space + 'px',
+        width: blockSize + 'px',
+        height: blockSize + 'px',
       }"
-      v-for="index of defaultSize + 1"
+      v-for="index in defaultSize * defaultSize"
       :key="index"
-    ></div>
+      class="bg-[#cac1b5] rounded-md"
+    >
+      &nbsp;
+    </div>
     <template v-for="item in matrix">
       <transition>
         <div
           :style="{
             top: `${item.row * blockSize + (item.row + 1) * space}px`,
             left: `${item.col * blockSize + (item.col + 1) * space}px`,
-            'background-color': color[item.val],
             width: blockSize + 'px',
             height: blockSize + 'px',
+            'z-index': item.val,
+            'background-color': color[item.val],
+            color:
+              item.val === 0
+                ? 'transparent'
+                : item.val < 8
+                ? '#756e66'
+                : '#f8f6f2',
           }"
-          class="absolute flex items-center justify-center text-6xl font-bold text-white zoom-out"
+          class="absolute flex items-center justify-center text-6xl font-bold transition-all rounded-md shadow-sm zoom-out"
         >
           {{ item.val }}
         </div>
       </transition>
     </template>
   </div>
-
-  <Button @click="newEl">new</Button>
 </template>
 
 <script setup lang="ts">
@@ -48,13 +64,14 @@ const blockSize = 100;
 const boardSize = 100 * 4 + 5 * 16;
 
 const color: any = {
-  0: "#f9ffe7",
-  2: "#f6c659",
-  4: "#dd5471",
-  8: "#4998a8",
-  16: "#4998a8",
-  32: "#4998a8",
-  128: "#4998a8",
+  0: "transparent",
+  2: "#eee4da",
+  4: "#ede0c8",
+  8: "#f2b179",
+  16: "#f59563",
+  32: "#f67c5f",
+  64: "#f65e3b",
+  128: "#f65e3b",
   256: "#4998a8",
   512: "#4998a8",
   1024: "#4998a8",
@@ -62,203 +79,225 @@ const color: any = {
 };
 
 const defaultSize = 4; // 4 * 4
+const score = ref(0);
 
-const radom = (range: number) => {
-  return Math.floor(Math.random() * range);
+const matrix = ref<MatrixElement[]>([]);
+
+/**
+ * 随机数 0 ～ range(包括)
+ * @param {number} range
+ * @returns {number} 随机数
+ */
+const random = (range: number = 1): number => {
+  return Math.round(Math.random() * range);
 };
 
-const getRadomCell = () => {
+/**
+ * 随机行号，列号
+ * @param {number} range
+ * @returns {number} 行号，列号
+ */
+const randomPosition = (): number => {
+  return random(defaultSize - 1);
+};
+
+/**
+ * 判断元素坐标是否越界
+ * @param {number} row 行号
+ * @param {number} col 列号
+ * @returns {boolean} true: 下标没越界; false: 下标越界
+ */
+const isMatrixElementExist = (row: number, col: number): boolean => {
+  return row >= 0 && row < defaultSize && col >= 0 && col < defaultSize;
+};
+
+/**
+ * 在空余位置生成一个元素
+ * @returns {MatrixElement} 元素
+ */
+const generateMatrixElement = (): MatrixElement => {
+  let row = randomPosition();
+  let col = randomPosition();
+
+  while (
+    matrix.value.find((el) => el.row === row && el.col === col && el.val > 0)
+  ) {
+    row = randomPosition();
+    col = randomPosition();
+  }
+
   return {
-    row: radom(defaultSize),
-    col: radom(defaultSize),
-    val: [2, 4][Math.round(Math.random())],
+    row,
+    col,
+    val: [2, 4][random()],
   };
 };
 
-const radomCoordinate = () => {
-  const result = [];
-  while (result.length < 2) {
-    const cell = getRadomCell();
-    if (result.length === 1) {
-      if (result[0].row !== cell.row || result[0].col !== cell.col) {
-        if (result[0].val + cell.val !== 8) {
-          result.push(cell);
-        }
-      }
-    } else {
-      result.push(cell);
-    }
-  }
-  return result;
-};
-
-const newGame = (): MatrixElement[] => {
-  // const data = radomCoordinate();
-  // const matrix = [];
-  // for (let row = 0; row < size; row++) {
-  //   for (let col = 0; col < size; col++) {
-  //     const hasValue = data.find((e) => e.row === row && e.col === col);
-  //     const val = hasValue ? hasValue.val : 0;
-  //     matrix.push({
-  //       row,
-  //       col,
-  //       val,
-  //     });
-  //   }
-  // }
-  return radomCoordinate();
-};
-
-const matrix = ref(newGame());
-console.log("%c Line:111 🍐 matrix", "color:#93c0a4", matrix);
-
-// const nextUnNullableValue = (
-//   xC: number,
-//   yC: number,
-//   direction: "up" | "left" | "right" | "down"
-// ) => {
-//   const { x, y } = next[direction](xC, yC);
-//   if (isCoordinateExist(x, y)) {
-//     const cell = matrix.value[x][y];
-//     if (cell.val === 0) {
-//       nextUnNullableValue(x, y, direction);
-//     } else {
-//       return matrix.value[x][y];
-//     }
-//   } else {
-//     return null;
-//   }
-// };
-
-// const next = (x: number, y: number) => {
-//   return {
-//     up: () => {return {x: x-1,y}},
-//     left: () => {return {x: x,y -1}},
-//     right: () => {return {x: x,y+1}},
-//     down: () => {return {x: x+1,y}},
-//   }
-// }
-
-const move = (direction: Direction) => {
-  for (let item of matrix.value) {
-    const { row, col, value } = item;
-    const nextItem = getNextMatrixElement(row, col, direction);
-  }
-
-  // for (let i = 0; i < defaultSize; i++) {
-  //   for (let j = 0; j < defaultSize; j++) {
-  //     const curEl = matrix.value[i][j];
-  //     if (curEl.val !== 0) {
-  //       const nextEl = findNextUnZeroValue(i, j, direction);
-  //       if (!nextEl) {
-  //         curEl.row = defaultSize - 1;
-  //       } else {
-  //         if (curEl.val === nextEl.val) {
-  //           nextEl.val *= 2;
-  //           curEl.row = nextEl.row;
-  //           curEl.val = 0;
-  //         } else {
-  //           curEl.row = nextEl.row - 1;
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
-  // const el = generateElement(getExistList());
-  // matrix.value[el.row][el.col] = el;
-};
-
-const next = {
-  ArrowUp: (x: number, y: number) => {
-    return { x: x - 1, y };
+// 下个元素的位置
+const nextMatrixElementPosition = {
+  ArrowUp: (row: number, col: number) => {
+    return { row: row + 1, col };
   },
-  ArrowLeft: (x: number, y: number) => {
-    return { x, y: y - 1 };
+  ArrowLeft: (row: number, col: number) => {
+    return { row, col: col + 1 };
   },
-  ArrowRight: (x: number, y: number) => {
-    return { x, y: y + 1 };
+  ArrowRight: (row: number, col: number) => {
+    return { row, col: col - 1 };
   },
-  ArrowDown: (x: number, y: number) => {
-    return { x: x + 1, y };
+  ArrowDown: (row: number, col: number) => {
+    return { row: row - 1, col };
   },
 };
 
-const isCoordinateExist = (x: number, y: number) => {
-  if (x < 0 || x > defaultSize - 1) return false;
-  if (y < 0 || y > defaultSize - 1) return false;
-  return true;
-};
-
-const getNextMatrixElement = (
-  row: number,
-  col: number,
-  direction: Direction
-) => {
-  const { x, y } = next[direction](row, col);
-  if (!isCoordinateExist(x, y)) {
-    return null;
-  }
-  return getMatrixElement(x, y);
-};
-
-const generateElement = (existList: any[]): MatrixElement => {
-  const row = radom(defaultSize);
-  const col = radom(defaultSize);
-  if (existList.find((e) => e.row === row && e.col === col)) {
-    return generateElement(existList);
-  } else {
-    return {
-      row,
-      col,
-      val: [2, 4][Math.round(Math.random())],
-    };
-  }
-};
-
+/**
+ * 根据行号，列号获取元素
+ * @param {number} row 行号
+ * @param {number} col 列号
+ * @returns {MatrixElement | undefined} 元素
+ */
 const getMatrixElement = (
   row: number,
   col: number
 ): MatrixElement | undefined => {
-  return matrix.value.find((e) => e.row === row && e.col === col);
+  return matrix.value.filter(
+    (e) => e.row == row && e.col === col && e.val > 0
+  )[0];
 };
-// const getExistList = () => {
-//   if (matrix.value.length > 0) {
-//     const existList = matrix.value
-//       .flat(1)
-//       .filter((e) => e.val > 0)
-//       .map((e) => {
-//         return { row: e.row, col: e.col };
-//       });
-//     return existList;
-//   }
-//   return [];
-// };
 
-onMounted(() => {
-  // document.onkeydown = (keyboardEvent: KeyboardEvent) => {
-  //   console.log("%c Line:231 🍧 keyboardEvent", "color:#6ec1c2", keyboardEvent);
-  //   // move(keyboardEvent.code as Direction);
-  // };
-});
+/**
+ * 根据行号，寻找下一个非0的元素
+ * @param {number} row 行号
+ * @param {number} col 列号
+ * @returns { MatrixElement | undefined } 元素
+ */
+const getNextMatrixElement = (
+  row: number,
+  col: number,
+  direction: Direction
+): MatrixElement | undefined => {
+  const nextRow = nextMatrixElementPosition[direction](row, col).row;
+  const nextCol = nextMatrixElementPosition[direction](row, col).col;
+  if (!isMatrixElementExist(nextRow, nextCol)) return;
 
-const newEl = () => {
-  if (matrix.value.length < Math.pow(defaultSize, 2)) {
-    matrix.value.push(generateElement(matrix.value));
+  const nextMatrixElement = getMatrixElement(nextRow, nextCol);
+
+  if (nextMatrixElement) {
+    return nextMatrixElement;
+  } else {
+    return getNextMatrixElement(nextRow, nextCol, direction);
   }
 };
+
+/**
+ * 新开游戏
+ */
+const newGame = (): void => {
+  matrix.value = [];
+  let i = 0;
+  while (i < 2) {
+    matrix.value.push(generateMatrixElement());
+    i++;
+  }
+};
+newGame();
+
+/**
+ * 合并计算
+ * @param {number} row 行号
+ * @param {number} col 列号
+ */
+const calculate = (row: number, col: number, direction: Direction): void => {
+  // 下标是否越界判断
+  if (!isMatrixElementExist(row, col)) return;
+
+  const curr = getMatrixElement(row, col);
+
+  const next = getNextMatrixElement(row, col, direction);
+
+  if (!curr) {
+    // 当前元素为空，获取下一个非空，将其移动到当前位置
+    if (next) {
+      next.row = row;
+      next.col = col;
+      calculate(row, col, direction);
+    }
+  } else {
+    // 当前元素不为空，下一个非空存在
+    if (next) {
+      // 想同时，合并，当前值*2，将下一个坐标传入
+      if (curr.val === next.val) {
+        matrix.value.push({
+          row,
+          col,
+          val: curr.val * 2,
+        });
+        // 统计分数
+        score.value += curr.val * 2;
+        // 移动和清空
+        next.row = row;
+        next.col = col;
+        next.val = 0;
+        curr.val = 0;
+        // 下一个元素再计算
+        const nextRow = nextMatrixElementPosition[direction](row, col).row;
+        const nextCol = nextMatrixElementPosition[direction](row, col).col;
+        calculate(nextRow, nextCol, direction);
+      } else {
+        const nextRow = nextMatrixElementPosition[direction](row, col).row;
+        const nextCol = nextMatrixElementPosition[direction](row, col).col;
+        next.row = nextRow;
+        next.col = nextCol;
+        calculate(nextRow, nextCol, direction);
+      }
+    }
+  }
+};
+
+/**
+ * 移动
+ * @param {Direction} direction
+ */
+const move = (direction: Direction): void => {
+  for (let j = 0; j < defaultSize; j++) {
+    if (direction === "ArrowUp") {
+      calculate(0, j, direction);
+    } else if (direction === "ArrowDown") {
+      calculate(defaultSize - 1, j, direction);
+    } else if (direction === "ArrowLeft") {
+      calculate(j, 0, direction);
+    } else if (direction === "ArrowRight") {
+      calculate(j, defaultSize - 1, direction);
+    }
+  }
+  setTimeout(() => {
+    matrix.value.push(generateMatrixElement());
+  }, 200);
+};
+
+onMounted(() => {
+  document.onkeydown = (keyboardEvent: KeyboardEvent) => {
+    if (
+      ["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight"].includes(
+        keyboardEvent.code
+      )
+    ) {
+      move(keyboardEvent.code as Direction);
+    }
+  };
+});
 </script>
 <style lang="scss" scoped>
 .zoom-out {
-  animation: zoom 0.3s ease-in-out;
+  animation: zoom 0.4s ease-in-out;
 }
 
 @keyframes zoom {
   0% {
-    transform: scale(0.3);
+    transform: scale(0.5);
     transform-origin: center;
   }
-  70% {
-    transform: scale(1.2);
+  75% {
+    transform: scale(1.1);
     transform-origin: center;
   }
   100% {
