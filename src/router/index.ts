@@ -48,6 +48,14 @@ const routes = [
         },
       },
       {
+        path: "minesweeper",
+        component: () => import("@/views/minesweeper/index.vue"),
+        name: "minesweeper",
+        meta: {
+          title: "minesweeper",
+        },
+      },
+      {
         path: "report",
         component: () => import("@/views/report/index.vue"),
         name: "report",
