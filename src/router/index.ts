@@ -44,7 +44,7 @@ const routes = [
         component: () => import("@/views/game/index.vue"),
         name: "game",
         meta: {
-          title: "游戏",
+          title: "2048",
         },
       },
       {
@@ -52,7 +52,7 @@ const routes = [
         component: () => import("@/views/minesweeper/index.vue"),
         name: "minesweeper",
         meta: {
-          title: "minesweeper",
+          title: "扫雷",
         },
       },
       {
