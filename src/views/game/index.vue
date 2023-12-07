@@ -48,7 +48,8 @@
                     ? '#756e66'
                     : '#f8f6f2',
               }"
-              class="absolute flex items-center justify-center text-6xl font-bold transition-all rounded-md m-el zoom-out"
+              class="absolute flex items-center justify-center font-bold transition-all rounded-md m-el zoom-out"
+              :class="item.val < 100 ? 'text-6xl' : 'text-4xl'"
             >
               {{ item.val }}
             </div>
