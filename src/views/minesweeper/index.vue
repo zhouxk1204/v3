@@ -324,6 +324,10 @@ const initGame = (): void => {
   initBoard();
   // 初始化地雷
   initMines();
+
+  if (face.value !== "smile") {
+    face.value = "smile";
+  }
 };
 initGame();
 
@@ -399,8 +403,6 @@ const onMouseDown = (cell: Cell, event: MouseEvent) => {
 const onClickLevel = (key: string) => {
   currentLevel.value = key;
   const { row, col } = level[key];
-  console.log("%c Line:166 🍢 col", "color:#4fff4B", col);
-  console.log("%c Line:166 🍬 row", "color:#4fff4B", row);
   gameBoardRow.value = row;
   gameBoardCol.value = col;
   mine.value = level[key].mine;
