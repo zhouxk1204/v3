@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full bg-[#efefef] p-20 w-full">
+  <div class="flex items-center justify-center w-full h-full">
     <div
       class="border border-r-[#716f64] border-b-[#716f64] border-t-[#f1efe2] border-l-[#f1efe2]"
       :style="{ width: 29 + gameBoardCol * 16 + 'px' }"
