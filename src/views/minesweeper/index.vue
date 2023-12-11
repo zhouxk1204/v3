@@ -183,11 +183,14 @@ const mineNums = computed(() => {
 const isWin = computed(() => {
   if (gameBoard.value.length > 0) {
     const isOpenedList = gameBoard.value.filter((el) => el.status == "opened");
-    return (
+    const res =
       isOpenedList.length ===
         gameBoardRow.value * gameBoardCol.value - mine.value &&
-      isOpenedList.every((el) => !el.isMine)
-    );
+      isOpenedList.every((el) => !el.isMine);
+    if (res) {
+      stopTimer();
+    }
+    return res;
   } else {
     return false;
   }
@@ -344,12 +347,13 @@ const resetGame = (): void => {
 };
 
 /**
- * Click cell by Mouse
+ * 点击格子(mouse up)
  * @param {MouseEvent} event
  */
 const onMouseUp = (cell: Cell, event: MouseEvent): void => {
   event.preventDefault();
 
+  // 游戏结束或游戏胜利之后点击无效
   if (isGameOver.value || isWin.value) return;
 
   face.value = "smile";
@@ -392,7 +396,15 @@ const onMouseUp = (cell: Cell, event: MouseEvent): void => {
   }
 };
 
+/**
+ * 点击格子(mouse down)
+ * @param {Cell} cell
+ * @param {MouseEvent} event
+ */
 const onMouseDown = (cell: Cell, event: MouseEvent) => {
+  // 游戏结束或游戏胜利之后点击无效
+  if (isGameOver.value || isWin.value) return;
+
   // 鼠标左键按下，触发激活状态
   if (event.button === 0 && cell.status === "covered") {
     cell.isActive = true;
