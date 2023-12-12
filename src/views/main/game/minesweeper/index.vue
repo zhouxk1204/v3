@@ -427,12 +427,12 @@ const onClickLevel = (key: string) => {
 .face,
 .num,
 .cell {
-  background: url("../../assets/img/minesweeper.png") no-repeat;
+  background: url("../../../../assets/img/minesweeper.png") no-repeat;
   display: inline-block;
 }
 
 .title-bar {
-  background: #3d95ff url("../../assets/img/minesweeper.png") no-repeat;
+  background: #3d95ff url("../../../../assets/img/minesweeper.png") no-repeat;
   background-position: 0 -84px;
   height: 25px;
   width: 100%;
