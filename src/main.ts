@@ -1,4 +1,4 @@
-import "./style.css";
+import "./style.scss";
 
 import AutoRegisterComponents from "@/components/AutoRegisterComponents";
 import { Icon } from "@iconify/vue";
