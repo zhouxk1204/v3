@@ -93,7 +93,7 @@ onMounted(() => {
 });
 
 const submit = () => {
-  router.push("/home");
+  router.push("/main/home");
 };
 </script>
 <style lang="scss" scoped>
