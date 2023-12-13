@@ -37,15 +37,13 @@
       </div>
 
       <Button type="primary" class="h-12" @click="submit">注册 / 登录</Button>
-    </form>
 
-    <label
-      @click="onNextBg()"
-      v-show="isNextBgBtnVisible"
-      class="absolute opacity-20 top-5 right-5 hover:opacity-40"
-    >
-      换一张?
-    </label>
+      <div class="flex items-center justify-center h-6 mt-2 text-gray-400">
+        <span @click="onNextBg()" v-show="isNextBgBtnVisible"
+          >不喜欢这张背景图，换一张?</span
+        >
+      </div>
+    </form>
   </div>
 </template>
 
