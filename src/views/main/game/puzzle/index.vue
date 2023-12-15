@@ -11,8 +11,19 @@
           <div class="text-2xl text-center text-white">{{ score }}</div>
         </div>
       </div>
+      <div class="flex items-center mb-4" :style="{ width: boardSize + 'px' }">
+        <div class="text-2xl text-[#54381d] break-words flex-1">
+          Join the numbers and<br />get to the <strong>2048 tile!</strong>
+        </div>
+        <button
+          class="bg-[#7d6f60] px-5 py-3 text-2xl text-white rounded hover:bg-[#65594d] active:bg-[#564c42] outline-none border-none"
+          @click="reload"
+        >
+          New Game
+        </button>
+      </div>
       <div
-        class="bg-[#b9ada1] relative rounded-md overflow-hidden grid grid-cols-4 grid-rows-4"
+        class="bg-[#b9ada1] relative rounded-md overflow-hidden grid grid-cols-4 grid-rows-4 shadow-sm"
         :style="{
           width: boardSize + 'px',
           height: boardSize + 'px',
@@ -20,6 +31,32 @@
           padding: space + 'px',
         }"
       >
+        <div
+          v-if="isWin || isLose"
+          class="absolute top-0 left-0 z-[9999] w-full h-full bg-opacity-50 flex justify-center items-center"
+          :class="{ ' bg-yellow-500': isWin, 'bg-[#ece4db]': isLose }"
+        >
+          <div>
+            <h1 class="mb-6 text-4xl text-center text-[#756e66] select-none">
+              {{ isWin ? "You Win!" : isLose ? "Game Over!" : "233" }}
+            </h1>
+            <div class="flex justify-center">
+              <button
+                v-if="isWin"
+                class="px-3 py-2 mr-5 text-xl text-gray-100 bg-yellow-800 rounded hover:bg-yellow-700 active:bg-yellow-900"
+                @click="closeWinPop"
+              >
+                Keep going
+              </button>
+              <button
+                class="px-3 py-2 text-xl text-gray-100 bg-yellow-800 rounded hover:bg-yellow-700 active:bg-yellow-900"
+                @click="reload"
+              >
+                Try again
+              </button>
+            </div>
+          </div>
+        </div>
         <div
           :style="{
             width: blockSize + 'px',
@@ -32,28 +69,28 @@
           &nbsp;
         </div>
         <template v-for="item in matrix">
-          <transition>
-            <div
-              :style="{
-                top: `${item.row * blockSize + (item.row + 1) * space}px`,
-                left: `${item.col * blockSize + (item.col + 1) * space}px`,
-                width: blockSize + 'px',
-                height: blockSize + 'px',
-                'z-index': item.val,
-                'background-color': color[item.val],
-                color:
-                  item.val === 0
-                    ? 'transparent'
-                    : item.val < 8
-                    ? '#756e66'
-                    : '#f8f6f2',
-              }"
-              class="absolute flex items-center justify-center font-bold transition-all rounded-md m-el zoom-out"
-              :class="item.val < 100 ? 'text-6xl' : 'text-4xl'"
-            >
-              {{ item.val }}
-            </div>
-          </transition>
+          <div
+            :style="{
+              top: `${item.row * blockSize + (item.row + 1) * space}px`,
+              left: `${item.col * blockSize + (item.col + 1) * space}px`,
+              width: blockSize + 'px',
+              height: blockSize + 'px',
+              'z-index': item.val,
+              'background-color': color[item.val],
+              color:
+                item.val === 0
+                  ? 'transparent'
+                  : item.val < 8
+                  ? '#756e66'
+                  : '#f8f6f2',
+            }"
+            class="absolute flex items-center justify-center font-bold transition-all rounded-md zoom-out"
+            :class="
+              item.val === 0 ? 'm-el' : item.val > 100 ? 'text-4xl' : 'text-6xl'
+            "
+          >
+            {{ item.val }}
+          </div>
         </template>
       </div>
     </div>
@@ -87,6 +124,13 @@ const defaultSize = 4; // 4 * 4
 const score = ref(0);
 
 const matrix = ref<MatrixElement[]>([]);
+
+const isWin = ref(false);
+const closeWinPop = () => {
+  isWin.value = false;
+};
+
+const isLose = ref(false);
 
 /**
  * 随机数 0 ～ range(包括)
@@ -124,11 +168,13 @@ const generateMatrixElement = (): MatrixElement => {
   let row = randomPosition();
   let col = randomPosition();
 
-  while (
-    matrix.value.find((el) => el.row === row && el.col === col && el.val > 0)
-  ) {
-    row = randomPosition();
-    col = randomPosition();
+  if (matrix.value.length > 0) {
+    while (
+      matrix.value.find((el) => el.row === row && el.col === col && el.val > 0)
+    ) {
+      row = randomPosition();
+      col = randomPosition();
+    }
   }
 
   return {
@@ -197,6 +243,9 @@ const getNextMatrixElement = (
  * 新开游戏
  */
 const newGame = (): void => {
+  isWin.value = false;
+  isLose.value = false;
+  score.value = 0;
   matrix.value = [];
   let i = 0;
   while (i < 2) {
@@ -205,6 +254,10 @@ const newGame = (): void => {
   }
 };
 newGame();
+
+const reload = () => {
+  location.reload();
+};
 
 /**
  * 合并计算
@@ -238,6 +291,12 @@ const calculate = (row: number, col: number, direction: Direction): void => {
         });
         // 统计分数
         score.value += curr.val * 2;
+
+        // 胜利条件
+        if (curr.val * 2 === 2048) {
+          isWin.value = true;
+        }
+
         // 移动和清空
         next.row = row;
         next.col = col;
@@ -299,7 +358,9 @@ onMounted(() => {
               element.parentNode?.removeChild(element);
             }
           });
-        }, 250);
+        }, 500);
+      } else {
+        isLose.value = true;
       }
     }
   };
