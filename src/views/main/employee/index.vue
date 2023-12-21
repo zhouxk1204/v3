@@ -1,25 +1,24 @@
 <template>
-  <div class="flex mb-4">
-    <Button type="primary" class="mr-2" @click="openDialog">添加</Button>
-    <Upload @data="onData">
-      <div class="flex items-center">
-        <span>一键导入</span>
-      </div>
-    </Upload>
-  </div>
-
-  <div class="mb-4">
-    <div class="flex items-center">
-      <input
-        type="checkbox"
-        name=""
-        id="state"
-        class="w-5 h-5"
-        v-model="active"
-      />
-      <label for="state" class="ml-2 select-none">只看在职</label>
+  <div class="flex items-end justify-between">
+    <h1 class="text-2xl font-bold">职工管理</h1>
+    <div class="flex">
+      <Upload @data="onData">
+        <div class="flex items-center">
+          <span>导入</span>
+        </div>
+      </Upload>
+      <Button type="primary" class="ml-2" @click="openDialog">添加</Button>
     </div>
   </div>
+
+  <hr class="mt-2 mb-3" />
+
+  <!-- <div class="mb-4">
+    <div class="flex items-center">
+      <input type="checkbox" id="state" class="w-5 h-5" v-model="active" />
+      <label for="state" class="ml-2 select-none">只看在职</label>
+    </div>
+  </div> -->
 
   <Table
     :headers="headers"
@@ -94,7 +93,7 @@ import { useDialog } from "@/hooks/useDialog";
 import { Employee } from "@/models/employee.model";
 import useStore from "@/store";
 import { deepCopy } from "@/utils";
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 const { mode, isOpen, openDialog, closeDialog } = useDialog();
 
 const emptyForm = () => {
@@ -191,14 +190,13 @@ const onEdit = (data: Employee) => {
   openDialog(false);
 };
 
-const active = ref<boolean>(false);
-
-watch(active, (newValue: boolean) => {
-  if (newValue) {
-    list.value = list.value.filter((e) => e.stateId === "1");
-  } else {
-    list.value = useStore().employee.employeeList;
-  }
-});
+// const active = ref<boolean>(true);
+// watch(active, (newValue: boolean) => {
+//   if (newValue) {
+//     list.value = list.value.filter((e) => e.stateId === "1");
+//   } else {
+//     list.value = useStore().employee.employeeList;
+//   }
+// });
 </script>
 <style lang="scss" scoped></style>

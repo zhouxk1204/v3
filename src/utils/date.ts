@@ -126,3 +126,28 @@ export function getWeekDatesArrayOfMonthYear(
   }
   return result;
 }
+
+/**
+ * 将xx月xx日转换为 yyyy/mm/dd
+ * @param {string} target xx月xx日
+ */
+export function parseMonthDayTextDate(target: string) {
+  const match = target.match(/(\d+)月(\d+)日/);
+
+  if (match) {
+    const month = parseInt(match[1], 10); // 提取月份并转换为数字
+    const day = parseInt(match[2], 10); // 提取日期并转换为数字
+
+    // 获取当前年份
+    const currentYear = dayjs().year();
+
+    // 创建 Day.js 对象
+    const date = dayjs(`${currentYear}-${month}-${day}`);
+
+    // 使用 format 方法将日期格式化为指定的字符串格式
+    return date.format(DEFAULT.DATE_FORMAT);
+  } else {
+    console.error("无法解析日期字符串");
+    return "Invalid date";
+  }
+}

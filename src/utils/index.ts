@@ -51,3 +51,24 @@ export function isStringExistArrayElement(
 ): boolean {
   return array.map((item) => target.indexOf(item) > -1).some((el) => el);
 }
+
+type Value = string | number | boolean | object | null | undefined;
+export function isEmpty(value: Value): boolean {
+  if (value === null || value === undefined) {
+    return true;
+  }
+
+  if (typeof value === "string" && value.trim() === "") {
+    return true;
+  }
+
+  if (Array.isArray(value) && value.length === 0) {
+    return true;
+  }
+
+  if (typeof value === "object" && Object.keys(value).length === 0) {
+    return true;
+  }
+
+  return false;
+}

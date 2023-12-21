@@ -73,7 +73,6 @@ export function useReport(data: IDailyRecord[][]) {
         isWork: dailyOtherRatioPoint > 0 || dailyGastroscopyRatioPoint > 0,
       };
     });
-    console.log("%c Line:41 🍒 reportList", "color:#7f2b82", reportList);
 
     const totalOtherRatioPoint = reportList
       .reduce((a, b) => a.plus(b.dailyOtherRatioPoint), new Decimal(0))
@@ -100,11 +99,6 @@ export function useReport(data: IDailyRecord[][]) {
     obj.workdayCount = attendanceList.filter((e) =>
       [TYPE_DAY_OBJ.WEEKDAY.code, TYPE_DAY_OBJ.MAKEUP.code].includes(e.typeId)
     ).length;
-    console.log(
-      "%c Line:101 🥃 obj.workdayCount",
-      "color:#93c0a4",
-      obj.workdayCount
-    );
 
     obj.totalTimeRatioPoint = new Decimal(totalOtherRatioPoint)
       .plus(totalGastroscopyRatioPoint)

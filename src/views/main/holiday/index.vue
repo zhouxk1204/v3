@@ -1,6 +1,9 @@
 <template>
-  <Button type="primary" @click="open" class="w-20 mb-4">添加</Button>
-
+  <div class="flex items-end justify-between">
+    <h1 class="text-2xl font-bold">职工管理</h1>
+    <Button type="primary" @click="open">添加</Button>
+  </div>
+  <hr class="mt-2 mb-3" />
   <Table
     :headers="headers"
     :data="list"

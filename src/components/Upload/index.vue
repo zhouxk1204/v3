@@ -35,6 +35,7 @@ const selectFile = (): void => {
  * @param event
  */
 const onChange = (event: any) => {
+  const fileInput = event.target;
   const file = event.target.files[0];
 
   if (file) {
@@ -47,6 +48,8 @@ const onChange = (event: any) => {
       const worksheet = workbook.Sheets[sheetName];
       const excelData = XLSX.utils.sheet_to_json(worksheet);
       emit("data", excelData);
+      // 清空文件输入框的值，（防止相同文件导入无效）
+      fileInput.value = null;
     };
 
     reader.readAsArrayBuffer(file);
