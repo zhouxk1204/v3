@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-end justify-between">
-    <h1 class="text-2xl font-bold">职工管理</h1>
+    <h1 class="text-2xl font-bold">节假日管理</h1>
     <Button type="primary" @click="open">添加</Button>
   </div>
   <hr class="mt-2 mb-3" />

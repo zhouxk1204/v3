@@ -4,9 +4,12 @@
       class="flex items-center justify-center flex-1 w-full h-full perspective"
     >
       <div
-        class="relative origin-center preserve-3d backface-hidden"
+        class="relative origin-center preserve-3d backface-hidden transition-all"
         :style="{
-          transform: `rotateX(-30deg) rotateY(40deg) rotateZ(0deg)`,
+          transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)`,
+          width: `${blockSize * order}px`,
+          height: `${blockSize * order}px`,
+          transformOrigin: `50% 50% ${(-blockSize * order) / 2}px `,
         }"
       >
         <div
@@ -38,18 +41,20 @@
     </div>
     <div class="flex-1">
       <div class="flex flex-col w-[120px] items-center">
-        <Button icon="icon-park-solid:up-two"></Button>
+        <Button icon="icon-park-solid:up-two" @click="onUp"></Button>
         <div class="flex justify-between w-full">
-          <Button icon="icon-park-solid:left-two"></Button>
-          <Button icon="icon-park-solid:right-two"></Button>
+          <Button icon="icon-park-solid:left-two" @click="onLeft"></Button>
+          <Button icon="icon-park-solid:right-two" @click="onRight"></Button>
         </div>
-        <Button icon="icon-park-solid:down-two"></Button>
+        <Button icon="icon-park-solid:down-two" @click="onDown"></Button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
+
 const order = 3;
 const blockSize = 100;
 
@@ -117,6 +122,26 @@ const createCube = () => {
   return blocks;
 };
 const blocks = createCube();
+
+const rotateX = ref(155);
+const rotateY = ref(45);
+const rotateZ = ref(0);
+
+const onUp = () => {
+  rotateZ.value -= 90;
+}
+
+const onDown = () => {
+  rotateZ.value += 90;
+}
+
+const onRight = () => {
+ rotateY.value +=90;
+}
+
+const onLeft = () => {
+ rotateY.value -=90;
+}
 </script>
 <style lang="scss" scoped>
 .perspective {
@@ -146,6 +171,6 @@ const blocks = createCube();
 }
 
 .block-shadow {
-  box-shadow: 0 0 2px 4px #080e16;
+  box-shadow: 0 0 3px 4px #080e16;
 }
 </style>
