@@ -55,7 +55,6 @@ const roseImgSrcList = Object.keys(
 const srcIndex = ref(0);
 
 setInterval(() => {
-  console.log("%c Line:59 🍖 srcIndex.value", "color:#33a5ff", srcIndex.value);
   if (srcIndex.value === roseImgSrcList.length - 1) {
     srcIndex.value = 0;
   } else {

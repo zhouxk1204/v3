@@ -13,13 +13,6 @@
 
   <hr class="mt-2 mb-3" />
 
-  <!-- <div class="mb-4">
-    <div class="flex items-center">
-      <input type="checkbox" id="state" class="w-5 h-5" v-model="active" />
-      <label for="state" class="ml-2 select-none">只看在职</label>
-    </div>
-  </div> -->
-
   <Table
     :headers="headers"
     :data="list"
@@ -189,14 +182,5 @@ const onEdit = (data: Employee) => {
   currentState.value = { code: data.stateId, text: data.state };
   openDialog(false);
 };
-
-// const active = ref<boolean>(true);
-// watch(active, (newValue: boolean) => {
-//   if (newValue) {
-//     list.value = list.value.filter((e) => e.stateId === "1");
-//   } else {
-//     list.value = useStore().employee.employeeList;
-//   }
-// });
 </script>
 <style lang="scss" scoped></style>

@@ -16,7 +16,6 @@ const props = defineProps<{
 watch(
   () => props.val,
   (newVal: number) => {
-    console.log("%c Line:19 🍻 newVal", "color:#ffdd4d", newVal);
     scrolling(newVal);
   }
 );

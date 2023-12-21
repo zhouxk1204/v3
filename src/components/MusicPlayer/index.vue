@@ -1,5 +1,7 @@
 <template>
-  <div class="fixed bottom-5 right-5">
+  <div
+    class="fixed overflow-hidden bg-white border shadow top-[3px] right-[3px] rounded-2xl bg-opacity-30"
+  >
     <audio
       class="hidden"
       v-if="currentAudio.length > 0"
@@ -7,9 +9,7 @@
       :src="currentAudio"
     ></audio>
     <div>
-      <div
-        class="z-20 flex items-center overflow-hidden border shadow bg-opacity-5 rounded-2xl"
-      >
+      <div class="z-20 flex items-center">
         <div class="flex items-center justify-center flex-none pl-2">
           <img
             :src="currentMeta.cover"
@@ -20,12 +20,12 @@
         </div>
         <div class="w-32 pl-2">
           <div
-            class="overflow-hidden text-sm font-bold text-gray-500 whitespace-nowrap text-ellipsis"
+            class="overflow-hidden text-sm font-bold text-gray-600 whitespace-nowrap text-ellipsis"
           >
             {{ currentMeta.title }}
           </div>
           <div
-            class="mt-2 text-xs text-gray-400 whitespace-nowrap text-ellipsis"
+            class="mt-2 text-xs text-gray-600 whitespace-nowrap text-ellipsis"
           >
             {{ currentMeta.artist }}
           </div>
@@ -34,7 +34,7 @@
           <div class="flex justify-between overflow-hidden select-none">
             <template v-for="item in icons">
               <div
-                class="flex items-center justify-center w-8 h-8 text-gray-400 rounded-md cursor-pointer hover:text-white hover:bg-gray-400"
+                class="flex items-center justify-center w-8 h-8 text-gray-600 rounded-md cursor-pointer hover:text-white hover:bg-gray-600"
                 @click="onAction(item.action)"
               >
                 <Icon :icon="item.icon" width="24"></Icon>
@@ -44,7 +44,7 @@
           <div class="flex items-center">
             <div
               @click="onMute"
-              class="mr-1 flex items-center justify-center p-[2px] text-gray-400 rounded-md cursor-pointer hover:text-white hover:bg-gray-400"
+              class="mr-1 flex items-center justify-center p-[2px] text-gray-600 rounded-md cursor-pointer hover:text-white hover:bg-gray-600"
             >
               <Icon class="w-5 h-5" icon="ic:round-volume-mute"></Icon>
             </div>
@@ -64,7 +64,7 @@
             />
             <div
               @click="onMax"
-              class="flex items-center justify-center text-gray-400 rounded-md cursor-pointer p-[2px] hover:text-white hover:bg-gray-400 ml-1"
+              class="flex items-center justify-center text-gray-600 rounded-md cursor-pointer p-[2px] hover:text-white hover:bg-gray-600 ml-1"
             >
               <Icon class="w-5 h-5" icon="ic:round-volume-up"></Icon>
             </div>
@@ -168,11 +168,7 @@ const track = (action: Action) => {
       currentAudioIndex.value = 0;
     }
   }
-  console.log(
-    "%c Line:170 🍒 currentAudioIndex.value",
-    "color:#ffdd4d",
-    currentAudioIndex.value
-  );
+
   setTimeout(() => {
     loadCurrentSong();
     getAudioMeta();
@@ -208,47 +204,12 @@ const onAction = (action: Action) => {
   }
 };
 
-// const handleFileChange = (event: any) => {
-//   const fileInput = event.target as HTMLInputElement;
-//   const file = fileInput.files?.[0];
-//   if (file) {
-//     parseMetadata(file);
-//   }
-// };
-// const parseMetadata = async (file: File) => {
-//   const jsmediatags = window.jsmediatags;
-//   jsmediatags.read(file, {
-//     onSuccess: (tag) => {
-//       const { title, artist, picture } = tag.tags;
-//       meta.value.title = title ?? "unknown title";
-//       meta.value.artist = artist ?? "unknown artist";
-//       if (picture) {
-//         const arrayBuffer = new Uint8Array(picture.data).buffer;
-//         // Create a Blob from the picture data
-//         const blob = new Blob([arrayBuffer], { type: picture.format });
-//         // Create a URL for the Blob
-//         const imgUrl = URL.createObjectURL(blob);
-//         meta.value.cover = imgUrl;
-//       }
-//     },
-//     onError: (error) => {
-//       console.error("Error parsing metadata:", error);
-//     },
-//   });
-// };
-
 const getAudioMeta = async () => {
   const audioUrl = audioRef.value?.src ?? "";
   if (audioUrl === "") return;
 
-  console.log(
-    "%c Line:243 🍉 currentAudioIndex.value",
-    "color:#fca650",
-    currentAudioIndex.value
-  );
   const meta = audioMetaList.value[currentAudioIndex.value];
   if (meta) {
-    console.log("%c Line:242 🍊 meta", "color:#b03734", meta);
     currentMeta.value = meta;
     return;
   }
@@ -279,7 +240,7 @@ const getAudioMeta = async () => {
       audioMetaList.value.push(meta);
     },
     onError: function (error: any) {
-      console.log("Error reading tags:", error.type, error.info);
+      console.error("本地音乐信息获取失败:", error.type, error.info);
     },
   });
 };

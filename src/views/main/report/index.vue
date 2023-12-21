@@ -71,7 +71,6 @@ refreshData(origin);
  * @param data
  */
 const importExcel = (data: any[]): void => {
-  console.log("%c Line:74 🥥 data", "color:#2eafb0", data);
   let header: any = {};
   const map: Map<string, IDailyRecord[]> = new Map();
   data.forEach((item) => {
@@ -98,7 +97,6 @@ const importExcel = (data: any[]): void => {
     }
   });
   const list = Array.from(map.values());
-  console.log("%c Line:100 🌽 list", "color:#93c0a4", list);
   useStore().report.saveIRecordList(list);
   refreshData(list);
 };

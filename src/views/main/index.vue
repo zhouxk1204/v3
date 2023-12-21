@@ -14,6 +14,7 @@
       <router-view></router-view>
     </div>
   </div>
+  <MusicPlayer></MusicPlayer>
 </template>
 
 <script lang="ts" setup>

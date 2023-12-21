@@ -13,14 +13,12 @@ export function useCalendar(year: number, month: number) {
   const list: any[] = [];
 
   const holidayList = toRaw(useStore().holiday.holidayList);
-  console.log("%c Line:16 🌰 holidayList", "color:#ffdd4d", holidayList);
 
   while (
     dayjs(date).isSame(endDate, "day") ||
     dayjs(date).isBefore(endDate, "day")
   ) {
     const holiday = holidayList.find((e) => dayjs(e.date).isSame(date));
-    console.log("%c Line:23 🍺 holiday", "color:#ed9ec7", holiday);
     const iDay = {
       date: date.format(DATE_FORMAT),
       year: date.year(),
@@ -34,7 +32,6 @@ export function useCalendar(year: number, month: number) {
     date = date.add(1, "day");
   }
 
-  console.log("%c Line:29 🥤 list", "color:#465975", list);
   return {
     list,
   };
