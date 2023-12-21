@@ -14,10 +14,10 @@
 withDefaults(
   defineProps<{
     text: string;
-    color: string;
+    color?: string;
   }>(),
   {
-    color: "skyblue",
+    color: "#000",
   }
 );
 </script>
