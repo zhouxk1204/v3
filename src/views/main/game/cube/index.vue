@@ -1,35 +1,49 @@
 <template>
-  <div class="flex items-center justify-center w-full h-full perspective">
+  <div class="flex items-center h-full">
     <div
-      class="relative preserve-3d backface-hidden"
-      :style="{
-        transform: `rotateX(-24deg) rotateY(53deg) rotateZ(0deg)`,
-      }"
+      class="flex items-center justify-center flex-1 w-full h-full perspective"
     >
       <div
-        class="absolute top-0 left-0 preserve-3d backface-hidden rounded-2xl"
-        v-for="block in blocks"
+        class="relative origin-center preserve-3d backface-hidden"
         :style="{
-          width: `${blockSize}px`,
-          height: `${blockSize}px`,
-          transform: `translateX(${block.x * blockSize}px) translateY(${
-            block.y * blockSize
-          }px) translateZ(${-block.z * blockSize}px)`,
+          transform: `rotateX(-30deg) rotateY(40deg) rotateZ(0deg)`,
         }"
       >
         <div
-          v-for="area in block.areas"
-          class="block-shadow absolute top-0 left-0 w-full h-full p-[10px] overflow-hidden bg-[#0a1019] rounded-xl"
-          :class="area.direct"
+          class="absolute top-0 left-0 preserve-3d backface-hidden rounded-2xl"
+          v-for="block in blocks"
           :style="{
-            transform: area.transform,
+            width: `${blockSize}px`,
+            height: `${blockSize}px`,
+            transform: `translateX(${block.x * blockSize}px) translateY(${
+              block.y * blockSize
+            }px) translateZ(${-block.z * blockSize}px)`,
           }"
         >
           <div
-            :style="{ 'background-color': area.background }"
-            class="w-full h-full shadow-2xl rounded-2xl"
-          ></div>
+            v-for="area in block.areas"
+            class="block-shadow absolute top-0 left-0 w-full h-full p-[10px] overflow-hidden bg-[#080e16] rounded-xl"
+            :class="area.direct"
+            :style="{
+              transform: area.transform,
+            }"
+          >
+            <div
+              :style="{ 'background-color': area.background }"
+              class="w-full h-full shadow-2xl rounded-2xl"
+            ></div>
+          </div>
         </div>
+      </div>
+    </div>
+    <div class="flex-1">
+      <div class="flex flex-col w-[120px] items-center">
+        <Button icon="icon-park-solid:up-two"></Button>
+        <div class="flex justify-between w-full">
+          <Button icon="icon-park-solid:left-two"></Button>
+          <Button icon="icon-park-solid:right-two"></Button>
+        </div>
+        <Button icon="icon-park-solid:down-two"></Button>
       </div>
     </div>
   </div>
@@ -72,7 +86,7 @@ const getBlockStyle = (direct: string) => {
     Back: `translateZ(-${blockSize}px)`,
   };
   const background: any = {
-    Up: "#f1f1f1",
+    Up: "#fff",
     Down: "#d17f30",
     Left: "#7fad46",
     Right: "#4a8399",
@@ -106,7 +120,7 @@ const blocks = createCube();
 </script>
 <style lang="scss" scoped>
 .perspective {
-  perspective: 1200px;
+  perspective: 2000px;
 }
 
 .preserve-3d {
@@ -115,7 +129,7 @@ const blocks = createCube();
 
 .backface-hidden {
   backface-visibility: hidden;
-  background-color: #0a1019;
+  background-color: #080e16;
 }
 
 .Up {
@@ -132,6 +146,6 @@ const blocks = createCube();
 }
 
 .block-shadow {
-  box-shadow: 0 0 2px 4px #0a1019;
+  box-shadow: 0 0 2px 4px #080e16;
 }
 </style>
