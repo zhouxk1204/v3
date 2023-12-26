@@ -17,7 +17,7 @@
         }"
       >
         <div
-          class="absolute top-0 left-0 transition-all duration-700 preserve-3d rounded-2xl"
+          class="absolute top-0 left-0 transition-all preserve-3d rounded-2xl"
           v-for="block in blocks"
           :style="{
             transformOrigin: block.origin,
@@ -27,13 +27,13 @@
               block.translate.x * blockSize
             }px) translateY(${block.translate.y * blockSize}px) translateZ(${
               -(block.translate.z - 1) * blockSize
-            }px) rotateY(${block.rotate.y}deg`,
+            }px) rotateX(${block.rotate.x}deg) rotateY(${block.rotate.y}deg)`,
+            'transition-duration': `${block.duration}ms`,
           }"
           @mousedown="handleMouseDown"
           @mouseup="handleMouseUp($event, block)"
         >
           <div
-            @click="onMouseDown($event, block)"
             v-for="area in block.areas"
             class="block-shadow absolute top-0 left-0 w-full h-full p-[10px] overflow-hidden rounded-xl bg-black"
             :class="area.direct"
@@ -42,15 +42,17 @@
             }"
           >
             <div
-              class="flex items-center justify-center w-full h-full shadow-2xl rounded-2xl"
+              class="flex items-center justify-center w-full h-full shadow-2xl select-none rounded-2xl"
               :style="{ background: area.background }"
             >
               <!-- {{
-                block.translate.x +
-                "-" +
-                block.translate.y +
-                "-" +
-                block.translate.z
+                area.direct +
+                ":" +
+                (block.translate.x +
+                  "-" +
+                  block.translate.y +
+                  "-" +
+                  block.translate.z)
               }} -->
             </div>
           </div>
@@ -96,13 +98,15 @@ const handleMouseUp = (event: any, block: any) => {
     } else {
       direction.value = deltaY > 0 ? "down" : "up";
     }
-    console.log(
-      "%c Line:98 🍑 direction.value",
-      "color:#2eafb0",
-      direction.value
-    );
     move(block);
   }
+};
+
+const getBlockOrigin = (x: number, y: number, z: number): string => {
+  const nx = (blockSize * order) / 2 - blockSize * x;
+  const ny = (blockSize * order) / 2 - blockSize * y;
+  const nz = blockSize * (z - 1);
+  return `${nx}px ${ny}px ${nz}px`;
 };
 
 const order = 3;
@@ -131,7 +135,7 @@ const getBlockAreas = (x: number, y: number, z: number) => {
   return areas;
 };
 
-const getBlockStyle = (direct: string) => {
+const getBlockAreaTranslateStyle = (direct: string): string => {
   const translate: any = {
     Up: `translateY(-${blockSize}px) translateZ(${
       blockSize / 2
@@ -148,6 +152,10 @@ const getBlockStyle = (direct: string) => {
     Front: `translateZ(${blockSize / 2}px)`,
     Back: `translateZ(-${blockSize / 2}px)`,
   };
+  return translate[direct];
+};
+
+const getBlockStyle = (direct: string) => {
   const background: any = {
     Up: "#fff",
     Down: "#d17f30",
@@ -158,7 +166,7 @@ const getBlockStyle = (direct: string) => {
   };
   return {
     direct,
-    translate: translate[direct],
+    translate: getBlockAreaTranslateStyle(direct),
     background: background[direct],
   };
 };
@@ -168,36 +176,6 @@ const createCube = () => {
   for (let x = 0; x < order; x++) {
     for (let y = 0; y < order; y++) {
       for (let z = 0; z < order; z++) {
-        let origin = "";
-        if (x === order - 1) {
-          origin = "-50px 150px -100px";
-          if (z === 2) {
-            origin = "-50px 150px 100px";
-          }
-        }
-        if (x === 0) {
-          origin = "150px -150px -100px";
-          if (z === 2) {
-            origin = "150px -150px 100px";
-          }
-        }
-
-        if (x === 1 && z === 0) {
-          origin = "50px 150px -100px";
-        }
-
-        if (x === 2 && z === 1) {
-          origin = "-50px 150px 0px";
-        }
-
-        if (x === 1 && z === 2) {
-          origin = "50px 150px 100px";
-        }
-
-        if (x === 0 && z === 1) {
-          origin = "150px 150px 0px";
-        }
-
         blocks.push({
           translate: {
             x,
@@ -210,7 +188,8 @@ const createCube = () => {
             y: 0,
             z: 0,
           },
-          origin,
+          origin: getBlockOrigin(x, y, z),
+          duration: 0,
         });
       }
     }
@@ -221,7 +200,6 @@ const blocks = ref(createCube());
 
 const rotateX = ref(-25);
 const rotateY = ref(-25);
-const rotateZ = ref(0);
 
 const onUp = () => {
   rotateX.value += 180;
@@ -239,33 +217,133 @@ const onLeft = () => {
   rotateY.value -= 90;
 };
 
-const onMouseDown = (event: any, block: any) => {
-  event.preventDefault();
-  event.stopPropagation();
-  console.log(
-    "%c Line:218 🍊 block.translate",
-    "color:#ffdd4d",
-    block.translate
-  );
-  blocks.value.forEach((e) => {
-    if (e.translate.y === block.translate.y) {
-      e.rotate.y = 90 + e.rotate.y;
-      console.log("%c Line:219 🍿 e", "color:#e41a6a", e);
-    }
-  });
-};
-
 const move = (block: any) => {
   if (direction.value === "right") {
     blocks.value.forEach((e) => {
       if (e.translate.y === block.translate.y) {
         e.rotate.y += 90;
+        e.duration = 500;
+        setTimeout(() => {
+          const oldx = e.translate.x;
+          const oldz = e.translate.z;
+          e.translate.z = oldx;
+          e.translate.x = order - 1 - oldz;
+          e.rotate.y = 0;
+          for (let item of e.areas) {
+            if (item.direct === "Left") {
+              item.direct = "Front";
+            } else if (item.direct === "Front") {
+              item.direct = "Right";
+            } else if (item.direct === "Right") {
+              item.direct = "Back";
+            } else if (item.direct === "Back") {
+              item.direct = "Left";
+            }
+            item.translate = getBlockAreaTranslateStyle(item.direct);
+          }
+          e.origin = getBlockOrigin(
+            e.translate.x,
+            e.translate.y,
+            e.translate.z
+          );
+          e.duration = 0;
+        }, 1000);
       }
     });
   } else if (direction.value === "left") {
     blocks.value.forEach((e) => {
       if (e.translate.y === block.translate.y) {
         e.rotate.y -= 90;
+        e.duration = 500;
+        setTimeout(() => {
+          const oldx = e.translate.x;
+          const oldz = e.translate.z;
+          e.translate.z = order - 1 - oldx;
+          e.translate.x = oldz;
+          e.rotate.y = 0;
+          for (let item of e.areas) {
+            if (item.direct === "Left") {
+              item.direct = "Back";
+            } else if (item.direct === "Back") {
+              item.direct = "Right";
+            } else if (item.direct === "Right") {
+              item.direct = "Front";
+            } else if (item.direct === "Front") {
+              item.direct = "Left";
+            }
+            item.translate = getBlockAreaTranslateStyle(item.direct);
+          }
+          e.origin = getBlockOrigin(
+            e.translate.x,
+            e.translate.y,
+            e.translate.z
+          );
+          e.duration = 0;
+        }, 1000);
+      }
+    });
+  } else if (direction.value === "up") {
+    blocks.value.forEach((e) => {
+      if (e.translate.x === block.translate.x) {
+        e.rotate.x += 90;
+        e.duration = 500;
+        setTimeout(() => {
+          const oldy = e.translate.y;
+          const oldz = e.translate.z;
+          e.translate.y = oldz;
+          e.translate.z = order - 1 - oldy;
+          e.rotate.x = 0;
+          for (let item of e.areas) {
+            if (item.direct === "Up") {
+              item.direct = "Back";
+            } else if (item.direct === "Back") {
+              item.direct = "Down";
+            } else if (item.direct === "Down") {
+              item.direct = "Front";
+            } else if (item.direct === "Front") {
+              item.direct = "Up";
+            }
+            item.translate = getBlockAreaTranslateStyle(item.direct);
+          }
+          e.origin = getBlockOrigin(
+            e.translate.x,
+            e.translate.y,
+            e.translate.z
+          );
+          e.duration = 0;
+        }, 1000);
+      }
+    });
+  } else if (direction.value === "down") {
+    blocks.value.forEach((e) => {
+      if (e.translate.x === block.translate.x) {
+        e.rotate.x -= 90;
+        e.duration = 500;
+        setTimeout(() => {
+          const oldy = e.translate.y;
+          const oldz = e.translate.z;
+          e.translate.z = oldy;
+          e.translate.y = order - 1 - oldz;
+          e.rotate.x = 0;
+          for (let item of e.areas) {
+            if (item.direct === "Up") {
+              item.direct = "Front";
+            } else if (item.direct === "Front") {
+              item.direct = "Down";
+            } else if (item.direct === "Down") {
+              item.direct = "Back";
+            } else if (item.direct === "Back") {
+              item.direct = "Up";
+            }
+            item.translate = getBlockAreaTranslateStyle(item.direct);
+          }
+          e.origin = getBlockOrigin(
+            e.translate.x,
+            e.translate.y,
+            e.translate.z
+          );
+          e.duration = 0;
+        }, 1000);
       }
     });
   }
@@ -299,6 +377,10 @@ const move = (block: any) => {
 }
 
 .block-shadow {
+<<<<<<< HEAD
+  box-shadow: 0 0 2px 5px #080e16;
+=======
   box-shadow: 0 0 3px 4px #080e16;
+>>>>>>> e57a54c34943c0fb1b2dd534e9853868bc16bd37
 }
 </style>
