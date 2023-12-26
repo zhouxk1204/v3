@@ -377,10 +377,6 @@ const move = (block: any) => {
 }
 
 .block-shadow {
-<<<<<<< HEAD
-  box-shadow: 0 0 2px 5px #080e16;
-=======
   box-shadow: 0 0 3px 4px #080e16;
->>>>>>> e57a54c34943c0fb1b2dd534e9853868bc16bd37
 }
 </style>
