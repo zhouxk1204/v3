@@ -14,12 +14,6 @@ export interface IPoint {
   ratioPoint?: number; // 岗位工分 * 岗位工分倍率
 }
 
-export interface IDailyRecord {
-  employeeName: string;
-  date: string;
-  record: string;
-}
-
 export interface IEmployeeReport {
   employeeName: string;
   factor: string;
@@ -31,4 +25,17 @@ export interface IEmployeeReport {
   workdayCount: number;
   totalTimeRatioPoint: number;
   serve: number;
+}
+
+export interface IRateSetting {
+  id: string;
+  no: string;
+  name: string;
+  date: string;
+  postId: string;
+  postName: string;
+  statusId: string;
+  statusName: string;
+  rate: number;
+  remark: string;
 }

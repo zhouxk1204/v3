@@ -4,7 +4,7 @@ import {
   TYPE_POINT_OBJ,
   TYPE_POST_OBJ,
 } from "@/constants";
-import { IDailyRecord, IEmployeeReport, IPoint } from "@/models/report.model";
+import { IEmployeeReport, IPoint, IRecord } from "@/models/report.model";
 import {
   fullWidthToHalfWidth,
   parsePositiveRealNumber,
@@ -16,7 +16,7 @@ import { isStringExistArrayElement } from "@/utils";
 import { getTypeAndRatioOfDay } from "@/utils/date";
 import Decimal from "decimal.js";
 
-export function useReport(data: IDailyRecord[][]) {
+export function useReport(data: IRecord[][]) {
   const iEmployeeReportList: IEmployeeReport[] = [];
 
   // 保存报表所在的日期
@@ -241,7 +241,10 @@ export function useReport(data: IDailyRecord[][]) {
         // 无法解析的时候
         if (i > 1) {
           const error = `${employeeName}：${date} 的工分记录：${part} 填写错误，无法解析，请核对！！！`;
-          errorList.push(error);
+          // 防止重复添加
+          if (errorList.indexOf(error) === -1) {
+            errorList.push(error);
+          }
           continue;
         }
 

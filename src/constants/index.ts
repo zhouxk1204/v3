@@ -44,6 +44,20 @@ export const STATES: Option[] = ["离职", "在职"].map((e, i) => {
   };
 });
 
+export const WORK_STATUS: Option[] = ["上班", "加班"].map((e, i) => {
+  return {
+    code: `${i}`,
+    text: e,
+  };
+});
+
+export const POST: Option[] = ["胃镜2", "其他"].map((e, i) => {
+  return {
+    code: `${i}`,
+    text: e,
+  };
+});
+
 // 当日属性
 export const TYPE_DAY_OBJ: Record<string, CodeText> = {
   UNKNOWN: {

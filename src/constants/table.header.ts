@@ -92,3 +92,30 @@ export const REPORT_TABLE_HEADERS: TableHeader[] = [
     label: "科务天数",
   },
 ];
+
+export const RECORD_RATE_SETTING = [
+  {
+    key: "name",
+    label: "姓名",
+  },
+  {
+    key: "date",
+    label: "日期",
+  },
+  {
+    key: "postName",
+    label: "岗位",
+  },
+  {
+    key: "statusName",
+    label: "上班 or 加班",
+  },
+  {
+    key: "rate",
+    label: "倍率",
+  },
+  {
+    key: "remark",
+    label: "备注",
+  },
+];
