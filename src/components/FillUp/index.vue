@@ -1,5 +1,5 @@
 <template>
-  <div class="leading-tight break-all text-7xl" :style="{ '--color': color }">
+  <div class="leading-tight break-all" :style="{ '--color': color }">
     <div
       id="text"
       :data-text="text"

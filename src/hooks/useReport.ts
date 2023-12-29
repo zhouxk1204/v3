@@ -1,4 +1,7 @@
+import * as dayjs from "dayjs";
+
 import {
+  DEFAULT,
   ROLES,
   TYPE_DAY_OBJ,
   TYPE_POINT_OBJ,
@@ -13,7 +16,7 @@ import {
 
 import useStore from "@/store";
 import { isStringExistArrayElement } from "@/utils";
-import { getTypeAndRatioOfDay } from "@/utils/date";
+import { getTypeOfDay } from "@/utils/date";
 import Decimal from "decimal.js";
 
 export function useReport(data: IRecord[][]) {
@@ -39,8 +42,8 @@ export function useReport(data: IRecord[][]) {
 
     const reportList = item.map((item2) => {
       const { record, date } = item2;
-      const { code, text, ratio } = getTypeAndRatioOfDay(date);
-      const pointList = parseRecord(employeeName, record, ratio, date, code);
+      const { code, text } = getTypeOfDay(date);
+      const pointList = parseRecord(employeeName, record, date, code);
       const dailyOtherRatioPoint = getRatioPointByPostId(
         pointList,
         TYPE_POST_OBJ.OTHER.code
@@ -117,7 +120,6 @@ export function useReport(data: IRecord[][]) {
   function parseRecord(
     employeeName: string,
     record: string,
-    ratio: number[],
     date: string,
     code: string
   ): IPoint[] {
@@ -131,28 +133,22 @@ export function useReport(data: IRecord[][]) {
 
     if (/\d/.test(nRecord)) {
       const parts = nRecord.split("/");
-      const arr = [];
+      const iPointList: IPoint[][] = [];
       parts.forEach((part) => {
         const p = parsePart(
           part,
           employeeName,
-          ratio,
           date,
           isWeekendOrHolidayOvertime
         );
         if (p) {
-          arr.push(p);
+          iPointList.push(p);
         } else {
           const error = `${employeeName}：${date} 的工分记录：${nRecord} 填写错误，无法解析，请核对！！！`;
           errorList.push(error);
         }
       });
-      return parts
-        .map((e) =>
-          parsePart(e, employeeName, ratio, date, isWeekendOrHolidayOvertime)
-        )
-        .flat()
-        .filter((e) => e !== undefined) as IPoint[];
+      return iPointList.flat();
     } else {
       // 休，年休等
       let point = {
@@ -182,11 +178,10 @@ export function useReport(data: IRecord[][]) {
   function parsePart(
     part: string,
     employeeName: string,
-    ratio: number[],
     date: string,
     isWeekendOrHolidayOvertime: boolean
   ): IPoint[] | undefined {
-    // xx+胃 的情况
+    // 异常1: xx+胃 的情况
     if (
       isStringExistArrayElement(part, TYPE_POST_OBJ.GASTROSCOPY.text) &&
       TYPE_POST_OBJ.GASTROSCOPY.text
@@ -196,7 +191,7 @@ export function useReport(data: IRecord[][]) {
       return undefined;
     }
 
-    // xx+手 的情况
+    // 异常2: xx+手 的情况
     if (
       isStringExistArrayElement(part, TYPE_POST_OBJ.OTHER.text) &&
       TYPE_POST_OBJ.OTHER.text.map((e) => part.indexOf(e)).filter((e) => e > 0)
@@ -205,7 +200,7 @@ export function useReport(data: IRecord[][]) {
       return undefined;
     }
 
-    // 手7.5胃1.5的情况
+    // 异常3: 手7.5胃1.5的情况
     if (
       isStringExistArrayElement(part, TYPE_POST_OBJ.GASTROSCOPY.text) &&
       isStringExistArrayElement(part, TYPE_POST_OBJ.OTHER.text)
@@ -213,7 +208,7 @@ export function useReport(data: IRecord[][]) {
       return undefined;
     }
 
-    // 0.x年假的时候
+    // 0.x年假 / 0.x婚嫁的时候
     const annual = TYPE_POINT_OBJ.REST.ANNUAL_LEAVE;
     const marriage = TYPE_POINT_OBJ.REST.MARRIAGE_LEAVE;
 
@@ -248,18 +243,29 @@ export function useReport(data: IRecord[][]) {
           continue;
         }
 
+        // 工分
         const point = detail[i];
 
-        const pointRatio = isWeekendOrHolidayOvertime ? ratio[1] : ratio[i];
+        // 岗位
         const post = isStringExistArrayElement(
           part,
           TYPE_POST_OBJ.GASTROSCOPY.text
         )
           ? TYPE_POST_OBJ.GASTROSCOPY
           : TYPE_POST_OBJ.OTHER;
+
+        // 上班 or 加班
         const type = isWeekendOrHolidayOvertime
           ? TYPE_POINT_OBJ.ATTENDANCE.OVERTIME
           : Object.values(TYPE_POINT_OBJ.ATTENDANCE)[i];
+
+        const pointRatio = getPointRatio(
+          date,
+          post.code,
+          type.code,
+          employeeName
+        );
+
         pointList.push({
           typeId: type.code,
           typeName: type.text,
@@ -284,6 +290,50 @@ export function useReport(data: IRecord[][]) {
       .filter((p) => p.postId === postId)
       .reduce((a, b) => a.plus(b.ratioPoint), new Decimal(0))
       .toNumber();
+  }
+
+  function getPointRatio(
+    date: string,
+    postId: string,
+    statusId: string,
+    name: string
+  ): number {
+    // 1.特殊岗位工分倍率设定（优先级最高）
+    const rateSettingList = useStore().rateSetting.rateSettingList;
+
+    const rateSetting = rateSettingList.find(
+      (el) =>
+        el.date === date && // 日期
+        el.postId === postId && // 岗位
+        el.statusId === statusId && // 加班
+        el.name === name // 姓名
+    );
+
+    if (rateSetting) {
+      return rateSetting.rate;
+    }
+
+    // 2.节假日
+    const holiday = useStore().holiday.holidayList.find((e) => e.date === date);
+
+    // 节假日加班，全部按加班倍率计算
+    if (holiday && holiday.typeId === "1") {
+      return holiday.extraWeight;
+    }
+
+    // 节假日补班，按上班加班倍率分别计算
+    if (holiday && holiday.typeId === "0") {
+      return statusId === "0" ? holiday.workWeight : holiday.extraWeight;
+    }
+
+    // 3.周末
+    const dayOfWeek = dayjs(date).day(); // 获取日期的星期几
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      return DEFAULT.RATIO.OVERTIME;
+    }
+
+    // 4.工作日
+    return statusId === "0" ? DEFAULT.RATIO.WORK : DEFAULT.RATIO.OVERTIME;
   }
 
   return {

@@ -51,7 +51,7 @@ export const WORK_STATUS: Option[] = ["上班", "加班"].map((e, i) => {
   };
 });
 
-export const POST: Option[] = ["胃镜2", "其他"].map((e, i) => {
+export const POST: Option[] = ["其他", "胃镜2"].map((e, i) => {
   return {
     code: `${i}`,
     text: e,

@@ -4,7 +4,7 @@
     :style="{ backgroundImage: `url(${backgroundImage})` }"
   >
     <form
-      class="p-10 bg-white rounded-lg shadow-xl opacity-0 min-w-[400px]"
+      class="p-10 bg-white rounded-lg shadow-2xl opacity-0 min-w-[400px]"
       :class="{
         'animate__animated animate__fadeInUp animate__delay-02s': isMounted,
       }"
@@ -38,7 +38,9 @@
 
       <Button type="primary" class="h-12" @click="submit">注册 / 登录</Button>
 
-      <div class="flex items-center justify-center h-6 mt-2 text-gray-400">
+      <div
+        class="flex items-center justify-center h-6 mt-2 text-gray-400 cursor-pointer"
+      >
         <span @click="onNextBg()" v-show="isNextBgBtnVisible"
           >不喜欢这张背景图，换一张?</span
         >

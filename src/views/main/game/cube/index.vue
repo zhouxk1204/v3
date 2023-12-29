@@ -60,6 +60,12 @@
       </div>
     </div>
     <div class="flex-1">
+      <div class="flex">
+        <Button>1</Button>
+        <Button>2</Button>
+        <Button>3</Button>
+        <Button>4</Button>
+      </div>
       <div class="flex flex-col w-[120px] items-center">
         <Button icon="icon-park-solid:up-two" @click="onUp"></Button>
         <div class="flex justify-between w-full">

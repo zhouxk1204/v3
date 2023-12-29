@@ -1,11 +1,11 @@
 <template>
   <div>
-    <div class="mb-3">
+    <div class="mb-6">
       <div class="flex items-end justify-between">
-        <h1 class="text-2xl font-bold">月次工分倍率特殊设定</h1>
+        <h1 class="text-2xl font-bold">岗位班次工分倍率附加设定</h1>
         <Button type="primary" @click="openDialog">添加</Button>
       </div>
-      <hr class="my-3" />
+      <hr class="mt-2 mb-3" />
       <Table
         :headers="rateHeaders"
         :data="rateSettingList"
@@ -18,9 +18,7 @@
           class="absolute flex flex-col p-6 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow left-1/2 top-1/2 w-96"
         >
           <div class="flex items-center justify-between mb-4">
-            <h1 class="text-xl font-bold">
-              {{ mode.text }}当日工分倍率特殊设定
-            </h1>
+            <h1 class="text-xl font-bold">{{ mode.text }}工分倍率附加设定</h1>
             <Button @click="onClose"
               ><Icon icon="material-symbols:close" color="#bbb"
             /></Button>
@@ -98,7 +96,7 @@
         >
       </div>
     </div>
-    <hr class="my-3" />
+    <hr class="mt-2 mb-3" />
     <Table :headers="headers" :data="list"></Table>
 
     <div class="mt-4 mb-10 font-bold" v-if="errors.length">
@@ -209,6 +207,7 @@ const exportExcel = (): void => {
 const clear = (): void => {
   useStore().report.setIRecordList([]);
   list.value = [];
+  errors.value = [];
 };
 
 const rateHeaders = RECORD_RATE_SETTING;
@@ -299,6 +298,10 @@ const submit = () => {
     useStore().rateSetting.update(form.value);
   }
   form.value = emptyForm();
+
+  // 刷新数据
+  iRecordList.length > 0 && refreshData(iRecordList);
+
   closeDialog();
 };
 

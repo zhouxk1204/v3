@@ -1,28 +1,28 @@
 <template>
-  <div class="flex flex-col items-center justify-center font-bold">
+  <div class="flex flex-col items-center justify-center font-bold select-none">
     <div class="flex items-center text-gray-300">
       <Icon
         icon="mingcute:left-fill"
         width="30"
-        class="hover:text-gray-500 active:text-gray-900"
+        class="cursor-pointer hover:text-gray-500 active:text-gray-900"
         @click="monthChange(-1)"
       ></Icon>
-      <span class="inline-block w-40 text-xl text-center text-gray-500">{{
+      <span class="inline-block w-40 text-4xl text-center text-gray-500">{{
         currentMonth
       }}</span>
       <Icon
         icon="mingcute:right-fill"
         width="30"
-        class="hover:text-gray-500 active:text-gray-900"
+        class="cursor-pointer hover:text-gray-500 active:text-gray-900"
         @click="monthChange(1)"
       ></Icon>
     </div>
-    <div class="my-2 text-sm text-gray-500">{{ currentYear }}</div>
+    <div class="my-2 text-lg text-gray-500">{{ currentYear }}</div>
   </div>
-  <div class="grid grid-cols-7 text-gray-500 border-l bg-my">
+  <div class="grid grid-cols-7 text-gray-500 border-l select-none bg-my">
     <div
       v-for="item in dateHeader"
-      class="py-3 text-center border-t border-b border-r text-bold"
+      class="py-3 font-bold text-center border-t border-b border-r"
     >
       {{ item }}
     </div>
@@ -43,21 +43,30 @@
             item.month === currentMonth && [0, 6].includes(item.dayOfWeek),
           'text-red-300':
             item.month !== currentMonth && [0, 6].includes(item.dayOfWeek),
+          'text-gray-500':
+            item.month === currentMonth && [0, 6].includes(item.dayOfWeek),
+          'text-gray-300':
+            item.month !== currentMonth && ![0, 6].includes(item.dayOfWeek),
         }"
       >
-        <span
-          class="text-xl"
-          :class="{
-            'text-green-500 font-bold': item.date === currentDate,
-          }"
-        >
+        <span class="text-xl font-bold">
           {{ item.dayOfMonth }}
         </span>
         <span v-if="item.name" class="text-xs">{{ item.name }}</span>
         <span
           v-if="item.type.length > 0"
-          class="absolute flex items-center justify-center w-4 h-4 text-xs text-red-500 bg-red-200 rounded-full -top-1 -right-1"
+          class="absolute flex items-center justify-center w-4 h-4 text-xs rounded-full -top-1 -right-1"
+          :class="
+            item.type === '0'
+              ? 'text-gray-500 bg-gray-200'
+              : 'text-red-500 bg-red-200'
+          "
           >{{ item.type === "0" ? "班" : "休" }}
+        </span>
+        <span
+          v-if="item.date === currentDate"
+          class="absolute flex items-center justify-center w-4 h-4 text-xs text-green-500 bg-green-200 rounded-full -top-1 -right-1"
+          >今
         </span>
       </div>
     </div>

@@ -59,6 +59,7 @@ function setDefault(routes: any[]) {
 
 setDefault(routes);
 
+// 默认路由
 routes.push({
   path: "/",
   redirect: "main",

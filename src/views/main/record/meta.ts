@@ -1,5 +1,5 @@
 export default {
-  title: "月次工分记录",
-  sort: 3,
+  title: "日历",
+  sort: 6,
   emoji: "📅",
 };

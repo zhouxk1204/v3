@@ -10,36 +10,26 @@ interface DayTypeRatio extends CodeText {
 }
 
 /**
- * 获取日期类型：工作日上班；周末加班；节假日上班
+ * 获取日期类型：工作日上班；周末加班；节假日加班；节假日补班
  * @param {string} date YYYY年MM月DD日
  * @returns {CodeText}
  */
-export function getTypeAndRatioOfDay(date: string): DayTypeRatio {
+export function getTypeOfDay(date: string): CodeText {
   const holiday = useStore().holiday.holidayList.find((e) => e.date === date);
   if (holiday) {
     const typeId = holiday.typeId;
     if (typeId === "0") {
-      return Object.assign(TYPE_DAY_OBJ.MAKEUP, {
-        ratio: [holiday.workWeight, holiday.extraWeight],
-      });
+      return TYPE_DAY_OBJ.MAKEUP;
     } else if (typeId === "1") {
-      return Object.assign(TYPE_DAY_OBJ.HOLIDAY, {
-        ratio: [holiday.workWeight, holiday.extraWeight],
-      });
+      return TYPE_DAY_OBJ.HOLIDAY;
     } else {
-      return Object.assign(TYPE_DAY_OBJ.UNKNOWN, {
-        ratio: [holiday.workWeight, holiday.extraWeight],
-      });
+      return TYPE_DAY_OBJ.UNKNOWN;
     }
   } else {
-    const dayOfWeek = dayjs(date).day(); // 获取日期的星期几
+    const dayOfWeek = dayjs(date).day();
     return dayOfWeek === 0 || dayOfWeek === 6
-      ? Object.assign(TYPE_DAY_OBJ.WEEKEND, {
-          ratio: [DEFAULT.RATIO.WORK, DEFAULT.RATIO.OVERTIME],
-        })
-      : Object.assign(TYPE_DAY_OBJ.WEEKDAY, {
-          ratio: [DEFAULT.RATIO.WORK, DEFAULT.RATIO.OVERTIME],
-        });
+      ? TYPE_DAY_OBJ.WEEKEND
+      : TYPE_DAY_OBJ.WEEKDAY;
   }
 }
 
@@ -84,7 +74,7 @@ export function parseExcelDateNumber(date: number): string {
  * @param {number} month
  * @returns {dayjs.Dayjs} 第一个星期一
  */
-export function getFirstMonDayOfMonth(
+export function getFirstMondayOfMonth(
   year: number,
   month: number
 ): dayjs.Dayjs {
@@ -100,7 +90,7 @@ export function getFirstMonDayOfMonth(
  * @param {number} month
  * @returns {dayjs.Dayjs} 最后一个星期天
  */
-export function getLastSunDayOfMonth(year: number, month: number): dayjs.Dayjs {
+export function getLastSundayOfMonth(year: number, month: number): dayjs.Dayjs {
   const day = dayjs(`${year}-${month}`).endOf("month");
   return day.day() === 0 ? day : day.endOf("week").add(1, "day");
 }
@@ -117,8 +107,8 @@ export function getWeekDatesArrayOfMonthYear(
   month: number,
   pattern: string = "YYYY-MM-DD"
 ): string[] {
-  let start = getFirstMonDayOfMonth(year, month);
-  const end = getLastSunDayOfMonth(year, month);
+  let start = getFirstMondayOfMonth(year, month);
+  const end = getLastSundayOfMonth(year, month);
   const result: string[] = [];
   while (dayjs(start).isSame(end, "day") || dayjs(start).isBefore(end, "day")) {
     result.push(start.format(pattern));

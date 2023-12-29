@@ -1,15 +1,14 @@
 import * as dayjs from "dayjs";
 
-import { getFirstMonDayOfMonth, getLastSunDayOfMonth } from "@/utils/date";
+import { getFirstMondayOfMonth, getLastSundayOfMonth } from "@/utils/date";
 
 import { DATE_FORMAT } from "@/constants";
 import useStore from "@/store";
 import { toRaw } from "vue";
 
 export function useCalendar(year: number, month: number) {
-  let date = getFirstMonDayOfMonth(year, month);
-  const endDate = getLastSunDayOfMonth(year, month);
-
+  let date = getFirstMondayOfMonth(year, month);
+  const endDate = getLastSundayOfMonth(year, month);
   const list: any[] = [];
 
   const holidayList = toRaw(useStore().holiday.holidayList);

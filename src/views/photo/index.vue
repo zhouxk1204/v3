@@ -25,7 +25,7 @@
     <h1
       class="absolute z-50 text-5xl text-center text-white -translate-x-1/2 -translate-y-1/2 pointer-events-none top-1/2 left-1/2 mix-blend-overlay"
     >
-      love is everywhere
+      I will follow you to the end of time
     </h1>
     <!-- tips -->
     <div
