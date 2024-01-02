@@ -1,18 +1,10 @@
 <template>
-  <div class="flex items-end justify-between">
-    <h1 class="text-2xl font-bold">职工管理</h1>
+  <PageTitle title="职工管理">
     <div class="flex">
-      <Upload @data="onData">
-        <div class="flex items-center">
-          <span>导入</span>
-        </div>
-      </Upload>
+      <Upload @data="onData">导入</Upload>
       <Button type="primary" class="ml-2" @click="openDialog">添加</Button>
     </div>
-  </div>
-
-  <hr class="mt-2 mb-3" />
-
+  </PageTitle>
   <Table
     :headers="headers"
     :data="list"

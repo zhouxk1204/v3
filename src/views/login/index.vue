@@ -9,7 +9,9 @@
         'animate__animated animate__fadeInUp animate__delay-02s': isMounted,
       }"
     >
-      <h1 class="pb-2 mb-6 text-4xl text-center border-b border-gray-200">
+      <h1
+        class="pb-2 mb-6 text-4xl text-center border-b border-gray-200 dark:border-dark-300"
+      >
         🐶🐷
       </h1>
       <FormItem title="邮箱" :required="false">

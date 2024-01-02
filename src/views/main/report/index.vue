@@ -1,11 +1,9 @@
 <template>
   <div>
     <div class="mb-6">
-      <div class="flex items-end justify-between">
-        <h1 class="text-2xl font-bold">岗位班次工分倍率附加设定</h1>
+      <PageTitle title="岗位班次工分倍率附加设定">
         <Button type="primary" @click="openDialog">添加</Button>
-      </div>
-      <hr class="mt-2 mb-3" />
+      </PageTitle>
       <Table
         :headers="rateHeaders"
         :data="rateSettingList"
@@ -72,8 +70,8 @@
       </Dialog>
     </div>
 
-    <div class="flex items-end justify-between">
-      <h1 class="text-2xl font-bold">月次工分汇算</h1>
+    <!-- 月次工分汇算 -->
+    <PageTitle title="月次工分汇算">
       <div class="flex">
         <Upload @data="importExcel">
           <div class="flex items-center">
@@ -95,12 +93,10 @@
           >清空</Button
         >
       </div>
-    </div>
-    <hr class="mt-2 mb-3" />
+    </PageTitle>
     <Table :headers="headers" :data="list"></Table>
-
     <div class="mt-4 mb-10 font-bold" v-if="errors.length">
-      <h1 class="pb-1 text-xl border-b border-gray-200">异常记录</h1>
+      <PageTitle title="异常记录"></PageTitle>
       <ul>
         <li v-for="item in errors" class="mt-2 ml-3 text-sm text-red-500">
           {{ item }}

@@ -1,9 +1,7 @@
 <template>
-  <div class="flex items-end justify-between">
-    <h1 class="text-2xl font-bold">节假日管理</h1>
+  <PageTitle title="节假日管理">
     <Button type="primary" @click="open">添加</Button>
-  </div>
-  <hr class="mt-2 mb-3" />
+  </PageTitle>
   <Table
     :headers="headers"
     :data="list"

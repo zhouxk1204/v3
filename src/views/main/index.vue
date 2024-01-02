@@ -1,15 +1,15 @@
 <template>
-  <div class="h-screen overflow-hidden">
+  <div class="relative h-full overflow-hidden dark:bg-[#1a1a1a]">
     <Banner></Banner>
     <aside
-      class="fixed h-screen pb-12 transition-all border-r border-gray-200 top-20"
+      class="absolute h-full transition-all border-r border-gray-200 dark:border-dark-300 top-20"
     >
       <section class="flex flex-col w-48 px-2 pt-2 overflow-hidden">
         <MenuItem :menuList="menuRoutes" :parentRoute="parentRoute"></MenuItem>
       </section>
     </aside>
     <div
-      class="fixed bottom-0 right-0 p-10 overflow-y-auto h-[calc(100vh-80px)] transition-all left-48"
+      class="absolute bottom-0 right-0 px-10 py-5 overflow-y-auto transition-all top-20 left-48"
     >
       <router-view></router-view>
     </div>
