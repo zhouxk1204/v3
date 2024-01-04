@@ -2,12 +2,8 @@ import * as dayjs from "dayjs";
 
 import { DEFAULT, TYPE_DAY_OBJ } from "@/constants";
 
-import useStore from "@/store";
 import { CodeText } from "@/types";
-
-interface DayTypeRatio extends CodeText {
-  ratio: number[];
-}
+import useStore from "@/store";
 
 /**
  * 获取日期类型：工作日上班；周末加班；节假日加班；节假日补班
