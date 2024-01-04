@@ -75,7 +75,7 @@ import { onMounted, ref } from "vue";
 const audioFiles = import.meta.glob("@/assets/audio/*.mp3");
 const audioFileKeys = Object.keys(audioFiles).map(path => createURL(path));
 
-const audioInfoList = ref<AudioInfo>([]);
+const audioInfoList = ref<AudioInfo[]>([]);
 const currentAudioInfo = ref<AudioInfo>();
 const isPlaying = ref<boolean>(false);
 
