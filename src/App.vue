@@ -1,12 +1,11 @@
 <template>
   <div
     :class="{ dark: isDarkMode }"
-    class="flex flex-col w-screen h-screen overflow-hidden dark:bg-dark"
+    class="relative flex flex-col w-screen h-screen overflow-hidden darkabsolute-alignsolute-aligng-dark"
   >
-    <header>
+    <!-- <header class="absolute z-10 left-1 top-1">
       <Toggle v-model="isDarkMode"></Toggle>
-      {{ isDarkMode }}
-    </header>
+    </header> -->
     <div class="flex-1">
       <router-view></router-view>
     </div>

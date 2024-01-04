@@ -22,3 +22,10 @@ export interface ExcelOption {
   //   col: string;
   // }; // 1
 }
+
+export interface AudioInfo {
+  url: string;
+  title: string;
+  artist: string;
+  cover: string;
+}

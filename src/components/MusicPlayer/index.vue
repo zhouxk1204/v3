@@ -78,6 +78,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { Action, AudioMeta, NEXT, PAUSE, PLAY, PREV } from "./type";
+import { createURL } from "@/utils";
 
 const audioRef = ref<HTMLAudioElement>();
 const audios = ref<string[]>([]);
@@ -92,7 +93,7 @@ const currentMeta = ref<AudioMeta>({
   cover: "",
 });
 const audioMetaList = ref<AudioMeta[]>([]);
-audios.value = Object.keys(import.meta.glob("@/assets/audio/*.mp3"));
+audios.value = Object.keys(import.meta.glob("@/assets/audio/*.mp3")).map(path => createURL(path));
 
 onMounted(() => {
   getAudioMeta();

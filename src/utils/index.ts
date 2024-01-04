@@ -72,3 +72,14 @@ export function isEmpty(value: Value): boolean {
 
   return false;
 }
+
+/**
+ * 将相对路径转换为 new URL
+ * @param {string} relativePath 相对路径
+ * @param {string} baseURL 当前模块的 URL
+ * @returns {string} 绝对路径
+ */
+export function createURL(relativePath: string, baseURL: string = import.meta.url): string {
+  const absoluteURL = new URL(relativePath, baseURL).href;
+  return absoluteURL;
+}

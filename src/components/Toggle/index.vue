@@ -2,8 +2,8 @@
   <input id="toggle" type="checkbox" v-model="modelValueCopy" class="hidden" />
   <label
     for="toggle"
-    class="inline-flex items-center w-12 h-6 rounded-full cursor-pointer select-none p-[2px] bg-[#dddddd]"
-    :class="modelValueCopy ? 'bg-dark-200 border border-dark-100' : ''"
+    class="inline-flex items-center w-12 h-6 rounded-full cursor-pointer select-none p-[2px] "
+    :class="modelValueCopy ? 'bg-dark-300 border border-dark-100' : 'bg-[#dddddd]'"
   >
     <div
       class="p-[1px] rounded-full transition-all shadow-lg"
