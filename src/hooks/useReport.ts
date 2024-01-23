@@ -14,10 +14,10 @@ import {
   removeSpaces,
 } from "@/utils/string";
 
-import useStore from "@/store";
-import { isStringExistArrayElement } from "@/utils";
-import { getTypeOfDay } from "@/utils/date";
 import Decimal from "decimal.js";
+import { getTypeOfDay } from "@/utils/date";
+import { isStringExistArrayElement } from "@/utils";
+import useStore from "@/store";
 
 export function useReport(data: IRecord[][]) {
   const iEmployeeReportList: IEmployeeReport[] = [];
@@ -87,26 +87,31 @@ export function useReport(data: IRecord[][]) {
       .toNumber();
     obj.totalGastroscopyRatioPoint = totalGastroscopyRatioPoint;
 
+    // 年假
     obj.annual = reportList
       .reduce((a, b) => a.plus(b.annual), new Decimal(0))
       .toNumber();
 
+    // 婚假
     obj.marriage = reportList
       .reduce((a, b) => a.plus(b.marriage), new Decimal(0))
       .toNumber();
 
+    // 出勤总天数
     const attendanceList = reportList.filter((e) => e.isWork);
-
     obj.attendanceCount = attendanceList.length;
 
+    // 工作日总天数
     obj.workdayCount = attendanceList.filter((e) =>
       [TYPE_DAY_OBJ.WEEKDAY.code, TYPE_DAY_OBJ.MAKEUP.code].includes(e.typeId)
     ).length;
 
+    // 时间总工分=其他岗位总工分+胃2岗位总工分*1.2
     obj.totalTimeRatioPoint = new Decimal(totalOtherRatioPoint)
-      .plus(totalGastroscopyRatioPoint)
+      .plus(new Decimal(totalGastroscopyRatioPoint).times(1.2))
       .toNumber();
 
+    // 护士长固定2天科务
     obj.serve = roleId === ROLES[1].code ? 2 : 0;
 
     iEmployeeReportList.push(obj);
