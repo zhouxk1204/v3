@@ -12,6 +12,7 @@
       class="absolute bottom-0 right-0 px-10 py-5 overflow-y-auto transition-all top-20 left-48"
     >
       <router-view></router-view>
+      
     </div>
   </div>
   <MusicPlayer></MusicPlayer>
