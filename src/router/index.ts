@@ -62,7 +62,7 @@ setDefault(routes);
 // 默认路由
 routes.push({
   path: "/",
-  redirect: "main",
+  redirect: "photo_wall",
 });
 
 const router = createRouter({
