@@ -6,7 +6,7 @@
     <!-- <header class="absolute z-10 left-1 top-1">
       <Toggle v-model="isDarkMode"></Toggle>
     </header> -->
-    <div class="flex-1">
+    <div class="flex-1 overflow-y-auto">
       <router-view></router-view>
     </div>
   </div>
