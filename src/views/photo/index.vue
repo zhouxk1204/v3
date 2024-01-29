@@ -87,7 +87,7 @@ const images = [
 
 // const getBackgroundImages = () => {
 //   return Object.keys(
-//     import.meta.glob("@/assets/img/photo/*.{png,jpg,gif,svg,avif}")
+//     import.meta.glob("/src/assets/img/photo/*.{png,jpg,gif,svg,avif}")
 //   );
 // };
 

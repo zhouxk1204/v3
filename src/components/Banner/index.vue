@@ -18,8 +18,8 @@ const imageRefs = ref();
 const headerRef = ref();
 
 const banners = Object.keys(
-  import.meta.glob("@/assets/img/banner/*.{png,jpg,gif,svg,webp}")
-  ).map(path =>  createURL(path))
+  import.meta.glob("/src/assets/img/banner/*.{png,jpg,gif,svg,webp}")
+).map((path) => createURL(path));
 
 const mousemove = (e: any) => {
   let percentage = e.clientX / window.outerWidth;

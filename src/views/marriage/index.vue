@@ -49,7 +49,7 @@ import * as dayjs from "dayjs";
 import { computed, ref } from "vue";
 
 const roseImgSrcList = Object.keys(
-  import.meta.glob("@/assets/img/rose/*.{png,jpg,gif,svg,avif}")
+  import.meta.glob("/src/assets/img/rose/*.{png,jpg,gif,svg,avif}")
 );
 
 const srcIndex = ref(0);

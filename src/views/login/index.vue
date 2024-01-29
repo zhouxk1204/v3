@@ -95,7 +95,7 @@ const submitForm = () => {
 
 const getBackgroundImages = () => {
   return Object.keys(
-    import.meta.glob("@/assets/img/bg/*.{png,jpg,gif,svg,avif}")
+    import.meta.glob("/src/assets/img/bg/*.{png,jpg,gif,svg,avif}")
   ).map((e) => new URL(e, import.meta.url).href);
 };
 
