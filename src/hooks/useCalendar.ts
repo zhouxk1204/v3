@@ -4,6 +4,7 @@ import { getFirstMondayOfMonth, getLastSundayOfMonth } from "@/utils/date";
 
 import { DATE_FORMAT } from "@/constants";
 import useStore from "@/store";
+import { IHoliday } from "@/types";
 import { toRaw } from "vue";
 
 export function useCalendar(year: number, month: number) {
@@ -11,7 +12,7 @@ export function useCalendar(year: number, month: number) {
   const endDate = getLastSundayOfMonth(year, month);
   const list: any[] = [];
 
-  const holidayList = toRaw(useStore().holiday.holidayList);
+  const holidayList: IHoliday[] = toRaw(useStore().holiday2.list);
 
   while (
     dayjs(date).isSame(endDate, "day") ||
@@ -25,7 +26,7 @@ export function useCalendar(year: number, month: number) {
       dayOfMonth: date.format("DD"),
       dayOfWeek: date.day(),
       name: holiday ? holiday.name : "",
-      type: holiday ? holiday.typeId : "",
+      type: holiday ? holiday.type : "",
     };
     list.push(iDay);
     date = date.add(1, "day");

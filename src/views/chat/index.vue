@@ -63,8 +63,8 @@ const onSend = async () => {
     message: message.value,
   });
 
-  const apiKey = "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"; // 替换为你的 OpenAI API 密钥
-  // const prompt = message.value; //用户输入的问题  要问的问题
+  const apiKey = "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"; // 替换为你的 OpenAI API 密钥
+  const prompt = message.value; //用户输入的问题  要问的问题
 
   const apiUrl = "https://api.openai.com/v1/chat/completions"; //固定的地址，api模型
   const headers = {
@@ -81,7 +81,7 @@ const onSend = async () => {
       },
       {
         role: "user",
-        content: "Hello!",
+        content: prompt,
       },
     ],
     model: "gpt-3.5-turbo",

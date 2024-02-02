@@ -1,3 +1,5 @@
+import * as _ from "lodash";
+
 import useStore from "@/store";
 
 /**
@@ -79,7 +81,30 @@ export function isEmpty(value: Value): boolean {
  * @param {string} baseURL 当前模块的 URL
  * @returns {string} 绝对路径
  */
-export function createURL(relativePath: string, baseURL: string = import.meta.url): string {
+export function createURL(
+  relativePath: string,
+  baseURL: string = import.meta.url
+): string {
   const absoluteURL = new URL(relativePath, baseURL).href;
   return absoluteURL;
+}
+
+/**
+ *
+ * @param obj1
+ * @param obj2
+ * @param excludedProperty
+ * @returns
+ */
+export function compareObjectsWithoutProperty(
+  obj1: Object,
+  obj2: Object,
+  excludedProperty: string
+) {
+  // 复制对象并删除指定属性
+  const copy1 = _.omit(obj1, excludedProperty);
+  const copy2 = _.omit(obj2, excludedProperty);
+
+  // 使用 _.isEqual 比较对象
+  return _.isEqual(copy1, copy2);
 }

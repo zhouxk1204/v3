@@ -7,12 +7,16 @@
       <Toggle v-model="isDarkMode"></Toggle>
     </header> -->
     <div class="flex-1 overflow-y-auto">
-      <router-view></router-view>
+      <el-config-provider :locale="locale">
+        <router-view></router-view>
+      </el-config-provider>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import zhCn from "element-plus/es/locale/lang/zh-cn";
 import { ref } from "vue";
+const locale = zhCn;
 const isDarkMode = ref<boolean>(false);
 </script>

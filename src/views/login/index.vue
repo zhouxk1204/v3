@@ -2,7 +2,7 @@
   <div
     class="relative w-screen h-screen overflow-hidden bg-bottom bg-cover bg-transition"
     :style="{
-      backgroundImage: `url(https://picsum.photos/1920/1080.webp)`,
+      'background-image': 'linear-gradient(to top, #fff1eb 0%, #ace0f9 100%)',
     }"
   >
     <el-form
@@ -10,7 +10,7 @@
       :model="loginForm"
       size="large"
       :rules="rules"
-      class="absolute w-full p-10 -translate-x-1/2 -translate-y-1/2 bg-white rounded-md shadow-2xl bg-opacity-90 xl:w-1/4 lg:w-1/3 md:w-1/2 sm:w-full left-1/2 top-1/2"
+      class="absolute w-full p-10 -translate-x-1/2 -translate-y-1/2 bg-white shadow-2xl rounded-xl bg-opacity-70 xl:w-1/4 lg:w-1/3 md:w-1/2 sm:w-full left-1/2 top-1/2"
     >
       <h1 class="pb-2 mb-6 text-4xl text-center">🍑</h1>
       <el-form-item prop="email">
