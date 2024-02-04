@@ -1,5 +1,5 @@
-import { Option } from "@/components/Select/types";
 import { CodeText } from "@/types";
+import { Option } from "@/components/Select/types";
 
 export const HOLIDAYS: Option[] = [
   "元旦",
@@ -23,49 +23,7 @@ export const HOLIDAY_ACTIONS: Option[] = ["补班", "放假"].map((e, i) => {
   };
 });
 
-export const HOLIDAY_ACTIONS2 = [
-  {
-    label: "补班",
-    value: "0",
-  },
-  {
-    label: "放假",
-    value: "1",
-  },
-];
-
-export const HOLIDAYS2 = [
-  {
-    label: "元旦",
-    value: "0",
-  },
-  {
-    label: "春节",
-    value: "1",
-  },
-  {
-    label: "清明节",
-    value: "2",
-  },
-  {
-    label: "劳动节",
-    value: "3",
-  },
-  {
-    label: "端午节",
-    value: "4",
-  },
-  {
-    label: "中秋节",
-    value: "5",
-  },
-  {
-    label: "国庆节",
-    value: "6",
-  },
-];
-
-export const GENDERS: Option[] = ["女性", "男性"].map((e, i) => {
+export const GENDERS: Option[] = ["女", "男"].map((e, i) => {
   return {
     code: `${i}`,
     text: e,

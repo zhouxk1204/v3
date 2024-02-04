@@ -108,3 +108,19 @@ export function compareObjectsWithoutProperty(
   // 使用 _.isEqual 比较对象
   return _.isEqual(copy1, copy2);
 }
+
+/**
+ * 判断数组b是否是数组a的子集
+ * @param a - 父数组
+ * @param b - 可能的子集数组
+ * @returns 如果b是a的子集，则返回true；否则返回false
+ */
+/**
+ * 判断数组b是否是数组a的子集
+ * @param a - 父数组
+ * @param b - 可能的子集数组
+ * @returns 如果b是a的子集，则返回true；否则返回false
+ */
+export function isSubset(a: string[], b: string[]): boolean {
+  return b.every((itemB) => a.includes(itemB));
+}

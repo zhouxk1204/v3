@@ -101,19 +101,20 @@
       </template>
     </el-table-column>
   </el-table> -->
-  <Table :list="list2" :cols="cols" :editRow="editRow"></Table>
+  <Table
+    :list="list2"
+    :cols="cols"
+    :editable="true"
+    @remove="onRemove"
+    @update="onUpdate"
+  ></Table>
 </template>
 
 <script setup lang="ts">
 import { useSelect } from "@/hooks/useSelect";
 // import { useTable } from "@/hooks/useTable";
 // import useStore from "@/store";
-import {
-  EditRowTemp,
-  IEmployee,
-  IEmployeeTableColumn,
-  TableColumn,
-} from "@/types";
+import { IEmployee, IEmployeeTableColumn, TableColumn } from "@/types";
 import * as dayjs from "dayjs";
 // import { storeToRefs } from "pinia";
 
@@ -121,7 +122,6 @@ import * as dayjs from "dayjs";
 // const { handleInsert, handleRemove, handleUpdate } = employeeStore;
 // const { list } = storeToRefs(employeeStore);
 // // 下拉框
-const { genders, posts } = useSelect();
 
 // // 表格
 // const { editRowTemp, editRowIndex, edit, cancel } = useTable<IEmployee>();
@@ -131,8 +131,8 @@ const { genders, posts } = useSelect();
 //   handleUpdate(data);
 //   editRowIndex.value = -1;
 // };
-
-const list2: IEmployee[] = [];
+const { getOption } = useSelect();
+const list2 = ref<IEmployee[]>([]);
 const cols: TableColumn<IEmployeeTableColumn>[] = [
   {
     key: "no",
@@ -160,7 +160,7 @@ const cols: TableColumn<IEmployeeTableColumn>[] = [
     label: "性别",
     type: {
       name: "select",
-      options: genders,
+      key: "gender",
     },
   },
   {
@@ -168,32 +168,29 @@ const cols: TableColumn<IEmployeeTableColumn>[] = [
     label: "职位",
     type: {
       name: "select",
-      options: posts,
+      key: "post",
     },
   },
 ];
-const editRow: EditRowTemp<IEmployee> = {
-  id: -1,
-  no: -1,
-  name: "",
-  factor: -1,
-  genderId: "",
-  gender: "",
-  postId: "",
-  post: "",
-};
 
 const onChange = (data: any[]) => {
-  console.log("%c Line:142 🍯 data", "color:#2eafb0", data);
   if (data.length > 0) {
-    data.forEach((e: any, i: number) => {
-      e.id = dayjs().valueOf() + i;
-      e.gender = `${e.gender}`;
-      e.post = `${e.post}`;
+    data.forEach((item, index) => {
+      item.id = dayjs().valueOf() + index;
+      const genderOption = getOption("label", item.gender, "gender");
+      const postOption = getOption("label", item.post, "post");
+      item.genderId = genderOption?.value;
+      item.postId = postOption?.value;
     });
-
-    // const employees = data as IEmployee[];
-    // handleInsert(employees);
+    list2.value = data as IEmployee[];
   }
+};
+
+const onRemove = (data: IEmployee) => {
+  console.log("%c Line:184 🥖 data", "color:#b03734", data);
+};
+
+const onUpdate = (data: IEmployeeTableColumn) => {
+  console.log("%c Line:188 🍉 data", "color:#42b983", data);
 };
 </script>

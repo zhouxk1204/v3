@@ -81,18 +81,29 @@ export interface IDayRecord {
   employeeName: string;
 }
 
-interface Option {
-  value: string;
+export interface IOption {
   label: string;
+  value: string;
 }
+
+export type SelectType =
+  | "gender" // 性别
+  | "post" // 职位
+  | "job" // 岗位
+  | "work" // 工作种类
+  | "holiday" // 法定节假日
+  | "holidayType"; // 法定节假日类型
 
 type EditTypeName = "text" | "number" | "date";
 type EditTypeName2 = "select";
 
 type EditType<
-  T extends { name: EditTypeName | EditTypeName2; options?: Option[] }
+  T extends {
+    name: EditTypeName | EditTypeName2;
+    key?: SelectType;
+  }
 > = T["name"] extends EditTypeName2
-  ? { name: EditTypeName2; options: Option[] }
+  ? { name: EditTypeName2; key: SelectType }
   : { name: EditTypeName };
 
 export interface TableColumn<T> {
