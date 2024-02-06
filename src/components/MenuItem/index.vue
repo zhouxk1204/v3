@@ -1,15 +1,21 @@
 <template>
-  <div v-for="menu in menuList">
+  <div v-for="menu in menuList" :key="menu.name">
     <template v-if="menu.children.length === 0">
-      <el-menu-item :index="menu.name">
-        <router-link :to="parentRoute + '/' + menu.path">
-          {{ menu.meta.title }}
-        </router-link>
+      <el-menu-item :index="menu.name" :route="parentRoute + '/' + menu.path">
+        <div class="flex items-center">
+          <Icon :icon="menu.meta.icon" class="mr-2"></Icon>
+          <span>{{ menu.meta.title }}</span>
+        </div>
       </el-menu-item>
     </template>
     <template v-else>
-      <el-sub-menu :index="menu.name">
-        <template #title> {{ menu.meta.title }}</template>
+      <el-sub-menu :index="menu.name" :route="parentRoute + '/' + menu.path">
+        <template #title>
+          <div class="flex items-center">
+            <Icon :icon="menu.meta.icon" class="mr-2"></Icon>
+            <span>{{ menu.meta.title }}</span>
+          </div>
+        </template>
         <MenuItem
           :menuList="menu.children"
           :parentRoute="parentRoute + '/' + menu.path"

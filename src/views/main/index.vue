@@ -22,7 +22,7 @@
         <MenuItem :menuList="menuRoutes" :parentRoute="parentRoute"> </MenuItem>
       </el-menu>
     </div>
-    <div class="py-5 pl-48">
+    <div class="py-5 pl-40 pr-5">
       <router-view></router-view>
     </div>
   </div>
@@ -33,12 +33,14 @@ import { useRouter } from "vue-router";
 import router from "../../router";
 
 const currentRoute = useRouter().currentRoute.value.name as string;
+console.log("%c Line:36 🌶 currentRoute", "color:#b03734", currentRoute);
 const parentRoute = "/main";
 const menuRoutes =
   router.options.routes.find((e) => e.path === parentRoute)?.children ?? [];
 menuRoutes.sort(
   (a, b) => Number(a.meta?.sort ?? 0) - Number(b.meta?.sort ?? 0)
 );
+console.log("%c Line:38 🍞 menuRoutes", "color:#fca650", menuRoutes);
 </script>
 <style lang="scss" scoped>
 .cus-blur {

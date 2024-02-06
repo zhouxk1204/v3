@@ -11,7 +11,7 @@ const useHoliday2Store = defineStore(
      * 添加节假日
      * @param {IHoliday} holiday 待添加节假日
      */
-    const handleInsert = (holiday: IHoliday): boolean => {
+    const insert = (holiday: IHoliday): boolean => {
       if (!list.value.find((e) => e.date === holiday.date)) {
         list.value.push(holiday);
         return true;
@@ -23,10 +23,9 @@ const useHoliday2Store = defineStore(
 
     /**
      * 删除某个节假日
-     * @param {number} id uuid
+     * @param {number} index
      */
-    const handleRemove = (id: number): void => {
-      const index = list.value.findIndex((e) => e.id === id);
+    const remove = (index: number): void => {
       if (index > -1) {
         list.value.splice(index, 1);
       }
@@ -34,21 +33,25 @@ const useHoliday2Store = defineStore(
 
     /**
      * 更新节假日列表
-     * @param {IHoliday} holiday 待更新的节假日
+     * @param {IHoliday} data 待更新的节假日
      */
-    const handleUpdate = (holiday: IHoliday): void => {
-      const index = list.value.findIndex((e) => e.id === holiday.id);
+    const update = (data: IHoliday): void => {
+      const index = list.value.findIndex((e) => e.id === data.id);
 
       if (index > -1) {
-        const index2 = list.value.findIndex((e) => e.date === holiday.date);
+        const l = list.value.filter((e) => e.date === data.date);
 
-        if (index2 === -1) {
-          list.value.splice(index, 1, holiday);
+        if (l.length < 2) {
+          list.value.splice(index, 1, data);
+        } else {
+          ElMessage.error("节假日日期重复，更新失败！");
         }
+      } else {
+        ElMessage.error("节假日不存在，更新失败！");
       }
     };
 
-    return { list, handleInsert, handleRemove, handleUpdate };
+    return { list, insert, remove, update };
   },
   {
     persist: true,

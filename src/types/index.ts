@@ -30,24 +30,6 @@ export interface AudioInfo {
   cover: string;
 }
 
-export interface IHoliday {
-  id: number;
-  date: string; // 日期
-  name: string; // 节假日名称id
-  type: string; // 放假/补班名称id
-  workRadio: number; // 补班工作倍率
-  extraRadio: number; // 加班工作倍率
-}
-
-// export interface IEmployee {
-//   id: number;
-//   no: number; // 序号
-//   name: string; // 姓名
-//   factor: number; // 系数
-//   gender: string; // 性别
-//   post: string; // 职位
-// }
-
 export interface IDayRatio {
   id: number;
   employeeId: string; // 姓名id
@@ -112,20 +94,28 @@ export interface TableColumn<T> {
   type: EditType<{ name: EditTypeName }> | EditType<{ name: EditTypeName2 }>;
 }
 
-export interface IEmployeeTableColumn {
+// export interface IEmployeeTableColumn {
+//   no: number; // 序号
+//   name: string; // 姓名
+//   factor: number; // 系数
+//   genderId: string; // 性别
+//   postId: string; // 职位
+// }
+
+export interface IEmployee {
+  id: number;
   no: number; // 序号
-  name: string; // 姓名
+  employeeName: string; // 姓名
   factor: number; // 系数
   genderId: string; // 性别
   postId: string; // 职位
 }
 
-export interface IEmployee extends IEmployeeTableColumn {
+export interface IHoliday {
   id: number;
-  gender: string;
-  post: string;
+  date: string; // 日期
+  holidayId: string; // 节假日名称id
+  holidayTypeId: string; // 放假/补班名称id
+  workRatio: string; // 补班工作倍率
+  extraRatio: string; // 加班工作倍率
 }
-
-export type EditRowTemp<T> = {
-  [K in keyof T]: T[K] extends number ? number : string;
-};

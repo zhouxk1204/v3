@@ -1,45 +1,53 @@
 <template>
   <el-table :data="list" class="w-full" size="large">
-    <el-table-column :label="col.label" v-for="(col, i) in cols">
+    <el-table-column :label="item.label" v-for="item in cols">
       <template #default="scope">
         <template v-if="editRowIndex !== scope.$index">
-          <span v-if="col.type.name === 'select'">
-            {{ getOption("value", scope.row[col.key], col.type.key)?.label }}
+          <span v-if="item.edit.editType === 'select'">
+            {{
+              getOption("value", scope.row[item.field], item.edit.selectType)
+                ?.label
+            }}
           </span>
-          <span v-else>{{ scope.row[col.key] }}</span>
+          <span v-else>{{ scope.row[item.field] }}</span>
         </template>
         <template v-else>
-          <template v-if="col.type.name === 'text'">
+          <template v-if="item.edit.editType === 'text'">
             <el-input
-              v-model="editRowTemp[i]"
               type="text"
-              :placeholder="col.label"
+              v-model="editRowTemp[item.field]"
+              :placeholder="item.edit.placeholder"
+              :clearable="item.edit.clearable"
             ></el-input>
           </template>
-          <template v-else-if="col.type.name === 'number'">
+          <template v-else-if="item.edit.editType === 'number'">
             <el-input
-              v-model="editRowTemp[i]"
               type="number"
+              v-model="editRowTemp[item.field]"
+              :placeholder="item.edit.placeholder"
+              :clearable="item.edit.clearable"
               min="0"
-              :placeholder="col.label"
             ></el-input>
           </template>
-          <template v-else-if="col.type.name === 'date'">
+          <template v-else-if="item.edit.editType === 'date'">
             <el-date-picker
-              v-model="editRowTemp[i]"
               type="date"
-              :placeholder="col.label"
+              v-model="editRowTemp[item.field]"
+              :placeholder="item.edit.placeholder"
+              :clearable="item.edit.clearable"
               format="YYYY/MM/DD"
               value-format="YYYY/MM/DD"
+              class="w-24"
             >
             </el-date-picker>
           </template>
-          <template v-else-if="col.type.name === 'select'">
+          <template v-else-if="item.edit.editType === 'select'">
             <el-select-v2
-              :placeholder="col.label"
-              v-model="editRowTemp[i]"
-              :options="getOptionsByType(col.type.key)"
-              class="min-w-24 max-w-24"
+              v-model="editRowTemp[item.field]"
+              :placeholder="item.edit.placeholder"
+              :clearable="item.edit.clearable"
+              :options="item.edit.options"
+              class="w-24"
             />
           </template>
         </template>
@@ -68,15 +76,15 @@
   </el-table>
 </template>
 
-<script setup lang="ts" generic="T extends IEmployeeTableColumn, U extends T">
+<script setup lang="ts" generic="T">
 import { useSelect } from "@/hooks/useSelect";
-import { IEmployeeTableColumn, TableColumn } from "@/types";
-const { getOptionsByType, getOption } = useSelect();
+import { TableColumnItem } from "./type";
+const { getOption } = useSelect();
 
 const props = withDefaults(
   defineProps<{
-    list: U[];
-    cols: TableColumn<T>[];
+    list: T[];
+    cols: TableColumnItem<T>[];
     editable?: boolean;
   }>(),
   {
@@ -85,17 +93,13 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  (e: "remove", data: U): void;
-  (e: "update", data: T): void;
+  (e: "remove", data: number): void;
+  (e: "update", data: any): void;
 }>();
 
-const editRowTemp = ref<Array<number | string>>([]);
+const editRowTemp = ref<any>({});
 for (let e of props.cols) {
-  if (e.type.name === "number") {
-    editRowTemp.value.push(-1);
-  } else {
-    editRowTemp.value.push("");
-  }
+  editRowTemp.value[e.field] = "";
 }
 
 const editRowIndex = ref<number>(-1);
@@ -105,26 +109,17 @@ const onCancel = () => {
 };
 
 const onUpdate = () => {
-  const colKeys = props.cols.map((item) => item.key);
-  const obj: any = {};
-  colKeys.forEach((key, i) => {
-    obj[key] = editRowTemp.value[i];
-  });
-  emit("update", obj as T);
+  emit("update", editRowTemp.value);
   editRowIndex.value = -1;
 };
 
 const onEdit = (index: number) => {
   const data = props.list[index];
-  const colKeys = props.cols.map((item) => item.key);
-  for (let i = 0; i < colKeys.length; i++) {
-    editRowTemp.value[i] = data[colKeys[i]] as number | string;
-  }
+  editRowTemp.value = Object.assign({}, data);
   editRowIndex.value = index;
 };
 
 const onRemove = (index: number) => {
-  emit("remove", props.list[index]);
+  emit("remove", index);
 };
 </script>
-<style lang="scss" scoped></style>

@@ -3,5 +3,4 @@ export default {
   defaultRoute: "puzzle",
   sort: 2,
   icon: "ep:basketball",
-  emoji: "🎲",
 };
