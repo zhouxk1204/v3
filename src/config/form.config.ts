@@ -76,3 +76,93 @@ export const HolidayForm: FieldItem[] = [
     value: "",
   },
 ];
+
+export const DayRatioSettingForm: FieldItem[] = [
+  {
+    label: "日期",
+    field: "date",
+    type: "date",
+    rules: [
+      {
+        required: true,
+        message: "请输入日期",
+      },
+    ],
+    placeholder: "日期",
+    clearable: true,
+    value: "",
+  },
+  {
+    label: "姓名",
+    field: "employeeId",
+    type: "select",
+    rules: [
+      {
+        required: true,
+        message: "请选择姓名",
+      },
+    ],
+    options: getOptionsByType("employee"),
+    placeholder: "姓名",
+    clearable: true,
+    value: "",
+  },
+  {
+    label: "岗位",
+    field: "jobId",
+    type: "select",
+    options: getOptionsByType("job"),
+    rules: [
+      {
+        required: true,
+        message: "请选择岗位",
+      },
+    ],
+    placeholder: "岗位",
+    clearable: true,
+    value: "",
+  },
+  {
+    label: "上班/加班",
+    field: "workTypeId",
+    type: "select",
+    options: getOptionsByType("workType"),
+    rules: [
+      {
+        required: true,
+        message: "请选择上班/加班",
+      },
+    ],
+    placeholder: "上班/加班",
+    clearable: true,
+    value: "",
+  },
+  {
+    label: "工分倍率",
+    field: "ratio",
+    type: "number",
+    rules: [
+      {
+        required: true,
+        message: "请输入工分倍率",
+      },
+    ],
+    placeholder: "工分倍率",
+    clearable: true,
+    value: "",
+  },
+  {
+    label: "备注",
+    field: "remark",
+    type: "text",
+    rules: [
+      {
+        required: true,
+        message: "请输入备注",
+      },
+    ],
+    placeholder: "备注",
+    clearable: true,
+    value: "",
+  },
+];

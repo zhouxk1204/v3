@@ -8,11 +8,11 @@
     <el-form
       ref="formRef"
       :model="loginForm"
-      size="large"
       :rules="rules"
-      class="absolute w-full p-10 -translate-x-1/2 -translate-y-1/2 bg-white shadow-2xl rounded-xl bg-opacity-70 xl:w-1/4 lg:w-1/3 md:w-1/2 sm:w-full left-1/2 top-1/2"
+      size="large"
+      class="absolute p-10 -translate-x-1/2 -translate-y-1/2 bg-white bg-opacity-50 shadow-2xl backdrop-blur-xl w-80 rounded-xl left-1/2 top-1/2 max-sm:w-[90%] max-sm:shadow-none"
     >
-      <h1 class="pb-2 mb-6 text-4xl text-center">🍑</h1>
+      <h1 class="pb-2 mb-6 text-4xl text-center max-sm:text-5xl">🍑</h1>
       <el-form-item prop="email">
         <el-input v-model="loginForm.email" placeholder="邮箱" clearable />
       </el-form-item>
@@ -26,11 +26,7 @@
           clearable
         />
       </el-form-item>
-      <el-button
-        class="w-full"
-        type="primary"
-        @click="submitForm"
-        native-type="submit"
+      <el-button class="w-full" type="primary" @click="submitForm"
         >注册 / 登录
       </el-button>
     </el-form>

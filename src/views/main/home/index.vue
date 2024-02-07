@@ -9,6 +9,6 @@
 </template>
 
 <script setup lang="ts">
-const text =
-  "There were a sensitivity and a beauty to her that have nothing to do with looks. She was one to be listened to, whose words were so easy to take to heart.";
+// const text =
+//   "There were a sensitivity and a beauty to her that have nothing to do with looks. She was one to be listened to, whose words were so easy to take to heart.";
 </script>

@@ -1,57 +1,61 @@
-import { Employee } from "@/models/employee.model";
+import { IEmployee } from "@/types";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
 const useEmployeeStore = defineStore(
   "employee",
   () => {
-    const employeeList = ref<Employee[]>([]);
-
+    const list = ref<IEmployee[]>([]);
     /**
      * 添加职工
-     * @param {Employee} employee 待添加职工
+     * @param {IEmployee | IEmployee[]} employee 待添加职工
      */
-    const add = (employee: Employee): void => {
-      if (!employeeList.value.find((e) => e.no === employee.no)) {
-        employeeList.value.push(employee);
-      }
-    };
+    const insert = (employee: IEmployee | IEmployee[]): void => {
+      const employeesToAdd = Array.isArray(employee) ? employee : [employee];
 
-    /**
-     * 添加职工列表
-     * @param {Employee[]} list 待添加职工列表
-     */
-    const addList = (list: Employee[]): void => {
-      list.forEach((item) => {
-        if (!employeeList.value.find((e) => e.no === item.no)) {
-          employeeList.value.push(item);
+      employeesToAdd.forEach((item) => {
+        const employeeExists = list.value.some((e) => e.no === item.no);
+        if (!employeeExists) {
+          list.value.push(item);
+        } else {
+          ElMessage.error("员工重复，添加失败");
         }
       });
     };
 
     /**
      * 删除某个职工
-     * @param {string} no 顺序
+     * @param {number} index
      */
-    const remove = (no: string): void => {
-      const index = employeeList.value.findIndex((e) => e.no === no);
-      if (index !== -1) {
-        employeeList.value.splice(index, 1);
+    const remove = (index: number): void => {
+      if (index > -1) {
+        list.value.splice(index, 1);
+      } else {
+        ElMessage.error("员工不存在，删除失败");
       }
     };
 
     /**
      * 更新职工列表
-     * @param {Employee} employee 待更新的职工
+     * @param {IEmployee} data 待更新的职工信息
      */
-    const update = (employee: Employee): void => {
-      const index = employeeList.value.findIndex((e) => e.no === employee.no);
-      if (index !== -1) {
-        employeeList.value.splice(index, 1, employee);
+    const update = (data: IEmployee): void => {
+      const index = list.value.findIndex((e) => e.id === data.id);
+
+      if (index > -1) {
+        const l = list.value.filter((e) => e.no === data.no);
+
+        if (l.length < 2) {
+          list.value.splice(index, 1, data);
+        } else {
+          ElMessage.error("员工序号重复，更新失败！");
+        }
+      } else {
+        ElMessage.error("员工不存在，更新失败");
       }
     };
 
-    return { employeeList, add, addList, remove, update };
+    return { list, insert, remove, update };
   },
   {
     persist: true,

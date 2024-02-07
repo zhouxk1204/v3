@@ -1,4 +1,4 @@
-import { IEmployee, IHoliday } from "@/types";
+import { IDayRatioSetting, IEmployee, IHoliday } from "@/types";
 
 import { TableColumnItem } from "@/components/Table/type";
 import { useSelect } from "@/hooks/useSelect";
@@ -105,6 +105,69 @@ export const EmployeeTable: TableColumnItem<IEmployee>[] = [
       options: getOptionsByType("post"),
       clearable: true,
       placeholder: "职位",
+    },
+  },
+];
+
+export const DayRatioSettingTable: TableColumnItem<IDayRatioSetting>[] = [
+  {
+    field: "employeeId",
+    label: "姓名",
+    edit: {
+      editType: "select",
+      clearable: true,
+      placeholder: "姓名",
+      selectType: "employee",
+      options: getOptionsByType("employee"),
+    },
+  },
+  {
+    field: "date",
+    label: "日期",
+    edit: {
+      editType: "date",
+      clearable: true,
+      placeholder: "日期",
+    },
+  },
+  {
+    label: "岗位",
+    field: "jobId",
+    edit: {
+      editType: "select",
+      selectType: "job",
+      options: getOptionsByType("job"),
+      clearable: true,
+      placeholder: "岗位",
+    },
+  },
+  {
+    label: "上班/加班",
+    field: "workTypeId",
+    edit: {
+      editType: "select",
+      selectType: "workType",
+      options: getOptionsByType("workType"),
+      clearable: true,
+      placeholder: "岗位",
+    },
+  },
+  {
+    label: "工分倍率",
+    field: "ratio",
+    edit: {
+      editType: "number",
+      clearable: true,
+      placeholder: "工分倍率",
+    },
+  },
+  {
+    label: "备注",
+    field: "remark",
+    edit: {
+      editType: "text",
+      clearable: true,
+      placeholder: "remark",
     },
   },
 ];

@@ -52,9 +52,9 @@
         <span class="text-xl font-bold">
           {{ item.dayOfMonth }}
         </span>
-        <span v-if="item.name" class="text-xs font-bold">{{
+        <!-- <span v-if="item.name" class="text-xs font-bold">{{
           getHolidayName(item.name)
-        }}</span>
+        }}</span> -->
         <span
           v-if="item.type.length > 0"
           class="absolute flex items-center justify-center w-4 h-4 text-xs rounded-full -top-1 -right-1"
@@ -78,11 +78,9 @@
 <script setup lang="ts">
 import { DATE_FORMAT } from "@/constants";
 import { useCalendar } from "@/hooks/useCalendar";
-import { useSelect } from "@/hooks/useSelect";
 import * as dayjs from "dayjs";
 import { computed, ref } from "vue";
 
-const { getHolidayName } = useSelect();
 const dateHeader = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 const currentDate = dayjs().format(DATE_FORMAT);
 const currentMonth = ref<number>(dayjs().month() + 1);

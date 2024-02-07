@@ -1,6 +1,18 @@
 import { IOption, SelectType } from "@/types";
 
+import { HOLIDAY_TYPE } from "@/constants";
+import useStore from "@/store";
+
 export function useSelect() {
+  const getEmployeeOption = (): IOption[] => {
+    return useStore().employee.list.map((e) => {
+      return {
+        label: e.employeeName,
+        value: e.id,
+      };
+    });
+  };
+
   const OptionsObject: { [K in SelectType]: IOption[] } = {
     // 性别
     gender: [
@@ -27,40 +39,16 @@ export function useSelect() {
     // 岗位
     job: [
       {
-        label: "胃镜1",
+        label: "胃镜2",
         value: "0",
       },
       {
-        label: "胃镜2",
-        value: "1",
-      },
-      {
-        label: "胃镜3",
-        value: "2",
-      },
-      {
-        label: "手术1",
-        value: "3",
-      },
-      {
-        label: "手术2",
-        value: "4",
-      },
-      {
-        label: "手术3",
-        value: "5",
-      },
-      {
-        label: "机动",
-        value: "6",
-      },
-      {
         label: "其他",
-        value: "7",
+        value: "1",
       },
     ],
     // 上班类别
-    work: [
+    workType: [
       {
         label: "上班",
         value: "0",
@@ -105,13 +93,14 @@ export function useSelect() {
     holidayType: [
       {
         label: "补班",
-        value: "0",
+        value: HOLIDAY_TYPE.MAKEUP,
       },
       {
         label: "放假",
-        value: "1",
+        value: HOLIDAY_TYPE.HOLIDAY,
       },
     ],
+    employee: getEmployeeOption(),
   };
 
   /**

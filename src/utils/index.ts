@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 
 import useStore from "@/store";
+import { v4 } from "uuid";
 
 /**
  * 引用类型深拷贝
@@ -123,4 +124,16 @@ export function compareObjectsWithoutProperty(
  */
 export function isSubset(a: string[], b: string[]): boolean {
   return b.every((itemB) => a.includes(itemB));
+}
+
+/**
+ * 生成id
+ * @returns {string}
+ */
+export function generateId(): string {
+  return v4();
+}
+
+export function isNumeric(str: string) {
+  return /^\d+(\.\d+)?$/.test(str);
 }

@@ -8,16 +8,12 @@ import {
   TYPE_POST_OBJ,
 } from "@/constants";
 import { IEmployeeReport, IPoint, IRecord } from "@/models/report.model";
-import {
-  fullWidthToHalfWidth,
-  parsePositiveRealNumber,
-  removeSpaces,
-} from "@/utils/string";
+import { fullToHalf, parsePositiveRealNumber, trim } from "@/utils/string";
 
-import Decimal from "decimal.js";
-import { getTypeOfDay } from "@/utils/date";
-import { isStringExistArrayElement } from "@/utils";
 import useStore from "@/store";
+import { isStringExistArrayElement } from "@/utils";
+import { getTypeOfDay } from "@/utils/date";
+import Decimal from "decimal.js";
 
 export function useReport(data: IRecord[][]) {
   const iEmployeeReportList: IEmployeeReport[] = [];
@@ -27,23 +23,24 @@ export function useReport(data: IRecord[][]) {
 
   const errorList: string[] = [];
 
-  data.forEach((item) => {
+  for (let item of data) {
     const obj: any = {};
 
     const { employeeName } = item[0];
-    obj.employeeName = employeeName;
 
     // 获取职工信息
-    const employee = useStore().employee.employeeList.find(
-      (el2) => el2.name === employeeName
+    const employee = useStore().employee.list.find(
+      (item) => item.employeeName === employeeName
     );
-    obj.factor = employee?.factor ?? "0";
-    const roleId = employee?.roleId ?? ROLES[0].code;
+    if (!employee) continue;
+
+    obj.employeeName = employeeName;
+    obj.factor = employee.factor;
 
     const reportList = item.map((item2) => {
       const { record, date } = item2;
-      const { code, text } = getTypeOfDay(date);
-      const pointList = parseRecord(employeeName, record, date, code);
+      const dayTypeId = getTypeOfDay(date);
+      const pointList = parseRecord(employeeName, record, date, dayTypeId);
       const dailyOtherRatioPoint = getRatioPointByPostId(
         pointList,
         TYPE_POST_OBJ.OTHER.code
@@ -66,8 +63,7 @@ export function useReport(data: IRecord[][]) {
         employeeName,
         factor: employee?.factor ?? "0",
         date: item2.date,
-        typeId: code,
-        typeName: text,
+        typeId: dayTypeId,
         pointList,
         dailyOtherRatioPoint,
         dailyGastroscopyRatioPoint,
@@ -112,10 +108,11 @@ export function useReport(data: IRecord[][]) {
       .toNumber();
 
     // 护士长固定2天科务
+    const roleId = employee.postId;
     obj.serve = roleId === ROLES[1].code ? 2 : 0;
 
     iEmployeeReportList.push(obj);
-  });
+  }
 
   /**
    * 解析工作记录字符串
@@ -126,31 +123,37 @@ export function useReport(data: IRecord[][]) {
     employeeName: string,
     record: string,
     date: string,
-    code: string
+    dayTypeId: string
   ): IPoint[] {
-    // 节假日, 周末上班
-    const isWeekendOrHolidayOvertime = [
-      TYPE_DAY_OBJ.HOLIDAY.code,
-      TYPE_DAY_OBJ.WEEKEND.code,
-    ].includes(code);
+    // 去掉空格，大写转小写
+    const nRecord = trim(fullToHalf(record));
 
-    const nRecord = removeSpaces(fullWidthToHalfWidth(record));
+    // 纯文字的记录：各种休
+    if(!/\d/.test(nRecord)){
+      // 获取休日信息
+      const point = getRestInfoByText(nRecord);
+      if(!point){
+        errorList.push(`${employeeName}：${date} 的工分记录：${nRecord} 填写错误，无法解析，请核对！！！`);
+        return [];
+      }
+      return [point];
+    }else{
+      // 按'/'分成不同的种类进行解析
+      const parts = nRecord.split("/");
 
-    if (/\d/.test(nRecord)) {
+    }
+
+
+
+    if () {
       const parts = nRecord.split("/");
       const iPointList: IPoint[][] = [];
       parts.forEach((part) => {
-        const p = parsePart(
-          part,
-          employeeName,
-          date,
-          isWeekendOrHolidayOvertime
-        );
+        const p = parsePart(part, employeeName, date, dayTypeId);
         if (p) {
           iPointList.push(p);
         } else {
-          const error = `${employeeName}：${date} 的工分记录：${nRecord} 填写错误，无法解析，请核对！！！`;
-          errorList.push(error);
+          errorList.push(`${employeeName}：${date} 的工分记录：${nRecord} 填写错误，无法解析，请核对！！！`);
         }
       });
       return iPointList.flat();
@@ -186,6 +189,35 @@ export function useReport(data: IRecord[][]) {
     date: string,
     isWeekendOrHolidayOvertime: boolean
   ): IPoint[] | undefined {
+    // 胃镜
+    const prefixes = ['胃', '胃镜'];
+    const regexStr = `^(${prefixes.join('|')})\\d+(\\.\\d+)?(\\+\\d+(\\.\\d+)?)?$`;
+    const regex = new RegExp(regexStr);
+
+    // 手术
+    const prefixes2 = ['手']; // 定义可能的开头字符串
+const prefixRegex2 = prefixes.length > 0 ? `(${prefixes.join('|')})?` : ''; // 生成前缀正则表达式部分
+const regexStr2 = `^${prefixRegex2}\\d+(\.\d+)?(\+\d+(\.\d+)?)?$`; // 拼接生成完整正则表达式
+const regex2 = new RegExp(regexStr);
+  //   if(part.indexOf('+') === -1){
+  //     // 纯数字
+  //     if(isNumeric(part)){
+  //       return [
+  //         {
+  //           typeId: string; // 类别
+  // typeName: string; // 类别
+  // postId?: string; // 岗位id
+  // postName?: string; // 岗位名称
+  // point: number; // 岗位工分（小时）
+  // pointRatio?: number; // 岗位工分倍率
+  // ratioPoint?: number; // 岗位工分 * 岗位工分倍率
+  //         }
+  //       ]
+  //     }
+  //   }
+
+
+
     // 异常1: xx+胃 的情况
     if (
       isStringExistArrayElement(part, TYPE_POST_OBJ.GASTROSCOPY.text) &&
@@ -304,14 +336,14 @@ export function useReport(data: IRecord[][]) {
     name: string
   ): number {
     // 1.特殊岗位工分倍率设定（优先级最高）
-    const rateSettingList = useStore().rateSetting.rateSettingList;
+    const rateSettingList = useStore().dayRatioSetting.list;
 
     const rateSetting = rateSettingList.find(
       (el) =>
         el.date === date && // 日期
         el.postId === postId && // 岗位
         el.statusId === statusId && // 加班
-        el.name === name // 姓名
+        el.employeeId === name // 姓名
     );
 
     if (rateSetting) {
@@ -340,6 +372,37 @@ export function useReport(data: IRecord[][]) {
     // 4.工作日
     return statusId === "0" ? DEFAULT.RATIO.WORK : DEFAULT.RATIO.OVERTIME;
   }
+
+
+
+  const getRestInfoByText = (text: string): IPoint | null=> {
+    for (let item of Object.values(TYPE_POINT_OBJ.REST)) {
+      if (item.text.includes(text)) {
+        return {
+          typeId: item.code,
+          typeName: item.text[0],
+          point: 1,
+        };
+      }
+    }
+    return null;
+  }
+
+  const isGastroscopyPart = (target:string) => {
+        // 胃镜
+        const prefixes = ['胃', '胃镜'];
+        const regexStr = `^(${prefixes.join('|')})\\d+(\\.\\d+)?(\\+\\d+(\\.\\d+)?)?$`;
+        const regex = new RegExp(regexStr);
+        return regex.test(target)
+  }
+
+  const isOperationPart = (target:string) => {
+    const prefixes = ['手']; // 定义可能的开头字符串
+    const prefixRegex = prefixes.length > 0 ? `(${prefixes.join('|')})?` : ''; // 生成前缀正则表达式部分
+    const regexStr = `^${prefixRegex}\\d+(\.\d+)?(\+\d+(\.\d+)?)?$`; // 拼接生成完整正则表达式
+    const regex = new RegExp(regexStr);
+    return regex.test(target)
+}
 
   return {
     iEmployeeReportList,

@@ -1,7 +1,7 @@
 <template>
-  <h1 class="pb-2 mb-3 text-xl font-bold border-b">添加节假日</h1>
+  <h1 class="pb-3 mb-3 font-bold border-b">添加节假日</h1>
   <Form :form="form" @submit="handelSubmit"></Form>
-  <h1 class="pb-2 mb-3 text-xl font-bold border-b">节假日明细</h1>
+  <h1 class="pb-3 font-bold border-b">节假日明细</h1>
   <Table
     :list="list"
     :cols="cols"
@@ -18,16 +18,16 @@ import { HolidayForm } from "@/config/form.config";
 import { HolidayTable } from "@/config/table.config";
 import useStore from "@/store";
 import { IHoliday } from "@/types";
-import * as dayjs from "dayjs";
+import { generateId } from "@/utils";
 import { storeToRefs } from "pinia";
 
-const holidayStore = useStore().holiday2;
+const holidayStore = useStore().holiday;
 const { list } = storeToRefs(holidayStore);
 
 const form = ref<FieldItem[]>(HolidayForm);
 
 const handelSubmit = (data: any) => {
-  data.id = dayjs().valueOf();
+  data.id = generateId();
   holidayStore.insert(data);
 };
 

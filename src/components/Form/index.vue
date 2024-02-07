@@ -56,10 +56,10 @@
 </template>
 
 <script setup lang="ts">
-import { FieldItem } from "@/types/form";
 import { FormInstance } from "element-plus/es/components/form";
 import * as _ from "lodash";
 import { ref } from "vue";
+import { FieldItem } from "./form";
 
 const formRef = ref<FormInstance>();
 const formModel = ref<Record<string, string | number>>({});

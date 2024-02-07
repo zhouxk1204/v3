@@ -1,31 +1,29 @@
 import * as dayjs from "dayjs";
 
-import { DEFAULT, TYPE_DAY_OBJ } from "@/constants";
+import { DAY_TYPE, DEFAULT, HOLIDAY_TYPE } from "@/constants";
 
-import { CodeText } from "@/types";
 import useStore from "@/store";
+import { CodeText } from "@/types";
 
 /**
  * 获取日期类型：工作日上班；周末加班；节假日加班；节假日补班
  * @param {string} date YYYY年MM月DD日
  * @returns {CodeText}
  */
-export function getTypeOfDay(date: string): CodeText {
-  const holiday = useStore().holiday.holidayList.find((e) => e.date === date);
+export function getTypeOfDay(date: string): string {
+  const holiday = useStore().holiday.list.find((e) => e.date === date);
   if (holiday) {
-    const typeId = holiday.typeId;
-    if (typeId === "0") {
-      return TYPE_DAY_OBJ.MAKEUP;
-    } else if (typeId === "1") {
-      return TYPE_DAY_OBJ.HOLIDAY;
+    const { holidayTypeId } = holiday;
+    if (holidayTypeId === HOLIDAY_TYPE.MAKEUP) {
+      return DAY_TYPE.MAKEUP;
     } else {
-      return TYPE_DAY_OBJ.UNKNOWN;
+      return DAY_TYPE.HOLIDAY;
     }
   } else {
     const dayOfWeek = dayjs(date).day();
     return dayOfWeek === 0 || dayOfWeek === 6
-      ? TYPE_DAY_OBJ.WEEKEND
-      : TYPE_DAY_OBJ.WEEKDAY;
+      ? DAY_TYPE.WEEKEND
+      : DAY_TYPE.WEEKDAY;
   }
 }
 
@@ -125,7 +123,7 @@ export function parseMonthDayTextDate(target: string) {
     const day = parseInt(match[2], 10); // 提取日期并转换为数字
 
     // 获取当前年份(12月是次年1月核算，年份应取上一年)
-    const currentYear = month === 12 ? dayjs().year() -1 : dayjs().year();
+    const currentYear = month === 12 ? dayjs().year() - 1 : dayjs().year();
 
     // 创建 Day.js 对象
     const date = dayjs(new Date(currentYear, month - 1, day));

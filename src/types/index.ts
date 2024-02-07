@@ -30,17 +30,7 @@ export interface AudioInfo {
   cover: string;
 }
 
-export interface IDayRatio {
-  id: number;
-  employeeId: string; // 姓名id
-  date: string; // 日期
-  jobId: string; // 岗位id
-  statusId: string; // 上班？ 加班
-  ratio: number; // 倍率
-  remark: string; // 原因备注
-}
-
-export interface IMonthReport {
+export interface IReport {
   employeeId: string; // 姓名id
   factor: number; // 系数
   totalWorkPointsOtherJob: number; // 其他岗位上班总工分
@@ -72,38 +62,13 @@ export type SelectType =
   | "gender" // 性别
   | "post" // 职位
   | "job" // 岗位
-  | "work" // 工作种类
+  | "workType" // 工作种类
   | "holiday" // 法定节假日
-  | "holidayType"; // 法定节假日类型
-
-type EditTypeName = "text" | "number" | "date";
-type EditTypeName2 = "select";
-
-type EditType<
-  T extends {
-    name: EditTypeName | EditTypeName2;
-    key?: SelectType;
-  }
-> = T["name"] extends EditTypeName2
-  ? { name: EditTypeName2; key: SelectType }
-  : { name: EditTypeName };
-
-export interface TableColumn<T> {
-  key: keyof T;
-  label: string;
-  type: EditType<{ name: EditTypeName }> | EditType<{ name: EditTypeName2 }>;
-}
-
-// export interface IEmployeeTableColumn {
-//   no: number; // 序号
-//   name: string; // 姓名
-//   factor: number; // 系数
-//   genderId: string; // 性别
-//   postId: string; // 职位
-// }
+  | "holidayType" // 法定节假日类型
+  | "employee"; // 员工
 
 export interface IEmployee {
-  id: number;
+  id: string;
   no: number; // 序号
   employeeName: string; // 姓名
   factor: number; // 系数
@@ -112,10 +77,20 @@ export interface IEmployee {
 }
 
 export interface IHoliday {
-  id: number;
+  id: string;
   date: string; // 日期
-  holidayId: string; // 节假日名称id
-  holidayTypeId: string; // 放假/补班名称id
+  holidayId: string; // 节假日 id
+  holidayTypeId: string; // 放假/补班 id
   workRatio: string; // 补班工作倍率
   extraRatio: string; // 加班工作倍率
+}
+
+export interface IDayRatioSetting {
+  id: string;
+  employeeId: string; // 姓名
+  date: string; // 日期
+  jobId: string; // 岗位
+  workTypeId: string; // 上班/加班 id
+  ratio: string;
+  remark: string;
 }

@@ -1,5 +1,5 @@
-import { CodeText } from "@/types";
 import { Option } from "@/components/Select/types";
+import { CodeText } from "@/types";
 
 export const HOLIDAYS: Option[] = [
   "元旦",
@@ -60,10 +60,6 @@ export const POST: Option[] = ["其他", "胃镜2"].map((e, i) => {
 
 // 当日属性
 export const TYPE_DAY_OBJ: Record<string, CodeText> = {
-  UNKNOWN: {
-    code: "-1",
-    text: "未知",
-  },
   WEEKDAY: {
     code: "0",
     text: "工作日上班",
@@ -170,3 +166,15 @@ export const DAY_OF_WEEK = [
 ];
 
 export const DATE_FORMAT = "YYYY/MM/DD";
+
+export const HOLIDAY_TYPE = {
+  MAKEUP: "0",
+  HOLIDAY: "1",
+};
+
+export const DAY_TYPE = {
+  WEEKDAY: "0",
+  WEEKEND: "1",
+  HOLIDAY: "2",
+  MAKEUP: "3",
+};

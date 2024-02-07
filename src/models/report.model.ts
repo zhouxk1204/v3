@@ -26,16 +26,3 @@ export interface IEmployeeReport {
   totalTimeRatioPoint: number;
   serve: number;
 }
-
-export interface IRateSetting {
-  id: string;
-  no: string;
-  name: string;
-  date: string;
-  postId: string;
-  postName: string;
-  statusId: string;
-  statusName: string;
-  rate: number;
-  remark: string;
-}

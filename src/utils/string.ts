@@ -5,7 +5,7 @@ import { RECORD_MARK } from "@/constants";
  * @param {string} inputString
  * @returns {string}
  */
-export function removeSpaces(inputString: string): string {
+export function trim(inputString: string): string {
   // 使用正则表达式替换所有空格字符（全角空格和半角空格）
   return inputString.replace(/[\s\u3000]/g, "");
 }
@@ -15,7 +15,7 @@ export function removeSpaces(inputString: string): string {
  * @param {string} inputString
  * @returns {string}
  */
-export function fullWidthToHalfWidth(inputString: string): string {
+export function fullToHalf(inputString: string): string {
   // 替换特殊的符号
   RECORD_MARK.forEach((e) => {
     const mark = e.split("");

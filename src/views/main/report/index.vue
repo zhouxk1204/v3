@@ -1,303 +1,13 @@
 <template>
-  <el-collapse v-model="activeNames">
-    <el-collapse-item title="岗位工分倍率特殊设定" name="1">
-      <el-form
-        :model="form"
-        :rules="rules"
-        ref="formRef"
-        :inline="true"
-        class="flex flex-wrap gap-1"
-      >
-        <el-form-item label="姓名" prop="employeeId">
-          <el-select-v2
-            v-model="form.employeeId"
-            placeholder="姓名"
-            :options="employees"
-            class="min-w-24 max-w-24"
-          />
-        </el-form-item>
-        <el-form-item label="日期" prop="date">
-          <el-date-picker
-            v-model="form.date"
-            type="date"
-            placeholder="选择日期"
-            format="YYYY/MM/DD"
-            value-format="YYYY/MM/DD"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item label="岗位" prop="jobId">
-          <el-select-v2
-            v-model="form.jobId"
-            placeholder="岗位"
-            :options="jobs"
-            class="min-w-24 max-w-24"
-          />
-        </el-form-item>
-        <el-form-item label="上班/加班" prop="statusId">
-          <el-select-v2
-            v-model="form.statusId"
-            placeholder="上班/加班"
-            :options="works"
-            class="min-w-28 max-w-28"
-          />
-        </el-form-item>
-        <el-form-item label="工分倍率" prop="ratio">
-          <el-input v-model="form.ratio" type="number" min="0" step="0.5" />
-        </el-form-item>
-        <el-form-item label="备注" prop="remark" class="flex-1">
-          <el-input v-model="form.remark" />
-        </el-form-item>
-
-        <el-button type="primary" @click="handelSubmit">添加</el-button>
-      </el-form>
-      <el-table :data="list" class="w-full" size="large">
-        <el-table-column label="姓名">
-          <template #default="scope">
-            <template v-if="editRowIndex !== scope.$index">
-              <span>{{ getEmployeeName(scope.row.employeeId) }}</span>
-            </template>
-            <template v-else>
-              <el-select-v2
-                v-model="editRowTemp!.employeeId"
-                placeholder="姓名"
-                :options="employees"
-              />
-            </template>
-          </template>
-        </el-table-column>
-        <el-form-item label="日期" prop="date">
-          <el-date-picker
-            v-model="form.date"
-            type="date"
-            placeholder="选择日期"
-            format="YYYY/MM/DD"
-            value-format="YYYY/MM/DD"
-            clearable
-          />
-        </el-form-item>
-        <el-table-column label="岗位">
-          <template #default="scope">
-            <template v-if="editRowIndex !== scope.$index">
-              {{ getJobName(scope.row.jobId) }}
-            </template>
-            <template v-else>
-              <el-select-v2
-                v-model="editRowTemp!.jobId"
-                placeholder="岗位"
-                :options="jobs"
-              />
-            </template>
-          </template>
-        </el-table-column>
-        <el-table-column label="上班/加班">
-          <template #default="scope">
-            <template v-if="editRowIndex !== scope.$index">
-              {{ getWorkName(scope.row.statusId) }}
-            </template>
-            <template v-else>
-              <el-select-v2
-                v-model="editRowTemp!.statusId"
-                placeholder="上班/加班"
-                :options="works"
-              />
-            </template>
-          </template>
-        </el-table-column>
-        <el-table-column label="工分倍率">
-          <template #default="scope">
-            <template v-if="editRowIndex !== scope.$index">
-              {{ scope.row.ratio }}
-            </template>
-            <template v-else>
-              <el-input
-                v-model="editRowTemp!.ratio"
-                type="number"
-                min="0.5"
-              ></el-input>
-            </template>
-          </template>
-        </el-table-column>
-        <el-table-column label="备注">
-          <template #default="scope">
-            <template v-if="editRowIndex !== scope.$index">
-              <span>{{ scope.row.remark }}</span>
-            </template>
-            <template v-else>
-              <el-input v-model="editRowTemp!.remark" type="text"></el-input>
-            </template>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作">
-          <template #default="scope">
-            <template v-if="editRowIndex !== scope.$index">
-              <el-button @click="edit(scope.$index, scope.row)">
-                编辑</el-button
-              >
-              <el-popconfirm
-                width="220"
-                title="确认删除这条数据?"
-                @confirm="handleRemove(scope.row.id)"
-              >
-                <template #reference>
-                  <el-button type="danger">删除</el-button>
-                </template>
-              </el-popconfirm>
-            </template>
-            <template v-else>
-              <el-button @click="update()" type="success">更新</el-button>
-              <el-button @click="cancel()">取消</el-button>
-            </template>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-collapse-item>
-  </el-collapse>
-
+  <Form :form="form" @submit="handelSubmit"></Form>
+  <Table
+    :list="list"
+    :cols="cols"
+    :editable="true"
+    @remove="onRemove"
+    @update="onUpdate"
+  ></Table>
   <UploadExcel @change="onChange">选择文件导入</UploadExcel>
-
-  <el-table :data="list2" class="w-full" size="large">
-    <el-table-column label="姓名">
-      <template #default="scope">
-        <span>{{ getEmployeeName(scope.row.employeeId) }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="系数">
-      <template #default="scope">
-        <span>{{ scope.row.factor }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="其他上班总工分">
-      <template #default="scope">
-        <span>{{ scope.row.totalWorkPointsOtherJob }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="其他加班总工分">
-      <template #default="scope">
-        <span>{{ scope.row.totalOvertimePointsOtherJob }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="其他总工分">
-      <template #default="scope">
-        <span>{{ scope.row.totalPointsOtherJob }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="胃2上班总工分">
-      <template #default="scope">
-        <span>{{ scope.row.totalWorkPointSpJob }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="胃2加班总工分">
-      <template #default="scope">
-        <span>{{ scope.row.totalOvertimePointsSpJob }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="胃2总工分">
-      <template #default="scope">
-        <span>{{ scope.row.totalPointsSpJob }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="时间总工分">
-      <template #default="scope">
-        <span>{{ scope.row.totalPoints }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="年休天数">
-      <template #default="scope">
-        <span>{{ scope.row.annualCount }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="婚假天数">
-      <template #default="scope">
-        <span>{{ scope.row.marriageCount }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="出勤天数">
-      <template #default="scope">
-        <span>{{ scope.row.attendanceCount }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="工作日天数">
-      <template #default="scope">
-        <span>{{ scope.row.workdayCount }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="科务天数">
-      <template #default="scope">
-        <span>{{ scope.row.serveCount }}</span>
-      </template>
-    </el-table-column>
-  </el-table>
-  <!-- <div>
-    <div class="mb-6">
-      <PageTitle title="岗位班次工分倍率附加设定">
-        <Button type="primary" @click="openDialog">添加</Button>
-      </PageTitle>
-      <Table
-        :headers="rateHeaders"
-        :data="rateSettingList"
-        :isAction="true"
-        @edit="onEdit"
-        @del="onDel"
-      ></Table>
-      <Dialog v-model="isOpen">
-        <form
-          class="absolute flex flex-col p-6 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow left-1/2 top-1/2 w-96"
-        >
-          <div class="flex items-center justify-between mb-4">
-            <h1 class="text-xl font-bold">{{ mode.text }}工分倍率附加设定</h1>
-            <Button @click="onClose"
-              ><Icon icon="material-symbols:close" color="#bbb"
-            /></Button>
-          </div>
-          姓名 -->
-  <!-- <FormItem title="姓名">
-            <Select
-              v-model="currentEmployee"
-              placeholder="请选择员工"
-              :options="employees"
-              @select="onSelectEmployee"
-            ></Select>
-          </FormItem> -->
-  <!-- 日期 -->
-  <!-- <FormItem title="日期">
-            <DatePicker v-model="form.date"></DatePicker>
-          </FormItem> -->
-  <!-- 岗位 -->
-  <!-- <FormItem title="岗位">
-            <Select
-              v-model="currentPost"
-              :options="posts"
-              @select="onSelectPost"
-              placeholder="请选择岗位"
-            ></Select>
-          </FormItem> -->
-  <!-- 班次 -->
-  <!-- <FormItem title="上班（加班）">
-            <Select
-              v-model="currentWorkStatus"
-              placeholder="请选择上班（加班）"
-              :options="workStatus"
-              @select="onSelectWorkStatus"
-            ></Select>
-          </FormItem> -->
-  <!-- 倍率 -->
-  <!-- <FormItem title="岗位班次工分倍率">
-            <Input type="number" v-model="form.rate"></Input>
-          </FormItem>
-          <FormItem title="原因备注">
-            <textarea
-              v-model="form.remark"
-              rows="3"
-              class="p-2 border rounded-md resize-none"
-            ></textarea>
-          </FormItem>
-          <Button @click="submit" type="primary" :disabled="isFormValid"
-            >{{ mode.text }}
-          </Button>
-        </form>
-      </Dialog>
-    </div> -->
 
   <!-- 月次工分汇算 -->
   <!-- <PageTitle title="月次工分汇算">
@@ -336,50 +46,103 @@
 </template>
 
 <script setup lang="ts">
-import { useSelect } from "@/hooks/useSelect";
-import { useTable } from "@/hooks/useTable";
+import { FieldItem } from "@/components/Form/form";
+import { TableColumnItem } from "@/components/Table/type";
+import { DayRatioSettingForm } from "@/config/form.config";
+import { DayRatioSettingTable } from "@/config/table.config";
 import useStore from "@/store";
-import { IDayRatio } from "@/types";
-import * as dayjs from "dayjs";
-import * as _ from "lodash";
+import { IDayRatioSetting, IDayRecord } from "@/types";
+import { generateId } from "@/utils";
+import { parseExcelDateNumber, parseMonthDayTextDate } from "@/utils/date";
+
+// import { useTable } from "@/hooks/useTable";
+// import useStore from "@/store";
+// import { IDayRatio } from "@/types";
+// import * as dayjs from "dayjs";
+// import * as _ from "lodash";
 import { storeToRefs } from "pinia";
-import { useForm } from "./useForm";
+// import { useForm } from "./useForm";
 
-const { form, rules, formRef, resetFrom } = useForm();
+// const activeNames = ref(["1"]);
 
-const { jobs, works, employees, getJobName, getWorkName, getEmployeeName } =
-  useSelect();
-
-const store = useStore().dayRatio;
+const store = useStore().dayRatioSetting;
 const { list } = storeToRefs(store);
-const { handleInsert, handleRemove, handleUpdate } = store;
-// 表格
-const { editRowTemp, editRowIndex, edit, cancel } = useTable<IDayRatio>();
+const { insert, remove, update } = store;
 
-const update = () => {
-  const data = _.cloneDeep(editRowTemp.value) as IDayRatio;
-  handleUpdate(data);
-  editRowIndex.value = -1;
+const form = ref<FieldItem[]>(DayRatioSettingForm);
+const handelSubmit = (data: any) => {
+  data.id = generateId();
+  insert(data);
 };
 
-const handelSubmit = () => {
-  if (!formRef.value) return;
-  formRef.value.validate((valid, fields) => {
-    if (valid) {
-      const data = _.cloneDeep(form);
-      data.id = dayjs().valueOf();
-      if (!handleInsert(data)) {
-        resetFrom();
-      }
-    } else {
-      console.error("error submit!", fields);
-    }
-  });
+const cols: TableColumnItem<IDayRatioSetting>[] = DayRatioSettingTable;
+const onRemove = (index: number) => {
+  remove(index);
+};
+
+const onUpdate = (data: any) => {
+  update(data);
 };
 
 const onChange = (data: any[]) => {
   console.log("%c Line:397 🍯 data", "color:#465975", data);
+  let header: any = {};
+  const map: Map<string, IDayRecord[]> = new Map();
+  data.forEach((item) => {
+    const employeeName = item["__EMPTY"];
+    if (!employeeName) {
+      // 表头日期行
+      header = item;
+    } else {
+      const dailyRecordList = map.get(employeeName) ?? [];
+      const items = Object.keys(item).filter((e) => e !== "__EMPTY");
+      const l = items.map((e2) => {
+        const date =
+          Object.keys(header).length === 0
+            ? parseMonthDayTextDate(e2)
+            : parseExcelDateNumber(header[e2] as number);
+
+        return {
+          date,
+          record: item[e2].toString(),
+          employeeName,
+        };
+      });
+      dailyRecordList.push(...l);
+      map.set(employeeName, dailyRecordList);
+    }
+  });
+  const list = Array.from(map.values());
+  console.log("%c Line:116 🍡 list", "color:#e41a6a", list);
 };
+// const { form, rules, formRef, resetFrom } = useForm();
+
+// const store = useStore().dayRatio;
+// const { list } = storeToRefs(store);
+// const { handleInsert, handleRemove, handleUpdate } = store;
+// // 表格
+// const { editRowTemp, editRowIndex, edit, cancel } = useTable<IDayRatio>();
+
+// const update = () => {
+//   const data = _.cloneDeep(editRowTemp.value) as IDayRatio;
+//   handleUpdate(data);
+//   editRowIndex.value = -1;
+// };
+
+// const handelSubmit = () => {
+//   if (!formRef.value) return;
+//   formRef.value.validate((valid, fields) => {
+//     if (valid) {
+//       const data = _.cloneDeep(form);
+//       data.id = dayjs().valueOf();
+//       if (!handleInsert(data)) {
+//         resetFrom();
+//       }
+//     } else {
+//       console.error("error submit!", fields);
+//     }
+//   });
+// };
 
 // const parseExcel = (file: any) => {
 //   const reader = new FileReader();
@@ -644,7 +407,6 @@ const onChange = (data: any[]) => {
 //   useStore().rateSetting.remove(iRateSetting.id);
 // };
 
-const activeNames = ref(["1"]);
 // const handleChange = (val: string[]) => {
 //   console.log(val);
 // };
