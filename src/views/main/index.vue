@@ -3,6 +3,13 @@
     <header
       class="sticky top-0 flex items-center justify-between h-16 px-4 bg-transparent border-b cus-blur"
     >
+      <div class="hidden max-sm:flex">
+        <el-button
+        :icon="Menu"
+        circle
+        @click="drawer = true"
+      />
+      </div>
       <h1 class="text-4xl">🍑</h1>
       <div>
         <a
@@ -13,7 +20,24 @@
         /></a>
       </div>
     </header>
-    <div class="fixed left-0 top-16">
+    <el-drawer
+      size="300"
+      direction="ltr"
+      v-model="drawer"
+      title="I am the title"
+      :with-header="false"
+    >
+      <el-menu
+        class="overflow-auto"
+        :default-active="currentRoute.name?.toString() ?? ''"
+        :router="true"
+        :collapse="false"
+        popper-effect="light"
+      >
+        <MenuItem :menuList="menuRoutes" :parentRoute="parentRoute"></MenuItem>
+      </el-menu>
+    </el-drawer>
+    <div class="fixed left-0 top-16 max-sm:hidden">
       <el-menu
         class="h-[calc(100vh-64px)] overflow-auto"
         :default-active="currentRoute.name?.toString() ?? ''"
@@ -24,15 +48,7 @@
         <MenuItem :menuList="menuRoutes" :parentRoute="parentRoute"></MenuItem>
       </el-menu>
     </div>
-    <div class="py-5 pr-5 pl-44">
-      <el-page-header @back="onBack">
-        <template #content>
-          <span class="mr-3 text-large font-600">{{
-            currentRoute.meta.title
-          }}</span>
-        </template>
-      </el-page-header>
-      <hr class="my-3" />
+    <div class="py-5 pr-5 pl-44 max-sm:pl-5">
       <router-view></router-view>
     </div>
   </div>
@@ -41,9 +57,9 @@
 <script lang="ts" setup>
 import { useRouter } from "vue-router";
 import router from "../../router";
+import { Menu } from "@element-plus/icons-vue";
 
 const currentRoute = useRouter().currentRoute;
-console.log("%c Line:43 🍉 currentRoute", "color:#33a5ff", currentRoute);
 
 const parentRoute = "/main";
 const menuRoutes =
@@ -53,13 +69,11 @@ menuRoutes.sort(
 );
 4;
 
-const onBack = () => {
-  router.back();
-};
+const drawer = ref(false);
 </script>
 <style lang="scss" scoped>
 .cus-blur {
-  z-index: 1;
+  z-index: 999;
   background: radial-gradient(transparent 1px, #fff 1px);
   backdrop-filter: saturate(50%) blur(4px);
   background-size: 4px 4px;

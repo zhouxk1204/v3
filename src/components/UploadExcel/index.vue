@@ -21,6 +21,14 @@ import {
   UploadProps,
 } from "element-plus/es/components/upload/src/upload";
 
+const props = withDefaults(defineProps<
+{
+  sheetName?: string,
+}
+>(),{
+  sheetName: ''
+});
+
 const emit = defineEmits<{
   (e: "change", data: any[]): void;
 }>();
@@ -28,7 +36,8 @@ const emit = defineEmits<{
 const { parseExcel } = useExcel();
 const onChange: UploadProps["onChange"] = async (uploadFile: UploadFile) => {
   const file = uploadFile.raw;
-  const res = file ? await parseExcel(file) : [];
+  console.log("%c Line:40 🎂 props.sheetName", "color:#33a5ff", props.sheetName);
+  const res = file ? await parseExcel(file, props.sheetName) : [];
   emit("change", res);
 };
 </script>

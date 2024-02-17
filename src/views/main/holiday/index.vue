@@ -1,14 +1,20 @@
 <template>
-  <h1 class="pb-3 mb-3 font-bold border-b">添加节假日</h1>
-  <Form :form="form" @submit="handelSubmit"></Form>
-  <h1 class="pb-3 font-bold border-b">节假日明细</h1>
-  <Table
-    :list="list"
-    :cols="cols"
-    :editable="true"
-    @remove="onRemove"
-    @update="onUpdate"
-  ></Table>
+  <div class="flex flex-col gap-5">
+    <div>
+      <h1 class="flex items-center h-12 pb-3 mb-3 font-bold border-b">添加节假日</h1>
+      <Form :form="form" @submit="handelSubmit"></Form>
+    </div>
+    <div>
+      <h1 class="flex items-center h-12 pb-3 mb-3 font-bold border-b">节假日明细</h1>
+      <Table
+        :list="list"
+        :cols="cols"
+        :editable="true"
+        @remove="onRemove"
+        @update="onUpdate"
+      ></Table>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">

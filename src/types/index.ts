@@ -94,3 +94,13 @@ export interface IDayRatioSetting {
   ratio: string;
   remark: string;
 }
+
+export interface IPoint {
+  typeId: string; // 类别id 上班，加班，休假
+  // typeName: string; // 类别名称 上班，加班，休假
+  jobId?: string; // 岗位id
+  // jobName?: string; // 岗位名称
+  point: number; // 岗位工分（小时）
+  pointRatio?: number; // 岗位工分倍率
+  ratioPoint?: number; // 岗位工分 * 岗位工分倍率
+}

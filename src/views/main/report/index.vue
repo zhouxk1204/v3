@@ -1,13 +1,40 @@
 <template>
-  <Form :form="form" @submit="handelSubmit"></Form>
-  <Table
-    :list="list"
-    :cols="cols"
-    :editable="true"
-    @remove="onRemove"
-    @update="onUpdate"
-  ></Table>
-  <UploadExcel @change="onChange">选择文件导入</UploadExcel>
+  <div class="flex flex-col">
+    <el-collapse v-model="activeNames">
+      <el-collapse-item name="1">
+        <template #title>
+          <h1 class="flex items-center h-12 text-base font-bold">
+            添加岗位工分倍率特殊设定
+          </h1>
+        </template>
+        <div>
+          <!--  -->
+          <Form :form="form" @submit="handelSubmit"></Form>
+        </div>
+        <div v-if="list.length > 0" class="border-t">
+          <Table
+            :list="list"
+            :cols="cols"
+            :editable="true"
+            @remove="onRemove"
+            @update="onUpdate"
+          ></Table>
+        </div>
+      </el-collapse-item>
+
+      <el-collapse-item name="2">
+        <template #title>
+          <h1 class="flex items-center w-full h-12 text-base font-bold">
+            <span>月次工分汇算</span>
+          </h1>
+        </template>
+        <div class="flex items-center gap-5">
+          <UploadExcel @change="onChange" sheetName="护士">选择文件导入</UploadExcel>
+          <el-button type="success">导出</el-button>
+        </div>
+      </el-collapse-item>
+    </el-collapse>
+  </div>
 
   <!-- 月次工分汇算 -->
   <!-- <PageTitle title="月次工分汇算">
@@ -65,6 +92,7 @@ import { storeToRefs } from "pinia";
 
 // const activeNames = ref(["1"]);
 
+// 岗位工分倍率特殊设定
 const store = useStore().dayRatioSetting;
 const { list } = storeToRefs(store);
 const { insert, remove, update } = store;
@@ -115,6 +143,8 @@ const onChange = (data: any[]) => {
   const list = Array.from(map.values());
   console.log("%c Line:116 🍡 list", "color:#e41a6a", list);
 };
+
+const activeNames = ref(["1"]);
 // const { form, rules, formRef, resetFrom } = useForm();
 
 // const store = useStore().dayRatio;

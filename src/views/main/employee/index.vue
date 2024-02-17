@@ -1,11 +1,11 @@
 <template>
-  <div class="flex items-center justify-between pb-3 border-b">
-    <h1>员工明细</h1>
+  <h1 class="flex items-center justify-between h-12 pb-3 mb-3 font-bold border-b">
+    <span>员工明细</span>
     <div class="flex gap-2">
       <el-button type="danger" @click="onReset">清空</el-button>
       <UploadExcel @change="onChange">选择文件导入</UploadExcel>
     </div>
-  </div>
+  </h1>
   <Table
     :list="list"
     :cols="cols"

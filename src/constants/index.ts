@@ -1,5 +1,5 @@
-import { Option } from "@/components/Select/types";
 import { CodeText } from "@/types";
+import { Option } from "@/components/Select/types";
 
 export const HOLIDAYS: Option[] = [
   "元旦",
@@ -44,12 +44,12 @@ export const STATES: Option[] = ["离职", "在职"].map((e, i) => {
   };
 });
 
-export const WORK_STATUS: Option[] = ["上班", "加班"].map((e, i) => {
-  return {
-    code: `${i}`,
-    text: e,
-  };
-});
+// export const WORK_STATUS: Option[] = ["上班", "加班"].map((e, i) => {
+//   return {
+//     code: `${i}`,
+//     text: e,
+//   };
+// });
 
 export const POST: Option[] = ["其他", "胃镜2"].map((e, i) => {
   return {
@@ -90,47 +90,65 @@ export const TYPE_POINT_OBJ = {
       text: "加班",
     },
   },
-  REST: {
-    LEAVE: {
-      code: "2",
-      text: ["补休", "休"],
-    },
-    ANNUAL_LEAVE: {
-      code: "3",
-      text: ["年休", "年假"],
-    },
-    PERSONAL_LEAVE: {
-      code: "4",
-      text: "事假",
-    },
-    SICK_LEAVE: {
-      code: "5",
-      text: "病假",
-    },
-    MARRIAGE_LEAVE: {
-      code: "6",
-      text: "婚假",
-    },
-    MATERNITY_LEAVE: {
-      code: "7",
-      text: "产假",
-    },
-    FUNERAL_LEAVE: {
-      code: "8",
-      text: "丧假",
-    },
+  
+};
+
+export const WORK_INFO = {
+  WORK: {
+    id: "0",
+    label: "上班",
+  },
+  OVERTIME: {
+    id: "1",
+    label: "加班",
+  },
+}
+
+export const REST_INFO = {
+  LEAVE: {
+    id: "2",
+    label: ["补休", "休"],
+  },
+  ANNUAL_LEAVE: {
+    id: "3",
+    label: ["年休", "年假"],
+  },
+  PERSONAL_LEAVE: {
+    id: "4",
+    label: ["事假"],
+  },
+  SICK_LEAVE: {
+    id: "5",
+    label: ["病假"],
+  },
+  MARRIAGE_LEAVE: {
+    id: "6",
+    label: ["婚假"],
+  },
+  MATERNITY_LEAVE: {
+    id: "7",
+    label: ["产假"],
+  },
+  FUNERAL_LEAVE: {
+    id: "8",
+    label: ["丧假"],
   },
 };
 
+
 // 岗位
-export const TYPE_POST_OBJ = {
+export const POST_INFO = {
+  ERROR: {
+    id: "-1",
+    label: ["错误"],
+  },
   OTHER: {
-    code: "0",
-    text: ["手术", "手"],
+    id: "0",
+    label: ["手术", "手", ""],
   },
   GASTROSCOPY: {
-    code: "1",
-    text: ["胃镜", "胃"],
+    id: "1",
+    label: ["胃镜", "胃"],
   },
 };
 

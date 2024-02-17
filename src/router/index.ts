@@ -70,4 +70,14 @@ const router = createRouter({
   routes,
 });
 
+router.beforeEach((to, _, next) => {
+  const token = localStorage.getItem('TOKEN');
+  if(token || to.path === '/login') {
+    next();
+  }else{
+    ElMessage.error('您还没有登录，请先登录！')
+    next('/login');
+  }
+})
+
 export default router;
