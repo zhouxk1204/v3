@@ -2,7 +2,7 @@ import * as dayjs from "dayjs";
 
 import { getFirstMondayOfMonth, getLastSundayOfMonth } from "@/utils/date";
 
-import { DATE_FORMAT } from "@/constants";
+import { DEFAULT_DATE_FORMAT } from "@/constants";
 
 export function useCalendar(year: number, month: number) {
   let date = getFirstMondayOfMonth(year, month);
@@ -17,7 +17,7 @@ export function useCalendar(year: number, month: number) {
   ) {
     // const holiday = holidayList.find((e) => dayjs(e.date).isSame(date));
     const iDay = {
-      date: date.format(DATE_FORMAT),
+      date: date.format(DEFAULT_DATE_FORMAT),
       year: date.year(),
       month: date.month() + 1,
       dayOfMonth: date.format("DD"),

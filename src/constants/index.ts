@@ -1,154 +1,87 @@
-import { CodeText } from "@/types";
-import { Option } from "@/components/Select/types";
-
-export const HOLIDAYS: Option[] = [
-  "元旦",
-  "春节",
-  "清明节",
-  "劳动节",
-  "端午节",
-  "中秋节",
-  "国庆节",
-].map((e, i) => {
-  return {
-    code: `${i}`,
-    text: e,
-  };
-});
-
-export const HOLIDAY_ACTIONS: Option[] = ["补班", "放假"].map((e, i) => {
-  return {
-    code: `${i}`,
-    text: e,
-  };
-});
-
-export const GENDERS: Option[] = ["女", "男"].map((e, i) => {
-  return {
-    code: `${i}`,
-    text: e,
-  };
-});
-
-export const ROLES: Option[] = ["护士", "护士长"].map((e, i) => {
-  return {
-    code: `${i}`,
-    text: e,
-  };
-});
-
-export const STATES: Option[] = ["离职", "在职"].map((e, i) => {
-  return {
-    code: `${i}`,
-    text: e,
-  };
-});
-
-// export const WORK_STATUS: Option[] = ["上班", "加班"].map((e, i) => {
-//   return {
-//     code: `${i}`,
-//     text: e,
-//   };
-// });
-
-export const POST: Option[] = ["其他", "胃镜2"].map((e, i) => {
-  return {
-    code: `${i}`,
-    text: e,
-  };
-});
-
-// 当日属性
-export const TYPE_DAY_OBJ: Record<string, CodeText> = {
+// 上班种别
+export const WORK_TYPE_INFO = {
   WEEKDAY: {
-    code: "0",
-    text: "工作日上班",
+    id: "w0",
+    label: "工作日上班",
   },
-  WEEKEND: {
-    code: "1",
-    text: "周末加班",
+  WEEKDAY_OVERTIME: {
+    id: "w1",
+    label: "工作日加班",
+  },
+  WEEKEND_OVERTIME: {
+    id: "w2",
+    label: "周末加班",
   },
   HOLIDAY: {
-    code: "2",
-    text: "节假日加班",
+    id: "w3",
+    label: "节假日加班",
   },
   MAKEUP: {
-    code: "3",
-    text: "节假日补班",
+    id: "w4",
+    label: "上班（补）",
+  },
+  MAKEUP_OVERTIME: {
+    id: "w4",
+    label: "加班（补）",
   },
 };
-
-// 工分种别
-export const TYPE_POINT_OBJ = {
-  ATTENDANCE: {
-    WORK: {
-      code: "0",
-      text: "上班",
-    },
-    OVERTIME: {
-      code: "1",
-      text: "加班",
-    },
-  },
-  
-};
-
-export const WORK_INFO = {
-  WORK: {
-    id: "0",
-    label: "上班",
-  },
-  OVERTIME: {
-    id: "1",
-    label: "加班",
-  },
-}
 
 export const REST_INFO = {
   LEAVE: {
-    id: "2",
+    id: "r0",
     label: ["补休", "休"],
   },
   ANNUAL_LEAVE: {
-    id: "3",
+    id: "r1",
     label: ["年休", "年假"],
   },
   PERSONAL_LEAVE: {
-    id: "4",
+    id: "r2",
     label: ["事假"],
   },
   SICK_LEAVE: {
-    id: "5",
+    id: "r3",
     label: ["病假"],
   },
   MARRIAGE_LEAVE: {
-    id: "6",
+    id: "r4",
     label: ["婚假"],
   },
   MATERNITY_LEAVE: {
-    id: "7",
+    id: "r5",
     label: ["产假"],
   },
   FUNERAL_LEAVE: {
-    id: "8",
+    id: "r6",
     label: ["丧假"],
   },
 };
 
-
 // 岗位
-export const POST_INFO = {
+export const JOB_INFO = {
   ERROR: {
     id: "-1",
     label: ["错误"],
   },
   OTHER: {
     id: "0",
-    label: ["手术", "手", ""],
+    label: ["手术", "手"],
   },
   GASTROSCOPY: {
     id: "1",
     label: ["胃镜", "胃"],
+  },
+};
+
+// 职位
+export const POST_INFO = {
+  NURSE: {
+    id: "0",
+    label: "护士",
+  },
+  HEAD_NURSE: {
+    id: "1",
+    label: "护士长",
   },
 };
 
@@ -163,14 +96,6 @@ export const MODE_DIALOG = {
   },
 };
 
-export const DEFAULT = {
-  RATIO: {
-    WORK: 1,
-    OVERTIME: 1.5,
-  },
-  DATE_FORMAT: "YYYY/MM/DD",
-};
-
 export const RECORD_MARK = ["➕+"];
 
 export const DAY_OF_WEEK = [
@@ -183,8 +108,6 @@ export const DAY_OF_WEEK = [
   "星期六",
 ];
 
-export const DATE_FORMAT = "YYYY/MM/DD";
-
 export const HOLIDAY_TYPE = {
   MAKEUP: "0",
   HOLIDAY: "1",
@@ -196,3 +119,10 @@ export const DAY_TYPE = {
   HOLIDAY: "2",
   MAKEUP: "3",
 };
+
+export const DEFAULT_WORK_RATIO = 1;
+export const DEFAULT_OVERTIME_RATIO = 1.5;
+export const DEFAULT_DATE_FORMAT = "YYYY/MM/DD";
+
+export const HOLIDAY_OVERTIME = "0";
+export const HOLIDAY_MAKEUP = "1";

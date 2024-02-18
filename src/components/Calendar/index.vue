@@ -76,13 +76,13 @@
 </template>
 
 <script setup lang="ts">
-import { DATE_FORMAT } from "@/constants";
+import { DEFAULT_DATE_FORMAT } from "@/constants";
 import { useCalendar } from "@/hooks/useCalendar";
 import * as dayjs from "dayjs";
 import { computed, ref } from "vue";
 
 const dateHeader = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
-const currentDate = dayjs().format(DATE_FORMAT);
+const currentDate = dayjs().format(DEFAULT_DATE_FORMAT);
 const currentMonth = ref<number>(dayjs().month() + 1);
 const currentYear = ref<number>(dayjs().year());
 

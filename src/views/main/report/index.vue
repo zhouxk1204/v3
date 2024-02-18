@@ -29,7 +29,9 @@
           </h1>
         </template>
         <div class="flex items-center gap-5">
-          <UploadExcel @change="onChange" sheetName="护士">选择文件导入</UploadExcel>
+          <UploadExcel @change="onChange" sheetName="护士"
+            >选择文件导入</UploadExcel
+          >
           <el-button type="success">导出</el-button>
         </div>
       </el-collapse-item>
@@ -77,6 +79,7 @@ import { FieldItem } from "@/components/Form/form";
 import { TableColumnItem } from "@/components/Table/type";
 import { DayRatioSettingForm } from "@/config/form.config";
 import { DayRatioSettingTable } from "@/config/table.config";
+import { useReport } from "@/hooks/useReport";
 import useStore from "@/store";
 import { IDayRatioSetting, IDayRecord } from "@/types";
 import { generateId } from "@/utils";
@@ -113,7 +116,8 @@ const onUpdate = (data: any) => {
 };
 
 const onChange = (data: any[]) => {
-  console.log("%c Line:397 🍯 data", "color:#465975", data);
+  if (data.length === 0) return;
+
   let header: any = {};
   const map: Map<string, IDayRecord[]> = new Map();
   data.forEach((item) => {
@@ -141,6 +145,7 @@ const onChange = (data: any[]) => {
     }
   });
   const list = Array.from(map.values());
+  useReport(list);
   console.log("%c Line:116 🍡 list", "color:#e41a6a", list);
 };
 

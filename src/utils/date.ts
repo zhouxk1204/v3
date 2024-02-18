@@ -1,31 +1,6 @@
 import * as dayjs from "dayjs";
 
-import { DAY_TYPE, DEFAULT, HOLIDAY_TYPE } from "@/constants";
-
-import useStore from "@/store";
-import { CodeText } from "@/types";
-
-/**
- * 获取日期类型：工作日上班；周末加班；节假日加班；节假日补班
- * @param {string} date YYYY年MM月DD日
- * @returns {CodeText}
- */
-export function getTypeOfDay(date: string): string {
-  const holiday = useStore().holiday.list.find((e) => e.date === date);
-  if (holiday) {
-    const { holidayTypeId } = holiday;
-    if (holidayTypeId === HOLIDAY_TYPE.MAKEUP) {
-      return DAY_TYPE.MAKEUP;
-    } else {
-      return DAY_TYPE.HOLIDAY;
-    }
-  } else {
-    const dayOfWeek = dayjs(date).day();
-    return dayOfWeek === 0 || dayOfWeek === 6
-      ? DAY_TYPE.WEEKEND
-      : DAY_TYPE.WEEKDAY;
-  }
-}
+import { DEFAULT_DATE_FORMAT } from "@/constants";
 
 /**
  * 将XX年XX日 转换为 YYYY/MM/DD
@@ -45,7 +20,7 @@ export function getDateStringFromMonthDay(target: string): string {
     const fullDate = dayjs(`${currentYear}-${month}-${day}`);
 
     // 格式化日期
-    return fullDate.format(DEFAULT.DATE_FORMAT);
+    return fullDate.format(DEFAULT_DATE_FORMAT);
   } else {
     return "";
   }
@@ -59,7 +34,7 @@ export function getDateStringFromMonthDay(target: string): string {
 export function parseExcelDateNumber(date: number): string {
   return dayjs("1900-01-01")
     .add(date - 2, "day")
-    .format(DEFAULT.DATE_FORMAT);
+    .format(DEFAULT_DATE_FORMAT);
 }
 
 /**
@@ -129,7 +104,7 @@ export function parseMonthDayTextDate(target: string) {
     const date = dayjs(new Date(currentYear, month - 1, day));
 
     // 使用 format 方法将日期格式化为指定的字符串格式
-    return date.format(DEFAULT.DATE_FORMAT);
+    return date.format(DEFAULT_DATE_FORMAT);
   } else {
     console.error("无法解析日期字符串");
     return "Invalid date";
