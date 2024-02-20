@@ -34,7 +34,7 @@ type EditType<
 export interface TableColumnItem<T> {
   field: keyof T;
   label: string;
-  edit:
+  edit?:
     | EditType<{ editType: EditTypeName }>
     | EditType<{ editType: EditTypeName2 }>;
 }

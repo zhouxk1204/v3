@@ -1,4 +1,4 @@
-import { IDayRatioSetting, IEmployee, IHoliday } from "@/types";
+import { IDayRatioSetting, IEmployee, IHoliday, IReport } from "@/types";
 
 import { TableColumnItem } from "@/components/Table/type";
 import { useSelect } from "@/hooks/useSelect";
@@ -169,5 +169,52 @@ export const DayRatioSettingTable: TableColumnItem<IDayRatioSetting>[] = [
       clearable: true,
       placeholder: "remark",
     },
+  },
+];
+
+export const ReportTable: TableColumnItem<IReport>[] = [
+  {
+    field: "employeeName",
+    label: "姓名",
+  },
+  {
+    field: "factor",
+    label: "系数",
+  },
+  {
+    field: "totalWorkOther",
+    label: "其他岗位上班工分",
+  },
+  {
+    field: "totalOvertimeOther",
+    label: "其他岗位加班工分",
+  },
+  {
+    field: "totalOther",
+    label: "其他岗位总工分",
+  },
+  {
+    field: "totalWorkGastroscopy",
+    label: "胃2岗位上班工分",
+  },
+  {
+    field: "totalOvertimeGastroscopy",
+    label: "胃2岗位加班工分",
+  },
+  {
+    field: "totalGastroscopy",
+    label: "胃2岗位总工分",
+  },
+  {
+    field: "total",
+    label: "时间总工分",
+  },
+  {
+    field: "annual",
+    label: "年休天数",
+  },
+  {
+    field: "serve",
+    label: "科务天数",
   },
 ];

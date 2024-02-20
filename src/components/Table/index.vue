@@ -3,7 +3,7 @@
     <el-table-column :label="item.label" v-for="item in cols">
       <template #default="scope">
         <template v-if="editRowIndex !== scope.$index">
-          <span v-if="item.edit.editType === 'select'">
+          <span v-if="item.edit && item.edit.editType === 'select'">
             {{
               getOption("value", scope.row[item.field], item.edit.selectType)
                 ?.label
@@ -12,7 +12,7 @@
           <span v-else>{{ scope.row[item.field] }}</span>
         </template>
         <template v-else>
-          <template v-if="item.edit.editType === 'text'">
+          <template v-if="item.edit && item.edit.editType === 'text'">
             <el-input
               type="text"
               v-model="editRowTemp[item.field]"
@@ -20,7 +20,7 @@
               :clearable="item.edit.clearable"
             ></el-input>
           </template>
-          <template v-else-if="item.edit.editType === 'number'">
+          <template v-else-if="item.edit && item.edit.editType === 'number'">
             <el-input
               type="number"
               v-model="editRowTemp[item.field]"
@@ -29,7 +29,7 @@
               min="0"
             ></el-input>
           </template>
-          <template v-else-if="item.edit.editType === 'date'">
+          <template v-else-if="item.edit && item.edit.editType === 'date'">
             <el-date-picker
               type="date"
               v-model="editRowTemp[item.field]"
@@ -41,7 +41,7 @@
             >
             </el-date-picker>
           </template>
-          <template v-else-if="item.edit.editType === 'select'">
+          <template v-else-if="item.edit && item.edit.editType === 'select'">
             <el-select-v2
               v-model="editRowTemp[item.field]"
               :placeholder="item.edit.placeholder"

@@ -31,20 +31,20 @@ export interface AudioInfo {
 }
 
 export interface IReport {
-  employeeId: string; // 姓名id
+  employeeName: string; // 姓名id
   factor: number; // 系数
-  totalWorkPointsOtherJob: number; // 其他岗位上班总工分
-  totalOvertimePointsOtherJob: number; // 其他岗位加班总工分
-  totalPointsOtherJob: number; // 其他岗位总工分
-  totalWorkPointSpJob: number; // 胃2岗位上班总工分
-  totalOvertimePointsSpJob: number; // 胃2岗位加班总工分
-  totalPointsSpJob: number; // 胃2岗位总工分
-  totalPoints: number; // 时间总工分
-  annualCount: number; // 年休天数
-  marriageCount: number; // 婚假天数
-  attendanceCount: number; // 总出勤天数(包括周末，节假日)
-  workdayCount: number; // 工作日出勤天数（包括工作日，节假日补班）
-  serveCount: number; // 科务天数
+  totalWorkOther: number;
+  totalWorkGastroscopy: number;
+  totalOvertimeOther: number;
+  totalOvertimeGastroscopy: number;
+  totalOther: number;
+  totalGastroscopy: number;
+  total: number;
+  annual: number; // 年休天数
+  // marriageCount: number; // 婚假天数
+  // attendanceCount: number; // 总出勤天数(包括周末，节假日)
+  // workdayCount: number; // 工作日出勤天数（包括工作日，节假日补班）
+  serve: number; // 科务天数
 }
 
 export interface IDayRecord {

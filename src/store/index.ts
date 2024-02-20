@@ -1,13 +1,13 @@
 import dayRatioSetting from "./dayRatioSetting";
 import useEmployeeStore from "./employee";
 import useHolidayStore from "./holiday";
-import useReportStore from "./report";
+import useRecordStore from "./record";
 
 const useStore = () => {
   return {
     holiday: useHolidayStore(),
     employee: useEmployeeStore(),
-    report: useReportStore(),
+    record: useRecordStore(),
     dayRatioSetting: dayRatioSetting(),
   };
 };
