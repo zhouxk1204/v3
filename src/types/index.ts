@@ -1,28 +1,3 @@
-export interface IDayType {
-  typeId: string;
-  typeName: string;
-}
-
-export interface CodeText {
-  code: string;
-  text: string;
-}
-
-export interface ExcelOption {
-  title?: string;
-  headers: string[];
-  data: any[][];
-  position?: string;
-  // tStartCell?: {
-  //   row: string;
-  //   col: string;
-  // }; // A
-  // tStartCol?: {
-  //   row: string;
-  //   col: string;
-  // }; // 1
-}
-
 export interface AudioInfo {
   url: string;
   title: string;
@@ -41,9 +16,9 @@ export interface IReport {
   totalGastroscopy: number;
   total: number;
   annual: number; // 年休天数
-  // marriageCount: number; // 婚假天数
-  // attendanceCount: number; // 总出勤天数(包括周末，节假日)
-  // workdayCount: number; // 工作日出勤天数（包括工作日，节假日补班）
+  leave: number; // 休假天数
+  workDayCount: number; // 工作日出勤天数（包括工作日，节假日补班）
+  workCount: number; // 工作天数（包括工作日，周末加班，节假日加班）
   serve: number; // 科务天数
 }
 

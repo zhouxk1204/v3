@@ -59,10 +59,6 @@ export const REST_INFO = {
 
 // 岗位
 export const JOB_INFO = {
-  ERROR: {
-    id: "-1",
-    label: ["错误"],
-  },
   OTHER: {
     id: "0",
     label: ["手术", "手"],

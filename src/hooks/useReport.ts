@@ -9,18 +9,146 @@ import {
   REST_INFO,
   WORK_TYPE_INFO,
 } from "@/constants";
-import { IEmployee, IPoint, IReport } from "@/types";
+import { IPoint, IReport } from "@/types";
 import { fullToHalf, trim } from "@/utils/string";
 
-import Decimal from "decimal.js";
 import { IRecord } from "@/models/report.model";
 import useStore from "@/store";
+import Decimal from "decimal.js";
 
 interface RatioInfo {
   ratio: number;
   type: {
     label: string;
     id: string;
+  };
+}
+
+export function useReport(data: IRecord[][]) {
+  const reports: IReport[] = [];
+  // 保存报表所在的日期
+  let currentDate = data[0][0].date;
+  // 异常记录
+  const errors: string[] = [];
+
+  for (let item of data) {
+    const iEmployee = useStore().employee.list.find(
+      (el) => el.employeeName === item[0].employeeName
+    );
+
+    let workDayCount = 0;
+    let workCount = 0;
+
+    if (iEmployee) {
+      let pointList: IPoint[] = [];
+      let hasError: boolean = false;
+      for (let e of item) {
+        const { record, date } = e;
+        // 1.纯文字的记录：各种休
+        if (!/\d/.test(record)) {
+          // 获取休日信息
+          const p = getRestInfoByText(record);
+          if (!p) {
+            hasError = true;
+          } else {
+            pointList.push(p);
+          }
+        } else {
+          // 当日是否为工作日或节假日补班
+          const ratioObj = getRatio(date, iEmployee.id);
+
+          const typeid = Object.values(ratioObj)[0].map((e) => e.type.id)[0];
+
+          if (
+            [WORK_TYPE_INFO.MAKEUP.id, WORK_TYPE_INFO.WEEKDAY.id].includes(
+              typeid
+            )
+          ) {
+            workDayCount += 1;
+          }
+          workCount += 1;
+
+          const iPoints = parseRecord(record, ratioObj);
+          if (iPoints.length === 0) {
+            hasError = true;
+          } else {
+            pointList.push(...iPoints);
+          }
+        }
+
+        if (hasError) {
+          errors.push(
+            `${iEmployee.employeeName}：在${date} 填写的工分记录：${record} 填写错误，无法解析，请核对！！！`
+          );
+        }
+      }
+
+      let annual = new Decimal(0);
+      let leave = 0;
+      let totalWorkOther = new Decimal(0);
+      let totalWorkGastroscopy = new Decimal(0);
+      let totalOvertimeOther = new Decimal(0);
+      let totalOvertimeGastroscopy = new Decimal(0);
+      pointList.forEach((el) => {
+        const { typeId, ratioPoint = 0 } = el;
+        if (typeId === REST_INFO.ANNUAL_LEAVE.id) {
+          annual = annual.plus(el.point);
+        } else if (typeId === REST_INFO.LEAVE.id) {
+          leave += 1;
+        } else {
+          // 工作日上班 & 工作日（补）上班
+          if (
+            [WORK_TYPE_INFO.WEEKDAY.id, WORK_TYPE_INFO.MAKEUP.id].includes(
+              typeId
+            )
+          ) {
+            // 其他岗位
+            if (el.jobId === JOB_INFO.OTHER.id) {
+              totalWorkOther = totalWorkOther.plus(ratioPoint);
+            } else if (el.jobId === JOB_INFO.GASTROSCOPY.id) {
+              totalWorkGastroscopy = totalWorkGastroscopy.plus(ratioPoint);
+            }
+          } else {
+            // 加班
+            // 其他岗位
+            if (el.jobId === JOB_INFO.OTHER.id) {
+              totalOvertimeOther = totalOvertimeOther.plus(ratioPoint);
+            } else if (el.jobId === JOB_INFO.GASTROSCOPY.id) {
+              totalOvertimeGastroscopy =
+                totalOvertimeGastroscopy.plus(ratioPoint);
+            }
+          }
+        }
+      });
+
+      const totalOther = totalWorkOther.plus(totalOvertimeOther);
+      const totalGastroscopy = totalWorkGastroscopy.plus(
+        totalOvertimeGastroscopy
+      );
+      const iReport: IReport = {
+        employeeName: iEmployee.employeeName,
+        factor: iEmployee.factor,
+        annual: annual.toNumber(),
+        leave,
+        workDayCount,
+        workCount,
+        totalWorkOther: totalWorkOther.toNumber(),
+        totalWorkGastroscopy: totalWorkGastroscopy.toNumber(),
+        totalOvertimeOther: totalOvertimeOther.toNumber(),
+        totalOvertimeGastroscopy: totalOvertimeGastroscopy.toNumber(),
+        totalOther: totalOther.toNumber(),
+        totalGastroscopy: totalGastroscopy.toNumber(),
+        total: totalOther.plus(totalGastroscopy.times(1.2)).toNumber(),
+        serve: iEmployee.postId === POST_INFO.HEAD_NURSE.id ? 2 : 0,
+      };
+      reports.push(iReport);
+    }
+  }
+
+  return {
+    reports,
+    currentDate,
+    errors,
   };
 }
 
@@ -87,86 +215,105 @@ const isAnnualPart = (target: string) => {
  * @param {string} date 日期
  * @param {string} jobId 岗位id
  * @param {string} employeeId 员工id
- * @returns {[number, number, boolean]}
+ * @returns {{[k: string]: RatioInfo[]}}
  */
 const getRatio = (
   date: string,
-  jobId: string,
   employeeId: string
-): [RatioInfo, RatioInfo] => {
-  let res: [RatioInfo, RatioInfo];
+): {
+  [k: string]: { ratio: number; type: { id: string; label: string } }[];
+} => {
+  let res: {
+    [k: string]: RatioInfo[];
+  } = {};
+
+  const jobIds = Object.values(JOB_INFO).map((e) => e.id);
+
   // 节假日列表
   const holidayList = useStore().holiday.list;
   const holiday = holidayList.find((e) => e.date === date);
   if (holiday) {
     const workRatio = +holiday.workRatio;
     const extraRatio = +holiday.extraRatio;
-    // 判断补班还是加班
-    res =
-      holiday.holidayTypeId === HOLIDAY_MAKEUP
-        ? [
-            {
-              ratio: workRatio,
-              type: WORK_TYPE_INFO.MAKEUP,
-            },
-            {
-              ratio: extraRatio,
-              type: WORK_TYPE_INFO.MAKEUP_OVERTIME,
-            },
-          ]
-        : [
-            {
-              ratio: extraRatio,
-              type: WORK_TYPE_INFO.HOLIDAY,
-            },
-            {
-              ratio: extraRatio,
-              type: WORK_TYPE_INFO.HOLIDAY,
-            },
-          ];
+    // 判断是节假日补班还是节假日加班
+    if (holiday.holidayTypeId === HOLIDAY_MAKEUP) {
+      jobIds.forEach((jobId) => {
+        res[jobId] = [
+          {
+            ratio: workRatio,
+            type: WORK_TYPE_INFO.MAKEUP,
+          },
+          {
+            ratio: extraRatio,
+            type: WORK_TYPE_INFO.MAKEUP_OVERTIME,
+          },
+        ];
+      });
+    } else {
+      jobIds.forEach((jobId) => {
+        res[jobId] = [
+          {
+            ratio: workRatio,
+            type: WORK_TYPE_INFO.HOLIDAY,
+          },
+          {
+            ratio: extraRatio,
+            type: WORK_TYPE_INFO.HOLIDAY,
+          },
+        ];
+      });
+    }
   } else {
     const dayOfWeek = dayjs(date).day();
-    // 周末加班的情况
+    // 是否是周末加班的情况
     if ([0, 6].includes(dayOfWeek)) {
-      res = [
-        {
-          ratio: DEFAULT_OVERTIME_RATIO,
-          type: WORK_TYPE_INFO.WEEKEND_OVERTIME,
-        },
-        {
-          ratio: DEFAULT_OVERTIME_RATIO,
-          type: WORK_TYPE_INFO.WEEKEND_OVERTIME,
-        },
-      ];
+      jobIds.forEach((jobId) => {
+        res[jobId] = [
+          {
+            ratio: DEFAULT_OVERTIME_RATIO,
+            type: WORK_TYPE_INFO.WEEKEND_OVERTIME,
+          },
+          {
+            ratio: DEFAULT_OVERTIME_RATIO,
+            type: WORK_TYPE_INFO.WEEKEND_OVERTIME,
+          },
+        ];
+      });
     } else {
-      res = [
-        {
-          ratio: DEFAULT_WORK_RATIO,
-          type: WORK_TYPE_INFO.WEEKDAY,
-        },
-        {
-          ratio: DEFAULT_OVERTIME_RATIO,
-          type: WORK_TYPE_INFO.WEEKDAY_OVERTIME,
-        },
-      ];
+      jobIds.forEach((jobId) => {
+        res[jobId] = [
+          {
+            ratio: DEFAULT_WORK_RATIO,
+            type: WORK_TYPE_INFO.WEEKDAY,
+          },
+          {
+            ratio: DEFAULT_OVERTIME_RATIO,
+            type: WORK_TYPE_INFO.WEEKDAY_OVERTIME,
+          },
+        ];
+      });
     }
   }
 
   // 岗位特殊设定
   const ratioSetting = useStore().dayRatioSetting.list;
-  const setting = ratioSetting.find(
-    (el) =>
-      el.date === date && // 日期
-      el.jobId === jobId && // 岗位
-      el.employeeId === employeeId // 姓名
-  );
-  if (setting) {
-    if (setting.workTypeId === "0") {
-      res[0].ratio = +setting.ratio;
-    } else {
-      res[1].ratio = +setting.ratio;
+
+  Object.keys(res).forEach((jobId) => {
+    const setting = ratioSetting.find(
+      (el) =>
+        el.date === date && // 日期
+        el.jobId === jobId && // 岗位
+        el.employeeId === employeeId // 姓名
+    );
+    if (setting) {
+      if (setting.workTypeId === "0") {
+        res[jobId][0].ratio = +setting.ratio;
+      } else {
+        res[jobId][1].ratio = +setting.ratio;
+      }
     }
-  }
+  });
+
   return res;
 };
 
@@ -178,188 +325,84 @@ const getLabelById = (id: string, obj: Object) => {
   return Object.values(obj).find((e) => e.id === id)?.label[0] ?? "not found";
 };
 
-export function useReport(data: IRecord[][]) {
-  const reports: IReport[] = [];
-  // 保存报表所在的日期
-  let currentDate = data[0][0].date;
-  // 异常记录
-  const errors: string[] = [];
-
-  for (let item of data) {
-    const iEmployee = useStore().employee.list.find(
-      (el) => el.employeeName === item[0].employeeName
-    );
-    if (iEmployee) {
-      let pointList: IPoint[][] = [];
-      for (let e of item) {
-        const { record, date } = e;
-        const iPoints = parseRecord(iEmployee, record, date);
-        pointList.push(iPoints);
-        if (iPoints.length === 0) {
-          errors.push(
-            `${iEmployee.employeeName}：在${date} 填写的工分记录：${record} 填写错误，无法解析，请核对！！！`
-          );
-        }
-      }
-      const list = pointList.flat();
-
-      let annual = new Decimal(0);
-      let totalWorkOther = new Decimal(0);
-      let totalWorkGastroscopy = new Decimal(0);
-      let totalOvertimeOther = new Decimal(0);
-      let totalOvertimeGastroscopy = new Decimal(0);
-      list.forEach((el) => {
-        const { typeId, ratioPoint = 0 } = el;
-        if (typeId === REST_INFO.ANNUAL_LEAVE.id) {
-          annual = annual.plus(el.point);
-        } else {
-          // 工作日上班 & 工作日（补）上班
-          if (
-            [WORK_TYPE_INFO.WEEKDAY.id, WORK_TYPE_INFO.MAKEUP.id].includes(
-              typeId
-            )
-          ) {
-            // 其他岗位
-            if (el.jobId === JOB_INFO.OTHER.id) {
-              totalWorkOther = totalWorkOther.plus(ratioPoint);
-            } else if (el.jobId === JOB_INFO.GASTROSCOPY.id) {
-              totalWorkGastroscopy = totalWorkGastroscopy.plus(ratioPoint);
-            }
-          } else {
-            // 加班
-            // 其他岗位
-            if (el.jobId === JOB_INFO.OTHER.id) {
-              totalOvertimeOther = totalOvertimeOther.plus(ratioPoint);
-            } else if (el.jobId === JOB_INFO.GASTROSCOPY.id) {
-              totalOvertimeGastroscopy =
-                totalOvertimeGastroscopy.plus(ratioPoint);
-            }
-          }
-        }
-      });
-
-      const totalOther = totalWorkOther.plus(totalOvertimeOther);
-      const totalGastroscopy = totalWorkGastroscopy.plus(
-        totalOvertimeGastroscopy
-      );
-      const iReport: IReport = {
-        employeeName: iEmployee.employeeName,
-        factor: iEmployee.factor,
-        annual: annual.toNumber(),
-        totalWorkOther: totalWorkOther.toNumber(),
-        totalWorkGastroscopy: totalWorkGastroscopy.toNumber(),
-        totalOvertimeOther: totalOvertimeOther.toNumber(),
-        totalOvertimeGastroscopy: totalOvertimeGastroscopy.toNumber(),
-        totalOther: totalOther.toNumber(),
-        totalGastroscopy: totalGastroscopy.toNumber(),
-        total: totalOther.plus(totalGastroscopy.times(1.2)).toNumber(),
-        serve: iEmployee.postId === POST_INFO.HEAD_NURSE.id ? 2 : 0,
-      };
-      reports.push(iReport);
-    }
-  }
-
-  /**
-   * 解析工作记录字符串
-   * @param {iEmployee} iEmployee 职员
-   * @param {string} record 工分记录
-   * @param {string} date 日期
-   * @returns {IPoint[]} 工分详细列表
-   */
-  function parseRecord(
-    iEmployee: IEmployee,
-    record: string,
-    date: string
-  ): IPoint[] {
-    // 去掉空格和大写转小写
-    record = trim(fullToHalf(record));
-
-    // 1.纯文字的记录：各种休
-    if (!/\d/.test(record)) {
-      // 获取休日信息
-      const iPoint: IPoint | null = getRestInfoByText(record);
-      if (iPoint) {
-        return [iPoint];
+/**
+ * 解析工作记录字符串
+ * @param {string} record 工分记录
+ * @param {{ [k: string]: RatioInfo[] }} ratioObj 工分倍率信息
+ * @returns {IPoint[]} 工分详细列表
+ */
+const parseRecord = (
+  record: string,
+  ratioObj: { [k: string]: RatioInfo[] }
+): IPoint[] => {
+  // 去掉空格和大写转小写
+  record = trim(fullToHalf(record));
+  // 2.按'/'分成不同的种类进行解析
+  const parts = record.split("/");
+  if (parts.length > 2) {
+    return [];
+  } else {
+    const res: IPoint[][] = [];
+    for (let part of parts) {
+      const iPoints = parsePart(part, ratioObj);
+      if (iPoints.length > 0) {
+        res.push(iPoints);
       } else {
         return [];
       }
-    } else {
-      // 2.按'/'分成不同的种类进行解析
-      const parts = record.split("/");
-      if (parts.length > 2) {
-        return [];
-      } else {
-        const res: IPoint[][] = [];
-        for (let part of parts) {
-          const iPoints = parsePart(date, part, iEmployee.id);
-          if (iPoints.length > 0) {
-            res.push(iPoints);
-          } else {
-            return [];
-          }
-        }
-        if (res.some((e) => e.length === 0)) {
-          return [];
-        } else {
-          return res.flat();
-        }
-      }
     }
-  }
-
-  /**
-   * 解析岗位工分记录字符串
-   * @param {string} date 日期
-   * @param {string} part 岗位工分记录
-   * @param {string} employeeId 职员id
-   * @returns {IPoint[]} 工分详细列表
-   */
-  function parsePart(date: string, part: string, employeeId: string): IPoint[] {
-    // 确定岗位
-    let job = JOB_INFO.ERROR;
-
-    if (isGastroscopyPostPart(part)) {
-      job = JOB_INFO.GASTROSCOPY;
-    } else if (isOtherPostPart(part)) {
-      job = JOB_INFO.OTHER;
-    } else if (isAnnualPart(part)) {
-      const { id, label } = REST_INFO.ANNUAL_LEAVE;
-      return [
-        {
-          typeId: id,
-          typeName: label[0],
-          point: 0.5,
-        },
-      ];
-    } else {
+    if (res.some((e) => e.length === 0)) {
       return [];
+    } else {
+      return res.flat();
     }
+  }
+};
 
-    const jobId = job.id;
+/**
+ * 解析岗位工分记录字符串
+ * @param {string} part 岗位工分记录
+ * @param {{ [k: string]: RatioInfo[] }} ratioObj 岗位工分记录
+ * @returns {IPoint[]} 工分详细列表
+ */
+const parsePart = (
+  part: string,
+  ratioObj: { [k: string]: RatioInfo[] }
+): IPoint[] => {
+  // 确定岗位
+  let job = JOB_INFO.OTHER;
 
-    // 当日是否为工作日或节假日补班
-    const ratios = getRatio(date, jobId, employeeId);
-
-    return part.split("+").map((e, i) => {
-      const point = +e.replace(/[\u4e00-\u9fa5]/g, "");
-      const pointRatio = ratios[i].ratio;
-      const ratioPoint = new Decimal(point).times(pointRatio).toNumber();
-      const type = ratios[i].type;
-      return {
-        point,
-        pointRatio,
-        ratioPoint,
-        jobId,
-        jobName: getJobNameById(jobId),
-        typeId: type.id, // 0 上班，1：加班
-        typeName: type.label, // 0 上班，1：加班,
-      };
-    });
+  if (isGastroscopyPostPart(part)) {
+    job = JOB_INFO.GASTROSCOPY;
+  } else if (isOtherPostPart(part)) {
+    job = JOB_INFO.OTHER;
+  } else if (isAnnualPart(part)) {
+    const { id, label } = REST_INFO.ANNUAL_LEAVE;
+    return [
+      {
+        typeId: id,
+        typeName: label[0],
+        point: 0.5,
+      },
+    ];
+  } else {
+    return [];
   }
 
-  return {
-    reports,
-    currentDate,
-    errors,
-  };
-}
+  const jobId = job.id;
+
+  return part.split("+").map((e, i) => {
+    const point = +e.replace(/[\u4e00-\u9fa5]/g, "");
+    const { ratio, type } = ratioObj[jobId][i];
+    const ratioPoint = new Decimal(point).times(ratio).toNumber();
+    return {
+      point,
+      ratio,
+      ratioPoint,
+      jobId,
+      jobName: getJobNameById(jobId),
+      typeId: type.id, // 0 上班，1：加班
+      typeName: type.label, // 0 上班，1：加班,
+    };
+  });
+};

@@ -214,6 +214,18 @@ export const ReportTable: TableColumnItem<IReport>[] = [
     label: "年休天数",
   },
   {
+    field: "leave",
+    label: "休假天数",
+  },
+  {
+    field: "workDayCount",
+    label: "本月工作日天数",
+  },
+  {
+    field: "workCount",
+    label: "本月出勤天数",
+  },
+  {
     field: "serve",
     label: "科务天数",
   },
