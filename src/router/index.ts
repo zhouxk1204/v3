@@ -62,7 +62,7 @@ setDefault(routes);
 // 默认路由
 routes.push({
   path: "/",
-  redirect: "login",
+  redirect: "photo",
 });
 
 const router = createRouter({
@@ -71,13 +71,13 @@ const router = createRouter({
 });
 
 router.beforeEach((to, _, next) => {
-  const token = localStorage.getItem('TOKEN');
-  if(token || to.path === '/login') {
+  const token = localStorage.getItem("TOKEN");
+  if (token || to.path === "/login") {
     next();
-  }else{
-    ElMessage.error('您还没有登录，请先登录！')
-    next('/login');
+  } else {
+    ElMessage.error("您还没有登录，请先登录！");
+    next("/login");
   }
-})
+});
 
 export default router;
