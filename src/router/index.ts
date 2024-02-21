@@ -73,12 +73,20 @@ const router = createRouter({
 });
 
 router.beforeEach((to, _, next) => {
-  const token = localStorage.getItem("TOKEN");
-  if (to.path === "/login" || token === TOKEN) {
-    next();
+  const token = localStorage.getItem("TOKEN") ?? "";
+  if (token === TOKEN) {
+    if (to.path === "/login") {
+      next("/main");
+    } else {
+      next();
+    }
   } else {
-    ElMessage.error("您还没有登录，请先登录！");
-    next("/login");
+    if (to.path === "/login") {
+      next();
+    } else {
+      ElMessage.error("您还没有登录，请登录！");
+      next("/login");
+    }
   }
 });
 
