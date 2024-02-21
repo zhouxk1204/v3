@@ -41,14 +41,13 @@
 </template>
 
 <script setup lang="ts">
-import * as dayjs from "dayjs";
+import { dayjs } from "element-plus";
 import { ref } from "vue";
 
 const roseImgSrc =
   "https://images.unsplash.com/photo-1503652601-557d07733ddc?q=80&w=1536&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
-const date = dayjs("2024-05-19").format("dddd MMMM D, YYYY");
-console.log("%c Line:51 🥖 date", "color:#42b983", date);
+const date = "Sunday May 19, 2024";
 const days = ref(0);
 const hours = ref(0);
 const minutes = ref(0);
