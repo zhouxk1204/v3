@@ -110,7 +110,7 @@ const onUpdate = (data: any) => {
   update(data);
 };
 
-const dialogVisible = useStore().employee.list.length === 0;
+const dialogVisible = useStore().employee.list.length <= 0;
 
 const onDialogConfirm = () => {
   router.push("/main/employee");

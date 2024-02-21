@@ -4,7 +4,13 @@
   >
     <span>员工明细</span>
     <div class="flex gap-2">
-      <el-button type="danger" @click="onReset">清空</el-button>
+      <el-popconfirm width="220" title="确认清空工分汇算?" @confirm="onReset">
+        <template #reference>
+          <el-button type="danger" :disabled="list.length === 0"
+            >清空</el-button
+          >
+        </template>
+      </el-popconfirm>
       <UploadExcel @change="onChange">选择文件导入</UploadExcel>
     </div>
   </h1>
