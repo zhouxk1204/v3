@@ -37,6 +37,7 @@
 import { TOKEN } from "@/constants";
 import router from "@/router";
 import { FormInstance, FormRules } from "element-plus/es/components/form";
+import { Md5 } from "ts-md5";
 import { ref } from "vue";
 
 interface LoginForm {
@@ -76,7 +77,8 @@ const submitForm = () => {
   if (!formRef.value) return;
   formRef.value.validate((valid, fields) => {
     if (valid) {
-      if (loginForm.password === "xz520" && loginForm.email === "xz@520.com") {
+      const res = Md5.hashStr(loginForm.password + loginForm.email);
+      if (res === TOKEN) {
         localStorage.setItem("TOKEN", TOKEN);
         ElMessage.success("登录成功！");
         router.replace("/main");
