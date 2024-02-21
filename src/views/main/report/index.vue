@@ -27,12 +27,19 @@
         </template>
         <div class="flex items-center">
           <UploadExcel class="mr-3" @change="onImport" sheetName="护士"
-            >选择文件导入</UploadExcel
+            >导入</UploadExcel
           >
-          <el-button type="success" @click="onExport">导出</el-button>
+          <el-button
+            type="success"
+            @click="onExport"
+            :disabled="reportList.length === 0"
+            >导出</el-button
+          >
           <el-popconfirm width="220" title="确认清空工分汇算?" @confirm="reset">
             <template #reference>
-              <el-button type="danger">清空</el-button>
+              <el-button type="danger" :disabled="reportList.length === 0"
+                >清空</el-button
+              >
             </template>
           </el-popconfirm>
         </div>
@@ -46,6 +53,23 @@
       </el-collapse-item>
     </el-collapse>
   </div>
+
+  <el-dialog
+    v-model="dialogVisible"
+    width="500"
+    title="提示"
+    center
+    :showClose="false"
+  >
+    <div class="font-bold text-center">
+      您还没有添加员工信息，请添加员工信息后重试！
+    </div>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button type="primary" @click="onDialogConfirm"> 确认 </el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -54,6 +78,7 @@ import { DayRatioSettingForm } from "@/config/form.config";
 import { DayRatioSettingTable, ReportTable } from "@/config/table.config";
 import { ExportExcelOption, useExcel } from "@/hooks/useExcel";
 import { useReport } from "@/hooks/useReport";
+import router from "@/router";
 import useStore from "@/store";
 import { IDayRecord, IReport } from "@/types";
 import { generateId } from "@/utils";
@@ -85,6 +110,12 @@ const onUpdate = (data: any) => {
   update(data);
 };
 
+const dialogVisible = useStore().employee.list.length === 0;
+
+const onDialogConfirm = () => {
+  router.push("/main/employee");
+};
+
 // 月次工分汇算
 const reportCols = ReportTable;
 
@@ -97,12 +128,14 @@ const errorList = ref<string[]>([]);
 const reportDate = ref<string>("");
 
 const initReport = () => {
-  const { reports, errors, currentDate } = useReport(recordList.value);
-  reportList.value = reports;
-  errorList.value = errors;
-  reportDate.value = currentDate;
-  if (errorList.value.length > 0) {
-    ElMessage.error("存在错误的工分记录，请及时检查修正！");
+  if (recordList.value.length > 0) {
+    const { reports, errors, currentDate } = useReport(recordList.value);
+    reportList.value = reports;
+    errorList.value = errors;
+    reportDate.value = currentDate;
+    if (errorList.value.length > 0) {
+      ElMessage.error("存在错误的工分记录，请及时检查修正！");
+    }
   }
 };
 

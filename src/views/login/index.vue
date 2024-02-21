@@ -34,6 +34,7 @@
 </template>
 
 <script setup lang="ts">
+import { TOKEN } from "@/constants";
 import router from "@/router";
 import { FormInstance, FormRules } from "element-plus/es/components/form";
 import { ref } from "vue";
@@ -75,7 +76,13 @@ const submitForm = () => {
   if (!formRef.value) return;
   formRef.value.validate((valid, fields) => {
     if (valid) {
-      router.replace("/main");
+      if (loginForm.password === "xz520" && loginForm.email === "xz@520.com") {
+        localStorage.setItem("TOKEN", TOKEN);
+        ElMessage.success("登录成功！");
+        router.replace("/main");
+      } else {
+        ElMessage.error("邮箱或密码不正确，登录失败！");
+      }
     } else {
       console.log("error submit!", fields);
     }

@@ -1,5 +1,7 @@
 <template>
-  <h1 class="flex items-center justify-between h-12 pb-3 mb-3 font-bold border-b">
+  <h1
+    class="flex items-center justify-between h-12 pb-3 mb-3 font-bold border-b"
+  >
     <span>员工明细</span>
     <div class="flex gap-2">
       <el-button type="danger" @click="onReset">清空</el-button>
@@ -52,7 +54,6 @@ const onRemove = (index: number) => {
 };
 
 const onUpdate = (data: any) => {
-  console.log("%c Line:52 🥥 data", "color:#ea7e5c", data);
   update(data);
 };
 

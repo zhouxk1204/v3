@@ -1,10 +1,6 @@
 <template>
   <div class="flex items-center w-screen h-screen overflow-hidden">
-    <ScaleInOut
-      :imageSrc="backgroundImage"
-      :index="srcIndex"
-      class="w-1/2 h-full"
-    ></ScaleInOut>
+    <img class="object-cover w-1/2 h-full" :src="roseImgSrc" alt="rose" />
     <div class="flex-1">
       <div class="flex items-center justify-center font-teko">
         <h1 class="tracking-wide text-7xl">ZHOUXK</h1>
@@ -46,27 +42,13 @@
 
 <script setup lang="ts">
 import * as dayjs from "dayjs";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 
-const roseImgSrcList = Object.keys(
-  import.meta.glob("/src/assets/img/rose/*.{png,jpg,gif,svg,avif}")
-);
-
-const srcIndex = ref(0);
-
-setInterval(() => {
-  if (srcIndex.value === roseImgSrcList.length - 1) {
-    srcIndex.value = 0;
-  } else {
-    srcIndex.value += 1;
-  }
-}, 2500);
-
-const backgroundImage = computed(() => {
-  return roseImgSrcList[srcIndex.value];
-});
+const roseImgSrc =
+  "https://images.unsplash.com/photo-1503652601-557d07733ddc?q=80&w=1536&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
 const date = dayjs("2024-05-19").format("dddd MMMM D, YYYY");
+console.log("%c Line:51 🥖 date", "color:#42b983", date);
 const days = ref(0);
 const hours = ref(0);
 const minutes = ref(0);

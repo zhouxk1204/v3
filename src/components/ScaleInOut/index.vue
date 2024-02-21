@@ -35,45 +35,45 @@ watch(
 <style scoped>
 .scale-out-enter-from {
   opacity: 0;
-  transform: scale(0.55);
+  transform: scale(0.85);
 }
 
 .scale-out-enter {
   transform: scale(1);
-  opacity: 0.5;
+  opacity: 0.2;
 }
 
 .scale-out-enter-active {
-  transition: all 0.3s ease-in-out;
+  transition: all 1s ease-in-out;
 }
 .scale-out-leave-active {
-  transition: all 0.3s ease-in-out;
+  transition: all 1s ease-in-out;
 }
 
 .scale-out-leave-to {
-  transform: scale(1.2);
+  transform: scale(1.05);
   opacity: 0;
 }
 
 .scale-in-enter-from {
   opacity: 0;
-  transform: scale(1.2);
+  transform: scale(1.05);
 }
 
 .scale-in-enter {
   transform: scale(1);
-  opacity: 0.5;
+  opacity: 0.2;
 }
 
 .scale-in-enter-active {
-  transition: all 1s ease-in-out;
+  transition: all 3s ease-in-out;
 }
 .scale-in-leave-active {
-  transition: all 1s ease-in-out;
+  transition: all 3s ease-in-out;
 }
 
 .scale-in-leave-to {
-  transform: scale(0.5);
+  transform: scale(0.85);
   opacity: 0;
 }
 </style>

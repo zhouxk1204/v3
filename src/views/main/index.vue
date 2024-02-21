@@ -3,12 +3,8 @@
     <header
       class="sticky top-0 flex items-center justify-between h-16 px-4 bg-transparent border-b cus-blur"
     >
-      <div class="hidden max-sm:flex">
-        <el-button
-        :icon="Menu"
-        circle
-        @click="drawer = true"
-      />
+      <div class="hidden max-[1280px]:flex">
+        <el-button :icon="Menu" circle @click="drawer = true" />
       </div>
       <h1 class="text-4xl">🍑</h1>
       <div>
@@ -20,24 +16,22 @@
         /></a>
       </div>
     </header>
-    <el-drawer
-      size="300"
-      direction="ltr"
-      v-model="drawer"
-      title="I am the title"
-      :with-header="false"
-    >
+    <el-drawer size="300" direction="ltr" v-model="drawer" :with-header="false">
       <el-menu
-        class="overflow-auto"
+        class="pt-5 overflow-auto"
         :default-active="currentRoute.name?.toString() ?? ''"
         :router="true"
         :collapse="false"
         popper-effect="light"
+        @select="drawer = false"
       >
         <MenuItem :menuList="menuRoutes" :parentRoute="parentRoute"></MenuItem>
       </el-menu>
     </el-drawer>
-    <div class="fixed left-0 top-16 max-sm:hidden">
+    <div
+      class="fixed left-0 top-16 max-[1280px]:hidden"
+      @click="drawer = false"
+    >
       <el-menu
         class="h-[calc(100vh-64px)] overflow-auto"
         :default-active="currentRoute.name?.toString() ?? ''"
@@ -45,19 +39,24 @@
         :collapse="false"
         popper-effect="light"
       >
-        <MenuItem :menuList="menuRoutes" :parentRoute="parentRoute"></MenuItem>
+        <div>
+          <MenuItem
+            :menuList="menuRoutes"
+            :parentRoute="parentRoute"
+          ></MenuItem>
+        </div>
       </el-menu>
     </div>
-    <div class="py-5 pr-5 pl-44 max-sm:pl-5">
+    <div class="py-5 pr-5 pl-44 max-[1280px]:pl-5">
       <router-view></router-view>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { Menu } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import router from "../../router";
-import { Menu } from "@element-plus/icons-vue";
 
 const currentRoute = useRouter().currentRoute;
 

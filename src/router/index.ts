@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
+import { TOKEN } from "@/constants";
+
 const metaObj = import.meta.glob("@/views/**/meta.ts", {
   eager: true,
   import: "default",
@@ -62,7 +64,7 @@ setDefault(routes);
 // 默认路由
 routes.push({
   path: "/",
-  redirect: "photo",
+  redirect: "login",
 });
 
 const router = createRouter({
@@ -72,7 +74,7 @@ const router = createRouter({
 
 router.beforeEach((to, _, next) => {
   const token = localStorage.getItem("TOKEN");
-  if (token || to.path === "/login") {
+  if (to.path === "/login" || token === TOKEN) {
     next();
   } else {
     ElMessage.error("您还没有登录，请先登录！");

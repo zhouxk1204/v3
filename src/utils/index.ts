@@ -1,6 +1,5 @@
 import * as _ from "lodash";
 
-import useStore from "@/store";
 import { v4 } from "uuid";
 
 /**
@@ -29,17 +28,6 @@ export function deepCopy<T>(source: T): T {
   }
 
   return objectCopy as T;
-}
-
-/**
- * 职工是否存在
- * @param {string} name
- * @returns {boolean} true: employee is exist; false: employee is not exist
- */
-export function isEmployeeExist(name: string): boolean {
-  return (
-    useStore().employee.employeeList.find((e) => e.name === name) !== undefined
-  );
 }
 
 /**

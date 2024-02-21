@@ -26,8 +26,10 @@ const { typedText, cursorFlash } = useTypewriter(
     // "余光是你，余生也是你",
     // "我真想拉起你的手，逃向初晴的天空和田野，不畏缩也不回",
     // "冗长的黑夜里，你是我唯一的光"
-    "Love to the depths, is lonely.",
-    "In love folly is always sweet.",
+    "Life is the flower for which love is the honey.", // 生命如花，爱情如蜜
+    "Love without end hath no end.",
+    "Love's tongue is in the eyes.",
+    "At the touch of love everyone becomes a poet.",
   ],
   100
 );
