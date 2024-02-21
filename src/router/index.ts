@@ -74,7 +74,9 @@ const router = createRouter({
 
 router.beforeEach((to, _, next) => {
   const token = localStorage.getItem("TOKEN") ?? "";
-  if (token === TOKEN) {
+  if (to.path === "/marriage") {
+    next();
+  } else if (token === TOKEN) {
     if (to.path === "/login") {
       next("/main");
     } else {
