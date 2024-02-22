@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { dayjs } from "element-plus";
+import dayjs from "dayjs";
 import { ref } from "vue";
 
 const roseImgSrc =

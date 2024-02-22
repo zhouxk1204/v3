@@ -11,13 +11,12 @@ const useHolidayStore = defineStore(
      * 添加节假日
      * @param {IHoliday} holiday 待添加节假日
      */
-    const insert = (holiday: IHoliday): boolean => {
+    const insert = (holiday: IHoliday): void => {
       if (!list.value.find((e) => e.date === holiday.date)) {
         list.value.push(holiday);
-        return true;
+        ElMessage.success("节假日信息添加成功！");
       } else {
-        ElMessage.error("当日信息已存在");
-        return false;
+        ElMessage.error("节假日信息信息已存在，添加失败！");
       }
     };
 
@@ -28,6 +27,9 @@ const useHolidayStore = defineStore(
     const remove = (index: number): void => {
       if (index > -1) {
         list.value.splice(index, 1);
+        ElMessage.success("节假日信息删除成功！");
+      } else {
+        ElMessage.success("发生异常错误，节假日信息删除失败！");
       }
     };
 
@@ -43,11 +45,12 @@ const useHolidayStore = defineStore(
 
         if (l.length < 2) {
           list.value.splice(index, 1, data);
+          ElMessage.success("节假日信息更新成功！");
         } else {
-          ElMessage.error("节假日日期重复，更新失败！");
+          ElMessage.error("该日期已存在，节假日信息更新失败！");
         }
       } else {
-        ElMessage.error("节假日不存在，更新失败！");
+        ElMessage.error("发生异常错误，节假日信息更新失败！");
       }
     };
 

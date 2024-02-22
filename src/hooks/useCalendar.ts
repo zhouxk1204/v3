@@ -1,8 +1,7 @@
-import * as dayjs from "dayjs";
-
 import { getFirstMondayOfMonth, getLastSundayOfMonth } from "@/utils/date";
 
 import { DEFAULT_DATE_FORMAT } from "@/constants";
+import dayjs from 'dayjs';
 
 export function useCalendar(year: number, month: number) {
   let date = getFirstMondayOfMonth(year, month);

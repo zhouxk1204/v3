@@ -1,6 +1,5 @@
-import * as dayjs from "dayjs";
-
 import { DEFAULT_DATE_FORMAT } from "@/constants";
+import dayjs from "dayjs";
 
 /**
  * 将XX年XX日 转换为 YYYY/MM/DD

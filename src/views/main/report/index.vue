@@ -14,8 +14,8 @@
           :list="dayRatioSettingList"
           :cols="dayRatioSettingCols"
           :editable="true"
-          @remove="onRemove"
-          @update="onUpdate"
+          @remove="remove($event)"
+          @update="update($event)"
         ></Table>
       </el-collapse-item>
 
@@ -35,7 +35,11 @@
             :disabled="reportList.length === 0"
             >导出</el-button
           >
-          <el-popconfirm width="220" title="确认清空工分汇算?" @confirm="reset">
+          <el-popconfirm
+            width="220"
+            title="确认清空工分汇算?"
+            @confirm="onResetReport"
+          >
             <template #reference>
               <el-button type="danger" :disabled="reportList.length === 0"
                 >清空</el-button
@@ -78,12 +82,13 @@ import { DayRatioSettingForm } from "@/config/form.config";
 import { DayRatioSettingTable, ReportTable } from "@/config/table.config";
 import { ExportExcelOption, useExcel } from "@/hooks/useExcel";
 import { useReport } from "@/hooks/useReport";
+import { IRecord } from "@/models/report.model";
 import router from "@/router";
 import useStore from "@/store";
 import { IDayRecord, IReport } from "@/types";
 import { generateId } from "@/utils";
 import { parseExcelDateNumber, parseMonthDayTextDate } from "@/utils/date";
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
 
 import { storeToRefs } from "pinia";
 
@@ -99,15 +104,6 @@ const form = ref<FieldItem[]>(DayRatioSettingForm);
 const handelSubmit = (data: any) => {
   data.id = generateId();
   insert(data);
-};
-
-// 删除
-const onRemove = (index: number) => {
-  remove(index);
-};
-// 更新
-const onUpdate = (data: any) => {
-  update(data);
 };
 
 const dialogVisible = useStore().employee.list.length <= 0;
@@ -127,19 +123,23 @@ const reportList = ref<IReport[]>([]);
 const errorList = ref<string[]>([]);
 const reportDate = ref<string>("");
 
-const initReport = () => {
-  if (recordList.value.length > 0) {
-    const { reports, errors, currentDate } = useReport(recordList.value);
+const initReport = (list: IRecord[][], showSuccess: boolean = true) => {
+  if (list.length > 0) {
+    const { reports, errors, currentDate } = useReport(list);
     reportList.value = reports;
     errorList.value = errors;
     reportDate.value = currentDate;
     if (errorList.value.length > 0) {
       ElMessage.error("存在错误的工分记录，请及时检查修正！");
+    } else {
+      if (showSuccess) {
+        ElMessage.success("工分汇算成功🎉🎉🎉");
+      }
     }
   }
 };
 
-initReport();
+initReport(recordList.value, false);
 
 // 导入
 const onImport = (data: any[]) => {
@@ -173,6 +173,7 @@ const onImport = (data: any[]) => {
   });
   const list = Array.from(map.values());
   recordStore.insert(list);
+  initReport(list);
 };
 
 // 导出
@@ -190,5 +191,12 @@ const onExport = (): void => {
     },
   ];
   useExcel().exportExcel(exportExcelOptions, fileName);
+};
+
+const onResetReport = () => {
+  reset();
+  reportList.value = [];
+  errorList.value = [];
+  reportDate.value = "";
 };
 </script>

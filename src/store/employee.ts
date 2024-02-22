@@ -12,15 +12,23 @@ const useEmployeeStore = defineStore(
      */
     const insert = (employee: IEmployee | IEmployee[]): void => {
       const employeesToAdd = Array.isArray(employee) ? employee : [employee];
-
-      employeesToAdd.forEach((item) => {
+      let success = true;
+      for (let item of employeesToAdd) {
         const employeeExists = list.value.some((e) => e.no === item.no);
         if (!employeeExists) {
           list.value.push(item);
         } else {
-          ElMessage.error("员工重复，添加失败");
+          if (success) {
+            success = false;
+          }
         }
-      });
+      }
+
+      if (success) {
+        ElMessage.success("导入成功!");
+      } else {
+        ElMessage.error("员工信息重复，添加失败!");
+      }
     };
 
     /**
@@ -30,8 +38,9 @@ const useEmployeeStore = defineStore(
     const remove = (index: number): void => {
       if (index > -1) {
         list.value.splice(index, 1);
+        ElMessage.success("删除成功！");
       } else {
-        ElMessage.error("员工不存在，删除失败");
+        ElMessage.success("发生异常错误，删除失败！");
       }
     };
 
@@ -47,6 +56,7 @@ const useEmployeeStore = defineStore(
 
         if (l.length < 2) {
           list.value.splice(index, 1, data);
+          ElMessage.success("更新成功！");
         } else {
           ElMessage.error("员工序号重复，更新失败！");
         }
@@ -55,7 +65,12 @@ const useEmployeeStore = defineStore(
       }
     };
 
-    return { list, insert, remove, update };
+    const reset = () => {
+      list.value = [];
+      ElMessage.success("员工信息已清空！");
+    };
+
+    return { list, insert, remove, update, reset };
   },
   {
     persist: true,

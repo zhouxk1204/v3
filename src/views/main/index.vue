@@ -1,18 +1,18 @@
 <template>
   <div>
     <header
-      class="sticky top-0 flex items-center justify-between h-16 px-4 bg-transparent border-b cus-blur"
+      class="sticky top-0 flex items-center justify-between h-16 px-4 bg-transparent border-b webkit-sticky cus-blur"
     >
       <div class="hidden max-[1280px]:flex">
         <el-button :icon="Menu" circle @click="drawer = true" />
       </div>
-      <h1 class="text-4xl">🍑</h1>
+      <h1 class="text-4xl shake">🍑</h1>
       <div>
         <a
           href="https://github.com/zhouxk1204/v3"
           target="_blank"
           class="cursor-pointer"
-          ><Icon icon="ri:github-fill" width="30"
+          ><Icon icon="ri:github-fill" class="text-red-300" width="30"
         /></a>
       </div>
     </header>
@@ -47,7 +47,9 @@
         </div>
       </el-menu>
     </div>
-    <div class="py-5 pr-5 pl-44 max-[1280px]:pl-5">
+    <div
+      class="pt-5 pb-10 pr-5 pl-44 max-[1280px]:pl-5 min-h-[calc(100vh-64px)]"
+    >
       <router-view></router-view>
     </div>
   </div>
@@ -76,5 +78,25 @@ const drawer = ref(false);
   background: radial-gradient(transparent 1px, #fff 1px);
   backdrop-filter: saturate(50%) blur(4px);
   background-size: 4px 4px;
+}
+
+.webkit-sticky {
+  position: -webkit-sticky;
+}
+
+.shake {
+  animation: h-shake 2s ease-in-out infinite;
+}
+
+@keyframes h-shake {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 </style>

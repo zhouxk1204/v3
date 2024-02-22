@@ -1,5 +1,3 @@
-import * as dayjs from "dayjs";
-
 import {
   DEFAULT_OVERTIME_RATIO,
   DEFAULT_WORK_RATIO,
@@ -14,6 +12,7 @@ import { fullToHalf, trim } from "@/utils/string";
 
 import { IRecord } from "@/models/report.model";
 import useStore from "@/store";
+import dayjs from "dayjs";
 import Decimal from "decimal.js";
 
 interface RatioInfo {

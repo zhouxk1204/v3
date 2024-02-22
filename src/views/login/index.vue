@@ -24,6 +24,7 @@
           autocomplete="off"
           show-password
           clearable
+          @keydown.enter="submitForm"
         />
       </el-form-item>
       <el-button class="w-full" type="primary" @click="submitForm"
