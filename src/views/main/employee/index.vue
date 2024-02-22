@@ -15,13 +15,43 @@
         <UploadExcel @change="onChange">选择文件导入</UploadExcel>
       </div>
     </h1>
-    <Table
-      :list="list"
-      :cols="cols"
-      :editable="true"
-      @remove="remove($event)"
-      @update="update($event)"
-    ></Table>
+    <div class="flex flex-col max-[450px]:hidden">
+      <Table
+        :list="list"
+        :cols="cols"
+        :editable="true"
+        @remove="remove($event)"
+        @update="update($event)"
+      ></Table>
+    </div>
+
+    <div class="flex-col gap-2 hidden max-[450px]:flex">
+      <el-card v-for="item in list" shadow="always" body-class="bg-gray-50">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <el-avatar
+              :size="50"
+              :style="{
+                backgroundColor: item.genderId === '1' ? '#70a3f3' : '#edacd2',
+              }"
+            >
+              <span class="text-3xl">{{ item.employeeName[0] }}</span>
+            </el-avatar>
+            <span class="text-xl">{{ item.employeeName }}</span>
+            <el-tag effect="dark" :type="item.genderId === '1' ? '' : 'danger'">
+              <div class="flex items-center gap-1">
+                {{ item.postId === "0" ? "护士" : "护士长" }}
+                <el-icon>
+                  <Male v-if="item.genderId === '1'" />
+                  <Female v-else />
+                </el-icon>
+              </div>
+            </el-tag>
+          </div>
+          <div class="text-3xl font-bold">{{ item.factor }}</div>
+        </div>
+      </el-card>
+    </div>
   </div>
 </template>
 
@@ -32,8 +62,8 @@ import { useSelect } from "@/hooks/useSelect";
 import useStore from "@/store";
 import { IEmployee } from "@/types";
 import { generateId } from "@/utils";
+import { Female, Male } from "@element-plus/icons-vue";
 import { storeToRefs } from "pinia";
-
 const employeeStore = useStore().employee;
 const { insert, remove, update, reset } = employeeStore;
 const { list } = storeToRefs(employeeStore);
@@ -57,3 +87,4 @@ const onChange = (data: any[]) => {
   }
 };
 </script>
+<style scoped lang="scss"></style>
