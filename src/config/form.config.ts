@@ -4,7 +4,7 @@ const { getOptionsByType } = useSelect();
 
 export const HolidayForm: FieldItem[] = [
   {
-    label: "日期",
+    label: "节假日日期",
     field: "date",
     type: "date",
     rules: [
@@ -18,7 +18,7 @@ export const HolidayForm: FieldItem[] = [
     value: "",
   },
   {
-    label: "节假日",
+    label: "节假日名称",
     field: "holidayId",
     type: "select",
     rules: [
@@ -48,7 +48,7 @@ export const HolidayForm: FieldItem[] = [
     value: "",
   },
   {
-    label: "节假日补班工分倍率",
+    label: "补班倍率",
     field: "workRatio",
     type: "number",
     rules: [
@@ -57,12 +57,12 @@ export const HolidayForm: FieldItem[] = [
         message: "请输入节假日补班工分倍率",
       },
     ],
-    placeholder: "节假日补班工分倍率",
+    placeholder: "补班工分倍率",
     clearable: true,
     value: "",
   },
   {
-    label: "节假日加班工分倍率",
+    label: "加班倍率",
     field: "extraRatio",
     type: "number",
     rules: [

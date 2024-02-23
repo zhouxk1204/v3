@@ -1,57 +1,29 @@
 <template>
-  <el-form
-    :model="formModel"
-    ref="formRef"
-    :inline="true"
-    class="flex flex-wrap gap-1"
-  >
+  <el-form :model="formModel" ref="formRef" label-width="93px" label-position="left"
+    class="flex flex-wrap gap-2 max-[450px]:block">
     <template v-for="item in form">
       <el-form-item :label="item.label" :prop="item.field" :rules="item.rules">
         <!-- 日期 -->
-        <el-date-picker
-          v-if="item.type === 'date'"
-          type="date"
-          v-model="formModel[item.field]"
-          :placeholder="item.placeholder ?? ''"
-          :clearable="item.clearable"
-          :disabled="item.disabled"
-          format="YYYY/MM/DD"
-          value-format="YYYY/MM/DD"
-        />
+        <el-date-picker style="width:100%" v-if="item.type === 'date'" type="date" v-model="formModel[item.field]"
+          :placeholder="item.placeholder ?? ''" :clearable="item.clearable" :disabled="item.disabled" format="YYYY/MM/DD"
+          value-format="YYYY/MM/DD" :editable="false" />
         <!-- 数字输入框 -->
-        <el-input
-          v-else-if="item.type === 'number'"
-          v-model="formModel[item.field]"
-          :placeholder="item.placeholder ?? ''"
-          :clearable="item.clearable"
-          :disabled="item.disabled"
-          type="number"
-          min="0"
-          step="0.5"
-        />
+        <el-input class="w-full" v-else-if="item.type === 'number'" v-model="formModel[item.field]"
+          :placeholder="item.placeholder ?? ''" :clearable="item.clearable" :disabled="item.disabled" type="number"
+          min="0" step="0.5" />
         <!-- 文本输入框 -->
-        <el-input
-          v-else-if="item.type === 'text'"
-          v-model="formModel[item.field]"
-          :placeholder="item.placeholder ?? ''"
-          :clearable="item.clearable"
-          :disabled="item.disabled"
-          type="text"
-        />
+        <el-input v-else-if="item.type === 'text'" v-model="formModel[item.field]" :placeholder="item.placeholder ?? ''"
+          :clearable="item.clearable" :disabled="item.disabled" type="text" />
         <!-- 下拉选项 -->
-        <el-select-v2
-          v-else-if="item.type === 'select'"
-          v-model="formModel[item.field]"
-          :placeholder="item.placeholder ?? ''"
-          :clearable="item.clearable"
-          :options="item.options ?? []"
-          :disabled="item.disabled"
-          class="min-w-28"
-        />
+        <el-select-v2 v-else-if="item.type === 'select'" v-model="formModel[item.field]"
+          :placeholder="item.placeholder ?? ''" :clearable="item.clearable" :options="item.options ?? []"
+          :disabled="item.disabled" class="min-w-28" />
       </el-form-item>
     </template>
-    <el-button type="primary" @click="handelSubmit">添加</el-button>
-    <el-button type="danger" @click="handelReset">清空</el-button>
+    <div class="max-[450px]:flex">
+      <el-button type="primary" @click="handelSubmit" class="max-[450px]:flex-1">添加</el-button>
+      <el-button type="danger" @click="handelReset" class="max-[450px]:flex-1">清空</el-button>
+    </div>
   </el-form>
 </template>
 
