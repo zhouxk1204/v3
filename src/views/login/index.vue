@@ -14,11 +14,11 @@
       </el-button>
     </el-form>
 
-    <div class="absolute left-0 right-0 flex items-center justify-center gap-2 text-sm text-gray-400 bottom-3">
-      <a href="https://beian.miit.gov.cn/" target="_blank">ICP备案号:</a>
-      <a href="https://beian.miit.gov.cn/" target="_blank">蜀ICP备2024053978号</a>
-      <span>zhouxk.fun</span>
-      <span>版权所有</span>
+    <div class="absolute left-0 right-0 flex flex-col items-center justify-center gap-1 text-xs text-gray-400 bottom-3">
+      <div><span>zhouxk © 2024 | </span>
+        <a href="https://beian.miit.gov.cn/" target="_blank">蜀ICP备2024053978号</a>
+      </div>
+      <span>source by zhouxk</span>
     </div>
 
   </div>
