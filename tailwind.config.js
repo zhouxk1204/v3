@@ -10,6 +10,19 @@ module.exports = {
   darkMode: "class", // or 'media' or 'class'
   theme: {
     extend: {
+      keyframes: {
+        zoomInOut: {
+          "0%, 100%": {
+            transform: "scale(1)",
+          },
+          "50%": {
+            transform: "scale(1.2)",
+          },
+        },
+      },
+      animation: {
+        zoom: "zoomInOut 10s ease-in-out infinite alternate",
+      },
       colors: {
         "vtd-primary": colors.blue, // Light mode Datepicker color
         "vtd-secondary": colors.gray, // Dark mode Datepicker color

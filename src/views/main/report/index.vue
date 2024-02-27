@@ -8,15 +8,8 @@
           </h1>
         </template>
         <Form :form="form" @submit="handelSubmit"></Form>
-        <Table
-          class="border-t"
-          v-if="dayRatioSettingList.length > 0"
-          :list="dayRatioSettingList"
-          :cols="dayRatioSettingCols"
-          :editable="true"
-          @remove="remove($event)"
-          @update="update($event)"
-        ></Table>
+        <Table class="border-t" v-if="dayRatioSettingList.length > 0" :list="dayRatioSettingList"
+          :cols="dayRatioSettingCols" :editable="true" @remove="remove($event)" @update="update($event)"></Table>
       </el-collapse-item>
 
       <el-collapse-item name="2">
@@ -26,45 +19,50 @@
           </h1>
         </template>
         <div class="flex items-center">
-          <UploadExcel class="mr-3" @change="onImport" sheetName="护士"
-            >导入</UploadExcel
-          >
-          <el-button
-            type="success"
-            @click="onExport"
-            :disabled="reportList.length === 0"
-            >导出</el-button
-          >
-          <el-popconfirm
-            width="220"
-            title="确认清空工分汇算?"
-            @confirm="onResetReport"
-          >
+          <UploadExcel class="mr-3" @change="onImport" sheetName="护士">导入</UploadExcel>
+          <el-button type="success" @click="onExport" :disabled="reportList.length === 0">导出</el-button>
+          <el-popconfirm width="220" title="确认清空工分汇算?" @confirm="onResetReport">
             <template #reference>
-              <el-button type="danger" :disabled="reportList.length === 0"
-                >清空</el-button
-              >
+              <el-button type="danger" :disabled="reportList.length === 0">清空</el-button>
             </template>
           </el-popconfirm>
         </div>
-        <Table :list="reportList" :cols="reportCols"></Table>
+
+        <Table :list="reportList" :cols="reportCols" class="max-[450px]:hidden"></Table>
+
+        <div class="hidden max-[450px]:flex max-[450px]:flex-col max-[450px]:gap-1 mt-3">
+          <div class="p-2 border rounded-md" v-for="item in reportList">
+            <div class="flex items-center gap-2">
+              <el-avatar :size="42" class="flex-none" shape="square">
+                <span class="text-xs">{{ item.employeeName }}</span>
+              </el-avatar>
+              <div class="flex flex-wrap gap-1">
+                <el-tag effect="dark" type="warning" size="small">{{ item.factor }}</el-tag>
+                <el-tag effect="dark" size="small" type="info">手术{{ item.totalOther }}</el-tag>
+                <el-tag effect="dark" size="small" type="info" v-if="item.totalGastroscopy > 0">胃镜{{ item.totalGastroscopy
+                }}</el-tag>
+                <el-tag effect="dark" size="small" type="danger">时间{{ item.total }}</el-tag>
+                <el-tag effect="dark" size="small" type="success">出勤{{ item.workDayCount }}天</el-tag>
+                <el-tag effect="dark" type="success" size="small" v-if="item.annual > 0">年休{{ item.annual }}天</el-tag>
+                <el-tag effect="dark" type="success" size="small" v-if="item.leave > 0">休假{{ item.leave }}天</el-tag>
+                <el-tag effect="dark" size="small" v-if="item.serve > 0">科务{{ item.serve }}天</el-tag>
+              </div>
+            </div>
+          </div>
+        </div>
         <div v-if="errorList.length > 0">
           <h2 class="my-2 font-bold">错误的工分记录</h2>
           <ul class="mt-2 ml-3 text-red-500">
             <li v-for="error in errorList">{{ error }}</li>
           </ul>
         </div>
+
+
       </el-collapse-item>
     </el-collapse>
   </div>
 
-  <el-dialog
-    v-model="dialogVisible"
-    width="500"
-    title="提示"
-    center
-    :showClose="false"
-  >
+  <el-dialog v-model="dialogVisible" width="500" title="提示" center :showClose="false">
     <div class="font-bold text-center">
       您还没有添加员工信息，请添加员工信息后重试！
     </div>
@@ -89,10 +87,9 @@ import { IDayRecord, IReport } from "@/types";
 import { generateId } from "@/utils";
 import { parseExcelDateNumber, parseMonthDayTextDate } from "@/utils/date";
 import dayjs from "dayjs";
-
 import { storeToRefs } from "pinia";
 
-const activeNames = ref(["1", "2"]);
+const activeNames = ref(["2"]);
 
 // 岗位工分倍率特殊设定
 const dayRatioSettingCols = DayRatioSettingTable;

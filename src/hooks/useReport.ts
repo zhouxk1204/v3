@@ -10,10 +10,10 @@ import {
 import { IPoint, IReport } from "@/types";
 import { fullToHalf, trim } from "@/utils/string";
 
-import { IRecord } from "@/models/report.model";
-import useStore from "@/store";
-import dayjs from "dayjs";
 import Decimal from "decimal.js";
+import { IRecord } from "@/models/report.model";
+import dayjs from "dayjs";
+import useStore from "@/store";
 
 interface RatioInfo {
   ratio: number;
@@ -79,6 +79,7 @@ export function useReport(data: IRecord[][]) {
           errors.push(
             `${iEmployee.employeeName}：在${date} 填写的工分记录：${record} 填写错误，无法解析，请核对！！！`
           );
+          hasError = false;
         }
       }
 

@@ -1,36 +1,26 @@
 <template>
-  <div
-    class="relative w-screen h-screen overflow-hidden bg-bottom bg-cover bg-transition"
-    :style="{
-      'background-image': 'linear-gradient(to top, #fff1eb 0%, #ace0f9 100%)',
-    }"
-  >
-    <el-form
-      ref="formRef"
-      :model="loginForm"
-      :rules="rules"
-      size="large"
-      class="absolute p-10 -translate-x-1/2 -translate-y-1/2 bg-white bg-opacity-50 shadow-2xl backdrop-blur-xl w-80 rounded-xl left-1/2 top-1/2 max-sm:w-[90%] max-sm:shadow-none"
-    >
-      <h1 class="pb-2 mb-6 text-4xl text-center max-sm:text-5xl">🍑</h1>
+  <div class="relative gradient-background">
+    <el-form ref="formRef" :model="loginForm" :rules="rules" size="large"
+      class="absolute p-10 -translate-x-1/2 -translate-y-1/2 bg-white bg-opacity-50 shadow-2xl backdrop-blur-xl w-80 rounded-xl left-1/2 top-1/2 max-sm:w-[90%] max-sm:shadow-none">
+      <h1 class="pb-2 mb-6 text-4xl text-center max-sm:text-5xl animate-zoom">🍑</h1>
       <el-form-item prop="email">
         <el-input v-model="loginForm.email" placeholder="邮箱" clearable />
       </el-form-item>
       <el-form-item prop="password">
-        <el-input
-          v-model="loginForm.password"
-          placeholder="密码"
-          type="password"
-          autocomplete="off"
-          show-password
-          clearable
-          @keydown.enter="submitForm"
-        />
+        <el-input v-model="loginForm.password" placeholder="密码" type="password" autocomplete="off" show-password clearable
+          @keydown.enter="submitForm" />
       </el-form-item>
-      <el-button class="w-full" type="primary" @click="submitForm"
-        >注册 / 登录
+      <el-button class="w-full" type="primary" @click="submitForm">登录
       </el-button>
     </el-form>
+
+    <div class="absolute left-0 right-0 flex items-center justify-center gap-2 text-sm text-gray-400 bottom-3">
+      <a href="https://beian.miit.gov.cn/" target="_blank">ICP备案号:</a>
+      <a href="https://beian.miit.gov.cn/" target="_blank">蜀ICP备2024053978号</a>
+      <span>zhouxk.fun</span>
+      <span>版权所有</span>
+    </div>
+
   </div>
 </template>
 
@@ -92,3 +82,27 @@ const submitForm = () => {
   });
 };
 </script>
+<style scoped lang="scss">
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%
+  }
+
+  50% {
+    background-position: 100% 50%
+  }
+
+  100% {
+    background-position: 0% 50%
+  }
+}
+
+.gradient-background {
+  width: 100%;
+  height: 100vh;
+  // background: linear-gradient(-45deg, #EE7752, #E73C7E, #23A6D5, #23D5AB);
+  background: linear-gradient(-45deg, #fff1eb 0%, #ace0f9 100%);
+  animation: gradient 7s ease infinite;
+  background-size: 200% 200%;
+}
+</style>
