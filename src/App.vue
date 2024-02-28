@@ -1,16 +1,8 @@
 <template>
-  <div
-    :class="{ dark: isDarkMode }"
-    class="relative flex flex-col w-screen h-screen overflow-hidden darkabsolute-alignsolute-aligng-dark"
-  >
-    <!-- <header class="absolute z-10 left-1 top-1">
-      <Toggle v-model="isDarkMode"></Toggle>
-    </header> -->
-    <div class="flex-1 overflow-y-auto">
-      <el-config-provider :locale="locale">
-        <router-view></router-view>
-      </el-config-provider>
-    </div>
+  <div :class="{ dark: isDarkMode }" class="absolute inset-0">
+    <el-config-provider :locale="locale">
+      <router-view></router-view>
+    </el-config-provider>
   </div>
 </template>
 

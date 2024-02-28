@@ -64,7 +64,7 @@ setDefault(routes);
 // 默认路由
 routes.push({
   path: "/",
-  redirect: "login",
+  redirect: "marriage",
 });
 
 const router = createRouter({
@@ -74,6 +74,7 @@ const router = createRouter({
 
 router.beforeEach((to, _, next) => {
   const token = localStorage.getItem("TOKEN") ?? "";
+  console.log("%c Line:78 🥟 to.path", "color:#7f2b82", to.path);
   if (to.path === "/marriage") {
     next();
   } else if (token === TOKEN) {

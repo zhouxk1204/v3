@@ -62,7 +62,8 @@
     </el-collapse>
   </div>
 
-  <el-dialog v-model="dialogVisible" width="500" title="提示" center :showClose="false">
+  <el-dialog v-model="dialogVisible" title="提示" center :showClose="false" :lose-on-click-modal="false"
+    :close-on-press-escape="false">
     <div class="font-bold text-center">
       您还没有添加员工信息，请添加员工信息后重试！
     </div>

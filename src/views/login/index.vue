@@ -18,7 +18,7 @@
       <div><span>zhouxk © 2024 | </span>
         <a href="https://beian.miit.gov.cn/" target="_blank">蜀ICP备2024053978号</a>
       </div>
-      <span>source by zhouxk</span>
+      <span>Powered by Zhouxk</span>
     </div>
 
   </div>
@@ -98,9 +98,8 @@ const submitForm = () => {
 }
 
 .gradient-background {
-  width: 100%;
-  height: 100vh;
-  // background: linear-gradient(-45deg, #EE7752, #E73C7E, #23A6D5, #23D5AB);
+  position: absolute;
+  inset: 0;
   background: linear-gradient(-45deg, #fff1eb 0%, #ace0f9 100%);
   animation: gradient 7s ease infinite;
   background-size: 200% 200%;
