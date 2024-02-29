@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center max-[450px]:flex-col max-[450px]:pb-10 max-[450px]:gap-3">
+  <div class="flex items-center max-[450px]:flex-col max-[450px]:pb-10 max-[450px]:gap-3 h-full ">
     <button
       class="absolute px-2 py-1 text-white border rounded-md select-none right-1 top-1 active:bg-gray-50 active:bg-opacity-20"
       @click="login">{{ token.length > 0 ? 'START' : 'SIGN IN' }}</button>
