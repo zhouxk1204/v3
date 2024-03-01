@@ -1,9 +1,6 @@
 <template>
-  <div class="flex items-center max-[450px]:flex-col max-[450px]:pb-10 max-[450px]:gap-3 h-full ">
-    <button
-      class="absolute px-2 py-1 text-white border rounded-md select-none right-1 top-1 active:bg-gray-50 active:bg-opacity-20"
-      @click="login">{{ token.length > 0 ? 'START' : 'SIGN IN' }}</button>
-
+  <div
+    class="flex items-center max-[450px]:flex-col max-[450px]:pb-10 max-[450px]:gap-3 h-[100dvh] overflow-hidden justify-between">
     <img class="object-cover w-1/2 max-[450px]:w-full" :src="roseImgSrc" alt="rose" />
 
     <div class="flex flex-col flex-1 gap-3 px-5 max-[450px]:px-0">
@@ -36,7 +33,6 @@
 </template>
 
 <script setup lang="ts">
-import router from "@/router";
 import dayjs from "dayjs";
 import { ref } from "vue";
 
@@ -69,10 +65,4 @@ setInterval(() => {
   time.value.minutes.value = Math.floor((seconds % 3600) / 60);
   time.value.seconds.value = Math.floor(seconds % 60);
 }, 1000);
-
-const login = () => {
-  router.push("/login");
-}
-
-const token = localStorage.getItem("TOKEN") ?? '';
 </script>
