@@ -5,8 +5,8 @@
       <el-form-item :label="item.label" :prop="item.field" :rules="item.rules">
         <!-- 日期 -->
         <el-date-picker style="width:100%" v-if="item.type === 'date'" type="date" v-model="formModel[item.field]"
-          :placeholder="item.placeholder ?? ''" :clearable="item.clearable" :disabled="item.disabled" format="YYYY/MM/DD"
-          value-format="YYYY/MM/DD" :editable="false" />
+          :placeholder="item.placeholder ?? ''" :clearable="item.clearable" :disabled="item.disabled"
+          format="YYYY/MM/DD" value-format="YYYY/MM/DD" :editable="false" />
         <!-- 数字输入框 -->
         <el-input class="w-full" v-else-if="item.type === 'number'" v-model="formModel[item.field]"
           :placeholder="item.placeholder ?? ''" :clearable="item.clearable" :disabled="item.disabled" type="number"

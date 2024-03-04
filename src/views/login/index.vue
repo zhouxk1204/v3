@@ -1,24 +1,27 @@
 <template>
   <div class="relative gradient-background">
+    <img :src="bgUrl" alt="loginBg" class="absolute inset-0 object-cover h-[100dvh]">
+    <h1 class="fixed z-30 -translate-x-1/2 left-1/2 top-1/4">
+      <Icon icon="emojione-monotone:peach" width="66" height="66" class="text-gray-200" />
+    </h1>
     <el-form ref="formRef" :model="loginForm" :rules="rules" size="large"
-      class="absolute p-10 -translate-x-1/2 -translate-y-1/2 bg-white bg-opacity-50 shadow-2xl backdrop-blur-xl w-80 rounded-xl left-1/2 top-1/2 max-sm:w-[90%] max-sm:shadow-none">
-      <h1 class="pb-2 mb-6 text-4xl text-center max-sm:text-5xl animate-zoom">🍑</h1>
-      <el-form-item prop="email">
+      class="absolute py-12 px-10 -translate-x-1/2 -translate-y-1/2 shadow-ring w-80 rounded-xl left-1/2 top-1/2 max-sm:w-[80%]">
+      <el-form-item prop="email" class="opacity-50">
         <el-input v-model="loginForm.email" placeholder="邮箱" clearable />
       </el-form-item>
-      <el-form-item prop="password">
-        <el-input v-model="loginForm.password" placeholder="密码" type="password" autocomplete="off" show-password clearable
-          @keydown.enter="submitForm" />
+      <el-form-item prop="password" class="opacity-50">
+        <el-input v-model="loginForm.password" placeholder="密码" type="password" autocomplete="off" show-password
+          clearable @keydown.enter="submitForm" />
       </el-form-item>
       <el-button class="w-full" type="primary" @click="submitForm">登录
       </el-button>
     </el-form>
 
-    <div class="absolute left-0 right-0 flex flex-col items-center justify-center gap-1 text-xs text-gray-400 bottom-3">
-      <div><span>zhouxk © 2024 | </span>
+    <div class="absolute left-0 right-0 flex flex-col items-center justify-center gap-1 text-xs text-gray-200 bottom-3">
+      <div>
         <a href="https://beian.miit.gov.cn/" target="_blank">蜀ICP备2024053978号</a>
       </div>
-      <span>Powered by Zhouxk</span>
+      <span>Powered by zhouxk © 2024 </span>
     </div>
 
   </div>
@@ -35,6 +38,8 @@ interface LoginForm {
   email: string;
   password: string;
 }
+
+const bgUrl = localStorage.getItem('loginBg') ?? ''
 
 const loginForm = reactive<LoginForm>({
   password: "",
@@ -82,6 +87,7 @@ const submitForm = () => {
   });
 };
 </script>
+
 <style scoped lang="scss">
 @keyframes gradient {
   0% {
@@ -100,8 +106,12 @@ const submitForm = () => {
 .gradient-background {
   position: absolute;
   inset: 0;
-  background: linear-gradient(-45deg, #fff1eb 0%, #ace0f9 100%);
-  animation: gradient 7s ease infinite;
-  background-size: 200% 200%;
+  // background: linear-gradient(-45deg, #fff1eb 0%, #ace0f9 100%);
+  // animation: gradient 7s ease infinite;
+  // background-size: 200% 200%;
+}
+
+.shadow-ring {
+  box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.2);
 }
 </style>

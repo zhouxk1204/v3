@@ -7,12 +7,13 @@
       <h1>
         <Icon icon="emojione-monotone:peach" width="37" height="37" class="text-gray-300" />
       </h1>
-      <div class="flex items-center gap-5 max-[450px]:hidden">
-        <div class="tracking-widest max-[450px]:tracking-normal hover-underline-animation">
-          Sign in
+      <div class="flex items-center gap-5 max-[450px]:hidden text-gray-300">
+        <div class="tracking-widest max-[450px]:tracking-normal hover-underline-animation" @click="onLogin">
+          Login
         </div>
+        <span>|</span>
         <div class="tracking-widest max-[450px]:tracking-normal hover-underline-animation" @click="onMarriage">
-          Wedding date
+          Wedding
         </div>
         <a href="https://github.com/zhouxk1204/v3" target="_blank" class="cursor-pointer">
           <Icon icon="ri:github-fill" class="text-gray-300" width="30" />
@@ -82,15 +83,22 @@ const wordList = [
   "Distance makes the hearts grow fonder。"
 ]
 
-const prev = ref(imgList[0]);
-const cur = ref(imgList[1]);
-const next = ref(imgList[2]);
+const currentBg = localStorage.getItem('loginBg') ?? '';
+const index = imgList.findIndex(e => e === currentBg);
 
-const prevWord = ref(wordList[0]);
-const curWord = ref(wordList[1]);
-const nextWord = ref(wordList[2]);
+const currentIndex = ref(index > -1 ? index : 1);
+const prevIndex = index === 0 ? imgList.length - 1 : index - 1;
+const nextIndex = index === imgList.length - 1 ? 0 : index + 1;
 
-const currentIndex = ref(1);
+const prev = ref(imgList[prevIndex]);
+const cur = ref(imgList[currentIndex.value]);
+const next = ref(imgList[nextIndex]);
+
+const prevWord = ref(wordList[prevIndex]);
+const curWord = ref(wordList[currentIndex.value]);
+const nextWord = ref(wordList[nextIndex]);
+
+
 /**
  * 滑动后，刷新图片路径
  * @param {number} index 
@@ -196,7 +204,13 @@ const handleTouchEnd = () => {
   startY.value = null;
 };
 
+const onLogin = () => {
+  localStorage.setItem('loginBg', cur.value);
+  router.push('/login')
+}
+
 </script>
+
 <style scoped lang="scss">
 .h-100dvh {
   height: 100dvh;
