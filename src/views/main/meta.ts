@@ -1,5 +1,5 @@
 export default {
   title: "目录",
-  defaultRoute: "home",
+  defaultRoute: "index",
   sort: 4,
 };

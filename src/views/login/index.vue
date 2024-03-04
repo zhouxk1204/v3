@@ -1,15 +1,16 @@
 <template>
   <div class="relative gradient-background">
-    <img :src="bgUrl" alt="loginBg" class="absolute inset-0 object-cover h-[100dvh]">
-    <h1 class="fixed z-30 -translate-x-1/2 left-1/2 top-1/4">
-      <Icon icon="emojione-monotone:peach" width="66" height="66" class="text-gray-200" />
+    <img :src="bgUrl" alt="loginBg" class="absolute inset-0 object-cover h-[100dvh] w-screen">
+    <h1 class="fixed z-30 -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/4">
+      <Icon icon="emojione-monotone:peach" width="66" height="66" class="text-gray-200 cursor-pointer"
+        @click="onClickLogo" />
     </h1>
     <el-form ref="formRef" :model="loginForm" :rules="rules" size="large"
       class="absolute py-12 px-10 -translate-x-1/2 -translate-y-1/2 shadow-ring w-80 rounded-xl left-1/2 top-1/2 max-sm:w-[80%]">
-      <el-form-item prop="email" class="opacity-50">
+      <el-form-item prop="email" class="opacity-60">
         <el-input v-model="loginForm.email" placeholder="邮箱" clearable />
       </el-form-item>
-      <el-form-item prop="password" class="opacity-50">
+      <el-form-item prop="password" class="opacity-60">
         <el-input v-model="loginForm.password" placeholder="密码" type="password" autocomplete="off" show-password
           clearable @keydown.enter="submitForm" />
       </el-form-item>
@@ -86,6 +87,10 @@ const submitForm = () => {
     }
   });
 };
+
+const onClickLogo = () => {
+  router.push('/home')
+}
 </script>
 
 <style scoped lang="scss">
@@ -112,6 +117,6 @@ const submitForm = () => {
 }
 
 .shadow-ring {
-  box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.5);
 }
 </style>

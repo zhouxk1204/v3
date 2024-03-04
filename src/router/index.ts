@@ -64,7 +64,7 @@ setDefault(routes);
 // 默认路由
 routes.push({
   path: "/",
-  redirect: "parallax",
+  redirect: "home",
 });
 
 const router = createRouter({

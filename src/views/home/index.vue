@@ -2,14 +2,14 @@
   <div class="relative w-screen overflow-hidden h-100dvh" @wheel="onWheel($event)" :class="direction"
     @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd"
     @transitionend="onTransitionend">
+    <h1 class="fixed z-30 -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/4">
+      <Icon icon="emojione-monotone:peach" width="66" height="66" class="text-gray-200" />
+    </h1>
     <div
-      class="fixed top-0 left-0 z-20 w-full bg-white h-[71px]  max-[450px]:h-[48px] bg-opacity-10 flex items-center justify-between px-5 select-none font-bold font-mono">
-      <h1>
-        <Icon icon="emojione-monotone:peach" width="37" height="37" class="text-gray-300" />
-      </h1>
-      <div class="flex items-center gap-5 max-[450px]:hidden text-gray-300">
+      class="fixed top-0 left-0 z-20 w-full bg-white h-[71px] max-[450px]:h-[48px] bg-opacity-10 flex items-center justify-end px-5 select-none font-bold font-mono">
+      <div class="flex items-center gap-5 text-gray-300">
         <div class="tracking-widest max-[450px]:tracking-normal hover-underline-animation" @click="onLogin">
-          Login
+          {{ isLogin ? 'Home' : 'Login' }}
         </div>
         <span>|</span>
         <div class="tracking-widest max-[450px]:tracking-normal hover-underline-animation" @click="onMarriage">
@@ -18,10 +18,6 @@
         <a href="https://github.com/zhouxk1204/v3" target="_blank" class="cursor-pointer">
           <Icon icon="ri:github-fill" class="text-gray-300" width="30" />
         </a>
-      </div>
-      <div class="hidden max-[450px]:flex max-[450px]:items-center max-[450px]:gap-3">
-        <Icon icon="lets-icons:sign-in-circle" width="32" height="32" class="text-gray-300" />
-        <Icon icon="ph:heart-bold" width="34" height="34" class="text-gray-300" @click="onMarriage" />
       </div>
     </div>
     <div class="absolute top-0 left-0 z-10 w-full h-0 overflow-hidden prev">
@@ -63,7 +59,10 @@
 </template>
 
 <script setup lang='ts'>
+import { TOKEN } from "@/constants";
 import router from "@/router";
+
+const isLogin = localStorage.getItem('TOKEN') === TOKEN;
 
 // 获取 assets/img/rose路径下的所有图片
 const imgList: string[] = [];
@@ -72,7 +71,6 @@ while (i < 6) {
   imgList.push(new URL(`../../assets/img/bg/${i}.avif`, import.meta.url).href);
   i++;
 }
-
 
 const wordList = [
   "I will follow you to the end of time",
@@ -85,35 +83,31 @@ const wordList = [
 
 const currentBg = localStorage.getItem('loginBg') ?? '';
 const index = imgList.findIndex(e => e === currentBg);
+const curIndex = index > -1 ? index : 1
+const currentIndex = ref(curIndex);
 
-const currentIndex = ref(index > -1 ? index : 1);
-const prevIndex = index === 0 ? imgList.length - 1 : index - 1;
-const nextIndex = index === imgList.length - 1 ? 0 : index + 1;
+const prev = ref('');
+const cur = ref(imgList[curIndex]);
+const next = ref('');
 
-const prev = ref(imgList[prevIndex]);
-const cur = ref(imgList[currentIndex.value]);
-const next = ref(imgList[nextIndex]);
-
-const prevWord = ref(wordList[prevIndex]);
-const curWord = ref(wordList[currentIndex.value]);
-const nextWord = ref(wordList[nextIndex]);
-
+const prevWord = ref('');
+const curWord = ref(wordList[curIndex]);
+const nextWord = ref('');
 
 /**
  * 滑动后，刷新图片路径
  * @param {number} index 
  */
 const refresh = (index: number) => {
-  currentIndex.value = index;
   const prevIndex = index === 0 ? imgList.length - 1 : index - 1;
   const nextIndex = index === imgList.length - 1 ? 0 : index + 1;
   prev.value = imgList[prevIndex];
-  cur.value = imgList[index];
   next.value = imgList[nextIndex];
   prevWord.value = wordList[prevIndex];
-  curWord.value = wordList[index];
   nextWord.value = wordList[nextIndex];
 }
+
+refresh(curIndex);
 
 // 是否正在过渡动画中
 let isAnimate = false;
@@ -146,11 +140,17 @@ const onWheel = (event: unknown) => {
 const onTransitionend = () => {
   if (direction.value == 'down') {
     // 下滑时，下标为末尾，设置为0
-    const index = currentIndex.value === imgList.length - 1 ? 0 : currentIndex.value + 1
+    const index = currentIndex.value === imgList.length - 1 ? 0 : currentIndex.value + 1;
+    currentIndex.value = index;
+    cur.value = imgList[index];
+    curWord.value = wordList[index];
     refresh(index);
   } else if (direction.value == 'up') {
     // 上滑时，下标为0，设置为末尾下标
-    const index = currentIndex.value === 0 ? imgList.length - 1 : currentIndex.value - 1
+    const index = currentIndex.value === 0 ? imgList.length - 1 : currentIndex.value - 1;
+    currentIndex.value = index;
+    cur.value = imgList[index];
+    curWord.value = wordList[index];
     refresh(index);
   }
   // 过渡完成
@@ -205,8 +205,12 @@ const handleTouchEnd = () => {
 };
 
 const onLogin = () => {
-  localStorage.setItem('loginBg', cur.value);
-  router.push('/login')
+  if (isLogin) {
+    router.push('/main')
+  } else {
+    localStorage.setItem('loginBg', cur.value);
+    router.push('/login')
+  }
 }
 
 </script>

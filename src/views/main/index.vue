@@ -5,7 +5,10 @@
       <div class="hidden max-[1280px]:flex">
         <el-button :icon="Menu" circle @click="drawer = true" />
       </div>
-      <h1 class="text-4xl animate-zoom" @click="onLogo">🍑</h1>
+      <h1>
+        <Icon icon="emojione-monotone:peach" width="40" height="40" class="text-red-300 cursor-pointer"
+          @click="onClickLogo" />
+      </h1>
       <div>
         <a href="https://github.com/zhouxk1204/v3" target="_blank" class="cursor-pointer">
           <Icon icon="ri:github-fill" class="text-red-300" width="30" />
@@ -51,10 +54,11 @@ menuRoutes.sort(
 
 const drawer = ref(false);
 
-const onLogo = () => {
-  router.replace("/marriage");
+const onClickLogo = () => {
+  router.replace("/home");
 }
 </script>
+
 <style lang="scss" scoped>
 .cus-blur {
   z-index: 999;
