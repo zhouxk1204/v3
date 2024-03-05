@@ -13,6 +13,7 @@
       </el-collapse-item>
 
       <el-collapse-item name="2">
+
         <template #title>
           <h1 class="flex items-center w-full h-12 text-base font-bold">
             <span>月次工分汇算</span>
@@ -20,8 +21,22 @@
         </template>
         <div class="flex items-center">
           <UploadExcel class="mr-3" @change="onImport" sheetName="护士">导入</UploadExcel>
-          <el-button type="success" @click="onExport" :disabled="reportList.length === 0">导出</el-button>
+          <el-button-group class="mr-3">
+            <el-button type="success" @click="onExport" :disabled="reportList.length === 0">导出</el-button>
+            <el-button type="success" :icon="Setting" @click="dialogTableVisible = true" />
+            <el-dialog v-model="dialogTableVisible" title="导出标题栏设置">
+
+              <el-checkbox-group v-model="checkList" class="flex flex-col border-t">
+
+                <div v-for="item of reportCols" class="px-2 border-b hover:bg-gray-200">
+                  <el-checkbox :label="item.label" :value="item.field" size="large" />
+                </div>
+              </el-checkbox-group>
+
+            </el-dialog>
+          </el-button-group>
           <el-popconfirm width="220" title="确认清空工分汇算?" @confirm="onResetReport">
+
             <template #reference>
               <el-button type="danger" :disabled="reportList.length === 0">清空</el-button>
             </template>
@@ -39,8 +54,9 @@
               <div class="flex flex-wrap gap-1">
                 <el-tag effect="dark" type="warning" size="small">{{ item.factor }}</el-tag>
                 <el-tag effect="dark" size="small" type="info">手术{{ item.totalOther }}</el-tag>
-                <el-tag effect="dark" size="small" type="info" v-if="item.totalGastroscopy > 0">胃镜{{ item.totalGastroscopy
-                }}</el-tag>
+                <el-tag effect="dark" size="small" type="info" v-if="item.totalGastroscopy > 0">胃镜{{
+      item.totalGastroscopy
+    }}</el-tag>
                 <el-tag effect="dark" size="small" type="danger">时间{{ item.total }}</el-tag>
                 <el-tag effect="dark" size="small" type="success">出勤{{ item.workDayCount }}天</el-tag>
                 <el-tag effect="dark" type="success" size="small" v-if="item.annual > 0">年休{{ item.annual }}天</el-tag>
@@ -67,6 +83,7 @@
     <div class="font-bold text-center">
       您还没有添加员工信息，请添加员工信息后重试！
     </div>
+
     <template #footer>
       <div class="dialog-footer">
         <el-button type="primary" @click="onDialogConfirm"> 确认 </el-button>
@@ -87,6 +104,7 @@ import useStore from "@/store";
 import { IDayRecord, IReport } from "@/types";
 import { generateId } from "@/utils";
 import { parseExcelDateNumber, parseMonthDayTextDate } from "@/utils/date";
+import { Setting } from '@element-plus/icons-vue';
 import dayjs from "dayjs";
 import { storeToRefs } from "pinia";
 
@@ -197,4 +215,9 @@ const onResetReport = () => {
   errorList.value = [];
   reportDate.value = "";
 };
+
+const dialogTableVisible = ref<boolean>(false);
+const res = reportCols.map(e => e.field);
+console.log("%c Line:216 🍋 res", "color:#b03734", res);
+const checkList = ref(res)
 </script>
