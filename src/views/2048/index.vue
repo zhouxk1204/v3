@@ -1,14 +1,13 @@
 <template>
-  <div class="flex items-center justify-center w-full h-full">
+  <div class="flex items-center justify-center w-full h-full select-none bg-[#faf8f0]">
     <div>
-      <div
-        class="flex items-center justify-between mb-4"
-        :style="{ width: boardSize + 'px' }"
-      >
+      <div class="flex items-center justify-between mb-4" :style="{ width: boardSize + 'px' }">
         <h1 class="font-bold text-7xl text-[#756e66]">2048</h1>
-        <div class="bg-[#bbada0] rounded-md inline-block px-2 py-1 font-bold">
-          <div class="text-[#ebe3da]">SCORE</div>
-          <div class="text-2xl text-center text-white">{{ score }}</div>
+        <div class="flex gap-2">
+          <div class="bg-[#bbada0] rounded-md inline-block px-2 py-1 font-bold">
+            <div class="text-[#ebe3da]">SCORE</div>
+            <div class="text-2xl text-center text-white">{{ score }}</div>
+          </div>
         </div>
       </div>
       <div class="flex items-center mb-4" :style="{ width: boardSize + 'px' }">
@@ -17,78 +16,59 @@
         </div>
         <button
           class="bg-[#7d6f60] px-5 py-3 text-2xl text-white rounded hover:bg-[#65594d] active:bg-[#564c42] outline-none border-none"
-          @click="reload"
-        >
+          @click="reload">
           New Game
         </button>
       </div>
-      <div
-        class="bg-[#b9ada1] relative rounded-md overflow-hidden grid grid-cols-4 grid-rows-4 shadow-sm"
-        :style="{
-          width: boardSize + 'px',
-          height: boardSize + 'px',
-          gap: space + 'px',
-          padding: space + 'px',
-        }"
-      >
-        <div
-          v-if="isWin || isLose"
+      <div class="bg-[#b9ada1] relative rounded-md overflow-hidden grid grid-cols-4 grid-rows-4 shadow-sm" :style="{
+        width: boardSize + 'px',
+        height: boardSize + 'px',
+        gap: space + 'px',
+        padding: space + 'px',
+      }">
+        <div v-if="isWin || isLose"
           class="absolute top-0 left-0 z-[9999] w-full h-full bg-opacity-50 flex justify-center items-center"
-          :class="{ ' bg-yellow-500': isWin, 'bg-[#ece4db]': isLose }"
-        >
+          :class="{ ' bg-yellow-500': isWin, 'bg-[#ece4db]': isLose }">
           <div>
             <h1 class="mb-6 text-4xl text-center text-[#756e66] select-none">
               {{ isWin ? "You Win!" : isLose ? "Game Over!" : "233" }}
             </h1>
             <div class="flex justify-center">
-              <button
-                v-if="isWin"
+              <button v-if="isWin"
                 class="px-3 py-2 mr-5 text-xl text-gray-100 bg-yellow-800 rounded hover:bg-yellow-700 active:bg-yellow-900"
-                @click="closeWinPop"
-              >
+                @click="closeWinPop">
                 Keep going
               </button>
               <button
                 class="px-3 py-2 text-xl text-gray-100 bg-yellow-800 rounded hover:bg-yellow-700 active:bg-yellow-900"
-                @click="reload"
-              >
+                @click="reload">
                 Try again
               </button>
             </div>
           </div>
         </div>
-        <div
-          :style="{
-            width: blockSize + 'px',
-            height: blockSize + 'px',
-          }"
-          v-for="index in defaultSize * defaultSize"
-          :key="index"
-          class="bg-[#cac1b5] rounded-md"
-        >
+        <div :style="{
+        width: blockSize + 'px',
+        height: blockSize + 'px',
+      }" v-for="index in defaultSize * defaultSize" :key="index" class="bg-[#cac1b5] rounded-md">
           &nbsp;
         </div>
         <template v-for="item in matrix">
-          <div
-            :style="{
-              top: `${item.row * blockSize + (item.row + 1) * space}px`,
-              left: `${item.col * blockSize + (item.col + 1) * space}px`,
-              width: blockSize + 'px',
-              height: blockSize + 'px',
-              'z-index': item.val,
-              'background-color': color[item.val],
-              color:
-                item.val === 0
-                  ? 'transparent'
-                  : item.val < 8
-                  ? '#756e66'
-                  : '#f8f6f2',
-            }"
-            class="absolute flex items-center justify-center font-bold transition-all rounded-md zoom-out"
-            :class="
-              item.val === 0 ? 'm-el' : item.val > 100 ? 'text-4xl' : 'text-6xl'
-            "
-          >
+          <div :style="{
+        top: `${item.row * blockSize + (item.row + 1) * space}px`,
+        left: `${item.col * blockSize + (item.col + 1) * space}px`,
+        width: blockSize + 'px',
+        height: blockSize + 'px',
+        'z-index': item.val,
+        'background-color': color[item.val],
+        color:
+          item.val === 0
+            ? 'transparent'
+            : item.val < 8
+              ? '#756e66'
+              : '#f8f6f2',
+      }" class="absolute flex items-center justify-center font-bold transition-all rounded-md zoom-out" :class="item.val === 0 ? 'm-el' : item.val > 100 ? 'text-4xl' : 'text-6xl'
+        ">
             {{ item.val }}
           </div>
         </template>
@@ -98,6 +78,7 @@
 </template>
 
 <script setup lang="ts">
+import _ from "lodash";
 import { onMounted, ref } from "vue";
 import { Direction, MatrixElement } from "./type";
 
@@ -249,7 +230,8 @@ const newGame = (): void => {
   matrix.value = [];
   let i = 0;
   while (i < 2) {
-    matrix.value.push(generateMatrixElement());
+    const el = generateMatrixElement();
+    matrix.value.push(el);
     i++;
   }
 };
@@ -342,30 +324,60 @@ onMounted(() => {
         keyboardEvent.code
       )
     ) {
+      const temp = _.cloneDeep(matrix.value);
+
+
       move(keyboardEvent.code as Direction);
-      if (
-        matrix.value.filter((e) => e.val > 0).length <
-        defaultSize * defaultSize
-      ) {
-        matrix.value.push(generateMatrixElement());
+
+      if (!isSameAfterMove(temp, matrix.value)) {
+        setTimeout(() => {
+          const el = generateMatrixElement();
+          matrix.value.push(el);
+        }, 200);
         setTimeout(() => {
           const elements = document.getElementsByClassName("m-el");
           const elementsArray = Array.from(elements);
-          // Iterate through the elements
           elementsArray.forEach((element) => {
-            // Check if innerHTML is "0"
             if (element.innerHTML.trim() === "0") {
               element.parentNode?.removeChild(element);
             }
           });
         }, 500);
-      } else {
-        isLose.value = true;
       }
     }
   };
 });
+
+const isSameAfterMove = (arr1: MatrixElement[], arr2: MatrixElement[]): boolean => {
+  return _.isEqual(_.sortBy(arr1), _.sortBy(arr2));
+}
+
+const hasAdjacentEqualElements = (arr: MatrixElement[]): boolean => {
+  // 按照行信息排序
+  const sortedByRow = _.sortBy(arr, ['row', 'col']);
+
+  // 检查相邻元素是否相等
+  for (let i = 0; i < sortedByRow.length - 1; i++) {
+    if (_.isEqual(_.pick(sortedByRow[i], ['row', 'col']), _.pick(sortedByRow[i + 1], ['row', 'col']))) {
+      return true;
+    }
+  }
+
+  // 按照列信息排序
+  const sortedByCol = _.sortBy(arr, ['col', 'row']);
+
+  // 检查相邻元素是否相等
+  for (let i = 0; i < sortedByCol.length - 1; i++) {
+    if (_.isEqual(_.pick(sortedByCol[i], ['row', 'col']), _.pick(sortedByCol[i + 1], ['row', 'col']))) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 </script>
+
 <style lang="scss" scoped>
 .zoom-out {
   animation: zoom 0.3s ease-in-out;
@@ -376,10 +388,12 @@ onMounted(() => {
     transform: scale(0.8);
     transform-origin: center;
   }
+
   75% {
     transform: scale(1.1);
     transform-origin: center;
   }
+
   100% {
     transform: scale(1);
     transform-origin: center;

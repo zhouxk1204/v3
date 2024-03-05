@@ -10,9 +10,14 @@
           @click="onClickLogo" />
       </h1>
       <div>
-        <a href="https://github.com/zhouxk1204/v3" target="_blank" class="cursor-pointer">
-          <Icon icon="ri:github-fill" class="text-red-300" width="30" />
-        </a>
+        <el-dropdown>
+          <img :src="avatar" class="w-12 h-12 rounded-full" />
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item @click="onClickLogout">Logout</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </div>
     </header>
     <el-drawer size="300" direction="ltr" v-model="drawer" :with-header="false">
@@ -42,6 +47,8 @@ import { Menu } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import router from "../../router";
 
+const avatar = new URL('../../assets/img/avatar.jpg', import.meta.url).href;
+
 const currentRoute = useRouter().currentRoute;
 
 const parentRoute = "/main";
@@ -55,6 +62,11 @@ menuRoutes.sort(
 const drawer = ref(false);
 
 const onClickLogo = () => {
+  router.replace("/home");
+}
+
+const onClickLogout = () => {
+  localStorage.removeItem("TOKEN");
   router.replace("/home");
 }
 </script>

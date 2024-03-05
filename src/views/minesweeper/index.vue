@@ -1,112 +1,65 @@
 <template>
-  <div class="flex items-center justify-center w-full h-full">
-    <div
-      class="border border-r-[#716f64] border-b-[#716f64] border-t-[#f1efe2] border-l-[#f1efe2]"
-      :style="{ width: 29 + gameBoardCol * 16 + 'px' }"
-    >
-      <div
-        class="border border-r-[#aca899] border-b-[#aca899] border-t-white border-l-white"
-      >
+  <div class="flex items-center justify-center w-full h-full z200">
+    <div class="border border-r-[#716f64] border-b-[#716f64] border-t-[#f1efe2] border-l-[#f1efe2] scale-150"
+      :style="{ width: 29 + gameBoardCol * 16 + 'px' }">
+      <div class="border border-r-[#aca899] border-b-[#aca899] border-t-white border-l-white">
         <div class="p-[1px] bg-[#ece9d8]">
           <!-- title -->
           <div class="w-full title-bar">&nbsp;</div>
           <!-- menu -->
           <div class="relative w-full h-5 border border-t-white">
-            <div
-              class="hover:bg-[#4069bf] hover:text-white px-1 text-xs h-full w-11 flex items-center justify-center"
-              @click="onClickMenu"
-              :class="isShowMenu ? 'bg-[#4069bf] text-white' : ''"
-            >
+            <div class="hover:bg-[#4069bf] hover:text-white px-1 text-xs h-full w-11 flex items-center justify-center"
+              @click="onClickMenu" :class="isShowMenu ? 'bg-[#4069bf] text-white' : ''">
               Game
             </div>
-            <div
-              v-show="isShowMenu"
-              class="absolute top-5 left-0 w-32 bg-white border border-[#aca899] text-xs p-[2px]"
-            >
+            <div v-show="isShowMenu"
+              class="absolute top-5 left-0 w-32 bg-white border border-[#aca899] text-xs p-[2px]">
               <ul>
-                <li
-                  class="py-1 pl-4 pr-1 hover:bg-[#4069bf] hover:text-white"
-                  @click="onClickFace"
-                >
+                <li class="py-1 pl-4 pr-1 hover:bg-[#4069bf] hover:text-white" @click="onClickFace">
                   New
                 </li>
                 <li class="bg-[#aba89a] h-[1px] m-1"></li>
-                <li
-                  @click="onClickLevel(item)"
-                  class="py-1 pl-4 pr-1"
-                  :class="
-                    currentLevel === item
-                      ? 'check'
-                      : 'hover:bg-[#4069bf] hover:text-white'
-                  "
-                  v-for="item in Object.keys(level)"
-                  :key="item"
-                >
+                <li @click="onClickLevel(item)" class="py-1 pl-4 pr-1" :class="currentLevel === item
+        ? 'check'
+        : 'hover:bg-[#4069bf] hover:text-white'
+        " v-for="item in Object.keys(level)" :key="item">
                   {{ item }}
                 </li>
               </ul>
             </div>
           </div>
           <!-- board -->
-          <div
-            class="p-[7px] border-t-[3px] border-l-[3px] border-t-white border-l-white bg-[#bdbdbd]"
-          >
+          <div class="p-[7px] border-t-[3px] border-l-[3px] border-t-white border-l-white bg-[#bdbdbd]">
             <!-- info -->
             <div
-              class="px-[5px] py-[3px] border-2 border-l-[#7d7d7d] border-t-[#7d7d7d] border-r-white border-b-white bg-[#bdbdbd] mb-[7px]"
-            >
+              class="px-[5px] py-[3px] border-2 border-l-[#7d7d7d] border-t-[#7d7d7d] border-r-white border-b-white bg-[#bdbdbd] mb-[7px]">
               <div class="flex items-center justify-between">
                 <!-- mines count -->
-                <div
-                  class="border border-l-[#808080] border-t-[#808080] border-r-white border-b-white"
-                >
+                <div class="border border-l-[#808080] border-t-[#808080] border-r-white border-b-white">
                   <div class="flex">
-                    <div
-                      class="num"
-                      v-for="num in mineNums"
-                      :class="'num-' + num"
-                    ></div>
+                    <div class="num" v-for="num in mineNums" :class="'num-' + num"></div>
                   </div>
                 </div>
                 <!-- face -->
-                <div
-                  class="face"
-                  :class="isWin ? 'success' : face"
-                  @click="onClickFace"
-                ></div>
+                <div class="face" :class="isWin ? 'success' : face" @click="onClickFace"></div>
                 <!-- timer -->
-                <div
-                  class="border border-l-[#808080] border-t-[#808080] border-r-white border-b-white"
-                >
+                <div class="border border-l-[#808080] border-t-[#808080] border-r-white border-b-white">
                   <div class="flex">
-                    <div
-                      class="num"
-                      :class="'num-' + num"
-                      v-for="num in timerNums"
-                    ></div>
+                    <div class="num" :class="'num-' + num" v-for="num in timerNums"></div>
                   </div>
                 </div>
               </div>
             </div>
             <!--  -->
             <div
-              class="border-[3px] border-r-white border-b-white border-t-[#7d7d7d] border-l-[#7d7d7d] flex flex-wrap"
-            >
-              <div
-                class="flex-none cell"
-                v-for="cell in gameBoard"
-                :class="
-                  cell.status +
-                  (cell.around > -1
-                    ? ' mines-' + cell.around
-                    : cell.isActive
-                    ? ' active'
-                    : '')
-                "
-                @mouseup="onMouseUp(cell, $event)"
-                @mousedown="onMouseDown(cell, $event)"
-                @contextmenu="onContextmenu"
-              ></div>
+              class="border-[3px] border-r-white border-b-white border-t-[#7d7d7d] border-l-[#7d7d7d] flex flex-wrap">
+              <div class="flex-none cell" v-for="cell in gameBoard" :class="cell.status +
+        (cell.around > -1
+          ? ' mines-' + cell.around
+          : cell.isActive
+            ? ' active'
+            : '')
+        " @mouseup="onMouseUp(cell, $event)" @mousedown="onMouseDown(cell, $event)" @contextmenu="onContextmenu"></div>
             </div>
           </div>
         </div>
@@ -185,7 +138,7 @@ const isWin = computed(() => {
     const isOpenedList = gameBoard.value.filter((el) => el.status == "opened");
     const res =
       isOpenedList.length ===
-        gameBoardRow.value * gameBoardCol.value - mine.value &&
+      gameBoardRow.value * gameBoardCol.value - mine.value &&
       isOpenedList.every((el) => !el.isMine);
     if (res) {
       stopTimer();
@@ -423,16 +376,17 @@ const onClickLevel = (key: string) => {
   isShowMenu.value = !isShowMenu.value;
 };
 </script>
+
 <style lang="scss" scoped>
 .face,
 .num,
 .cell {
-  background: url("../../../../assets/img/minesweeper.png") no-repeat;
+  background: url("../../assets/img/minesweeper.png") no-repeat;
   display: inline-block;
 }
 
 .title-bar {
-  background: #3d95ff url("../../../../assets/img/minesweeper.png") no-repeat;
+  background: #3d95ff url("../../assets/img/minesweeper.png") no-repeat;
   background-position: 0 -84px;
   height: 25px;
   width: 100%;
@@ -441,6 +395,7 @@ const onClickLevel = (key: string) => {
 .face {
   width: 26px;
   height: 26px;
+
   &:active {
     background-position: -26px -55px;
   }
@@ -464,6 +419,7 @@ $num-expressions: (
   "num-9": 9,
   "num-n": 10,
 );
+
 @each $expression, $position in $num-expressions {
   .#{$expression} {
     background-position: $position * -13px 0px;
@@ -499,6 +455,7 @@ $mines-expressions: (
   "mines-7": 7,
   "mines-8": 8,
 );
+
 @each $expression, $position in $mines-expressions {
   .#{$expression} {
     background-position: $position * -16px -23px;
@@ -516,6 +473,7 @@ $mine-expressions: (
 .covered.active {
   background-position: 0 -23px;
 }
+
 @each $expression, $position in $mine-expressions {
   .#{$expression} {
     background-position: $position * -16px -39px;
@@ -525,6 +483,7 @@ $mine-expressions: (
 .check {
   background: url("../../assets/img/minesweeper.png") no-repeat;
   background-position: -136px -41px;
+
   &:hover {
     background-color: #4069bf;
     color: white;
