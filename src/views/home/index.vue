@@ -13,7 +13,7 @@
         </div>
         <span>|</span>
         <div class="tracking-widest max-[450px]:tracking-normal hover-underline-animation" @click="onMarriage">
-          Wedding
+          2048
         </div>
         <a href="https://github.com/zhouxk1204/v3" target="_blank" class="cursor-pointer">
           <Icon icon="ri:github-fill" class="text-gray-300" width="30" />
@@ -160,7 +160,7 @@ const onTransitionend = () => {
 }
 
 const onMarriage = () => {
-  router.push('/marriage');
+  router.push('/2048');
 }
 // 定义初始触摸位置的引用
 const startX: Ref<number | null> = ref(null);

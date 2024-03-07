@@ -7,6 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    AMap: typeof import('./components/AMap/index.vue')['default']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElButtonGroup: typeof import('element-plus/es')['ElButtonGroup']
@@ -47,5 +48,8 @@ declare module 'vue' {
     Table: typeof import('./components/Table/index.vue')['default']
     Typewriter: typeof import('./components/Typewriter/index.vue')['default']
     UploadExcel: typeof import('./components/UploadExcel/index.vue')['default']
+  }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }

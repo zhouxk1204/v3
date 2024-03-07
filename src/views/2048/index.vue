@@ -352,30 +352,6 @@ const isSameAfterMove = (arr1: MatrixElement[], arr2: MatrixElement[]): boolean 
   return _.isEqual(_.sortBy(arr1), _.sortBy(arr2));
 }
 
-const hasAdjacentEqualElements = (arr: MatrixElement[]): boolean => {
-  // 按照行信息排序
-  const sortedByRow = _.sortBy(arr, ['row', 'col']);
-
-  // 检查相邻元素是否相等
-  for (let i = 0; i < sortedByRow.length - 1; i++) {
-    if (_.isEqual(_.pick(sortedByRow[i], ['row', 'col']), _.pick(sortedByRow[i + 1], ['row', 'col']))) {
-      return true;
-    }
-  }
-
-  // 按照列信息排序
-  const sortedByCol = _.sortBy(arr, ['col', 'row']);
-
-  // 检查相邻元素是否相等
-  for (let i = 0; i < sortedByCol.length - 1; i++) {
-    if (_.isEqual(_.pick(sortedByCol[i], ['row', 'col']), _.pick(sortedByCol[i + 1], ['row', 'col']))) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 </script>
 
 <style lang="scss" scoped>

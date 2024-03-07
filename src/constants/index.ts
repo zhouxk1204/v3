@@ -124,3 +124,5 @@ export const HOLIDAY_OVERTIME = "0";
 export const HOLIDAY_MAKEUP = "1";
 
 export const TOKEN = "d8e21daefdd8a9353836c2cfecb4cd81";
+
+export const AMAP_KEY = "6e530cf3ebaea4b2b08f359db5e6a072";

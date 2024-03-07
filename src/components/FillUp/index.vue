@@ -13,7 +13,7 @@ withDefaults(
     text: string;
     color?: string;
   }>(),
-  {
+  { 
     color: "#000",
   }
 );
