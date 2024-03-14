@@ -1,15 +1,18 @@
-import AutoImport from "unplugin-auto-import/vite";
-import Components from "unplugin-vue-components/vite";
-import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
-import Icons from "unplugin-icons/vite";
-import IconsResolver from "unplugin-icons/resolver";
-import { defineConfig } from "vite";
-import path from "path"; // 找不到模块 ‘path’ 或其相对应的类型声明 -> npm install @types/node --save-dev
 import vue from "@vitejs/plugin-vue";
+import path from "path"; // 找不到模块 ‘path’ 或其相对应的类型声明 -> npm install @types/node --save-dev
+import AutoImport from "unplugin-auto-import/vite";
+import IconsResolver from "unplugin-icons/resolver";
+import Icons from "unplugin-icons/vite";
+import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
+import Components from "unplugin-vue-components/vite";
+import { defineConfig } from "vite";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
+
 const pathSrc = path.resolve(__dirname, "src");
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    nodePolyfills(), // Vite: `Buffer is not defined` のエラーが発生した場合の対処方法
     vue(),
     AutoImport({
       // Auto import functions from Vue, e.g. ref, reactive, toRef...
@@ -58,5 +61,8 @@ export default defineConfig({
         replacement: path.resolve("./src"),
       },
     ],
+  },
+  define: {
+    "process.env": {},
   },
 });

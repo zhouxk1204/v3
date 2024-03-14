@@ -8,6 +8,7 @@
       <el-button type="primary" @click="">
         <Icon icon="eva:navigation-2-fill" width="32" height="32" />
       </el-button>
+      <el-button type="primary" :icon="Edit" circle :loading="isLoading" />
     </div>
     <!-- 
       <button class="p-1 transition-all rounded shadow-xl" @click="toggleTheme"
@@ -29,7 +30,7 @@
 <script setup lang='ts'>
 import { AMAP_KEY } from '@/constants';
 import AMapLoader from '@amap/amap-jsapi-loader';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 
 // const fullscreenLoading = ref(false)
 
@@ -54,8 +55,11 @@ onMounted(() => {
 })
 
 
-const aMap = ref<any>(null);
-// const geolocation = ref<any>(null);
+const mapRef = ref<any>(null);
+const geolocationRef = ref<any>(null);
+const AMapRef = ref<any>(null);
+const drivingRef = ref<any>(null);
+const isLoading = ref(false);
 
 const initAMap = () => {
   AMapLoader.load({
@@ -76,29 +80,30 @@ const initAMap = () => {
       center: props.map.center, // 初始化地图中心点位置
       buildingAnimation: true,
       pitch: props.map.pitch ?? 10,
-    })
-    aMap.value = map;
+    });
+
+    AMapRef.value = AMap;
+    mapRef.value = map;
 
     //构造路线导航类
-    const driving = new AMap.Driving({
+    drivingRef.value = new AMap.Driving({
       map: map,
       panel: "panel"
     });
 
-
-    // const geolocation = new AMap.Geolocation({
-    //   enableHighAccuracy: true, //  是否使用高精度定位，默认:true
-    //   timeout: 10000, //  超过10秒后停止定位，默认：无穷大
-    //   maximumAge: 0, // 定位结果缓存0毫秒，默认：0
-    //   convert: true, // 自动偏移坐标，偏移后的坐标为高德坐标，默认：true
-    //   showButton: true, //  显示定位按钮，默认：true
-    //   buttonPosition: 'LB',  // 定位按钮停靠位置，默认：'LB'，左下角
-    //   buttonOffset: new AMap.Pixel(10, 20), //  定位按钮与设置的停靠位置的偏移量，默认：Pixel(10, 20)
-    //   showMarker: true, //  定位成功后在定位到的位置显示点标记，默认：true
-    //   showCircle: true, //  定位成功后用圆圈表示定位精度范围，默认：true
-    //   panToLocation: true,  //  定位成功后将定位到的位置作为地图中心点，默认：true
-    //   zoomToAccuracy: true  //  定位成功后调整地图视野范围使定位位置及精度范围视野内可见，默认：false
-    // })
+    geolocationRef.value = new AMap.Geolocation({
+      enableHighAccuracy: true, //  是否使用高精度定位，默认:true
+      timeout: 10000, //  超过10秒后停止定位，默认：无穷大
+      maximumAge: 0, // 定位结果缓存0毫秒，默认：0
+      convert: true, // 自动偏移坐标，偏移后的坐标为高德坐标，默认：true
+      showButton: true, //  显示定位按钮，默认：true
+      buttonPosition: 'LB',  // 定位按钮停靠位置，默认：'LB'，左下角
+      buttonOffset: new AMap.Pixel(10, 20), //  定位按钮与设置的停靠位置的偏移量，默认：Pixel(10, 20)
+      showMarker: true, //  定位成功后在定位到的位置显示点标记，默认：true
+      showCircle: true, //  定位成功后用圆圈表示定位精度范围，默认：true
+      panToLocation: true,  //  定位成功后将定位到的位置作为地图中心点，默认：true
+      zoomToAccuracy: true  //  定位成功后调整地图视野范围使定位位置及精度范围视野内可见，默认：false
+    });
 
     // map.addControl(geolocation);
 
@@ -107,62 +112,72 @@ const initAMap = () => {
       map.add([createEndMarker(AMap, endMarker.point)]);
     }
 
-    map.on('click', () => {
-      const loading = ElLoading.service({
-        lock: true,
-        text: '正在打开高德地图',
-        background: 'rgba(0, 0, 0, 0.1)',
-      })
-
-      driving.search(new AMap.LngLat(116.379028, 39.865042), new AMap.LngLat(116.427281, 39.903719), (status: any, result: any) => {
-        // result 即是对应的驾车导航信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingResult
-        if (status === 'complete') {
-          ElMessage.success('绘制驾车路线完成')
-        } else {
-          ElMessage.error('获取驾车数据失败：' + result)
-        }
-      });
+    // map.on('click', () => {
 
 
+    //   // driving.search(new AMap.LngLat(116.379028, 39.865042), new AMap.LngLat(116.427281, 39.903719), (status: any, result: any) => {
+    //   //   // result 即是对应的驾车导航信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingResult
+    //   //   if (status === 'complete') {
+    //   //     ElMessage.success('绘制驾车路线完成')
+    //   //   } else {
+    //   //     ElMessage.error('获取驾车数据失败：' + result)
+    //   //   }
+    //   // });
 
-      //   geolocation.getCurrentPosition((status: string, result: any) => {
-      //     let [lng, lat] = [-1, -1];
-      //     if (status == "complete") {
-      //       lng = result.position.lng;
-      //       lat = result.position.lat;
+    //   geolocation.getCurrentPosition((status: string, result: any) => {
+    //     const loading = ElLoading.service({
+    //       lock: true,
+    //       text: '正在获取当前位置',
+    //       background: 'rgba(0, 0, 0, 0.1)',
+    //     })
 
-      //       const device = detectDevice();
-      //       const from = `${lng},${lat},我的位置`
-      //       console.log("%c Line:108 🥪 lng", "color:#93c0a4", lng);
-      //       console.log("%c Line:108 🥛 lat", "color:#7f2b82", lat);
-      //       const to = '104.026494,30.698211,安泰安蓉锦江宾馆(成都一品天下金沙店)'; // address：目的地
-      //       if (device === 'iOS') {
-      //         const [longitude, latitude, name] = to.split(',');
-      //         window.open(`iosamap://path?sourceApplication=mhc&sid=&slat=${lat}&slon=${lng}&sname=A&dlat=${latitude}&dlon=${longitude}&dname=${name}&dev=0&t=0`, '_blank');
-      //       } else if (device === 'pc') {
-      //         window.open(`https://uri.amap.com/navigation?from=${from}&to=${to}&mode=car&policy=0&src=&coordinate=&callnative=0`, '_blank');
-      //       }
-      //     } else {
-      //       ElMessage.error('定位失败!');
-      //     }
-      loading.close();
-      //   });
-    });
-  }).catch((e) => {
-    console.error(e)
-  })
+    //     let [lng, lat] = [-1, -1];
+    //     if (status == "complete") {
+    //       lng = result.position.lng;
+    //       lat = result.position.lat;
+
+
+    //       driving.search(new AMap.LngLat(116.379028, 39.865042), new AMap.LngLat(116.427281, 39.903719), (status: any, result: any) => {
+    //         // result 即是对应的驾车导航信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingResult
+    //         if (status === 'complete') {
+    //           ElMessage.success('绘制驾车路线完成')
+    //         } else {
+    //           ElMessage.error('获取驾车数据失败：' + result)
+    //         }
+    //       });
+    //       // const device = detectDevice();
+    //       // const from = `${lng},${lat},我的位置`
+    //       // console.log("%c Line:108 🥪 lng", "color:#93c0a4", lng);
+    //       // console.log("%c Line:108 🥛 lat", "color:#7f2b82", lat);
+    //       // const to = '104.026494,30.698211,安泰安蓉锦江宾馆(成都一品天下金沙店)'; // address：目的地
+    //       // if (device === 'iOS') {
+    //       //   const [longitude, latitude, name] = to.split(',');
+    //       //   window.open(`iosamap://path?sourceApplication=mhc&sid=&slat=${lat}&slon=${lng}&sname=A&dlat=${latitude}&dlon=${longitude}&dname=${name}&dev=0&t=0`, '_blank');
+    //       // } else if (device === 'pc') {
+    //       //   window.open(`https://uri.amap.com/navigation?from=${from}&to=${to}&mode=car&policy=0&src=&coordinate=&callnative=0`, '_blank');
+    //       // }
+    //     } else {
+    //       ElMessage.error('定位失败!');
+    //     }
+    //     loading.close();
+    //     //   });
+    //   });
+    // }).catch((e) => {
+    //   console.error(e)
+    // })
+  });
 }
 
-// const detectDevice = () => {
-//   const userAgent = navigator.userAgent.toLowerCase();
-//   if (/iphone|ipad|ipod/.test(userAgent)) {
-//     return 'iOS';
-//   } else if (/android/.test(userAgent)) {
-//     return 'Android';
-//   } else {
-//     return 'pc';
-//   }
-// }
+const detectDevice = () => {
+  const userAgent = navigator.userAgent.toLowerCase();
+  if (/iphone|ipad|ipod/.test(userAgent)) {
+    return 'iOS';
+  } else if (/android/.test(userAgent)) {
+    return 'Android';
+  } else {
+    return 'pc';
+  }
+}
 
 // 创建一个 icon
 const createEndMarker = (AMap: any, point: number[]) => {
@@ -181,6 +196,10 @@ const createEndMarker = (AMap: any, point: number[]) => {
   });
 
   return endMarker;
+}
+
+const onNavigation = () => {
+
 }
 
 // const theme = ref<'normal' | 'dark'>('normal');

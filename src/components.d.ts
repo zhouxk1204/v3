@@ -29,6 +29,7 @@ declare module 'vue' {
     ElMenu: typeof import('element-plus/es')['ElMenu']
     ElMenuItem: typeof import('element-plus/es')['ElMenuItem']
     ElPopconfirm: typeof import('element-plus/es')['ElPopconfirm']
+    ElProgress: typeof import('element-plus/es')['ElProgress']
     ElSelectV2: typeof import('element-plus/es')['ElSelectV2']
     ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
     ElTable: typeof import('element-plus/es')['ElTable']
@@ -47,6 +48,7 @@ declare module 'vue' {
     StepFadeIn: typeof import('./components/StepFadeIn/index.vue')['default']
     Table: typeof import('./components/Table/index.vue')['default']
     Typewriter: typeof import('./components/Typewriter/index.vue')['default']
+    UploadCos: typeof import('./components/UploadCos/index.vue')['default']
     UploadExcel: typeof import('./components/UploadExcel/index.vue')['default']
   }
 }

@@ -1,11 +1,5 @@
 <template>
-  <el-upload
-    ref="upload"
-    :on-change="onChange"
-    :auto-upload="false"
-    :show-file-list="false"
-    accept=".xlsx, .xls"
-  >
+  <el-upload ref="upload" :on-change="onChange" :auto-upload="false" :show-file-list="false" accept=".xlsx, .xls">
     <template #trigger>
       <el-button type="primary">
         <slot></slot>
