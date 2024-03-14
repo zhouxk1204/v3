@@ -1,5 +1,9 @@
 <template>
   <div class="flex flex-col gap-2">
+
+    <el-button type="primary" @click="getAllImages">All</el-button>
+    <img :src="imgSrc" alt="" srcset="">
+
     <el-upload class="upload-demo" drag :on-change="onChange" :auto-upload="false" :show-file-list="false">
       <el-icon :size="60">
         <UploadFilled />
@@ -173,8 +177,24 @@ const onChange = (uploadFile: UploadFile) => {
       progressInfo.value.status = "success";
       ElMessage.success('上传成功');
       // TODO:
+      imgSrc.value = `http://${data.Location}`;
+      console.log("%c Line:181 🍋 imgSrc.value", "color:#ffdd4d", imgSrc.value);
     }
     progressInfo.value.percent = 100;
+  });
+}
+
+const imgSrc = ref('');
+const getAllImages = () => {
+  cos.getObjectUrl({
+    Bucket: props.cosOption.bucket, /* 填入您自己的存储桶，必须字段 */
+    Region: props.cosOption.region,  /* 存储桶所在地域，例如ap-beijing，必须字段 */
+    Key: 'music/1710412705925_35de1320.jpg', // 存储在桶里的对象键（例如1.jpg，a/b/test.txt），支持中文，必须字段
+    Sign: false, // 获取带签名的对象 URL
+    /* Prefix表示列出的object的key以prefix开始，非必须 */
+  }, function (err, data) {
+    imgSrc.value = data.Url;
+    console.log("%c Line:196 🍤 imgSrc.value", "color:#465975", imgSrc.value);
   });
 }
 
