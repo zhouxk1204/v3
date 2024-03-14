@@ -1,7 +1,6 @@
 <template>
   <div class="flex flex-col gap-2">
 
-    <el-button type="primary" @click="getAllImages">All</el-button>
     <img :src="imgSrc" alt="" srcset="">
 
     <el-upload class="upload-demo" drag :on-change="onChange" :auto-upload="false" :show-file-list="false">
@@ -98,7 +97,7 @@ const getCloudFilePath = (fileName: string, prefix: string): string => {
 
 const cos = new COS({
   // getAuthorization 必选参数
-  getAuthorization: function (options, callback) {
+  getAuthorization: function (_, callback) {
     // 初始化时不会调用，只有调用 cos 方法（例如 cos.putObject）时才会进入
     // 异步获取临时密钥
     // 服务端 JS 和 PHP 例子：https://github.com/tencentyun/cos-js-sdk-v5/blob/master/server/
@@ -177,7 +176,7 @@ const onChange = (uploadFile: UploadFile) => {
       progressInfo.value.status = "success";
       ElMessage.success('上传成功');
       // TODO:
-      imgSrc.value = `http://${data.Location}`;
+      imgSrc.value = `https://cloud.zhouxk.fun${key}`;
       console.log("%c Line:181 🍋 imgSrc.value", "color:#ffdd4d", imgSrc.value);
     }
     progressInfo.value.percent = 100;
@@ -185,18 +184,18 @@ const onChange = (uploadFile: UploadFile) => {
 }
 
 const imgSrc = ref('');
-const getAllImages = () => {
-  cos.getObjectUrl({
-    Bucket: props.cosOption.bucket, /* 填入您自己的存储桶，必须字段 */
-    Region: props.cosOption.region,  /* 存储桶所在地域，例如ap-beijing，必须字段 */
-    Key: 'music/1710412705925_35de1320.jpg', // 存储在桶里的对象键（例如1.jpg，a/b/test.txt），支持中文，必须字段
-    Sign: false, // 获取带签名的对象 URL
-    /* Prefix表示列出的object的key以prefix开始，非必须 */
-  }, function (err, data) {
-    imgSrc.value = data.Url;
-    console.log("%c Line:196 🍤 imgSrc.value", "color:#465975", imgSrc.value);
-  });
-}
+// const getAllImages = () => {
+//   cos.getObjectUrl({
+//     Bucket: props.cosOption.bucket, /* 填入您自己的存储桶，必须字段 */
+//     Region: props.cosOption.region,  /* 存储桶所在地域，例如ap-beijing，必须字段 */
+//     Key: 'music/1710412705925_35de1320.jpg', // 存储在桶里的对象键（例如1.jpg，a/b/test.txt），支持中文，必须字段
+//     Sign: false, // 获取带签名的对象 URL
+//     /* Prefix表示列出的object的key以prefix开始，非必须 */
+//   }, function (err, data) {
+//     imgSrc.value = data.Url;
+//     console.log("%c Line:196 🍤 imgSrc.value", "color:#465975", imgSrc.value);
+//   });
+// }
 
 /**
  * 开始或暂停 cos 下载任务

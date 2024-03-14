@@ -8,7 +8,6 @@
       <el-button type="primary" @click="">
         <Icon icon="eva:navigation-2-fill" width="32" height="32" />
       </el-button>
-      <el-button type="primary" :icon="Edit" circle :loading="isLoading" />
     </div>
     <!-- 
       <button class="p-1 transition-all rounded shadow-xl" @click="toggleTheme"
@@ -59,7 +58,7 @@ const mapRef = ref<any>(null);
 const geolocationRef = ref<any>(null);
 const AMapRef = ref<any>(null);
 const drivingRef = ref<any>(null);
-const isLoading = ref(false);
+// const isLoading = ref(false);
 
 const initAMap = () => {
   AMapLoader.load({
@@ -168,16 +167,16 @@ const initAMap = () => {
   });
 }
 
-const detectDevice = () => {
-  const userAgent = navigator.userAgent.toLowerCase();
-  if (/iphone|ipad|ipod/.test(userAgent)) {
-    return 'iOS';
-  } else if (/android/.test(userAgent)) {
-    return 'Android';
-  } else {
-    return 'pc';
-  }
-}
+// const detectDevice = () => {
+//   const userAgent = navigator.userAgent.toLowerCase();
+//   if (/iphone|ipad|ipod/.test(userAgent)) {
+//     return 'iOS';
+//   } else if (/android/.test(userAgent)) {
+//     return 'Android';
+//   } else {
+//     return 'pc';
+//   }
+// }
 
 // 创建一个 icon
 const createEndMarker = (AMap: any, point: number[]) => {
@@ -198,9 +197,6 @@ const createEndMarker = (AMap: any, point: number[]) => {
   return endMarker;
 }
 
-const onNavigation = () => {
-
-}
 
 // const theme = ref<'normal' | 'dark'>('normal');
 // const toggleTheme = () => {
