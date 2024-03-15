@@ -80,7 +80,6 @@ const submitForm = () => {
       }
 
       axios.post('/register', data).then((res: any) => {
-        console.log("%c Line:89 🍑 res", "color:#ed9ec7", res);
         ElMessage.success(res.message);
         localStorage.setItem('token', res.token);
         router.replace("/main");

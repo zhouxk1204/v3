@@ -72,7 +72,6 @@ const router = createRouter({
 
 router.beforeEach((to, _, next) => {
   const token = localStorage.getItem("token") ?? "";
-  console.log("%c Line:75 🥚 token", "color:#4fff4B", token);
   if (to.path.indexOf("main") < 0) {
     next();
   } else if (token.length > 0) {

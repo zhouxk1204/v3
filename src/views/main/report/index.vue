@@ -218,6 +218,5 @@ const onResetReport = () => {
 
 const dialogTableVisible = ref<boolean>(false);
 const res = reportCols.map(e => e.field);
-console.log("%c Line:216 🍋 res", "color:#b03734", res);
 const checkList = ref(res)
 </script>

@@ -95,7 +95,6 @@ const getCloudFilePath = (fileName: string, prefix: string): string => {
   const fileFormat = fileName.substring(temporary + 1, fileName.length);
   // 文件路径和文件名
   const cloudFilePath = prefix + getSimpleUUID() + "." + fileFormat;
-  console.log("%c Line:34 🍕 cloudFilePath", "color:#465975", cloudFilePath);
   return cloudFilePath;
 }
 
@@ -117,7 +116,6 @@ const cos = new COS({
         data = JSON.parse(e.target.responseText);
         credentials = data.credentials;
       } catch (e) {
-        console.log(e);
         ElMessage.error(JSON.stringify(e));
       }
       if (!data || !credentials) {
@@ -139,7 +137,6 @@ const cos = new COS({
 
 const onChange = (uploadFile: UploadFile) => {
   const file = uploadFile.raw;
-  console.log("%c Line:10 🍿 file", "color:#7f2b82", file);
   if (!file) return;
 
   progressInfo.value.name = file.name;
@@ -171,17 +168,14 @@ const onChange = (uploadFile: UploadFile) => {
       }
     }
   }, (err, data) => {
-    console.log("%c Line:172 🥥 data", "color:#4fff4B", data);
     if (err) {
       progressInfo.value.status = "exception";
       ElMessage.error(`上传失败: ${err.message}`);
-      console.error("%c Line:84 🎂 err", "color:#fca650", err);
     } else {
       progressInfo.value.status = "success";
       ElMessage.success('上传成功');
       // TODO:
       imgSrc.value = props.cosOption.cosDomain + key;
-      console.log("%c Line:181 🍋 imgSrc.value", "color:#ffdd4d", imgSrc.value);
     }
     progressInfo.value.percent = 100;
   });

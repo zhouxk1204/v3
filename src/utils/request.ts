@@ -43,11 +43,6 @@ instance.interceptors.response.use(
   (error) => {
     // 在响应拦截器中处理错误并显示消息
     if (error.response) {
-      console.log(
-        "%c Line:46 🍊 error.response",
-        "color:#b03734",
-        error.response
-      );
       const { status, data } = error.response;
       if (status === 401) {
         // 处理未授权的情况，可以进行相应的操作，比如跳转到登录页
