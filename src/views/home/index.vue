@@ -59,10 +59,9 @@
 </template>
 
 <script setup lang='ts'>
-import { TOKEN } from "@/constants";
 import router from "@/router";
 
-const isLogin = localStorage.getItem('TOKEN') === TOKEN;
+const isLogin = (localStorage.getItem('token') ?? '').length > 0;
 
 // 获取 assets/img/rose路径下的所有图片
 const imgList: string[] = [];

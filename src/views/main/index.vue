@@ -66,7 +66,7 @@ const onClickLogo = () => {
 }
 
 const onClickLogout = () => {
-  localStorage.removeItem("TOKEN");
+  localStorage.removeItem("token");
   router.replace("/home");
 }
 </script>

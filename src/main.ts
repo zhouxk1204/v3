@@ -21,4 +21,7 @@ app.component("Icon", Icon);
 // 注册全局指令
 app.directive("throttle", throttleDirective);
 
+// 将获取环境的方法挂载到vue的原型上，方便后面的使用
+app.config.globalProperties.getEnv = import.meta.env;
+
 app.use(pinia).use(AutoRegisterComponents).use(router).mount("#app");

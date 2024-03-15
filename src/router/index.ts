@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import { TOKEN } from "@/constants";
-
 const metaObj = import.meta.glob("@/views/**/meta.ts", {
   eager: true,
   import: "default",
@@ -73,10 +71,11 @@ const router = createRouter({
 });
 
 router.beforeEach((to, _, next) => {
-  const token = localStorage.getItem("TOKEN") ?? "";
+  const token = localStorage.getItem("token") ?? "";
+  console.log("%c Line:75 🥚 token", "color:#4fff4B", token);
   if (to.path.indexOf("main") < 0) {
     next();
-  } else if (token === TOKEN) {
+  } else if (token.length > 0) {
     if (to.path === "/login") {
       next("/main");
     } else {

@@ -64,10 +64,14 @@ export interface CosOption {
   bucket: string; // 存储桶
   region: string; // 地区
   prefix: string; // 存储桶文件夹路径 /xx/
+  stsUrl: string; // 获取临时密钥的后端服务url
+  cosDomain: string; // cos存储桶源站域名
   sliceSize?: number; // 触发分块上传的阈值非必须
 }
 
 const props = defineProps<{ cosOption: CosOption }>();
+
+const imgSrc = ref('');
 
 /**
 * 生成随机文件名称
@@ -103,7 +107,7 @@ const cos = new COS({
     // 服务端 JS 和 PHP 例子：https://github.com/tencentyun/cos-js-sdk-v5/blob/master/server/
     // 服务端其他语言参考 COS STS SDK ：https://github.com/tencentyun/qcloud-cos-sts-sdk
     // STS 详细文档指引看：https://cloud.tencent.com/document/product/436/14048
-    const url = 'https://api.zhouxk.fun/sts'; // url 替换成您自己的后端服务
+    const url = props.cosOption.stsUrl; // url 替换成您自己的后端服务
     const xhr = new XMLHttpRequest();
     let data: any = null;
     let credentials: any = null;
@@ -167,7 +171,7 @@ const onChange = (uploadFile: UploadFile) => {
       }
     }
   }, (err, data) => {
-    console.log("%c Line:62 🍖 data", "color:#33a5ff", data);
+    console.log("%c Line:172 🥥 data", "color:#4fff4B", data);
     if (err) {
       progressInfo.value.status = "exception";
       ElMessage.error(`上传失败: ${err.message}`);
@@ -176,26 +180,14 @@ const onChange = (uploadFile: UploadFile) => {
       progressInfo.value.status = "success";
       ElMessage.success('上传成功');
       // TODO:
-      imgSrc.value = `https://cloud.zhouxk.fun${key}`;
+      imgSrc.value = props.cosOption.cosDomain + key;
       console.log("%c Line:181 🍋 imgSrc.value", "color:#ffdd4d", imgSrc.value);
     }
     progressInfo.value.percent = 100;
   });
 }
 
-const imgSrc = ref('');
-// const getAllImages = () => {
-//   cos.getObjectUrl({
-//     Bucket: props.cosOption.bucket, /* 填入您自己的存储桶，必须字段 */
-//     Region: props.cosOption.region,  /* 存储桶所在地域，例如ap-beijing，必须字段 */
-//     Key: 'music/1710412705925_35de1320.jpg', // 存储在桶里的对象键（例如1.jpg，a/b/test.txt），支持中文，必须字段
-//     Sign: false, // 获取带签名的对象 URL
-//     /* Prefix表示列出的object的key以prefix开始，非必须 */
-//   }, function (err, data) {
-//     imgSrc.value = data.Url;
-//     console.log("%c Line:196 🍤 imgSrc.value", "color:#465975", imgSrc.value);
-//   });
-// }
+
 
 /**
  * 开始或暂停 cos 下载任务

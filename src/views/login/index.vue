@@ -6,11 +6,11 @@
         @click="onClickLogo" />
     </h1>
     <el-form ref="formRef" :model="loginForm" :rules="rules" size="large"
-      class="absolute py-12 px-10 -translate-x-1/2 -translate-y-1/2 shadow-ring w-80 rounded-xl left-1/2 top-1/2 max-sm:w-[80%]">
-      <el-form-item prop="email" class="opacity-60">
+      class="absolute py-12 px-10 -translate-x-1/2 -translate-y-1/2 shadow-ring w-80 rounded-xl left-1/2 top-1/2 max-sm:w-[80%] border">
+      <el-form-item prop="email">
         <el-input v-model="loginForm.email" placeholder="邮箱" clearable />
       </el-form-item>
-      <el-form-item prop="password" class="opacity-60">
+      <el-form-item prop="password">
         <el-input v-model="loginForm.password" placeholder="密码" type="password" autocomplete="off" show-password
           clearable @keydown.enter="submitForm" />
       </el-form-item>
@@ -29,10 +29,10 @@
 </template>
 
 <script setup lang="ts">
-import { TOKEN } from "@/constants";
 import router from "@/router";
+import axios from '@/utils/request.ts';
 import { FormInstance, FormRules } from "element-plus/es/components/form";
-import { Md5 } from "ts-md5";
+import { Md5 } from 'ts-md5';
 import { ref } from "vue";
 
 interface LoginForm {
@@ -74,14 +74,18 @@ const submitForm = () => {
   if (!formRef.value) return;
   formRef.value.validate((valid, fields) => {
     if (valid) {
-      const res = Md5.hashStr(loginForm.password + loginForm.email);
-      if (res === TOKEN) {
-        localStorage.setItem("TOKEN", TOKEN);
-        ElMessage.success("登录成功！");
-        router.replace("/main");
-      } else {
-        ElMessage.error("邮箱或密码不正确，登录失败！");
+      const data = {
+        email: loginForm.email,
+        password: Md5.hashStr(loginForm.password)
       }
+
+      axios.post('/register', data).then((res: any) => {
+        console.log("%c Line:89 🍑 res", "color:#ed9ec7", res);
+        ElMessage.success(res.message);
+        localStorage.setItem('token', res.token);
+        router.replace("/main");
+      })
+
     } else {
       console.log("error submit!", fields);
     }
@@ -117,6 +121,6 @@ const onClickLogo = () => {
 }
 
 .shadow-ring {
-  box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.7);
 }
 </style>

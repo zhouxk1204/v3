@@ -65,4 +65,6 @@ export default defineConfig({
   define: {
     "process.env": {},
   },
+  // 自定义模式变量开头, 如：以 APP_ 开头
+  envPrefix: "APP_",
 });
