@@ -6,7 +6,7 @@ import axiosRetry from "axios-retry";
 import { ElMessage } from "element-plus"; // 导入Element Plus的ElMessage组件，确保已安装Element Plus
 
 const instance: AxiosInstance = axios.create({
-  baseURL: import.meta.env.APP_API_BASE_URL, // 设置你的API基础URL
+  baseURL: "https://api.zhouxk.fun", // 设置你的API基础URL
   timeout: 10000, // 设置请求超时时间
 });
 

@@ -168,6 +168,7 @@ const onChange = (uploadFile: UploadFile) => {
       }
     }
   }, (err, data) => {
+    console.log("%c Line:171 🥃 data", "color:#ffdd4d", data);
     if (err) {
       progressInfo.value.status = "exception";
       ElMessage.error(`上传失败: ${err.message}`);
