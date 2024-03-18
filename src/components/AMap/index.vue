@@ -1,14 +1,18 @@
 <template>
-  <div class="relative">
-    <div id="map" class="w-full h-full"></div>
-    <div id="panel">
+  <div class="flex flex-col ">
+    <div id="map" class="relative flex-1 w-full">
+      <el-button class="absolute z-10 top-4 right-4" type="info" :icon="Moon" circle @click="toggleTheme"
+        v-show="theme === 'dark'" />
+      <el-button class="absolute z-10 top-4 right-4" :icon="Sunny" circle @click="toggleTheme"
+        v-show="theme === 'normal'" />
+      <el-button class="absolute z-10 bottom-8 right-4" type="primary" :icon="Position" circle @click="onNavigate"
+        v-if="mapRef" />
+    </div>
+
+    <div id="panel" class="flex-1 w-full bg-white max-h-[50%] overflow-y-auto overflow-x-hidden" v-show="isNavigate">
       <div class="amap-call"></div>
     </div>
-    <div class="absolute z-10 bottom-8 right-8">
-      <el-button type="primary" @click="">
-        <Icon icon="eva:navigation-2-fill" width="32" height="32" />
-      </el-button>
-    </div>
+
     <!-- 
       <button class="p-1 transition-all rounded shadow-xl" @click="toggleTheme"
         :class="theme === 'normal' ? 'bg-gray-50 text-gray-800 active:bg-gray-100' : 'bg-gray-600 text-gray-100 active:bg-gray-700'">
@@ -30,6 +34,8 @@
 import { AMAP_KEY } from '@/constants';
 import AMapLoader from '@amap/amap-jsapi-loader';
 import { onMounted, ref } from 'vue';
+import { Position, Sunny, Moon } from '@element-plus/icons-vue';
+
 
 // const fullscreenLoading = ref(false)
 
@@ -58,9 +64,16 @@ const mapRef = ref<any>(null);
 const geolocationRef = ref<any>(null);
 const AMapRef = ref<any>(null);
 const drivingRef = ref<any>(null);
+
+const isNavigate = ref<boolean>(false);
 // const isLoading = ref(false);
 
 const initAMap = () => {
+  const loading = ElLoading.service({
+    lock: true,
+    text: '正在生成地图...',
+    background: 'rgba(255,255, 255, 0.3)',
+  })
   AMapLoader.load({
     key: AMAP_KEY, // 申请好的Web端开发者Key，首次调用 load 时必填
     version: '2.0', // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
@@ -111,6 +124,8 @@ const initAMap = () => {
       map.add([createEndMarker(AMap, endMarker.point)]);
     }
 
+
+
     // map.on('click', () => {
 
 
@@ -123,47 +138,7 @@ const initAMap = () => {
     //   //   }
     //   // });
 
-    //   geolocation.getCurrentPosition((status: string, result: any) => {
-    //     const loading = ElLoading.service({
-    //       lock: true,
-    //       text: '正在获取当前位置',
-    //       background: 'rgba(0, 0, 0, 0.1)',
-    //     })
-
-    //     let [lng, lat] = [-1, -1];
-    //     if (status == "complete") {
-    //       lng = result.position.lng;
-    //       lat = result.position.lat;
-
-
-    //       driving.search(new AMap.LngLat(116.379028, 39.865042), new AMap.LngLat(116.427281, 39.903719), (status: any, result: any) => {
-    //         // result 即是对应的驾车导航信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingResult
-    //         if (status === 'complete') {
-    //           ElMessage.success('绘制驾车路线完成')
-    //         } else {
-    //           ElMessage.error('获取驾车数据失败：' + result)
-    //         }
-    //       });
-    //       // const device = detectDevice();
-    //       // const from = `${lng},${lat},我的位置`
-    //       // console.log("%c Line:108 🥪 lng", "color:#93c0a4", lng);
-    //       // console.log("%c Line:108 🥛 lat", "color:#7f2b82", lat);
-    //       // const to = '104.026494,30.698211,安泰安蓉锦江宾馆(成都一品天下金沙店)'; // address：目的地
-    //       // if (device === 'iOS') {
-    //       //   const [longitude, latitude, name] = to.split(',');
-    //       //   window.open(`iosamap://path?sourceApplication=mhc&sid=&slat=${lat}&slon=${lng}&sname=A&dlat=${latitude}&dlon=${longitude}&dname=${name}&dev=0&t=0`, '_blank');
-    //       // } else if (device === 'pc') {
-    //       //   window.open(`https://uri.amap.com/navigation?from=${from}&to=${to}&mode=car&policy=0&src=&coordinate=&callnative=0`, '_blank');
-    //       // }
-    //     } else {
-    //       ElMessage.error('定位失败!');
-    //     }
-    //     loading.close();
-    //     //   });
-    //   });
-    // }).catch((e) => {
-    //   console.error(e)
-    // })
+    loading.close();
   });
 }
 
@@ -197,19 +172,60 @@ const createEndMarker = (AMap: any, point: number[]) => {
   return endMarker;
 }
 
+// 
+const onNavigate = () => {
+  const loading = ElLoading.service({
+    lock: true,
+    text: '正在规划驾车路线...',
+    background: 'rgba(255,255, 255, 0.3)',
+  })
+  geolocationRef.value.getCurrentPosition((status: string, result: any) => {
+    let [lng, lat] = [-1, -1];
+    if (status == "complete") {
+      lng = result.position.lng;
+      lat = result.position.lat;
+      // 116.303843, 39.983412
+      drivingRef.value.search(new AMapRef.value.LngLat(lng, lat), new AMapRef.value.LngLat(props.map.center[0], props.map.center[1]), (status: any, result: any) => {
+        // result 即是对应的驾车导航信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingResult
+        if (status === 'complete') {
+          ElMessage.success('驾车路线获取成功！');
+          isNavigate.value = true;
+        } else {
+          ElMessage.error('驾车路线获取失败：' + result)
+        }
+        loading.close();
+      });
+      // const device = detectDevice();
+      // const from = `${lng},${lat},我的位置`
+      // console.log("%c Line:108 🥪 lng", "color:#93c0a4", lng);
+      // console.log("%c Line:108 🥛 lat", "color:#7f2b82", lat);
+      // const to = '104.026494,30.698211,安泰安蓉锦江宾馆(成都一品天下金沙店)'; // address：目的地
+      // if (device === 'iOS') {
+      //   const [longitude, latitude, name] = to.split(',');
+      //   window.open(`iosamap://path?sourceApplication=mhc&sid=&slat=${lat}&slon=${lng}&sname=A&dlat=${latitude}&dlon=${longitude}&dname=${name}&dev=0&t=0`, '_blank');
+      // } else if (device === 'pc') {
+      //   window.open(`https://uri.amap.com/navigation?from=${from}&to=${to}&mode=car&policy=0&src=&coordinate=&callnative=0`, '_blank');
+      // }
+    } else {
+      ElMessage.error('定位失败!');
+      loading.close();
+    }
+  });
+}
 
-// const theme = ref<'normal' | 'dark'>('normal');
-// const toggleTheme = () => {
-//   if (aMap.value) {
-//     if (theme.value === 'normal') {
-//       aMap.value.setMapStyle('amap://styles/dark');
-//       theme.value = 'dark';
-//     } else {
-//       aMap.value.setMapStyle('amap://styles/normal');
-//       theme.value = 'normal';
-//     }
-//   }
-// }
+const theme = ref<'normal' | 'dark'>('normal');
+const toggleTheme = () => {
+  if (mapRef.value) {
+    if (theme.value === 'normal') {
+      mapRef.value.setMapStyle('amap://styles/dark');
+      theme.value = 'dark';
+
+    } else {
+      mapRef.value.setMapStyle('amap://styles/normal');
+      theme.value = 'normal';
+    }
+  }
+}
 
 // const location = ref([-1, -1]);
 // const errorMessage = ref('');
@@ -243,17 +259,3 @@ const createEndMarker = (AMap: any, point: number[]) => {
 //   }
 // };
 </script>
-
-<style lang="scss" scoped>
-#panel {
-  position: fixed;
-  background-color: white;
-  max-height: 90%;
-  overflow-y: auto;
-  top: 10px;
-  left: 10px;
-  width: 280px;
-
-
-}
-</style>
