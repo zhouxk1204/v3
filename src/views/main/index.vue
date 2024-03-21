@@ -20,9 +20,10 @@
         </el-dropdown>
       </div>
     </header>
-    <el-drawer size="300" direction="ltr" v-model="drawer" :with-header="false">
+    <el-drawer size="200" direction="ltr" v-model="drawer" :with-header="false">
       <el-menu class="pt-5 overflow-auto" :default-active="currentRoute.name?.toString() ?? ''" :router="true"
         :collapse="false" popper-effect="light" @select="drawer = false">
+        <h2 class="pb-5 text-2xl text-center text-red-300 border-b">🍑 Peach</h2>
         <MenuItem :menuList="menuRoutes" :parentRoute="parentRoute">
         </MenuItem>
       </el-menu>

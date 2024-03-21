@@ -12,8 +12,8 @@
           {{ isLogin ? 'Home' : 'Login' }}
         </div>
         <span>|</span>
-        <div class="tracking-widest max-[450px]:tracking-normal hover-underline-animation" @click="onMarriage">
-          2048
+        <div class="tracking-widest max-[450px]:tracking-normal hover-underline-animation" @click="onMap">
+          Map
         </div>
         <a href="https://github.com/zhouxk1204/v3" target="_blank" class="cursor-pointer">
           <Icon icon="ri:github-fill" class="text-gray-300" width="30" />
@@ -158,8 +158,8 @@ const onTransitionend = () => {
   direction.value = 'init';
 }
 
-const onMarriage = () => {
-  router.push('/2048');
+const onMap = () => {
+  router.push('/map');
 }
 // 定义初始触摸位置的引用
 const startX: Ref<number | null> = ref(null);
