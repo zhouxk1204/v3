@@ -65,6 +65,7 @@ routes.push({
   redirect: "home",
 });
 
+console.log("%c Line:71 🍉 routes", "color:#93c0a4", routes);
 const router = createRouter({
   history: createWebHistory(),
   routes,

@@ -1,5 +1,6 @@
 import { FieldItem } from "@/components/Form/form";
 import { useSelect } from "@/hooks/useSelect";
+
 const { getOptionsByType } = useSelect();
 
 export const HolidayForm: FieldItem[] = [
@@ -162,6 +163,81 @@ export const DayRatioSettingForm: FieldItem[] = [
       },
     ],
     placeholder: "备注",
+    clearable: true,
+    value: "",
+  },
+];
+
+export const EmployeeForm: FieldItem[] = [
+  {
+    label: "顺序",
+    field: "no",
+    type: "number",
+    rules: [
+      {
+        required: true,
+        message: "请输入顺序",
+      },
+    ],
+    placeholder: "顺序",
+    clearable: true,
+    value: "",
+  },
+  {
+    label: "姓名",
+    field: "name",
+    type: "text",
+    rules: [
+      {
+        required: true,
+        message: "请输入姓名",
+      },
+    ],
+    placeholder: "姓名",
+    clearable: true,
+    value: "",
+  },
+  {
+    label: "系数",
+    field: "factor",
+    type: "number",
+    rules: [
+      {
+        required: true,
+        message: "请输入系数",
+      },
+    ],
+    placeholder: "系数",
+    clearable: true,
+    value: "",
+  },
+  {
+    label: "性别",
+    field: "gender",
+    type: "select",
+    options: getOptionsByType("gender"),
+    rules: [
+      {
+        required: true,
+        message: "请选择性别",
+      },
+    ],
+    placeholder: "性别",
+    clearable: true,
+    value: "",
+  },
+  {
+    label: "职位",
+    field: "position",
+    type: "select",
+    options: getOptionsByType("post"),
+    rules: [
+      {
+        required: true,
+        message: "请选择职位",
+      },
+    ],
+    placeholder: "职位",
     clearable: true,
     value: "",
   },

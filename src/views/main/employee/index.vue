@@ -1,8 +1,15 @@
 <template>
   <div>
+    <!-- <div class="mb-5">
+      <h1 class="flex items-center h-12 pb-3 mb-3 font-bold border-b">
+        添加员工
+      </h1>
+      <Form :form="form" @submit="handelSubmit"></Form>
+    </div> -->
+
     <h1 class="flex items-center justify-between h-12 pb-3 mb-3 font-bold border-b ">
-      <span>员工明细</span>
-      <div class="flex gap-2">
+      <span>员工列表</span>
+      <div class="flex gap-3">
         <el-popconfirm width="220" title="确认清空工分汇算?" @confirm="reset">
           <template #reference>
             <el-button type="danger" :disabled="list.length === 0">清空</el-button>
@@ -11,10 +18,9 @@
         <UploadExcel @change="onChange">选择文件导入</UploadExcel>
       </div>
     </h1>
-    <div class="flex flex-col max-[450px]:hidden">
+    <div class=" flex flex-col max-[450px]:hidden">
       <Table :list="list" :cols="cols" :editable="true" @remove="remove($event)" @update="update($event)"></Table>
     </div>
-
     <div class="flex-col gap-2 hidden max-[450px]:flex">
       <div v-for="item in list" class="mt-2 text-gray-400 rounded-lg shadow bg-gray-50">
         <div class="flex items-center justify-between px-3 py-1">
@@ -27,9 +33,9 @@
                 <div class="flex items-center gap-2">
                   <span class="text-gray-600">{{ item.employeeName }}</span>
                   <el-icon class="w-5 h-5 p-1 bg-red-300 rounded-full" :style="{
-                    backgroundColor:
-                      item.genderId === '1' ? '#70a3f3' : '#edacd2',
-                  }" color="#fff">
+          backgroundColor:
+            item.genderId === '1' ? '#70a3f3' : '#edacd2',
+        }" color="#fff">
                     <Male v-if="item.genderId === '1'" />
                     <Female v-else />
                   </el-icon>
@@ -55,7 +61,9 @@
 </template>
 
 <script setup lang="ts">
+import { FieldItem } from "@/components/Form/form";
 import { TableColumnItem } from "@/components/Table/type";
+import { EmployeeForm } from "@/config/form.config";
 import { EmployeeTable } from "@/config/table.config";
 import { useSelect } from "@/hooks/useSelect";
 import useStore from "@/store";
@@ -85,5 +93,11 @@ const onChange = (data: any[]) => {
     insert(list);
   }
 };
+
+// const form = ref<FieldItem[]>(EmployeeForm);
+
+// const handelSubmit = () => {
+
+// }
 </script>
 <style scoped lang="scss"></style>

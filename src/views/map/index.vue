@@ -1,5 +1,5 @@
 <template>
-  <AMap :map="map" class="w-full h-screen"></AMap>
+  <AMap :map="map" class="w-full h-[100dvh]"></AMap>
 </template>
 
 <script setup lang="ts">
@@ -21,11 +21,7 @@ const map = ref({
   viewMode: '3D',
   endMarker: {
     point: [104.026494, 30.698211],
-    content: [
-      "<div><b>安泰安蓉锦江宾馆(成都一品天下金沙店)</b>",
-      "<span>电话 : 028-87673666 028-87673999<span>",
-      "<span>地址 : 成都市金牛区茶店子正街132号(茶店子地铁站D2口步行390米)<span></div>",
-    ]
+    content: "<div style='font-size: 12px; color: red; font-weight: bold'>😊安泰安蓉锦江宾馆😊&nbsp;&nbsp;</div>"
   }
 } as IAMap)
 

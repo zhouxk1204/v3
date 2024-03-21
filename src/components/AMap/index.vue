@@ -1,32 +1,28 @@
 <template>
-  <div class="flex flex-col ">
+  <div class="flex flex-col">
     <div id="map" class="relative flex-1 w-full">
-      <el-button class="absolute z-10 top-4 right-4" type="info" :icon="Moon" circle @click="toggleTheme"
-        v-show="theme === 'dark'" />
-      <el-button class="absolute z-10 top-4 right-4" :icon="Sunny" circle @click="toggleTheme"
-        v-show="theme === 'normal'" />
-      <el-button class="absolute z-10 bottom-8 right-4" type="primary" :icon="Position" circle @click="onNavigate"
-        v-if="mapRef" />
+      <template v-if="isMapLoaded">
+        <el-button
+          class="border w-[30px] h-[30px] absolute z-10 top-4 left-[20px] navigate flex items-center justify-center"
+          @click="onBack" v-show="isNavigate">
+          <el-icon color="#000">
+            <ArrowLeftBold />
+          </el-icon>
+        </el-button>
+        <el-button
+          class="border w-[30px] h-[30px] absolute z-10 bottom-24 right-[20px] navigate flex items-center justify-center"
+          @click="onNavigate" v-show="!isNavigate">
+          <el-icon color="#000">
+            <Position />
+          </el-icon>
+        </el-button>
+      </template>
     </div>
 
-    <div id="panel" class="flex-1 w-full bg-white max-h-[50%] overflow-y-auto overflow-x-hidden" v-show="isNavigate">
+    <div id="panel" class="w-full overflow-x-hidden overflow-y-auto bg-white max-h-[300px] transition-all"
+      v-show="isMapLoaded">
       <div class="amap-call"></div>
     </div>
-
-    <!-- 
-      <button class="p-1 transition-all rounded shadow-xl" @click="toggleTheme"
-        :class="theme === 'normal' ? 'bg-gray-50 text-gray-800 active:bg-gray-100' : 'bg-gray-600 text-gray-100 active:bg-gray-700'">
-        <Icon icon="ic:round-light-mode" width="24" height="24" v-if="theme === 'normal'" />
-        <Icon icon="ic:round-dark-mode" width="24" height="24" v-else />
-      </button> -->
-    <!-- <el-button type="primary" @click="openFullScreen1">
-        As a directive
-      </el-button> -->
-    <!-- <a
-        href="https://uri.amap.com/navigation?from=116.478346,39.997361,我的位置&to=116.32810279404168,39.90083463437583,北京市丰台区北京西站&mode=car&policy=0&src=&coordinate=&callnative=0">高德WEB</a>
-      <a
-        href="iosamap://path?sourceApplication=applicationName&sid=&slat=39.92848272&slon=116.39560823&sname=A&did=&dlat=39.98848272&dlon=116.47560823&dname=B&dev=0&t=0">高德IOS</a> -->
-    <!-- </div> -->
   </div>
 </template>
 
@@ -34,14 +30,11 @@
 import { AMAP_KEY } from '@/constants';
 import AMapLoader from '@amap/amap-jsapi-loader';
 import { onMounted, ref } from 'vue';
-import { Position, Sunny, Moon } from '@element-plus/icons-vue';
-
-
-// const fullscreenLoading = ref(false)
+import { Position, ArrowLeftBold } from '@element-plus/icons-vue';
 
 interface Marker {
   point: number[];
-  content?: string[];
+  content?: string;
 }
 
 export interface IAMap {
@@ -64,14 +57,13 @@ const mapRef = ref<any>(null);
 const geolocationRef = ref<any>(null);
 const AMapRef = ref<any>(null);
 const drivingRef = ref<any>(null);
-
+const isMapLoaded = ref<boolean>(false);
 const isNavigate = ref<boolean>(false);
-// const isLoading = ref(false);
 
 const initAMap = () => {
   const loading = ElLoading.service({
     lock: true,
-    text: '正在生成地图...',
+    text: '加载地图中，请稍后...',
     background: 'rgba(255,255, 255, 0.3)',
   })
   AMapLoader.load({
@@ -83,6 +75,7 @@ const initAMap = () => {
       'AMap.Marker', // 点标记插件
       'AMap.Geolocation',
       'AMap.Driving',
+      'AMap.ToolBar'
     ],
   }).then((AMap) => {
 
@@ -96,12 +89,6 @@ const initAMap = () => {
 
     AMapRef.value = AMap;
     mapRef.value = map;
-
-    //构造路线导航类
-    drivingRef.value = new AMap.Driving({
-      map: map,
-      panel: "panel"
-    });
 
     geolocationRef.value = new AMap.Geolocation({
       enableHighAccuracy: true, //  是否使用高精度定位，默认:true
@@ -117,28 +104,32 @@ const initAMap = () => {
       zoomToAccuracy: true  //  定位成功后调整地图视野范围使定位位置及精度范围视野内可见，默认：false
     });
 
-    // map.addControl(geolocation);
-
     const { endMarker } = props.map;
     if (endMarker) {
       map.add([createEndMarker(AMap, endMarker.point)]);
+      //创建 infoWindow 实例
+      const { content = '' } = endMarker;
+      if (content.length > 0) {
+        const infoWindow = new AMap.InfoWindow({
+          content, //传入字符串拼接的 DOM 元素
+          anchor: "bottom-center",
+          offset: new AMap.Pixel(0, -30),
+        });
+        infoWindow.open(map, map.getCenter());
+      }
     }
 
+    // 工具栏
+    map.addControl(new AMap.ToolBar({
+      // 简易缩放模式，默认为 false
+      liteStyle: false
+    }));
 
-
-    // map.on('click', () => {
-
-
-    //   // driving.search(new AMap.LngLat(116.379028, 39.865042), new AMap.LngLat(116.427281, 39.903719), (status: any, result: any) => {
-    //   //   // result 即是对应的驾车导航信息，相关数据结构文档请参考  https://lbs.amap.com/api/javascript-api/reference/route-search#m_DrivingResult
-    //   //   if (status === 'complete') {
-    //   //     ElMessage.success('绘制驾车路线完成')
-    //   //   } else {
-    //   //     ElMessage.error('获取驾车数据失败：' + result)
-    //   //   }
-    //   // });
-
-    loading.close();
+    // 地图加载完成事件
+    map.on('complete', function () {
+      loading.close();
+      isMapLoaded.value = true;
+    });
   });
 }
 
@@ -168,7 +159,6 @@ const createEndMarker = (AMap: any, point: number[]) => {
     icon: endIcon,
     offset: new AMap.Pixel(-13, -30)
   });
-
   return endMarker;
 }
 
@@ -179,6 +169,13 @@ const onNavigate = () => {
     text: '正在规划驾车路线...',
     background: 'rgba(255,255, 255, 0.3)',
   })
+  //构造路线导航类
+  drivingRef.value = new AMapRef.value.Driving({
+    map: mapRef.value,
+    panel: "panel",
+    // 驾车路线规划策略，AMap.DrivingPolicy.LEAST_TIME是最快捷模式
+    policy: AMapRef.value.DrivingPolicy.LEAST_TIME
+  });
   geolocationRef.value.getCurrentPosition((status: string, result: any) => {
     let [lng, lat] = [-1, -1];
     if (status == "complete") {
@@ -213,20 +210,15 @@ const onNavigate = () => {
   });
 }
 
-const theme = ref<'normal' | 'dark'>('normal');
-const toggleTheme = () => {
-  if (mapRef.value) {
-    if (theme.value === 'normal') {
-      mapRef.value.setMapStyle('amap://styles/dark');
-      theme.value = 'dark';
-
-    } else {
-      mapRef.value.setMapStyle('amap://styles/normal');
-      theme.value = 'normal';
-    }
-  }
+const onBack = () => {
+  // 清除规划的路线
+  isNavigate.value = false;
+  drivingRef.value.clear();
+  mapRef.value.setCenter(props.map.center);
+  setTimeout(() => {
+    mapRef.value.setZoom(18);
+  }, 1200);
 }
-
 // const location = ref([-1, -1]);
 // const errorMessage = ref('');
 
@@ -241,21 +233,11 @@ const toggleTheme = () => {
 //   // 116.478346,39.997361,我的位置
 //   window.open(`https://uri.amap.com/navigation?from=${from}&to=${to}&mode=car&policy=0&src=&coordinate=&callnative=0`, '_blank');
 // };
-
-// const showError = (error: any) => {
-//   switch (error.code) {
-//     case error.PERMISSION_DENIED:
-//       errorMessage.value = "User denied the request for Geolocation.";
-//       break;
-//     case error.POSITION_UNAVAILABLE:
-//       errorMessage.value = "Location information is unavailable.";
-//       break;
-//     case error.TIMEOUT:
-//       errorMessage.value = "The request to get user location timed out.";
-//       break;
-//     case error.UNKNOWN_ERROR:
-//       errorMessage.value = "An unknown error occurred.";
-//       break;
-//   }
-// };
 </script>
+<style lang="scss" scoped>
+.navigate {
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 0 3px rgba(0, 0, 0, .5);
+}
+</style>
