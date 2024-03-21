@@ -1,11 +1,11 @@
 <template>
   <div>
-    <!-- <div class="mb-5">
+    <div class="mb-5">
       <h1 class="flex items-center h-12 pb-3 mb-3 font-bold border-b">
         添加员工
       </h1>
       <Form :form="form" @submit="handelSubmit"></Form>
-    </div> -->
+    </div>
 
     <h1 class="flex items-center justify-between h-12 pb-3 mb-3 font-bold border-b ">
       <span>员工列表</span>
@@ -33,9 +33,9 @@
                 <div class="flex items-center gap-2">
                   <span class="text-gray-600">{{ item.employeeName }}</span>
                   <el-icon class="w-5 h-5 p-1 bg-red-300 rounded-full" :style="{
-          backgroundColor:
-            item.genderId === '1' ? '#70a3f3' : '#edacd2',
-        }" color="#fff">
+        backgroundColor:
+          item.genderId === '1' ? '#70a3f3' : '#edacd2',
+      }" color="#fff">
                     <Male v-if="item.genderId === '1'" />
                     <Female v-else />
                   </el-icon>
@@ -61,9 +61,9 @@
 </template>
 
 <script setup lang="ts">
-// import { FieldItem } from "@/components/Form/form";
+import { FieldItem } from "@/components/Form/form";
 import { TableColumnItem } from "@/components/Table/type";
-// import { EmployeeForm } from "@/config/form.config";
+import { EmployeeForm } from "@/config/form.config";
 import { EmployeeTable } from "@/config/table.config";
 import { useSelect } from "@/hooks/useSelect";
 import useStore from "@/store";
@@ -94,10 +94,10 @@ const onChange = (data: any[]) => {
   }
 };
 
-// const form = ref<FieldItem[]>(EmployeeForm);
+const form = ref<FieldItem[]>(EmployeeForm);
 
-// const handelSubmit = () => {
-
-// }
+const handelSubmit = (data: any) => {
+  
+}
 </script>
 <style scoped lang="scss"></style>

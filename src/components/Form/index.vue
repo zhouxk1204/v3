@@ -52,7 +52,17 @@ const handelSubmit = () => {
   if (!formRef.value) return;
   formRef.value.validate((valid, fields) => {
     if (valid) {
-      emit("submit", _.cloneDeep(formModel.value));
+      const numberFields = props.form
+        .filter(e => e.type === 'number')
+        .map(el => el.field);
+
+      for (const key of numberFields) {
+        if (formModel.value.hasOwnProperty(key)) {
+          formModel.value[key] = +formModel.value[key];
+        }
+      }
+
+      emit("submit", formModel.value);
     } else {
       console.error("error submit!", fields);
     }
@@ -64,4 +74,3 @@ const handelReset = () => {
   formRef.value.resetFields();
 };
 </script>
-@/components/Form/form

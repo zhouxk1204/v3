@@ -1,12 +1,12 @@
 <template>
-  <div class="relative gradient-background">
+  <div class="relative h-full">
     <img :src="bgUrl" alt="loginBg" class="absolute inset-0 object-cover h-[100dvh] w-screen">
     <h1 class="fixed z-30 -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/4">
       <Icon icon="emojione-monotone:peach" width="66" height="66" class="text-gray-200 cursor-pointer"
         @click="onClickLogo" />
     </h1>
     <el-form ref="formRef" :model="loginForm" :rules="rules" size="large"
-      class="absolute py-12 px-10 -translate-x-1/2 -translate-y-1/2 shadow-ring w-80 rounded-xl left-1/2 top-1/2 max-sm:w-[80%] border">
+      class="bg-white bg-opacity-30 absolute py-12 px-10 -translate-x-1/2 -translate-y-1/2 shadow w-80 rounded-xl left-1/2 top-1/2 max-sm:w-[80%]">
       <el-form-item prop="email">
         <el-input v-model="loginForm.email" placeholder="邮箱" clearable />
       </el-form-item>
@@ -29,8 +29,8 @@
 </template>
 
 <script setup lang="ts">
+import { login } from "@/api/login";
 import router from "@/router";
-import axios from '@/utils/request.ts';
 import { FormInstance, FormRules } from "element-plus/es/components/form";
 import { Md5 } from 'ts-md5';
 import { ref } from "vue";
@@ -72,19 +72,17 @@ const rules = reactive<FormRules<LoginForm>>({
 const formRef = ref<FormInstance>();
 const submitForm = () => {
   if (!formRef.value) return;
-  formRef.value.validate((valid, fields) => {
+  formRef.value.validate(async (valid, fields) => {
     if (valid) {
-      const data = {
+      const loginReq = {
         email: loginForm.email,
         password: Md5.hashStr(loginForm.password)
       }
 
-      axios.post('/register', data).then((res: any) => {
-        ElMessage.success(res.message);
-        localStorage.setItem('token', res.token);
-        router.replace("/main");
-      })
-
+      const loginRes = await login(loginReq);
+      ElMessage.success('登录成功！')
+      localStorage.setItem('token', loginRes.token);
+      router.replace("/main");
     } else {
       console.log("error submit!", fields);
     }
@@ -95,31 +93,3 @@ const onClickLogo = () => {
   router.push('/home')
 }
 </script>
-
-<style scoped lang="scss">
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%
-  }
-
-  50% {
-    background-position: 100% 50%
-  }
-
-  100% {
-    background-position: 0% 50%
-  }
-}
-
-.gradient-background {
-  position: absolute;
-  inset: 0;
-  // background: linear-gradient(-45deg, #fff1eb 0%, #ace0f9 100%);
-  // animation: gradient 7s ease infinite;
-  // background-size: 200% 200%;
-}
-
-.shadow-ring {
-  box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.7);
-}
-</style>

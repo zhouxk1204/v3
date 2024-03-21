@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ dark: isDarkMode }" class="absolute inset-0">
+  <div :class="{ dark: isDarkMode }" class="absolute inset-0 h-[100dvh]">
     <el-config-provider :locale="locale">
       <router-view></router-view>
     </el-config-provider>

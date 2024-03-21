@@ -1,14 +1,24 @@
-// src/plugins/axios.ts
+import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 
-import axios, { AxiosInstance } from "axios";
-
-import axiosRetry from "axios-retry";
 import { ElMessage } from "element-plus"; // 导入Element Plus的ElMessage组件，确保已安装Element Plus
+import axiosRetry from "axios-retry";
+
+// 定义泛型接口，用于响应数据
+interface ResponseData<T = any> {
+  code: number;
+  message: string;
+  data: T;
+}
 
 const instance: AxiosInstance = axios.create({
-  baseURL: "https://api.zhouxk.fun", // 设置你的API基础URL
-  timeout: 10000, // 设置请求超时时间
+  // 设置你的API基础URL
+  baseURL: "https://api.zhouxk.fun",
+  // 设置请求超时时间
+  timeout: 10000,
 });
+
+// 创建 Loading 实例
+let loading: any;
 
 // 添加axios-retry的配置
 axiosRetry(instance, {
@@ -20,6 +30,13 @@ axiosRetry(instance, {
 // 请求拦截器
 instance.interceptors.request.use(
   (config) => {
+    // 显示 Loading
+    loading = ElLoading.service({
+      lock: true,
+      text: "加载中...",
+      background: "rgba(255, 255, 255, 0.1)",
+    });
+
     // 获取请求的路径
     const path = config.url ?? "/";
     if (path.startsWith("/auth")) {
@@ -31,6 +48,8 @@ instance.interceptors.request.use(
     return config;
   },
   (error) => {
+    // 隐藏 Loading
+    loading.close();
     return Promise.reject(error);
   }
 );
@@ -38,9 +57,13 @@ instance.interceptors.request.use(
 // 响应拦截器
 instance.interceptors.response.use(
   (response) => {
+    // 隐藏 Loading
+    loading.close();
     return response.data;
   },
   (error) => {
+    // 隐藏 Loading
+    loading.close();
     // 在响应拦截器中处理错误并显示消息
     if (error.response) {
       const { status, data } = error.response;
@@ -62,4 +85,26 @@ instance.interceptors.response.use(
   }
 );
 
-export default instance;
+// 封装请求方法
+export const http = {
+  get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    return instance.get(url, config);
+  },
+  post<T = any>(
+    url: string,
+    data?: object,
+    config?: AxiosRequestConfig
+  ): Promise<T> {
+    return instance.post(url, data, config);
+  },
+  put<T = any>(
+    url: string,
+    data?: object,
+    config?: AxiosRequestConfig
+  ): Promise<T> {
+    return instance.put(url, data, config);
+  },
+  delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    return instance.delete(url, config);
+  },
+};
