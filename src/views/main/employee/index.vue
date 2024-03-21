@@ -61,9 +61,9 @@
 </template>
 
 <script setup lang="ts">
-import { FieldItem } from "@/components/Form/form";
+// import { FieldItem } from "@/components/Form/form";
 import { TableColumnItem } from "@/components/Table/type";
-import { EmployeeForm } from "@/config/form.config";
+// import { EmployeeForm } from "@/config/form.config";
 import { EmployeeTable } from "@/config/table.config";
 import { useSelect } from "@/hooks/useSelect";
 import useStore from "@/store";
