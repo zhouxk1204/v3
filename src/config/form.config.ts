@@ -213,7 +213,7 @@ export const EmployeeForm: FieldItem[] = [
   },
   {
     label: "性别",
-    field: "gender",
+    field: "genderId",
     type: "select",
     options: getOptionsByType("gender"),
     rules: [
@@ -228,7 +228,7 @@ export const EmployeeForm: FieldItem[] = [
   },
   {
     label: "职位",
-    field: "position",
+    field: "positionId",
     type: "select",
     options: getOptionsByType("post"),
     rules: [

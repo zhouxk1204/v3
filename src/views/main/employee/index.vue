@@ -4,13 +4,13 @@
       <h1 class="flex items-center h-12 pb-3 mb-3 font-bold border-b">
         添加员工
       </h1>
-      <Form :form="form" @submit="handelSubmit"></Form>
+      <Form :form="form" @submit="handelSubmit" ref="employeeFormRef"></Form>
     </div>
 
     <h1 class="flex items-center justify-between h-12 pb-3 mb-3 font-bold border-b ">
       <span>员工列表</span>
       <div class="flex gap-3">
-        <el-popconfirm width="220" title="确认清空工分汇算?" @confirm="reset">
+        <el-popconfirm width="220" title="确认删除所有员工?" @confirm="reset">
           <template #reference>
             <el-button type="danger" :disabled="list.length === 0">清空</el-button>
           </template>
@@ -21,7 +21,7 @@
     <div class=" flex flex-col max-[450px]:hidden">
       <Table :list="list" :cols="cols" :editable="true" @remove="remove($event)" @update="update($event)"></Table>
     </div>
-    <div class="flex-col gap-2 hidden max-[450px]:flex">
+    <!-- <div class="flex-col gap-2 hidden max-[450px]:flex">
       <div v-for="item in list" class="mt-2 text-gray-400 rounded-lg shadow bg-gray-50">
         <div class="flex items-center justify-between px-3 py-1">
           <div>
@@ -56,11 +56,41 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
+
+
+    <ul class="flex-col gap-3 hidden max-[450px]:flex">
+      <li v-for="item in employeeList" class="flex items-center justify-between py-2 border-b">
+        <div class="flex gap-4">
+          <el-avatar :size="60">
+            <span class="text-4xl">{{ item.name[0] }}</span>
+          </el-avatar>
+          <div class="text-sm text-gray-500">
+            <div class="flex items-center gap-1 text-base font-bold text-black">
+              <span>{{ item.name }}</span>
+              <el-icon class="w-5 h-5 p-1 text-2xl rounded-full" color="#fff"
+                :class="item.genderId === '1' ? 'bg-[#70a3f3]' : 'bg-[#edacd2]'">
+                <Male v-if="item.genderId === '1'" />
+                <Female v-else />
+              </el-icon>
+            </div>
+            <div>职位：{{ item.positionName }}</div>
+            <div>系数：<strong>{{ item.factor }}</strong></div>
+          </div>
+        </div>
+        <div>
+          <el-button type="primary" :icon="Edit" circle />
+          <el-button type="danger" :icon="Delete" circle @click="deleteEmployee(item.id)" />
+        </div>
+      </li>
+    </ul>
+
   </div>
 </template>
 
 <script setup lang="ts">
+import { deleteEmployeeById, getEmployee, submitEmployee } from "@/api/employee";
+import { Employee } from "@/api/employee/type";
 import { FieldItem } from "@/components/Form/form";
 import { TableColumnItem } from "@/components/Table/type";
 import { EmployeeForm } from "@/config/form.config";
@@ -69,7 +99,7 @@ import { useSelect } from "@/hooks/useSelect";
 import useStore from "@/store";
 import { IEmployee } from "@/types";
 import { generateId } from "@/utils";
-import { Female, Male } from "@element-plus/icons-vue";
+import { Delete, Edit, Female, Male } from "@element-plus/icons-vue";
 import { storeToRefs } from "pinia";
 const employeeStore = useStore().employee;
 const { insert, remove, update, reset } = employeeStore;
@@ -77,6 +107,16 @@ const { list } = storeToRefs(employeeStore);
 
 const { getOption } = useSelect();
 const cols: TableColumnItem<IEmployee>[] = EmployeeTable;
+
+const employeeList = ref<Employee[]>([]);
+onMounted(async () => {
+  const data = await getEmployee();
+  if (data.code === 200) {
+    employeeList.value = data.data;
+  }
+  console.log("%c Line:96 🍔 employeeList.value", "color:#3f7cff", employeeList.value);
+})
+
 
 const onChange = (data: any[]) => {
   if (data.length > 0) {
@@ -95,9 +135,21 @@ const onChange = (data: any[]) => {
 };
 
 const form = ref<FieldItem[]>(EmployeeForm);
+const employeeFormRef = ref();
 
-const handelSubmit = (data: any) => {
-  
+const handelSubmit = async (data: any) => {
+  const res1 = await submitEmployee(data);
+  if (res1.code === 200) {
+    ElMessage.success('员工添加成功！')
+    employeeFormRef.value.handelReset();
+    const res2 = await getEmployee();
+    if (res2.code === 200) {
+      employeeList.value = res2.data;
+    }
+  }
+}
+
+const deleteEmployee = async (id: number) => {
+  await deleteEmployeeById(id);
 }
 </script>
-<style scoped lang="scss"></style>

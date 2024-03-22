@@ -1,6 +1,6 @@
 <template>
-  <el-form :model="formModel" ref="formRef" label-width="93px" label-position="left"
-    class="flex flex-wrap gap-2 max-[450px]:block">
+  <el-form :model="formModel" ref="formRef" label-position="left"
+    class="flex flex-wrap gap-2 max-[450px]:block items-center">
     <template v-for="item in form">
       <el-form-item :label="item.label" :prop="item.field" :rules="item.rules">
         <!-- 日期 -->
@@ -8,7 +8,7 @@
           :placeholder="item.placeholder ?? ''" :clearable="item.clearable" :disabled="item.disabled"
           format="YYYY/MM/DD" value-format="YYYY/MM/DD" :editable="false" />
         <!-- 数字输入框 -->
-        <el-input class="w-full" v-else-if="item.type === 'number'" v-model="formModel[item.field]"
+        <el-input class="w-full" v-else-if="item.type === 'number'" v-model.number="formModel[item.field]"
           :placeholder="item.placeholder ?? ''" :clearable="item.clearable" :disabled="item.disabled" type="number"
           min="0" step="0.5" />
         <!-- 文本输入框 -->
@@ -29,7 +29,6 @@
 
 <script setup lang="ts">
 import { FormInstance } from "element-plus/es/components/form";
-import * as _ from "lodash";
 import { ref } from "vue";
 import { FieldItem } from "./form";
 
@@ -50,7 +49,7 @@ const emit = defineEmits<{
 
 const handelSubmit = () => {
   if (!formRef.value) return;
-  formRef.value.validate((valid, fields) => {
+  formRef.value.validate((valid, _) => {
     if (valid) {
       const numberFields = props.form
         .filter(e => e.type === 'number')
@@ -64,7 +63,7 @@ const handelSubmit = () => {
 
       emit("submit", formModel.value);
     } else {
-      console.error("error submit!", fields);
+      // console.error("error submit!", fields);
     }
   });
 };
@@ -73,4 +72,8 @@ const handelReset = () => {
   if (!formRef.value) return;
   formRef.value.resetFields();
 };
+
+defineExpose({
+  handelReset
+})
 </script>

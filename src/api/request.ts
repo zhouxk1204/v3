@@ -1,10 +1,10 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 
-import { ElMessage } from "element-plus"; // 导入Element Plus的ElMessage组件，确保已安装Element Plus
 import axiosRetry from "axios-retry";
+import { ElMessage } from "element-plus"; // 导入Element Plus的ElMessage组件，确保已安装Element Plus
 
 // 定义泛型接口，用于响应数据
-interface ResponseData<T = any> {
+export interface ResponseData<T = any> {
   code: number;
   message: string;
   data: T;
@@ -12,7 +12,8 @@ interface ResponseData<T = any> {
 
 const instance: AxiosInstance = axios.create({
   // 设置你的API基础URL
-  baseURL: "https://api.zhouxk.fun",
+  // baseURL: "https://api.zhouxk.fun",
+  baseURL: "http://127.0.0.1:3001",
   // 设置请求超时时间
   timeout: 10000,
 });
@@ -22,7 +23,7 @@ let loading: any;
 
 // 添加axios-retry的配置
 axiosRetry(instance, {
-  retries: 3, // 设置重试次数
+  retries: 0, // 设置重试次数
   retryDelay: axiosRetry.exponentialDelay, // 设置重试延迟策略
   shouldResetTimeout: true, // 重试时重置超时时间
 });
@@ -63,8 +64,9 @@ instance.interceptors.response.use(
   },
   (error) => {
     // 隐藏 Loading
-    loading.close();
     // 在响应拦截器中处理错误并显示消息
+    loading.close();
+
     if (error.response) {
       const { status, data } = error.response;
       if (status === 401) {

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="h-full">
     <header
       class="sticky top-0 flex items-center justify-between h-16 px-4 bg-transparent border-b webkit-sticky cus-blur">
       <div class="hidden max-[1280px]:flex">
@@ -37,7 +37,7 @@
         </div>
       </el-menu>
     </div>
-    <div class="pt-5 pb-10 pr-5 pl-44 max-[1280px]:pl-5 min-h-[calc(100vh-64px)]">
+    <div class="pt-5 pb-10 pr-5 pl-44 max-[1280px]:pl-5">
       <router-view></router-view>
     </div>
   </div>
