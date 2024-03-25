@@ -120,9 +120,23 @@ export const DEFAULT_WORK_RATIO = 1;
 export const DEFAULT_OVERTIME_RATIO = 1.5;
 export const DEFAULT_DATE_FORMAT = "YYYY/MM/DD";
 
-export const HOLIDAY_OVERTIME = "0";
-export const HOLIDAY_MAKEUP = "1";
+// export const HOLIDAY_OVERTIME = "0";
+// export const HOLIDAY_MAKEUP = "1";
 
 export const TOKEN = "d8e21daefdd8a9353836c2cfecb4cd81";
 
 export const AMAP_KEY = "6e530cf3ebaea4b2b08f359db5e6a072";
+
+export const SELECT_OPTION = {
+  GENDER: "0", // 性别
+  POSITION: "1", // 职位
+  STATUS: "2", // 状态
+  JOB: "3", // 岗位
+  WORK_TYPE: "4", // 上班种类：上班，加班
+  HOLIDAY_TYPE: "5", // 节假日种类：补班，放假
+  HOLIDAY: "6", // 节假日
+} as const;
+
+type ValueOf<T> = T[keyof T];
+
+export type SelectOptionType = ValueOf<typeof SELECT_OPTION>;

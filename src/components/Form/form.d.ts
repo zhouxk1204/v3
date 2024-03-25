@@ -17,4 +17,8 @@ export interface FieldItem {
   rules?: FormItemRule[];
   clearable?: boolean; // 是否可清空
   disabled?: boolean;
+  hidden?: {
+    key: string;
+    value: string;
+  };
 }

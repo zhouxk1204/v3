@@ -31,9 +31,10 @@
 <script setup lang="ts">
 import { login } from "@/api/login";
 import router from "@/router";
+import { ElMessage } from "element-plus";
 import { FormInstance, FormRules } from "element-plus/es/components/form";
 import { Md5 } from 'ts-md5';
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 
 interface LoginForm {
   email: string;
@@ -80,8 +81,9 @@ const submitForm = () => {
       }
 
       const loginRes = await login(loginReq);
-      ElMessage.success('登录成功！')
       localStorage.setItem('token', loginRes.token);
+
+      ElMessage.success('登录成功！')
       router.replace("/main");
     } else {
       console.log("error submit!", fields);

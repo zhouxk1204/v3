@@ -74,13 +74,11 @@
                 <Female v-else />
               </el-icon>
             </div>
-            <div>职位：{{ item.positionName }}</div>
             <div>系数：<strong>{{ item.factor }}</strong></div>
           </div>
         </div>
         <div>
           <el-button type="primary" :icon="Edit" circle />
-          <el-button type="danger" :icon="Delete" circle @click="deleteEmployee(item.id)" />
         </div>
       </li>
     </ul>
@@ -89,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { deleteEmployeeById, getEmployee, submitEmployee } from "@/api/employee";
+import { getEmployee, submitEmployee } from "@/api/employee";
 import { Employee } from "@/api/employee/type";
 import { FieldItem } from "@/components/Form/form";
 import { TableColumnItem } from "@/components/Table/type";
@@ -99,7 +97,7 @@ import { useSelect } from "@/hooks/useSelect";
 import useStore from "@/store";
 import { IEmployee } from "@/types";
 import { generateId } from "@/utils";
-import { Delete, Edit, Female, Male } from "@element-plus/icons-vue";
+import { Edit, Female, Male } from "@element-plus/icons-vue";
 import { storeToRefs } from "pinia";
 const employeeStore = useStore().employee;
 const { insert, remove, update, reset } = employeeStore;
@@ -148,8 +146,7 @@ const handelSubmit = async (data: any) => {
     }
   }
 }
+const { getSelectOptionByType } = useStore().selection;
 
-const deleteEmployee = async (id: number) => {
-  await deleteEmployeeById(id);
-}
+console.log("%c Line:157 🍉 lll", "color:#3f7cff", getSelectOptionByType('0'));
 </script>

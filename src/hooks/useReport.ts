@@ -1,7 +1,7 @@
 import {
   DEFAULT_OVERTIME_RATIO,
   DEFAULT_WORK_RATIO,
-  HOLIDAY_MAKEUP,
+  HOLIDAY_TYPE,
   JOB_INFO,
   POST_INFO,
   REST_INFO,
@@ -10,10 +10,10 @@ import {
 import { IPoint, IReport } from "@/types";
 import { fullToHalf, trim } from "@/utils/string";
 
-import Decimal from "decimal.js";
 import { IRecord } from "@/models/report.model";
-import dayjs from "dayjs";
 import useStore from "@/store";
+import dayjs from "dayjs";
+import Decimal from "decimal.js";
 
 interface RatioInfo {
   ratio: number;
@@ -236,7 +236,7 @@ const getRatio = (
     const workRatio = +holiday.workRatio;
     const extraRatio = +holiday.extraRatio;
     // 判断是节假日补班还是节假日加班
-    if (holiday.holidayTypeId === HOLIDAY_MAKEUP) {
+    if (holiday.holidayTypeId === HOLIDAY_TYPE.MAKEUP) {
       jobIds.forEach((jobId) => {
         res[jobId] = [
           {
@@ -253,7 +253,7 @@ const getRatio = (
       jobIds.forEach((jobId) => {
         res[jobId] = [
           {
-            ratio: workRatio,
+            ratio: extraRatio,
             type: WORK_TYPE_INFO.HOLIDAY,
           },
           {

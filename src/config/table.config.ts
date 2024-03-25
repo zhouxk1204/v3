@@ -1,6 +1,7 @@
 import { IDayRatioSetting, IEmployee, IHoliday, IReport } from "@/types";
 
 import { TableColumnItem } from "@/components/Table/type";
+import { SELECT_OPTION } from "@/constants";
 import { useSelect } from "@/hooks/useSelect";
 
 const { getOptionsByType } = useSelect();
@@ -22,8 +23,8 @@ export const HolidayTable: TableColumnItem<IHoliday>[] = [
       editType: "select",
       clearable: true,
       placeholder: "节假日名称",
-      selectType: "holiday",
-      options: getOptionsByType("holiday"),
+      selectType: SELECT_OPTION.HOLIDAY,
+      options: getOptionsByType(SELECT_OPTION.HOLIDAY),
     },
   },
   {
@@ -33,8 +34,8 @@ export const HolidayTable: TableColumnItem<IHoliday>[] = [
       editType: "select",
       clearable: true,
       placeholder: "放假/补班",
-      selectType: "holidayType",
-      options: getOptionsByType("holidayType"),
+      selectType: SELECT_OPTION.HOLIDAY_TYPE,
+      options: getOptionsByType(SELECT_OPTION.HOLIDAY_TYPE),
     },
   },
   {
@@ -90,8 +91,8 @@ export const EmployeeTable: TableColumnItem<IEmployee>[] = [
     field: "genderId",
     edit: {
       editType: "select",
-      selectType: "gender",
-      options: getOptionsByType("gender"),
+      selectType: SELECT_OPTION.GENDER,
+      options: getOptionsByType(SELECT_OPTION.GENDER),
       clearable: true,
       placeholder: "性别",
     },
@@ -101,8 +102,8 @@ export const EmployeeTable: TableColumnItem<IEmployee>[] = [
     field: "postId",
     edit: {
       editType: "select",
-      selectType: "post",
-      options: getOptionsByType("post"),
+      selectType: SELECT_OPTION.POSITION,
+      options: getOptionsByType(SELECT_OPTION.POSITION),
       clearable: true,
       placeholder: "职位",
     },
@@ -110,17 +111,17 @@ export const EmployeeTable: TableColumnItem<IEmployee>[] = [
 ];
 
 export const DayRatioSettingTable: TableColumnItem<IDayRatioSetting>[] = [
-  {
-    field: "employeeId",
-    label: "姓名",
-    edit: {
-      editType: "select",
-      clearable: true,
-      placeholder: "姓名",
-      selectType: "employee",
-      options: getOptionsByType("employee"),
-    },
-  },
+  // {
+  //   field: "employeeId",
+  //   label: "姓名",
+  //   edit: {
+  //     editType: "select",
+  //     clearable: true,
+  //     placeholder: "姓名",
+  //     selectType: "employee",
+  //     options: getOptionsByType("employee"),
+  //   },
+  // },
   {
     field: "date",
     label: "日期",
@@ -135,8 +136,8 @@ export const DayRatioSettingTable: TableColumnItem<IDayRatioSetting>[] = [
     field: "jobId",
     edit: {
       editType: "select",
-      selectType: "job",
-      options: getOptionsByType("job"),
+      selectType: SELECT_OPTION.JOB,
+      options: getOptionsByType(SELECT_OPTION.JOB),
       clearable: true,
       placeholder: "岗位",
     },
@@ -146,8 +147,8 @@ export const DayRatioSettingTable: TableColumnItem<IDayRatioSetting>[] = [
     field: "workTypeId",
     edit: {
       editType: "select",
-      selectType: "workType",
-      options: getOptionsByType("workType"),
+      selectType: SELECT_OPTION.WORK_TYPE,
+      options: getOptionsByType(SELECT_OPTION.WORK_TYPE),
       clearable: true,
       placeholder: "岗位",
     },

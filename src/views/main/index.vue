@@ -44,6 +44,8 @@
 </template>
 
 <script lang="ts" setup>
+import { getAllSelectOption } from "@/api/common";
+import useStore from "@/store";
 import { Menu } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import router from "../../router";
@@ -70,6 +72,21 @@ const onClickLogout = () => {
   localStorage.removeItem("token");
   router.replace("/home");
 }
+
+const init = async () => {
+  if (useStore().selection.list.length === 0) {
+    // 显示 Loading
+    const loading = ElLoading.service({
+      lock: true,
+      text: "正在初始化...",
+      background: "rgba(255, 255, 255, 0.1)",
+    });
+    const selectOptionRes = await getAllSelectOption();
+    useStore().selection.setSelectOptionList(selectOptionRes.data);
+    loading.close();
+  }
+}
+init();
 </script>
 
 <style lang="scss" scoped>

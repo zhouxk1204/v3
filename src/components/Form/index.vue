@@ -2,7 +2,8 @@
   <el-form :model="formModel" ref="formRef" label-position="left"
     class="flex flex-wrap gap-2 max-[450px]:block items-center">
     <template v-for="item in form">
-      <el-form-item :label="item.label" :prop="item.field" :rules="item.rules">
+      <el-form-item :label="item.label" :prop="item.field" :rules="item.rules"
+        v-show="!(item.hidden && (item.hidden.value === formModel[item.hidden.key]))">
         <!-- 日期 -->
         <el-date-picker style="width:100%" v-if="item.type === 'date'" type="date" v-model="formModel[item.field]"
           :placeholder="item.placeholder ?? ''" :clearable="item.clearable" :disabled="item.disabled"
@@ -33,7 +34,7 @@ import { ref } from "vue";
 import { FieldItem } from "./form";
 
 const formRef = ref<FormInstance>();
-const formModel = ref<Record<string, string | number>>({});
+const formModel = ref<any>({});
 
 const props = defineProps<{
   form: FieldItem[];

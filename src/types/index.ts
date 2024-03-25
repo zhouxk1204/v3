@@ -33,15 +33,6 @@ export interface IOption {
   value: string;
 }
 
-export type SelectType =
-  | "gender" // 性别
-  | "post" // 职位
-  | "job" // 岗位
-  | "workType" // 工作种类
-  | "holiday" // 法定节假日
-  | "holidayType" // 法定节假日类型
-  | "employee"; // 员工
-
 export interface IEmployee {
   id: string;
   no: number; // 序号

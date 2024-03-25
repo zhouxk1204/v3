@@ -1,7 +1,8 @@
 import { ResponseData, http } from "../request";
-import { Employee, EmployeeReq } from "./type";
 
-export const submitEmployee = (employee: EmployeeReq) => {
+import { Employee } from "./type";
+
+export const submitEmployee = (employee: Employee) => {
   return http.post("/employee/insert", employee);
 };
 
@@ -14,3 +15,9 @@ export const deleteEmployeeById = (id: number) => {
     params: { id },
   });
 };
+
+// export const updateEmployeeById = (id: number) => {
+//   return http.delete<ResponseData<Object>>("/employee/delete", {
+//     params: { id },
+//   });
+// };

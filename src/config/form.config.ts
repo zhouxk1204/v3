@@ -1,6 +1,6 @@
 import { FieldItem } from "@/components/Form/form";
+import { SELECT_OPTION } from "@/constants";
 import { useSelect } from "@/hooks/useSelect";
-
 const { getOptionsByType } = useSelect();
 
 export const HolidayForm: FieldItem[] = [
@@ -28,7 +28,7 @@ export const HolidayForm: FieldItem[] = [
         message: "请选择节假日",
       },
     ],
-    options: getOptionsByType("holiday"),
+    options: getOptionsByType(SELECT_OPTION.HOLIDAY),
     placeholder: "节假日",
     clearable: true,
     value: "",
@@ -43,7 +43,7 @@ export const HolidayForm: FieldItem[] = [
         message: "请选择加班/补班",
       },
     ],
-    options: getOptionsByType("holidayType"),
+    options: getOptionsByType(SELECT_OPTION.HOLIDAY_TYPE),
     placeholder: "加班/补班",
     clearable: true,
     value: "",
@@ -61,6 +61,10 @@ export const HolidayForm: FieldItem[] = [
     placeholder: "补班工分倍率",
     clearable: true,
     value: "",
+    hidden: {
+      key: "holidayTypeId",
+      value: "1",
+    },
   },
   {
     label: "加班倍率",
@@ -93,26 +97,26 @@ export const DayRatioSettingForm: FieldItem[] = [
     clearable: true,
     value: "",
   },
-  {
-    label: "姓名",
-    field: "employeeId",
-    type: "select",
-    rules: [
-      {
-        required: true,
-        message: "请选择姓名",
-      },
-    ],
-    options: getOptionsByType("employee"),
-    placeholder: "姓名",
-    clearable: true,
-    value: "",
-  },
+  // {
+  //   label: "姓名",
+  //   field: "employeeId",
+  //   type: "select",
+  //   rules: [
+  //     {
+  //       required: true,
+  //       message: "请选择姓名",
+  //     },
+  //   ],
+  //   options: getOptionsByType("employee"),
+  //   placeholder: "姓名",
+  //   clearable: true,
+  //   value: "",
+  // },
   {
     label: "岗位",
     field: "jobId",
     type: "select",
-    options: getOptionsByType("job"),
+    options: getOptionsByType(SELECT_OPTION.JOB),
     rules: [
       {
         required: true,
@@ -127,7 +131,7 @@ export const DayRatioSettingForm: FieldItem[] = [
     label: "上班/加班",
     field: "workTypeId",
     type: "select",
-    options: getOptionsByType("workType"),
+    options: getOptionsByType(SELECT_OPTION.WORK_TYPE),
     rules: [
       {
         required: true,
@@ -215,7 +219,7 @@ export const EmployeeForm: FieldItem[] = [
     label: "性别",
     field: "genderId",
     type: "select",
-    options: getOptionsByType("gender"),
+    options: getOptionsByType(SELECT_OPTION.GENDER),
     rules: [
       {
         required: true,
@@ -230,7 +234,7 @@ export const EmployeeForm: FieldItem[] = [
     label: "职位",
     field: "positionId",
     type: "select",
-    options: getOptionsByType("post"),
+    options: getOptionsByType(SELECT_OPTION.POSITION),
     rules: [
       {
         required: true,
