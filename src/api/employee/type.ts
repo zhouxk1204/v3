@@ -1,4 +1,5 @@
 export interface Employee {
+  id: string;
   no: number; // 顺序
   name: string; // 姓名
   factor: number; // 系数
@@ -6,10 +7,3 @@ export interface Employee {
   genderId: "0" | "1"; // "0": 女; "1": 男
   statusId: "0" | "1"; // "0": 离职; "1": 在职
 }
-
-// export interface Employee extends EmployeeReq {
-//   id: number;
-//   genderName: string;
-//   positionName: string;
-//   statusName: string;
-// }

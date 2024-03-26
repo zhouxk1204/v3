@@ -1,152 +1,164 @@
 <template>
   <div>
-    <div class="mb-5">
-      <h1 class="flex items-center h-12 pb-3 mb-3 font-bold border-b">
-        添加员工
-      </h1>
-      <Form :form="form" @submit="handelSubmit" ref="employeeFormRef"></Form>
-    </div>
+    <el-collapse v-model="activeNames">
+      <el-collapse-item name="1">
+        <template #title>
+          <h1 class="flex items-center h-12">
+            <el-text type="primary" size="large">添加员工</el-text>
+          </h1>
+        </template>
+        <Form :form="form" @submit="handleSubmit" ref="employeeFormRef"></Form>
+      </el-collapse-item>
+    </el-collapse>
 
-    <h1 class="flex items-center justify-between h-12 pb-3 mb-3 font-bold border-b ">
-      <span>员工列表</span>
+    <h1 class="flex items-center justify-between h-12 py-3 mb-3 border-b">
+      <el-text type="primary" size="large">员工列表</el-text>
       <div class="flex gap-3">
-        <el-popconfirm width="220" title="确认删除所有员工?" @confirm="reset">
-          <template #reference>
-            <el-button type="danger" :disabled="list.length === 0">清空</el-button>
-          </template>
-        </el-popconfirm>
-        <UploadExcel @change="onChange">选择文件导入</UploadExcel>
+        <el-radio-group v-model="statusId" @change="onStatusChange">
+          <el-radio-button label="全部" value="0" />
+          <el-radio-button label="在职" value="2" />
+          <el-radio-button label="离职" value="1" />
+        </el-radio-group>
+        <UploadExcel @change="importExcelData">
+          <el-button type="success" :icon="Upload" @click="onDownload">导入文件</el-button>
+        </UploadExcel>
+        <el-button type="success" :icon="Download" @click="onDownload">下载模板</el-button>
       </div>
     </h1>
-    <div class=" flex flex-col max-[450px]:hidden">
-      <Table :list="list" :cols="cols" :editable="true" @remove="remove($event)" @update="update($event)"></Table>
+
+    <div div class=" flex flex-col max-[450px]:hidden">
+      <Table :list="employeeList" :cols="cols" :editable="true" @remove="deleteEmployee" @update="updateEmployee">
+      </Table>
     </div>
-    <!-- <div class="flex-col gap-2 hidden max-[450px]:flex">
-      <div v-for="item in list" class="mt-2 text-gray-400 rounded-lg shadow bg-gray-50">
-        <div class="flex items-center justify-between px-3 py-1">
-          <div>
-            <div class="flex items-center gap-2">
-              <el-avatar :size="40">
-                <span class="text-xl">{{ item.employeeName[0] }}</span>
-              </el-avatar>
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="text-gray-600">{{ item.employeeName }}</span>
-                  <el-icon class="w-5 h-5 p-1 bg-red-300 rounded-full" :style="{
-        backgroundColor:
-          item.genderId === '1' ? '#70a3f3' : '#edacd2',
-      }" color="#fff">
-                    <Male v-if="item.genderId === '1'" />
-                    <Female v-else />
-                  </el-icon>
-                </div>
-                <div class="text-xs">
-                  系数：
-                  <span class="font-bold text-red-500">{{ item.factor }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <hr />
-        <div class="px-3">
-          <div class="flex items-center gap-1 text-xs">
-            <Icon icon="tabler:nurse" />
-            {{ item.postId === "0" ? "护士" : "护士长" }}
-          </div>
-        </div>
-      </div>
-    </div> -->
-
-
-    <ul class="flex-col gap-3 hidden max-[450px]:flex">
-      <li v-for="item in employeeList" class="flex items-center justify-between py-2 border-b">
-        <div class="flex gap-4">
-          <el-avatar :size="60">
-            <span class="text-4xl">{{ item.name[0] }}</span>
-          </el-avatar>
-          <div class="text-sm text-gray-500">
-            <div class="flex items-center gap-1 text-base font-bold text-black">
-              <span>{{ item.name }}</span>
-              <el-icon class="w-5 h-5 p-1 text-2xl rounded-full" color="#fff"
-                :class="item.genderId === '1' ? 'bg-[#70a3f3]' : 'bg-[#edacd2]'">
-                <Male v-if="item.genderId === '1'" />
-                <Female v-else />
-              </el-icon>
-            </div>
-            <div>系数：<strong>{{ item.factor }}</strong></div>
-          </div>
-        </div>
-        <div>
-          <el-button type="primary" :icon="Edit" circle />
-        </div>
-      </li>
-    </ul>
-
   </div>
 </template>
 
 <script setup lang="ts">
-import { getEmployee, submitEmployee } from "@/api/employee";
+import { deleteEmployeeById, getEmployee, submitEmployee, updateEmployeeData } from "@/api/employee";
 import { Employee } from "@/api/employee/type";
 import { FieldItem } from "@/components/Form/form";
 import { TableColumnItem } from "@/components/Table/type";
 import { EmployeeForm } from "@/config/form.config";
 import { EmployeeTable } from "@/config/table.config";
+import { useExcel } from "@/hooks/useExcel";
 import { useSelect } from "@/hooks/useSelect";
 import useStore from "@/store";
-import { IEmployee } from "@/types";
-import { generateId } from "@/utils";
-import { Edit, Female, Male } from "@element-plus/icons-vue";
-import { storeToRefs } from "pinia";
-const employeeStore = useStore().employee;
-const { insert, remove, update, reset } = employeeStore;
-const { list } = storeToRefs(employeeStore);
+import { Download, Upload } from "@element-plus/icons-vue";
+import { v4 } from 'uuid';
 
 const { getOption } = useSelect();
-const cols: TableColumnItem<IEmployee>[] = EmployeeTable;
-
+const employeeStore = useStore().employee;
+const activeNames = ref("0");
 const employeeList = ref<Employee[]>([]);
-onMounted(async () => {
-  const data = await getEmployee();
-  if (data.code === 200) {
-    employeeList.value = data.data;
-  }
-  console.log("%c Line:96 🍔 employeeList.value", "color:#3f7cff", employeeList.value);
+
+const form = ref<FieldItem[]>(EmployeeForm);
+const cols: TableColumnItem<Employee>[] = EmployeeTable;
+const employeeFormRef = ref();
+/**
+ * 添加员工
+ * @param {any[]} data 员工信息
+ */
+const handleSubmit = async (data: any): Promise<void> => {
+  const req = Object.assign(data, { id: v4() });
+  await submitEmployee(req);
+  employeeFormRef.value.handelReset();
+  await refreshEmployeeList();
+  ElMessage.success('员工添加成功！')
+}
+
+onMounted(() => {
+  refreshEmployeeList();
 })
 
+const status = ['全部', '离职', '在职',];
+const statusId = ref(status[2]);
+const onStatusChange = (value: any) => {
+  const index = status.indexOf(value);
+  if (index > 0) {
+    employeeList.value = employeeStore.getEmployeeTempList().filter(e => e.statusId === `${index - 1}`);
+  } else {
+    employeeList.value = employeeStore.getEmployeeTempList();
+  }
+}
 
-const onChange = (data: any[]) => {
+/**
+ * 导入EXCEL 员工
+ * @param {any[]} data 员工信息列表
+ */
+const importExcelData = async (data: any[]) => {
   if (data.length > 0) {
-    const list: IEmployee[] = data.map((e) => {
-      return {
-        id: generateId(),
-        no: e.no,
-        employeeName: e.name,
-        factor: e.factor,
-        genderId: getOption("label", e.gender, "gender")?.value ?? "",
-        postId: getOption("label", e.post, "post")?.value ?? "",
-      };
+    const list: Employee[] = [];
+    data.forEach((item: any) => {
+      const obj: any = {};
+      Object.keys(item).forEach((label: string) => {
+        const el = cols.find(el => el.label === label)
+        if (el) {
+          const key = el.field;
+          const text = item[label];
+          if (el.edit && el.edit.editType === 'select') {
+            const { selectType } = el.edit
+            const option = getOption('label', text, selectType)
+            if (option) {
+              obj[key] = option.value;
+            }
+          } else {
+            obj[key] = text;
+          }
+        }
+      })
+      obj.id = v4();
+      list.push(obj);
     });
-    insert(list);
+    await submitEmployee(list);
+    await refreshEmployeeList();
+    ElMessage.success('员工导入成功！');
   }
 };
 
-const form = ref<FieldItem[]>(EmployeeForm);
-const employeeFormRef = ref();
-
-const handelSubmit = async (data: any) => {
-  const res1 = await submitEmployee(data);
-  if (res1.code === 200) {
-    ElMessage.success('员工添加成功！')
-    employeeFormRef.value.handelReset();
-    const res2 = await getEmployee();
-    if (res2.code === 200) {
-      employeeList.value = res2.data;
-    }
-  }
+/**
+ * 下载模板
+ */
+const onDownload = () => {
+  useExcel().exportExcel(
+    [
+      {
+        headers: cols.map((e) => e.label),
+        data: [],
+      },
+    ],
+    '员工信息excel模版'
+  )
 }
-const { getSelectOptionByType } = useStore().selection;
 
-console.log("%c Line:157 🍉 lll", "color:#3f7cff", getSelectOptionByType('0'));
+/**
+ * 刷新员工列表
+ */
+const refreshEmployeeList = async () => {
+  const res = await getEmployee();
+  employeeStore.setEmployeeTempList(res.data);
+  onStatusChange(statusId.value)
+}
+
+/**
+ * 删除员工
+ * @param {number} index 行号
+ */
+const deleteEmployee = async (index: number) => {
+  const id = employeeList.value[index].id
+  await deleteEmployeeById(id);
+  await refreshEmployeeList();
+  ElMessage.success('员工删除成功！')
+}
+
+/**
+ * 更新员工信息
+ * @param {any} data 员工信息
+ */
+const updateEmployee = async (data: any) => {
+  await updateEmployeeData(data);
+  await refreshEmployeeList();
+  ElMessage.success('员工信息更新成功！')
+};
+
+
 </script>

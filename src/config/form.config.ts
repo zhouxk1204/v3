@@ -245,4 +245,19 @@ export const EmployeeForm: FieldItem[] = [
     clearable: true,
     value: "",
   },
+  {
+    label: "状态",
+    field: "statusId",
+    type: "select",
+    options: getOptionsByType(SELECT_OPTION.STATUS),
+    rules: [
+      {
+        required: true,
+        message: "请选择状态",
+      },
+    ],
+    placeholder: "状态",
+    clearable: true,
+    value: "",
+  },
 ];

@@ -1,11 +1,10 @@
 <template>
-  <el-form :model="formModel" ref="formRef" label-position="left"
-    class="flex flex-wrap gap-2 max-[450px]:block items-center">
+  <el-form :model="formModel" ref="formRef" label-position="left" class="flex flex-wrap gap-3 max-[450px]:block">
     <template v-for="item in form">
       <el-form-item :label="item.label" :prop="item.field" :rules="item.rules"
         v-show="!(item.hidden && (item.hidden.value === formModel[item.hidden.key]))">
         <!-- 日期 -->
-        <el-date-picker style="width:100%" v-if="item.type === 'date'" type="date" v-model="formModel[item.field]"
+        <el-date-picker class="w-[132px]" v-if="item.type === 'date'" type="date" v-model="formModel[item.field]"
           :placeholder="item.placeholder ?? ''" :clearable="item.clearable" :disabled="item.disabled"
           format="YYYY/MM/DD" value-format="YYYY/MM/DD" :editable="false" />
         <!-- 数字输入框 -->
@@ -18,7 +17,7 @@
         <!-- 下拉选项 -->
         <el-select-v2 v-else-if="item.type === 'select'" v-model="formModel[item.field]"
           :placeholder="item.placeholder ?? ''" :clearable="item.clearable" :options="item.options ?? []"
-          :disabled="item.disabled" class="min-w-28" />
+          :disabled="item.disabled" class="min-w-[176px]" />
       </el-form-item>
     </template>
     <div class="max-[450px]:flex">

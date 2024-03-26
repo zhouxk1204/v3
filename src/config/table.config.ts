@@ -1,5 +1,6 @@
-import { IDayRatioSetting, IEmployee, IHoliday, IReport } from "@/types";
+import { IDayRatioSetting, IHoliday, IReport } from "@/types";
 
+import { Employee } from "@/api/employee/type";
 import { TableColumnItem } from "@/components/Table/type";
 import { SELECT_OPTION } from "@/constants";
 import { useSelect } from "@/hooks/useSelect";
@@ -58,7 +59,7 @@ export const HolidayTable: TableColumnItem<IHoliday>[] = [
   },
 ];
 
-export const EmployeeTable: TableColumnItem<IEmployee>[] = [
+export const EmployeeTable: TableColumnItem<Employee>[] = [
   {
     field: "no",
     label: "顺序",
@@ -70,7 +71,7 @@ export const EmployeeTable: TableColumnItem<IEmployee>[] = [
   },
   {
     label: "姓名",
-    field: "employeeName",
+    field: "name",
     edit: {
       editType: "text",
       clearable: true,
@@ -99,13 +100,24 @@ export const EmployeeTable: TableColumnItem<IEmployee>[] = [
   },
   {
     label: "职位",
-    field: "postId",
+    field: "positionId",
     edit: {
       editType: "select",
       selectType: SELECT_OPTION.POSITION,
       options: getOptionsByType(SELECT_OPTION.POSITION),
       clearable: true,
       placeholder: "职位",
+    },
+  },
+  {
+    label: "状态",
+    field: "statusId",
+    edit: {
+      editType: "select",
+      selectType: SELECT_OPTION.STATUS,
+      options: getOptionsByType(SELECT_OPTION.STATUS),
+      clearable: true,
+      placeholder: "状态",
     },
   },
 ];
