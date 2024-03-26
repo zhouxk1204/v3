@@ -12,8 +12,8 @@ export interface ResponseData<T = any> {
 
 const instance: AxiosInstance = axios.create({
   // 设置你的API基础URL
-  // baseURL: "https://api.zhouxk.fun",
-  baseURL: "http://127.0.0.1:3001",
+  baseURL: "https://api.zhouxk.fun",
+  // baseURL: "http://127.0.0.1:3001",
   // 设置请求超时时间
   timeout: 10000,
 });

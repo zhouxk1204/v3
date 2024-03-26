@@ -96,4 +96,8 @@ init();
   backdrop-filter: saturate(50%) blur(4px);
   background-size: 4px 4px;
 }
+
+::-webkit-scrollbar {
+  display: none;
+}
 </style>
