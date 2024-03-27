@@ -1,6 +1,6 @@
 import { type FormItemRule } from "element-plus";
 
-type FormItemType = "text" | "date" | "number" | "select";
+type FormItemType = "text" | "date" | "daterange" | "number" | "select";
 
 interface Option {
   label: string;

@@ -1,13 +1,14 @@
 import { FieldItem } from "@/components/Form/form";
 import { SELECT_OPTION } from "@/constants";
 import { useSelect } from "@/hooks/useSelect";
+
 const { getOptionsByType } = useSelect();
 
 export const HolidayForm: FieldItem[] = [
   {
-    label: "节假日日期",
+    label: "日期",
     field: "date",
-    type: "date",
+    type: "daterange",
     rules: [
       {
         required: true,
@@ -19,8 +20,8 @@ export const HolidayForm: FieldItem[] = [
     value: "",
   },
   {
-    label: "节假日名称",
-    field: "holidayId",
+    label: "节假日",
+    field: "hId",
     type: "select",
     rules: [
       {
@@ -35,7 +36,7 @@ export const HolidayForm: FieldItem[] = [
   },
   {
     label: "加班/补班",
-    field: "holidayTypeId",
+    field: "tId",
     type: "select",
     rules: [
       {
@@ -50,7 +51,7 @@ export const HolidayForm: FieldItem[] = [
   },
   {
     label: "补班倍率",
-    field: "workRatio",
+    field: "ratio1",
     type: "number",
     rules: [
       {
@@ -62,13 +63,13 @@ export const HolidayForm: FieldItem[] = [
     clearable: true,
     value: "",
     hidden: {
-      key: "holidayTypeId",
+      key: "tId",
       value: "1",
     },
   },
   {
     label: "加班倍率",
-    field: "extraRatio",
+    field: "ratio2",
     type: "number",
     rules: [
       {

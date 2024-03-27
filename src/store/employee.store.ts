@@ -1,4 +1,4 @@
-import { Employee } from "@/api/employee/type";
+import { Employee } from "@/types/employee";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 

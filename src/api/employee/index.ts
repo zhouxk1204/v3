@@ -1,6 +1,6 @@
 import { ResponseData, http } from "../request";
 
-import { Employee } from "./type";
+import { Employee } from "@/types/employee";
 
 export const submitEmployee = (employee: Employee | Employee[]) => {
   return http.post("/employee/insert", employee);

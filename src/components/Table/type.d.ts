@@ -10,7 +10,7 @@ interface Option {
   value: string;
 }
 
-type EditTypeName = "text" | "number" | "date";
+type EditTypeName = "text" | "number" | "date" | 'daterange';
 type EditTypeName2 = "select";
 
 type EditType<

@@ -1,14 +1,15 @@
 <template>
-  <el-table :data="list" class="w-full" size="large">
-    <el-table-column :label="item.label" v-for="item in cols">
+  <el-table :data="list" class="w-full" >
+    <el-table-column :label="item.label" v-for="item in cols" :min-width="item.edit?.editType === 'daterange' ? 238 : 100">
       <template #default="scope">
         <template v-if="editRowIndex !== scope.$index">
-          <span v-if="item.edit && item.edit.editType === 'select'">
+          <span v-if="item.edit?.editType === 'select'">
             {{
     getOption("value", scope.row[item.field], item.edit.selectType)
       ?.label
   }}
           </span>
+          <span v-else-if="item.edit?.editType === 'daterange'">{{ (scope.row[item.field]).join('~') }}</span>
           <span v-else>{{ scope.row[item.field] }}</span>
         </template>
         <template v-else>
@@ -22,7 +23,21 @@
           </template>
           <template v-else-if="item.edit && item.edit.editType === 'date'">
             <el-date-picker type="date" v-model="editRowTemp[item.field]" :placeholder="item.edit.placeholder"
-              :clearable="item.edit.clearable" format="YYYY/MM/DD" value-format="YYYY/MM/DD" class="w-24">
+              :clearable="item.edit.clearable" format="YYYY/MM/DD" value-format="YYYY/MM/DD">
+            </el-date-picker>
+          </template>
+          <template v-else-if="item.edit && item.edit.editType === 'daterange'">
+            <el-date-picker 
+              v-model="editRowTemp[item.field]" 
+              :clearable="item.edit.clearable"
+              type="daterange"
+              unlink-panels
+              range-separator="~"
+              start-placeholder="开始日"
+              end-placeholder="结束日"
+              format="YYYY/MM/DD"
+              value-format="YYYY/MM/DD"
+              >
             </el-date-picker>
           </template>
           <template v-else-if="item.edit && item.edit.editType === 'select'">

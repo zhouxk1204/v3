@@ -1,25 +1,26 @@
-import { IDayRatioSetting, IHoliday, IReport } from "@/types";
+import { IDayRatioSetting, IReport } from "@/types";
 
-import { Employee } from "@/api/employee/type";
 import { TableColumnItem } from "@/components/Table/type";
 import { SELECT_OPTION } from "@/constants";
 import { useSelect } from "@/hooks/useSelect";
+import { Employee } from "@/types/employee";
+import { Holiday } from "@/types/holiday";
 
 const { getOptionsByType } = useSelect();
 
-export const HolidayTable: TableColumnItem<IHoliday>[] = [
+export const HolidayTable: TableColumnItem<Holiday>[] = [
   {
     field: "date",
     label: "日期",
     edit: {
-      editType: "date",
+      editType: "daterange",
       clearable: true,
       placeholder: "日期",
     },
   },
   {
-    field: "holidayId",
-    label: "节假日名称",
+    field: "hId",
+    label: "名称",
     edit: {
       editType: "select",
       clearable: true,
@@ -29,7 +30,7 @@ export const HolidayTable: TableColumnItem<IHoliday>[] = [
     },
   },
   {
-    field: "holidayTypeId",
+    field: "tId",
     label: "放假/补班",
     edit: {
       editType: "select",
@@ -40,21 +41,21 @@ export const HolidayTable: TableColumnItem<IHoliday>[] = [
     },
   },
   {
-    field: "workRatio",
-    label: "节假日补班工作倍率",
+    field: "ratio1",
+    label: "补班倍率",
     edit: {
       editType: "number",
       clearable: true,
-      placeholder: "节假日补班工作倍率",
+      placeholder: "补班倍率",
     },
   },
   {
-    field: "extraRatio",
-    label: "节假日加班工作倍率",
+    field: "ratio2",
+    label: "加班倍率",
     edit: {
       editType: "number",
       clearable: true,
-      placeholder: "节假日加班工作倍率",
+      placeholder: "加班倍率",
     },
   },
 ];

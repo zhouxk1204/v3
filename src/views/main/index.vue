@@ -86,6 +86,8 @@ const init = async () => {
     loading.close();
   }
 }
+
+
 init();
 </script>
 
@@ -95,9 +97,5 @@ init();
   background: radial-gradient(transparent 1px, #fff 1px);
   backdrop-filter: saturate(50%) blur(4px);
   background-size: 4px 4px;
-}
-
-::-webkit-scrollbar {
-  display: none;
 }
 </style>

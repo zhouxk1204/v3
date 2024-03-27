@@ -35,7 +35,6 @@
 
 <script setup lang="ts">
 import { deleteEmployeeById, getEmployee, submitEmployee, updateEmployeeData } from "@/api/employee";
-import { Employee } from "@/api/employee/type";
 import { FieldItem } from "@/components/Form/form";
 import { TableColumnItem } from "@/components/Table/type";
 import { EmployeeForm } from "@/config/form.config";
@@ -43,6 +42,7 @@ import { EmployeeTable } from "@/config/table.config";
 import { useExcel } from "@/hooks/useExcel";
 import { useSelect } from "@/hooks/useSelect";
 import useStore from "@/store";
+import { Employee } from "@/types/employee";
 import { Download, Upload } from "@element-plus/icons-vue";
 import { v4 } from 'uuid';
 
@@ -159,6 +159,4 @@ const updateEmployee = async (data: any) => {
   await refreshEmployeeList();
   ElMessage.success('员工信息更新成功！')
 };
-
-
 </script>
