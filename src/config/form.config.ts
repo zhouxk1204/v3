@@ -9,6 +9,7 @@ export const HolidayForm: FieldItem[] = [
     label: "日期",
     field: "date",
     type: "daterange",
+    disableDate: () => false,
     rules: [
       {
         required: true,
@@ -17,6 +18,7 @@ export const HolidayForm: FieldItem[] = [
     ],
     placeholder: "日期",
     clearable: true,
+    dateRange: [],
     value: "",
   },
   {

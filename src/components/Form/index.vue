@@ -11,7 +11,7 @@
         <!-- 日期范围 -->
         <el-date-picker v-if="item.type === 'daterange'" v-model="formModel[item.field]" :disabled="item.disabled"
           :clearable="item.clearable" type="daterange" unlink-panels range-separator="~" start-placeholder="开始日"
-          end-placeholder="结束日" format="YYYY/MM/DD" value-format="YYYY/MM/DD" />
+          end-placeholder="结束日" format="YYYY/MM/DD" value-format="YYYY/MM/DD" :disabled-date="item.disableDate" />
 
         <!-- 数字输入框 -->
         <el-input class="w-full" v-else-if="item.type === 'number'" v-model.number="formModel[item.field]"
@@ -34,6 +34,7 @@
 </template>
 
 <script setup lang="ts">
+
 import { FormInstance } from "element-plus/es/components/form";
 import _ from "lodash";
 import { ref } from "vue";
@@ -83,6 +84,21 @@ const handelReset = () => {
   if (!formRef.value) return;
   formRef.value.resetFields();
 };
+
+// // 禁用日期范围方法
+// const disabledDate = (time: Date, range: string[][]) => {
+//   if (range.length === 0) return false;
+
+//   for (let dates of range) {
+//     const [start, end] = dates;
+//     // 使用 isBetween 方法检查日期是否在范围内（包括边界）
+//     const isInRange = dayjs(time).isBetween(dayjs(start), dayjs(end), null, '[]');
+//     if (isInRange) {
+//       return true;
+//     }
+//   }
+//   return false;
+// }
 
 defineExpose({
   handelReset

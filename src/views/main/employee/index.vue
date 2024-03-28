@@ -155,8 +155,6 @@ const deleteEmployee = async (index: number) => {
  * @param {any} data 员工信息
  */
 const updateEmployee = async (data: any) => {
-  await updateEmployeeData(data);
-  await refreshEmployeeList();
-  ElMessage.success('员工信息更新成功！')
+  
 };
 </script>
