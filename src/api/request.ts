@@ -10,6 +10,8 @@ export interface ResponseData<T = any> {
   data: T;
 }
 
+let requestCount = 0;
+
 const instance: AxiosInstance = axios.create({
   // 设置你的API基础URL
   // baseURL: "https://api.zhouxk.fun",
@@ -31,15 +33,19 @@ axiosRetry(instance, {
 // 请求拦截器
 instance.interceptors.request.use(
   (config) => {
-    // 显示 Loading
-    loading = ElLoading.service({
-      lock: true,
-      text: "加载中...",
-      background: "rgba(255, 255, 255, 1)",
-    });
+    if (requestCount === 0) {
+      // 显示 Loading
+      loading = ElLoading.service({
+        lock: true,
+        text: "加载中...",
+        background: "rgba(255, 255, 255, 1)",
+      });
+    }
+    requestCount += 1;
 
     // 获取请求的路径
     const path = config.url ?? "/";
+
     if (path.startsWith("/auth")) {
       // 如果是认证相关的请求，添加对应的Authorization头
       config.headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
@@ -50,7 +56,8 @@ instance.interceptors.request.use(
   },
   (error) => {
     // 隐藏 Loading
-    loading.close();
+    requestCount -= 1;
+    hideLoading(requestCount);
     return Promise.reject(error);
   }
 );
@@ -59,14 +66,15 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (response) => {
     // 隐藏 Loading
-    loading.close();
+    requestCount -= 1;
+    hideLoading(requestCount);
     return response.data;
   },
   (error) => {
     // 隐藏 Loading
+    requestCount -= 1;
+    hideLoading(requestCount);
     // 在响应拦截器中处理错误并显示消息
-    loading.close();
-
     if (error.response) {
       const { status, data } = error.response;
       if (status === 401) {
@@ -109,4 +117,10 @@ export const http = {
   delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
     return instance.delete(url, config);
   },
+};
+
+const hideLoading = (count: number) => {
+  if (count === 0) {
+    loading.close();
+  }
 };

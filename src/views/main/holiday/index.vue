@@ -42,35 +42,35 @@ onMounted(() => {
 
 const range = ref<string[][]>([]);
 
-const refreshHolidayList = async () => {
+const refreshHolidayList = async (message?: string) => {
   const { data } = await getHolidayList();
   holidayList.value = data;
   holidayStore.setHolidayTempList(data);
   range.value = data.map(e => e.date);
   // 更新不可选择日期范围
   form.value[0].disableDateRange = range.value;
+  if (message) {
+    ElMessage.success(message);
+  }
 }
 
 const updateHoliday = async (data: any) => {
-  await updateHolidayData(data);
-  await refreshHolidayList();
-  ElMessage.success('节假日信息更新成功！')
+  updateHolidayData(data);
+  refreshHolidayList('节假日信息更新成功！');
 }
 
-const deleteHoliday = async (index: number) => {
+const deleteHoliday = (index: number) => {
   const id = holidayList.value[index].id
-  await deleteHolidayById(id);
-  await refreshHolidayList();
-  ElMessage.success('节假日信息删除成功！')
+  deleteHolidayById(id);
+  refreshHolidayList('节假日信息删除成功！');
 }
 
 const holidayFormRef = ref();
 const handelSubmit = async (data: any) => {
   data.id = generateId();
-  await submitHoliday(data);
+  submitHoliday(data);
   holidayFormRef.value.handelReset();
-  await refreshHolidayList();
-  ElMessage.success('节假日信息添加成功！')
+  refreshHolidayList('节假日信息添加成功！')
 };
 
 </script>

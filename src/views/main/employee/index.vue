@@ -62,8 +62,7 @@ const handleSubmit = async (data: any): Promise<void> => {
   const req = Object.assign(data, { id: v4() });
   await submitEmployee(req);
   employeeFormRef.value.handelReset();
-  await refreshEmployeeList();
-  ElMessage.success('员工添加成功！')
+  await refreshEmployeeList('员工添加成功！');
 }
 
 onMounted(() => {
@@ -133,10 +132,13 @@ const onDownload = () => {
 /**
  * 刷新员工列表
  */
-const refreshEmployeeList = async () => {
+const refreshEmployeeList = async (message?: string) => {
   const res = await getEmployee();
   employeeStore.setEmployeeTempList(res.data);
-  onStatusChange(statusId.value)
+  onStatusChange(statusId.value);
+  if (message) {
+    ElMessage.success(message)
+  }
 }
 
 /**
@@ -146,8 +148,7 @@ const refreshEmployeeList = async () => {
 const deleteEmployee = async (index: number) => {
   const id = employeeList.value[index].id
   await deleteEmployeeById(id);
-  await refreshEmployeeList();
-  ElMessage.success('员工删除成功！')
+  await refreshEmployeeList('员工删除成功！');
 }
 
 /**
@@ -156,7 +157,6 @@ const deleteEmployee = async (index: number) => {
  */
 const updateEmployee = async (data: any) => {
   await updateEmployeeData(data);
-  await refreshEmployeeList();
-  ElMessage.success('员工信息更新成功！')
+  await refreshEmployeeList('员工信息更新成功！');
 };
 </script>
