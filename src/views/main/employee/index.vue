@@ -20,7 +20,7 @@
           <el-radio-button label="离职" value="1" />
         </el-radio-group>
         <UploadExcel @change="importExcelData">
-          <el-button type="success" :icon="Upload" @click="onDownload">导入文件</el-button>
+          <el-button type="success" :icon="Upload">导入文件</el-button>
         </UploadExcel>
         <el-button type="success" :icon="Download" @click="onDownload">下载模板</el-button>
       </div>

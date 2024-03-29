@@ -12,6 +12,7 @@ import { fullToHalf, trim } from "@/utils/string";
 
 import { IRecord } from "@/models/report.model";
 import useStore from "@/store";
+import { isInRange } from "@/utils/date";
 import dayjs from "dayjs";
 import Decimal from "decimal.js";
 
@@ -31,14 +32,14 @@ export function useReport(data: IRecord[][]) {
   const errors: string[] = [];
 
   for (let item of data) {
-    const iEmployee = useStore().employee.list.find(
-      (el) => el.employeeName === item[0].employeeName
+    const employee = useStore().employee.employeeTempList.find(
+      (el) => el.name === item[0].employeeName
     );
 
     let workDayCount = 0;
     let workCount = 0;
 
-    if (iEmployee) {
+    if (employee) {
       let pointList: IPoint[] = [];
       let hasError: boolean = false;
       for (let e of item) {
@@ -54,7 +55,7 @@ export function useReport(data: IRecord[][]) {
           }
         } else {
           // 当日是否为工作日或节假日补班
-          const ratioObj = getRatio(date, iEmployee.id);
+          const ratioObj = getRatio(date, employee.id);
 
           const typeid = Object.values(ratioObj)[0].map((e) => e.type.id)[0];
 
@@ -77,7 +78,7 @@ export function useReport(data: IRecord[][]) {
 
         if (hasError) {
           errors.push(
-            `${iEmployee.employeeName}：在${date} 填写的工分记录：${record} 填写错误，无法解析，请核对！！！`
+            `${employee.name}：在${date} 填写的工分记录：${record} 填写错误，无法解析，请核对！！！`
           );
           hasError = false;
         }
@@ -126,8 +127,8 @@ export function useReport(data: IRecord[][]) {
         totalOvertimeGastroscopy
       );
       const iReport: IReport = {
-        employeeName: iEmployee.employeeName,
-        factor: iEmployee.factor,
+        employeeName: employee.name,
+        factor: employee.factor,
         annual: annual.toNumber(),
         leave,
         workDayCount,
@@ -139,7 +140,7 @@ export function useReport(data: IRecord[][]) {
         totalOther: totalOther.toNumber(),
         totalGastroscopy: totalGastroscopy.toNumber(),
         total: totalOther.plus(totalGastroscopy.times(1.2)).toNumber(),
-        serve: iEmployee.postId === POST_INFO.HEAD_NURSE.id ? 2 : 0,
+        serve: employee.positionId === POST_INFO.HEAD_NURSE.id ? 2 : 0,
       };
       reports.push(iReport);
     }
@@ -230,13 +231,13 @@ const getRatio = (
   const jobIds = Object.values(JOB_INFO).map((e) => e.id);
 
   // 节假日列表
-  const holidayList = useStore().holiday.list;
-  const holiday = holidayList.find((e) => e.date === date);
+  const holidayList = useStore().holiday.holidayTempList;
+  const holiday = holidayList.find((e) => isInRange(e.date, date));
   if (holiday) {
-    const workRatio = +holiday.workRatio;
-    const extraRatio = +holiday.extraRatio;
+    const workRatio = +holiday.ratio1;
+    const extraRatio = +holiday.ratio2;
     // 判断是节假日补班还是节假日加班
-    if (holiday.holidayTypeId === HOLIDAY_TYPE.MAKEUP) {
+    if (holiday.hId === HOLIDAY_TYPE.MAKEUP) {
       jobIds.forEach((jobId) => {
         res[jobId] = [
           {

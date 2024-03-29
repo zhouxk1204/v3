@@ -26,9 +26,7 @@ import { HolidayTable } from "@/config/table.config";
 import useStore from "@/store";
 import { Holiday } from '@/types/holiday';
 import { generateId } from "@/utils";
-import dayjs from "dayjs";
-import isBetween from 'dayjs/plugin/isBetween';
-dayjs.extend(isBetween);
+
 
 const holidayStore = useStore().holiday;
 

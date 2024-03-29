@@ -5,7 +5,7 @@ export interface IRecord {
 }
 
 export interface IEmployeeReport {
-  employeeName: string;
+  name: string;
   factor: string;
   totalOtherRatioPoint: number;
   totalGastroscopyRatioPoint: number;

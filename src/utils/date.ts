@@ -1,6 +1,7 @@
 import { DEFAULT_DATE_FORMAT } from "@/constants";
 import dayjs from "dayjs";
-
+import isBetween from 'dayjs/plugin/isBetween';
+dayjs.extend(isBetween);
 /**
  * 将XX年XX日 转换为 YYYY/MM/DD
  * @param {string} target
@@ -108,4 +109,15 @@ export function parseMonthDayTextDate(target: string) {
     console.error("无法解析日期字符串");
     return "Invalid date";
   }
+}
+
+export function isInRange(
+  range: [string, string] | string[],
+  target: string | Date
+): boolean {
+  const [start, end] = range;
+  const startDate = dayjs(start);
+  const endDate = dayjs(end);
+  const targetDate = dayjs(target);
+  return targetDate.isBetween(startDate, endDate, null, "[]"); // '[]' includes start and end date
 }

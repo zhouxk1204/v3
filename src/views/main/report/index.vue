@@ -11,71 +11,64 @@
         <Table class="border-t" v-if="dayRatioSettingList.length > 0" :list="dayRatioSettingList"
           :cols="dayRatioSettingCols" :editable="true" @remove="remove($event)" @update="update($event)"></Table>
       </el-collapse-item>
+    </el-collapse>
 
-      <el-collapse-item name="2">
+    <div>
+      <h1 class="flex items-center justify-between h-12 py-3 mb-3 border-b">
+        <el-text type="primary" size="large">月次工分汇算</el-text>
+      </h1>
+      <div class="flex items-center">
+        <UploadExcel @change="onImport" sheetName="护士" class="mr-3">
+          <el-button type="primary" :icon="Upload">导入</el-button>
+        </UploadExcel>
+        <el-button-group class="mr-3">
+          <el-button type="primary" :icon="Download" @click="onExport">导出</el-button>
+          <el-button type="primary" :icon="Setting" @click="dialogTableVisible = true" />
+        </el-button-group>
+        <el-dialog v-model="dialogTableVisible" title="导出标题栏设置">
+          <el-checkbox-group v-model="checkList" class="flex flex-col border-t">
+            <div v-for="item of reportCols" class="px-2 border-b hover:bg-gray-200">
+              <el-checkbox :label="item.label" :value="item.field" size="large" />
+            </div>
+          </el-checkbox-group>
+        </el-dialog>
+        <el-popconfirm width="220" title="确认清空工分汇算?" @confirm="onResetReport">
+          <template #reference>
+            <el-button type="danger">清空</el-button>
+          </template>
+        </el-popconfirm>
+      </div>
 
-        <template #title>
-          <h1 class="flex items-center w-full h-12 text-base font-bold">
-            <span>月次工分汇算</span>
-          </h1>
-        </template>
-        <div class="flex items-center">
-          <UploadExcel class="mr-3" @change="onImport" sheetName="护士">导入</UploadExcel>
-          <el-button-group class="mr-3">
-            <el-button type="success" @click="onExport" :disabled="reportList.length === 0">导出</el-button>
-            <el-button type="success" :icon="Setting" @click="dialogTableVisible = true" />
-            <el-dialog v-model="dialogTableVisible" title="导出标题栏设置">
+      <Table :list="reportList" :cols="reportCols" class="max-[450px]:hidden"></Table>
 
-              <el-checkbox-group v-model="checkList" class="flex flex-col border-t">
-
-                <div v-for="item of reportCols" class="px-2 border-b hover:bg-gray-200">
-                  <el-checkbox :label="item.label" :value="item.field" size="large" />
-                </div>
-              </el-checkbox-group>
-
-            </el-dialog>
-          </el-button-group>
-          <el-popconfirm width="220" title="确认清空工分汇算?" @confirm="onResetReport">
-
-            <template #reference>
-              <el-button type="danger" :disabled="reportList.length === 0">清空</el-button>
-            </template>
-          </el-popconfirm>
-        </div>
-
-        <Table :list="reportList" :cols="reportCols" class="max-[450px]:hidden"></Table>
-
-        <div class="hidden max-[450px]:flex max-[450px]:flex-col max-[450px]:gap-1 mt-3">
-          <div class="p-2 border rounded-md" v-for="item in reportList">
-            <div class="flex items-center gap-2">
-              <el-avatar :size="42" class="flex-none" shape="square">
-                <span class="text-xs">{{ item.employeeName }}</span>
-              </el-avatar>
-              <div class="flex flex-wrap gap-1">
-                <el-tag effect="dark" type="warning" size="small">{{ item.factor }}</el-tag>
-                <el-tag effect="dark" size="small" type="info">手术{{ item.totalOther }}</el-tag>
-                <el-tag effect="dark" size="small" type="info" v-if="item.totalGastroscopy > 0">胃镜{{
+      <div class="hidden max-[450px]:flex max-[450px]:flex-col max-[450px]:gap-1 mt-3">
+        <div class="p-2 border rounded-md" v-for="item in reportList">
+          <div class="flex items-center gap-2">
+            <el-avatar :size="42" class="flex-none" shape="square">
+              <span class="text-xs">{{ item.employeeName }}</span>
+            </el-avatar>
+            <div class="flex flex-wrap gap-1">
+              <el-tag effect="dark" type="warning" size="small">{{ item.factor }}</el-tag>
+              <el-tag effect="dark" size="small" type="info">手术{{ item.totalOther }}</el-tag>
+              <el-tag effect="dark" size="small" type="info" v-if="item.totalGastroscopy > 0">胃镜{{
       item.totalGastroscopy
     }}</el-tag>
-                <el-tag effect="dark" size="small" type="danger">时间{{ item.total }}</el-tag>
-                <el-tag effect="dark" size="small" type="success">出勤{{ item.workDayCount }}天</el-tag>
-                <el-tag effect="dark" type="success" size="small" v-if="item.annual > 0">年休{{ item.annual }}天</el-tag>
-                <el-tag effect="dark" type="success" size="small" v-if="item.leave > 0">休假{{ item.leave }}天</el-tag>
-                <el-tag effect="dark" size="small" v-if="item.serve > 0">科务{{ item.serve }}天</el-tag>
-              </div>
+              <el-tag effect="dark" size="small" type="danger">时间{{ item.total }}</el-tag>
+              <el-tag effect="dark" size="small" type="success">出勤{{ item.workDayCount }}天</el-tag>
+              <el-tag effect="dark" type="success" size="small" v-if="item.annual > 0">年休{{ item.annual }}天</el-tag>
+              <el-tag effect="dark" type="success" size="small" v-if="item.leave > 0">休假{{ item.leave }}天</el-tag>
+              <el-tag effect="dark" size="small" v-if="item.serve > 0">科务{{ item.serve }}天</el-tag>
             </div>
           </div>
         </div>
-        <div v-if="errorList.length > 0">
-          <h2 class="my-2 font-bold">错误的工分记录</h2>
-          <ul class="mt-2 ml-3 text-red-500">
-            <li v-for="error in errorList">{{ error }}</li>
-          </ul>
-        </div>
-
-
-      </el-collapse-item>
-    </el-collapse>
+      </div>
+      <div v-if="errorList.length > 0">
+        <h2 class="my-2 font-bold">错误的工分记录</h2>
+        <ul class="mt-2 ml-3 text-red-500">
+          <li v-for="error in errorList">{{ error }}</li>
+        </ul>
+      </div>
+    </div>
   </div>
 
   <el-dialog v-model="dialogVisible" title="提示" center :showClose="false" :lose-on-click-modal="false"
@@ -104,7 +97,7 @@ import useStore from "@/store";
 import { IDayRecord, IReport } from "@/types";
 import { generateId } from "@/utils";
 import { parseExcelDateNumber, parseMonthDayTextDate } from "@/utils/date";
-import { Setting } from '@element-plus/icons-vue';
+import { Download, Setting, Upload } from '@element-plus/icons-vue';
 import dayjs from "dayjs";
 import { storeToRefs } from "pinia";
 
@@ -122,7 +115,8 @@ const handelSubmit = (data: any) => {
   insert(data);
 };
 
-const dialogVisible = useStore().employee.list.length <= 0;
+const employeeStore = useStore().employee;
+const dialogVisible = employeeStore.employeeTempList.length <= 0;
 
 const onDialogConfirm = () => {
   router.push("/main/employee");

@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from "dayjs";
+import { isInRange } from "@/utils/date";
 import { FormInstance } from "element-plus/es/components/form";
 import _ from "lodash";
 import { ref } from "vue";
@@ -91,10 +91,7 @@ const isDisabledDate = (time: Date, range: string[][]) => {
   if (range.length === 0) return false;
 
   for (let dates of range) {
-    const [start, end] = dates;
-    // 使用 isBetween 方法检查日期是否在范围内（包括边界）
-    const isInRange = dayjs(time).isBetween(dayjs(start), dayjs(end), null, '[]');
-    if (isInRange) {
+    if (isInRange(dates, time)) {
       return true;
     }
   }

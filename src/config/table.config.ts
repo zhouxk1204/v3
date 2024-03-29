@@ -197,27 +197,27 @@ export const ReportTable: TableColumnItem<IReport>[] = [
   },
   {
     field: "totalWorkOther",
-    label: "其他岗位上班工分",
+    label: "手术上班工分",
   },
   {
     field: "totalOvertimeOther",
-    label: "其他岗位加班工分",
+    label: "手术加班工分",
   },
   {
     field: "totalOther",
-    label: "其他岗位总工分",
+    label: "手术总工分",
   },
   {
     field: "totalWorkGastroscopy",
-    label: "胃2岗位上班工分",
+    label: "胃2上班工分",
   },
   {
     field: "totalOvertimeGastroscopy",
-    label: "胃2岗位加班工分",
+    label: "胃2加班工分",
   },
   {
     field: "totalGastroscopy",
-    label: "胃2岗位总工分",
+    label: "胃2总工分",
   },
   {
     field: "total",
@@ -225,22 +225,22 @@ export const ReportTable: TableColumnItem<IReport>[] = [
   },
   {
     field: "annual",
-    label: "年休天数",
+    label: "年休(天)",
   },
   {
     field: "leave",
-    label: "休假天数",
+    label: "补休(天)",
   },
   {
     field: "workDayCount",
-    label: "本月工作日天数",
+    label: "工作日(天)",
   },
   {
     field: "workCount",
-    label: "本月出勤天数",
+    label: "出勤(天)",
   },
   {
     field: "serve",
-    label: "科务天数",
+    label: "科务(天)",
   },
 ];
