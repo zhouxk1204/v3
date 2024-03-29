@@ -17,8 +17,7 @@ export interface FieldItem {
   rules?: FormItemRule[];
   clearable?: boolean; // 是否可清空
   disabled?: boolean;
-  dateRange?: string[][];
-  disableDate?: (value: Date) => boolean;
+  disableDateRange?: string[][];
   hidden?: {
     key: string;
     value: string;

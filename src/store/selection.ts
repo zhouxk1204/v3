@@ -5,14 +5,14 @@ import { defineStore } from "pinia";
 const useSelectionStore = defineStore(
   "selection",
   () => {
-    const list = ref<SelectOption[]>([]);
+    const selectionList = ref<SelectOption[]>([]);
 
     const setSelectOptionList = (selectOptionList: SelectOption[]) => {
-      list.value = selectOptionList;
+      selectionList.value = selectOptionList;
     };
 
     const getSelectOptionByType = (type: SelectOptionType) => {
-      return list.value
+      return selectionList.value
         .filter((el) => el.type === type)
         .map((el) => {
           return {
@@ -23,7 +23,7 @@ const useSelectionStore = defineStore(
     };
 
     return {
-      list,
+      selectionList,
       getSelectOptionByType,
       setSelectOptionList,
     };

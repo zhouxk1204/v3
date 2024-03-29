@@ -75,9 +75,9 @@ const statusId = ref(status[2]);
 const onStatusChange = (value: any) => {
   const index = status.indexOf(value);
   if (index > 0) {
-    employeeList.value = employeeStore.getEmployeeTempList().filter(e => e.statusId === `${index - 1}`);
+    employeeList.value = employeeStore.employeeTempList.filter(e => e.statusId === `${index - 1}`);
   } else {
-    employeeList.value = employeeStore.getEmployeeTempList();
+    employeeList.value = employeeStore.employeeTempList;
   }
 }
 
@@ -155,6 +155,8 @@ const deleteEmployee = async (index: number) => {
  * @param {any} data 员工信息
  */
 const updateEmployee = async (data: any) => {
-  
+  await updateEmployeeData(data);
+  await refreshEmployeeList();
+  ElMessage.success('员工信息更新成功！')
 };
 </script>

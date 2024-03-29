@@ -74,7 +74,7 @@ const onClickLogout = () => {
 }
 
 const init = async () => {
-  if (useStore().selection.list.length === 0) {
+  if (useStore().selection.selectionList.length === 0) {
     // 显示 Loading
     const loading = ElLoading.service({
       lock: true,

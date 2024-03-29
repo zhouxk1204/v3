@@ -9,16 +9,16 @@ export const HolidayForm: FieldItem[] = [
     label: "日期",
     field: "date",
     type: "daterange",
-    disableDate: () => false,
     rules: [
       {
         required: true,
         message: "请输入日期",
+        trigger: "submit",
       },
     ],
     placeholder: "日期",
     clearable: true,
-    dateRange: [],
+    disableDateRange: [],
     value: "",
   },
   {
@@ -29,6 +29,7 @@ export const HolidayForm: FieldItem[] = [
       {
         required: true,
         message: "请选择节假日",
+        trigger: "submit",
       },
     ],
     options: getOptionsByType(SELECT_OPTION.HOLIDAY),
@@ -44,6 +45,7 @@ export const HolidayForm: FieldItem[] = [
       {
         required: true,
         message: "请选择加班/补班",
+        trigger: "submit",
       },
     ],
     options: getOptionsByType(SELECT_OPTION.HOLIDAY_TYPE),
@@ -59,6 +61,7 @@ export const HolidayForm: FieldItem[] = [
       {
         required: true,
         message: "请输入节假日补班工分倍率",
+        trigger: "submit",
       },
     ],
     placeholder: "补班工分倍率",
@@ -77,6 +80,7 @@ export const HolidayForm: FieldItem[] = [
       {
         required: true,
         message: "请输入节假日加班工分倍率",
+        trigger: "submit",
       },
     ],
     placeholder: "节假日加班工分倍率",
@@ -94,6 +98,7 @@ export const DayRatioSettingForm: FieldItem[] = [
       {
         required: true,
         message: "请输入日期",
+        trigger: "submit",
       },
     ],
     placeholder: "日期",
@@ -184,6 +189,7 @@ export const EmployeeForm: FieldItem[] = [
       {
         required: true,
         message: "请输入顺序",
+        trigger: "submit",
       },
     ],
     placeholder: "顺序",
@@ -198,6 +204,7 @@ export const EmployeeForm: FieldItem[] = [
       {
         required: true,
         message: "请输入姓名",
+        trigger: "submit",
       },
     ],
     placeholder: "姓名",
@@ -212,6 +219,7 @@ export const EmployeeForm: FieldItem[] = [
       {
         required: true,
         message: "请输入系数",
+        trigger: "submit",
       },
     ],
     placeholder: "系数",
@@ -227,6 +235,7 @@ export const EmployeeForm: FieldItem[] = [
       {
         required: true,
         message: "请选择性别",
+        trigger: "submit",
       },
     ],
     placeholder: "性别",
@@ -242,6 +251,7 @@ export const EmployeeForm: FieldItem[] = [
       {
         required: true,
         message: "请选择职位",
+        trigger: "submit",
       },
     ],
     placeholder: "职位",
@@ -257,6 +267,7 @@ export const EmployeeForm: FieldItem[] = [
       {
         required: true,
         message: "请选择状态",
+        trigger: "submit",
       },
     ],
     placeholder: "状态",

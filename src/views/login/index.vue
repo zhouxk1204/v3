@@ -1,6 +1,6 @@
 <template>
   <div class="relative h-full">
-    <img :src="bgUrl" alt="loginBg" class="absolute inset-0 object-cover h-[100dvh] w-screen">
+    <img v-if="bgUrl.length > 0" :src="bgUrl" alt="loginBg" class="absolute inset-0 object-cover h-[100dvh] w-screen">
     <h1 class="fixed z-30 -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/4">
       <Icon icon="emojione-monotone:peach" width="66" height="66" class="text-gray-200 cursor-pointer"
         @click="onClickLogo" />

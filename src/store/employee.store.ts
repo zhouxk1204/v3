@@ -15,28 +15,9 @@ const useEmployeeStore = defineStore(
       employeeTempList.value = list;
     };
 
-    const getEmployeeTempList = () => {
-      return employeeTempList.value;
-    };
-
-    const updateEmployee = (employee: Employee) => {
-      const index = employeeTempList.value.findIndex(
-        (e) => e.id === employee.id
-      );
-      if (index > -1) {
-        employeeTempList.value.splice(index, 1, employee);
-      }
-    };
-
-    const resetEmployeeList = () => {
-      employeeTempList.value = [];
-    };
-
     return {
-      getEmployeeTempList,
+      employeeTempList,
       setEmployeeTempList,
-      updateEmployee,
-      resetEmployeeList,
     };
   },
   {

@@ -1,6 +1,6 @@
 import dayRatioSetting from "./dayRatioSetting";
 import useEmployeeStore from "./employee.store";
-import useHolidayStore from "./holiday";
+import useHolidayStore from "./holiday.store";
 import useRecordStore from "./record";
 import useSelectionStore from "./selection";
 

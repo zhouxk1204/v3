@@ -8,10 +8,11 @@
           :placeholder="item.placeholder ?? ''" :clearable="item.clearable" :disabled="item.disabled"
           format="YYYY/MM/DD" value-format="YYYY/MM/DD" :editable="false" />
 
-        <!-- 日期范围 -->
+        <!-- 日期范围选择 -->
         <el-date-picker v-if="item.type === 'daterange'" v-model="formModel[item.field]" :disabled="item.disabled"
           :clearable="item.clearable" type="daterange" unlink-panels range-separator="~" start-placeholder="开始日"
-          end-placeholder="结束日" format="YYYY/MM/DD" value-format="YYYY/MM/DD" :disabled-date="item.disableDate" />
+          end-placeholder="结束日" format="YYYY/MM/DD" value-format="YYYY/MM/DD"
+          :disabled-date="(date: Date) => isDisabledDate(date, item.disableDateRange ?? [])" />
 
         <!-- 数字输入框 -->
         <el-input class="w-full" v-else-if="item.type === 'number'" v-model.number="formModel[item.field]"
@@ -34,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-
+import dayjs from "dayjs";
 import { FormInstance } from "element-plus/es/components/form";
 import _ from "lodash";
 import { ref } from "vue";
@@ -85,20 +86,20 @@ const handelReset = () => {
   formRef.value.resetFields();
 };
 
-// // 禁用日期范围方法
-// const disabledDate = (time: Date, range: string[][]) => {
-//   if (range.length === 0) return false;
+// 禁用日期范围方法
+const isDisabledDate = (time: Date, range: string[][]) => {
+  if (range.length === 0) return false;
 
-//   for (let dates of range) {
-//     const [start, end] = dates;
-//     // 使用 isBetween 方法检查日期是否在范围内（包括边界）
-//     const isInRange = dayjs(time).isBetween(dayjs(start), dayjs(end), null, '[]');
-//     if (isInRange) {
-//       return true;
-//     }
-//   }
-//   return false;
-// }
+  for (let dates of range) {
+    const [start, end] = dates;
+    // 使用 isBetween 方法检查日期是否在范围内（包括边界）
+    const isInRange = dayjs(time).isBetween(dayjs(start), dayjs(end), null, '[]');
+    if (isInRange) {
+      return true;
+    }
+  }
+  return false;
+}
 
 defineExpose({
   handelReset

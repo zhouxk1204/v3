@@ -4,7 +4,7 @@
       <h1 class="flex items-center h-12 pb-3 mb-3 font-bold border-b">
         添加节假日
       </h1>
-      <Form :form="form" @submit="handelSubmit"></Form>
+      <Form :form="form" @submit="handelSubmit" ref='holidayFormRef'></Form>
     </div>
     <div>
       <h1 class="flex items-center h-12 pb-3 mb-3 font-bold border-b">
@@ -44,25 +44,11 @@ const range = ref<string[][]>([]);
 
 const refreshHolidayList = async () => {
   const { data } = await getHolidayList();
-  holidayStore.setHolidayTempList(data);
   holidayList.value = data;
+  holidayStore.setHolidayTempList(data);
   range.value = data.map(e => e.date);
-  console.log("%c Line:48 🍣 range", "color:#42b983", range.value);
-  form.value[0].disableDate = (time: Date) => {
-    if (range.value.length === 0) return false;
-    let visible = false
-    for (let dates of range.value) {
-      const [start, end] = dates;
-      // 使用 isBetween 方法检查日期是否在范围内（包括边界）
-      const isInRange = dayjs(time).isBetween(dayjs(start), dayjs(end), null, '[]');
-      if (isInRange) {
-        visible = true;
-        break;
-      }
-    }
-    console.log("%c Line:65 🌭 visible", "color:#7f2b82", visible);
-    return visible;
-  }
+  // 更新不可选择日期范围
+  form.value[0].disableDateRange = range.value;
 }
 
 const updateHoliday = async (data: any) => {
@@ -78,9 +64,11 @@ const deleteHoliday = async (index: number) => {
   ElMessage.success('节假日信息删除成功！')
 }
 
+const holidayFormRef = ref();
 const handelSubmit = async (data: any) => {
   data.id = generateId();
   await submitHoliday(data);
+  holidayFormRef.value.handelReset();
   await refreshHolidayList();
   ElMessage.success('节假日信息添加成功！')
 };
