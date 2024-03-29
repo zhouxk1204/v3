@@ -11,6 +11,5 @@ const cosOption = ref<CosOption>({
   region: 'ap-chengdu', // 地区
   prefix: '/music/', // 存储桶文件夹路径 /xx/
   stsUrl: 'https://api.zhouxk.fun/sts',
-  cosDomain: 'https://cloud.zhouxk.fun'
 })
 </script>

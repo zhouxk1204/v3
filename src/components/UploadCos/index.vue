@@ -65,7 +65,6 @@ export interface CosOption {
   region: string; // 地区
   prefix: string; // 存储桶文件夹路径 /xx/
   stsUrl: string; // 获取临时密钥的后端服务url
-  cosDomain: string; // cos存储桶源站域名
   sliceSize?: number; // 触发分块上传的阈值非必须
 }
 
@@ -99,8 +98,10 @@ const getCloudFilePath = (fileName: string, prefix: string): string => {
 }
 
 const cos = new COS({
-  // getAuthorization 必选参数
-  getAuthorization: function (_, callback) {
+  Domain: 'cloud.zhouxk.fun', // 自定义源站域名
+  Protocol: 'https:', // 请求协议
+  getAuthorization: (_, callback) => {
+    // getAuthorization 必选参数
     // 初始化时不会调用，只有调用 cos 方法（例如 cos.putObject）时才会进入
     // 异步获取临时密钥
     // 服务端 JS 和 PHP 例子：https://github.com/tencentyun/cos-js-sdk-v5/blob/master/server/
@@ -168,15 +169,14 @@ const onChange = (uploadFile: UploadFile) => {
       }
     }
   }, (err, data) => {
-    console.log("%c Line:171 🥃 data", "color:#ffdd4d", data);
     if (err) {
       progressInfo.value.status = "exception";
       ElMessage.error(`上传失败: ${err.message}`);
     } else {
       progressInfo.value.status = "success";
       ElMessage.success('上传成功');
-      // TODO:
-      imgSrc.value = props.cosOption.cosDomain + key;
+      imgSrc.value = `https://${data.Location}`;
+      console.log("%c Line:181 🥛 imgSrc.value", "color:#ed9ec7", imgSrc.value);
     }
     progressInfo.value.percent = 100;
   });
