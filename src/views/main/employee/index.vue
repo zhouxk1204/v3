@@ -15,9 +15,9 @@
       <el-text type="primary" size="large">员工列表</el-text>
       <div class="flex gap-3">
         <el-radio-group v-model="statusId" @change="onStatusChange">
-          <el-radio-button label="全部" value="0" />
-          <el-radio-button label="在职" value="2" />
-          <el-radio-button label="离职" value="1" />
+          <el-radio-button label="全部" value="全部" />
+          <el-radio-button label="在职" value="在职" />
+          <el-radio-button label="离职" value="离职" />
         </el-radio-group>
         <UploadExcel @change="importExcelData">
           <el-button type="success" :icon="Upload">导入文件</el-button>
@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { deleteEmployeeById, getEmployee, submitEmployee, updateEmployeeData } from "@/api/employee";
+import { deleteEmployeeById, getEmployee, submitEmployee, updateEmployeeData } from "@/api/employee.api";
 import { FieldItem } from "@/components/Form/form";
 import { TableColumnItem } from "@/components/Table/type";
 import { EmployeeForm } from "@/config/form.config";

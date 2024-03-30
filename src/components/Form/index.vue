@@ -1,7 +1,7 @@
 <template>
-  <el-form :model="formModel" ref="formRef" label-position="left" class="flex flex-wrap gap-3 max-[450px]:block">
+  <el-form :model="formModel" ref="formRef" label-width="auto" label-position="top" size="large">
     <template v-for="item in form">
-      <el-form-item :label="item.label" :prop="item.field" :rules="item.rules"
+      <el-form-item :key="item.field" :label="item.label" :prop="item.field" :rules="item.rules"
         v-if="!(item.hidden && (item.hidden.value === formModel[item.hidden.key]))">
         <!-- 日期 -->
         <el-date-picker class="w-[132px]" v-if="item.type === 'date'" type="date" v-model="formModel[item.field]"
@@ -27,9 +27,9 @@
           :disabled="item.disabled" class="min-w-[176px]" />
       </el-form-item>
     </template>
-    <div class="max-[450px]:flex">
-      <el-button type="primary" @click="handelSubmit" class="max-[450px]:flex-1">添加</el-button>
-      <el-button type="danger" @click="handelReset" class="max-[450px]:flex-1">清空</el-button>
+    <div class="flex">
+      <el-button type="primary" @click="handelSubmit" class="flex-1">添加</el-button>
+    <el-button type="danger" @click="handelReset" class="flex-1">清空</el-button>
     </div>
   </el-form>
 </template>

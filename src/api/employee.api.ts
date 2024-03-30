@@ -1,4 +1,4 @@
-import { ResponseData, http } from "../request";
+import { ResponseData, http } from "./request";
 
 import { Employee } from "@/types/employee";
 

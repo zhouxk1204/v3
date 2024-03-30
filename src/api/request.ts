@@ -14,8 +14,7 @@ let requestCount = 0;
 
 const instance: AxiosInstance = axios.create({
   // 设置你的API基础URL
-  // baseURL: "https://api.zhouxk.fun",
-  baseURL: "http://127.0.0.1:3002",
+  baseURL: "https://api.zhouxk.fun",
   // 设置请求超时时间
   timeout: 10000,
 });
