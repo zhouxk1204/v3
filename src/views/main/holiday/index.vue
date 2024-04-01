@@ -1,11 +1,12 @@
 <template>
   <div>
-    <el-button type="success" @click="formVisible = true" class="mb-5">添加节假日</el-button>
+    <el-button type="success" @click="formVisible = true" class="mb-2">添加节假日</el-button>
     <Table :list="holidayList" :cols="cols" :editable="true" @remove="deleteHoliday($event)"
       @update="updateHoliday($event)">
     </Table>
   </div>
-  <el-dialog v-model="formVisible" title="添加节假日" width="500" destroy-on-close :append-to-body="true" :close-on-click-modal="false">
+  <el-dialog v-model="formVisible" title="添加节假日" width="500" destroy-on-close :append-to-body="true"
+    :close-on-click-modal="false">
     <Form :form="form" @submit="handelSubmit" ref='holidayFormRef'></Form>
   </el-dialog>
 </template>

@@ -1,30 +1,24 @@
 <template>
   <div>
-    <el-collapse v-model="activeNames">
-      <el-collapse-item name="1">
-        <template #title>
-          <h1 class="flex items-center h-12">
-            <el-text type="primary" size="large">添加员工</el-text>
-          </h1>
-        </template>
-        <Form :form="form" @submit="handleSubmit" ref="employeeFormRef"></Form>
-      </el-collapse-item>
-    </el-collapse>
-
-    <h1 class="flex items-center justify-between h-12 py-3 mb-3 border-b">
-      <el-text type="primary" size="large">员工列表</el-text>
+    <div class="flex items-center justify-between mb-2">
       <div class="flex gap-3">
-        <el-radio-group v-model="statusId" @change="onStatusChange">
-          <el-radio-button label="全部" value="全部" />
-          <el-radio-button label="在职" value="在职" />
-          <el-radio-button label="离职" value="离职" />
-        </el-radio-group>
+        <el-button type="primary" @click="formVisible = true">添加员工</el-button>
         <UploadExcel @change="importExcelData">
           <el-button type="success" :icon="Upload">导入文件</el-button>
         </UploadExcel>
         <el-button type="success" :icon="Download" @click="onDownload">下载模板</el-button>
       </div>
-    </h1>
+      <el-radio-group v-model="statusId" @change="onStatusChange">
+        <el-radio-button label="全部" value="全部" />
+        <el-radio-button label="在职" value="在职" />
+        <el-radio-button label="离职" value="离职" />
+      </el-radio-group>
+    </div>
+
+    <el-dialog v-model="formVisible" title="添加员工" width="500" destroy-on-close :append-to-body="true"
+      :close-on-click-modal="false">
+      <Form :form="form" @submit="handleSubmit" ref='employeeFormRef'></Form>
+    </el-dialog>
 
     <div div class=" flex flex-col max-[450px]:hidden">
       <Table :list="employeeList" :cols="cols" :editable="true" @remove="deleteEmployee" @update="updateEmployee">
@@ -48,10 +42,10 @@ import { v4 } from 'uuid';
 
 const { getOption } = useSelect();
 const employeeStore = useStore().employee;
-const activeNames = ref("0");
 const employeeList = ref<Employee[]>([]);
 
 const form = ref<FieldItem[]>(EmployeeForm);
+const formVisible = ref<boolean>(false);
 const cols: TableColumnItem<Employee>[] = EmployeeTable;
 const employeeFormRef = ref();
 /**
