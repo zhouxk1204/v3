@@ -2,11 +2,11 @@
   <div>
     <div class="flex items-center justify-between mb-2">
       <div class="flex gap-3">
-        <el-button type="primary" @click="formVisible = true">添加员工</el-button>
+        <el-button type="primary" :icon="Plus" @click="formVisible = true">添加员工</el-button>
         <UploadExcel @change="importExcelData">
-          <el-button type="success" :icon="Upload">导入文件</el-button>
+          <el-button type="primary" :icon="Upload">导入员工</el-button>
         </UploadExcel>
-        <el-button type="success" :icon="Download" @click="onDownload">下载模板</el-button>
+        <el-button type="primary" :icon="Download" @click="onDownload">Excel模板下载</el-button>
       </div>
       <el-radio-group v-model="statusId" @change="onStatusChange">
         <el-radio-button label="全部" value="全部" />
@@ -37,7 +37,7 @@ import { useExcel } from "@/hooks/useExcel";
 import { useSelect } from "@/hooks/useSelect";
 import useStore from "@/store";
 import { Employee } from "@/types/employee";
-import { Download, Upload } from "@element-plus/icons-vue";
+import { Download, Plus, Upload } from "@element-plus/icons-vue";
 import { v4 } from 'uuid';
 
 const { getOption } = useSelect();

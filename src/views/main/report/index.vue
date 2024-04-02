@@ -1,27 +1,23 @@
 <template>
-  <div class="flex flex-col">
-    <el-collapse v-model="activeNames">
-      <el-collapse-item name="1">
-        <template #title>
-          <h1 class="flex items-center h-12 text-base font-bold">
-            添加岗位工分倍率特殊设定
-          </h1>
-        </template>
-        <Form :form="form" @submit="handelSubmit"></Form>
-        <Table class="border-t" v-if="dayRatioSettingList.length > 0" :list="dayRatioSettingList"
-          :cols="dayRatioSettingCols" :editable="true" @remove="remove($event)" @update="update($event)"></Table>
-      </el-collapse-item>
-    </el-collapse>
+  <div class="flex flex-col gap-3">
+    <div>
+      <div class="mb-2">
+        <el-button type="primary" :icon="Plus" @click="formVisible = true">添加岗位工分倍率特殊设定</el-button>
+        <el-dialog v-model="formVisible" title="添加岗位工分倍率特殊设定" width="500" destroy-on-close :append-to-body="true"
+          :close-on-click-modal="false">
+          <Form :form="form" @submit="handelSubmit"></Form>
+        </el-dialog>
+      </div>
+      <Table class="border-t" :list="dayRatioSettingList" :cols="dayRatioSettingCols" :editable="true"
+        @remove="remove($event)" @update="update($event)"></Table>
+    </div>
 
     <div>
-      <h1 class="flex items-center justify-between h-12 py-3 mb-3 border-b">
-        <el-text type="primary" size="large">月次工分汇算</el-text>
-      </h1>
-      <div class="flex items-center">
-        <UploadExcel @change="onImport" sheetName="护士" class="mr-3">
+      <div class="flex gap-3 mb-2">
+        <UploadExcel @change="onImport" sheetName="护士">
           <el-button type="primary" :icon="Upload">导入</el-button>
         </UploadExcel>
-        <el-button-group class="mr-3">
+        <el-button-group>
           <el-button type="primary" :icon="Download" @click="onExport">导出</el-button>
           <el-button type="primary" :icon="Setting" @click="dialogTableVisible = true" />
         </el-button-group>
@@ -51,8 +47,8 @@
               <el-tag effect="dark" type="warning" size="small">{{ item.factor }}</el-tag>
               <el-tag effect="dark" size="small" type="info">手术{{ item.totalOther }}</el-tag>
               <el-tag effect="dark" size="small" type="info" v-if="item.totalGastroscopy > 0">胃镜{{
-      item.totalGastroscopy
-    }}</el-tag>
+          item.totalGastroscopy
+        }}</el-tag>
               <el-tag effect="dark" size="small" type="danger">时间{{ item.total }}</el-tag>
               <el-tag effect="dark" size="small" type="success">出勤{{ item.workDayCount }}天</el-tag>
               <el-tag effect="dark" type="success" size="small" v-if="item.annual > 0">年休{{ item.annual }}天</el-tag>
@@ -97,11 +93,13 @@ import useStore from "@/store";
 import { IDayRecord, IReport } from "@/types";
 import { generateId } from "@/utils";
 import { parseExcelDateNumber, parseMonthDayTextDate } from "@/utils/date";
-import { Download, Setting, Upload } from '@element-plus/icons-vue';
+import { Download, Plus, Setting, Upload } from '@element-plus/icons-vue';
 import dayjs from "dayjs";
 import { storeToRefs } from "pinia";
 
 const activeNames = ref(["2"]);
+
+const formVisible = ref<boolean>(false);
 
 // 岗位工分倍率特殊设定
 const dayRatioSettingCols = DayRatioSettingTable;

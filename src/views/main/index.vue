@@ -14,7 +14,7 @@
           <img :src="avatar" class="w-12 h-12 rounded-full" />
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item @click="onClickLogout">Logout</el-dropdown-item>
+              <el-dropdown-item @click="onClickLogout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>

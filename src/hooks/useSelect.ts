@@ -1,17 +1,16 @@
-import { IOption, SelectType } from "@/types";
-
 import { SelectOptionType } from "@/constants";
 import useStore from "@/store";
+import { IOption } from "@/types";
 
 export function useSelect() {
-  const getEmployeeOption = (): IOption[] => {
-    return useStore().employee.list.map((e) => {
-      return {
-        label: e.employeeName,
-        value: e.id,
-      };
-    });
-  };
+  // const getEmployeeOption = (): IOption[] => {
+  //   return useStore().employee.employeeTempList.map((e) => {
+  //     return {
+  //       label: e.name,
+  //       value: e.id,
+  //     };
+  //   });
+  // };
 
   // const OptionsObject: { [K in SelectType]: IOption[] } = {
   //   // 性别

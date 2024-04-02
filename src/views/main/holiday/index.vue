@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-button type="success" @click="formVisible = true" class="mb-2">添加节假日</el-button>
+    <el-button type="primary" :icon="Plus" @click="formVisible = true" class="mb-2">添加节假日</el-button>
     <Table :list="holidayList" :cols="cols" :editable="true" @remove="deleteHoliday($event)"
       @update="updateHoliday($event)">
     </Table>
@@ -20,6 +20,7 @@ import { HolidayTable } from "@/config/table.config";
 import useStore from "@/store";
 import { Holiday } from '@/types/holiday';
 import { generateId } from "@/utils";
+import { Plus } from "@element-plus/icons-vue";
 
 const holidayStore = useStore().holiday;
 
