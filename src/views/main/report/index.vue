@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-3">
+  <div class="flex flex-col gap-5">
     <div>
       <div class="mb-2">
         <el-button type="primary" :icon="Plus" @click="formVisible = true">添加岗位工分倍率特殊设定</el-button>
@@ -8,8 +8,8 @@
           <Form :form="form" @submit="handelSubmit"></Form>
         </el-dialog>
       </div>
-      <Table class="border-t" :list="dayRatioSettingList" :cols="dayRatioSettingCols" :editable="true"
-        @remove="remove($event)" @update="update($event)"></Table>
+      <Table :list="dayRatioSettingList" :cols="dayRatioSettingCols" :editable="true" @remove="remove($event)"
+        @update="update($event)"></Table>
     </div>
 
     <div>
@@ -96,8 +96,6 @@ import { parseExcelDateNumber, parseMonthDayTextDate } from "@/utils/date";
 import { Download, Plus, Setting, Upload } from '@element-plus/icons-vue';
 import dayjs from "dayjs";
 import { storeToRefs } from "pinia";
-
-const activeNames = ref(["2"]);
 
 const formVisible = ref<boolean>(false);
 

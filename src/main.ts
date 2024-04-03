@@ -1,3 +1,4 @@
+import "element-plus/theme-chalk/dark/css-vars.css";
 import "./style.scss";
 
 import AutoRegisterComponents from "@/components/AutoRegisterComponents";

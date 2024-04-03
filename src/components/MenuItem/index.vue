@@ -2,23 +2,22 @@
   <div v-for="menu in menuList" :key="menu.name">
     <template v-if="menu.children.length === 0">
       <el-menu-item :index="menu.name" :route="parentRoute + '/' + menu.path">
+        <el-icon>
+          <component :is="menu.meta.icon"></component>
+        </el-icon>
         <template #title>
-          <div class="flex items-center gap-2">
-            <span v-if="menu.meta.emoji">{{ menu.meta.emoji }}</span>
-            <Icon v-else-if="menu.meta.icon" :icon="menu.meta.icon"></Icon>
-            <span>{{ menu.meta.title }}</span>
-          </div>
+          <span>{{ menu.meta.title }}</span>
         </template>
       </el-menu-item>
     </template>
     <template v-else>
       <el-sub-menu :index="menu.name" :route="parentRoute + '/' + menu.path">
+        <el-icon>
+          <!-- <setting /> -->
+          <component :is="menu.meta.icon"></component>
+        </el-icon>
         <template #title>
-          <div class="flex items-center gap-2">
-            <span v-if="menu.meta.emoji">{{ menu.meta.emoji }}</span>
-            <Icon v-else-if="menu.meta.icon" :icon="menu.meta.icon"></Icon>
-            <span>{{ menu.meta.title }}</span>
-          </div>
+          <span>{{ menu.meta.title }}</span>
         </template>
         <MenuItem :menuList="menu.children" :parentRoute="parentRoute + '/' + menu.path">
         </MenuItem>

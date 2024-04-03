@@ -10,6 +10,9 @@ module.exports = {
   darkMode: "class", // or 'media' or 'class'
   theme: {
     extend: {
+      borderColor: {
+        ep: "var(--el-border-color)", // Use the custom CSS variable for border color
+      },
       keyframes: {
         zoomInOut: {
           "0%, 100%": {
