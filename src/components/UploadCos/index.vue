@@ -4,15 +4,15 @@
     <img :src="imgSrc" alt="" srcset="">
 
     <el-upload class="upload-demo" drag :on-change="onChange" :auto-upload="false" :show-file-list="false">
-      <el-icon :size="60">
-        <UploadFilled />
+      <el-icon :size="40">
+        <Upload />
       </el-icon>
       <div class="el-upload__text">
-        Drop file here or <em>click to upload</em>
+        点击或拖动图片到此处
       </div>
       <template #tip>
         <div class="el-upload__tip">
-          <!-- jpg/png files with a size less than 10Mb -->
+          图片宽度*高度至少为150*150像素，大小不超过2MB
         </div>
       </template>
     </el-upload>
@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang='ts'>
-import { UploadFilled, VideoPause, VideoPlay } from '@element-plus/icons-vue';
+import { Upload, VideoPause, VideoPlay } from '@element-plus/icons-vue';
 import COS from 'cos-js-sdk-v5';
 import { UploadFile, } from 'element-plus';
 
