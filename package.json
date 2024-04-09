@@ -25,6 +25,7 @@
     "element-plus": "^2.5.3",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
+    "jwt-decode": "^4.0.0",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.0",
     "postcss-100vh-fix": "^1.0.2",

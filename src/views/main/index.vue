@@ -13,7 +13,16 @@
               <img :src="avatar" class="w-12 h-12 rounded-full" />
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item @click="onClickLogout">退出登录</el-dropdown-item>
+                  <el-dropdown-item @click="onClickSetting">
+                    <el-icon>
+                      <Setting />
+                    </el-icon>
+                    <span>个人设置</span> </el-dropdown-item>
+                  <el-dropdown-item @click="onClickLogout" divided>
+                    <el-icon>
+                      <SwitchButton />
+                    </el-icon>
+                    <span>退出登录</span></el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -50,12 +59,17 @@
 <script lang="ts" setup>
 import { getAllSelectOption } from "@/api/common";
 import useStore from "@/store";
-import { Moon, Operation, Sunny } from "@element-plus/icons-vue";
+import { Moon, Operation, Setting, Sunny, SwitchButton } from "@element-plus/icons-vue";
 import { useDark } from "@vueuse/core";
+import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import router from "../../router";
 
-const avatar = new URL('../../assets/img/avatar.jpg', import.meta.url).href;
+const { user } = storeToRefs(useStore().user);
+const avatar = computed(() => {
+  return user.value.avatar || new URL("../../assets/img/avatar.jpg", import.meta.url).href;
+})
+
 
 const currentRoute = useRouter().currentRoute;
 
@@ -89,16 +103,17 @@ const init = async () => {
     loading.close();
   }
 }
-
-
 init();
 
 const isCollapse = ref<boolean>(false);
 const toggleMenu = () => {
   isCollapse.value = !isCollapse.value;
 }
-
 const isDark = useDark();
+
+const onClickSetting = () => {
+  router.push("/main/profile");
+};
 </script>
 
 <style lang="scss" scoped>

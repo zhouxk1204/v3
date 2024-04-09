@@ -31,8 +31,9 @@
 <script setup lang="ts">
 import { login } from "@/api/login";
 import router from "@/router";
-import { ElMessage } from "element-plus";
+import useStore from "@/store";
 import { FormInstance, FormRules } from "element-plus/es/components/form";
+import { jwtDecode } from "jwt-decode";
 import { Md5 } from 'ts-md5';
 import { reactive, ref } from "vue";
 
@@ -83,7 +84,9 @@ const submitForm = () => {
       const loginRes = await login(loginReq);
       localStorage.setItem('token', loginRes.token);
 
-      ElMessage.success('登录成功！')
+      const decoded: any = jwtDecode(loginRes.token);
+      useStore().user.setUser(decoded.user);
+      ElMessage.success('登录成功！');
       router.replace("/main");
     } else {
       console.log("error submit!", fields);

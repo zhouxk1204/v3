@@ -3,6 +3,7 @@ import useEmployeeStore from "./employee.store";
 import useHolidayStore from "./holiday.store";
 import useRecordStore from "./record";
 import useSelectionStore from "./selection";
+import useUserStore from "./user.store";
 
 const useStore = () => {
   return {
@@ -11,6 +12,7 @@ const useStore = () => {
     record: useRecordStore(),
     dayRatioSetting: dayRatioSetting(),
     selection: useSelectionStore(),
+    user: useUserStore(),
   };
 };
 export default useStore;

@@ -1,7 +1,7 @@
 <template>
-  <div class="flex items-center gap-5 p-5 border">
-    <div class="relative flex-none w-20 h-20 overflow-hidden border rounded-full shadow bg-gray-50">
-      <img src="../../../assets/img/avatar.jpg" alt="avatar">
+  <div class="flex items-center gap-5 p-5 border border-ep">
+    <div class="relative flex-none w-20 h-20 overflow-hidden border rounded-full shadow border-ep bg-gray-50">
+      <img :src="avatar" alt="avatar">
       <div
         class="absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-black bg-opacity-50 opacity-0 hover:opacity-100">
         <el-icon :size="20" color="#fff" @click="uploadAvatar = true">
@@ -20,14 +20,14 @@
 
       <div v-if="previewUrl.length > 0" class="flex items-start justify-center gap-5">
         <div class="flex flex-col items-center justify-center flex-1 gap-2">
-          <div class="overflow-hidden border rounded-full" ref="imageContainer" @mousedown="startDrag"
+          <div class="overflow-hidden border rounded-full border-ep" ref="imageContainer" @mousedown="startDrag"
             @mousemove="dragImage" @mouseup="stopDrag" @mouseleave="stopDrag">
             <canvas ref="canvasRef" :width="200" :height="200" style="cursor: move;"></canvas>
           </div>
           <el-slider v-model="scale" placement="bottom" :max="10" :min="0.5" :step="0.1" />
         </div>
         <div class="flex flex-col items-center justify-center flex-1 gap-2">
-          <img :src="imageDataUrl" class="border rounded-full w-28 h-28" alt="" srcset="">
+          <img :src="imageDataUrl" class="border rounded-full border-ep w-28 h-28" alt="" srcset="">
           <span>头像预览</span>
         </div>
       </div>
@@ -51,7 +51,7 @@
         <div class="dialog-footer">
           <template v-if="previewUrl.length > 0">
             <el-button @click="previewUrl = ''">上一步</el-button>
-            <el-button type="primary" @click="uploadAvatar = false" v-if="previewUrl.length > 0">上传并保存</el-button>
+            <el-button type="primary" @click="updateAvatar" v-if="previewUrl.length > 0">上传并保存</el-button>
           </template>
           <el-button v-else @click="uploadAvatar = false">取消</el-button>
         </div>
@@ -62,19 +62,22 @@
 </template>
 
 <script setup lang='ts'>
-import { CosOption } from '@/components/UploadCos/index.vue';
+import { updateUser } from "@/api/user.api";
+import { useCos } from "@/hooks/useCos";
+import useStore from "@/store";
 import { Camera, Upload } from "@element-plus/icons-vue";
 import { UploadFile } from 'element-plus/es/components/upload/src/upload';
+import { storeToRefs } from "pinia";
+
+
+const { user } = storeToRefs(useStore().user);
+const avatar = computed(() => {
+  return user.value.avatar || new URL("../../assets/img/avatar.jpg", import.meta.url).href;
+})
+
 const uploadAvatar = ref(false);
 const canvasRef = ref();
 const imageDataUrl = ref('');
-
-const cosOption = ref<CosOption>({
-  bucket: 'peach-1322235980', // 存储桶
-  region: 'ap-chengdu', // 地区
-  prefix: '/music/', // 存储桶文件夹路径 /xx/
-  stsUrl: 'https://api.zhouxk.fun/sts',
-})
 
 const previewUrl = ref('');
 const onChange = (uploadFile: UploadFile) => {
@@ -165,5 +168,50 @@ const getImageData = () => {
   tempCtx?.putImageData(imageData, 0, 0);
   imageDataUrl.value = tempCanvas.toDataURL('image/jpeg');
 };
+
+const updateAvatar = async () => {
+  uploadAvatar.value = false;
+  const data: any = await useCos({
+    bucket: 'peach-1322235980', // 存储桶
+    region: 'ap-chengdu', // 地区
+    prefix: '/avatar/', // 存储桶文件夹路径 /xx/
+    stsUrl: 'https://api.zhouxk.fun/sts',
+  }).upload({
+    uploadBody: dataURLtoFile(imageDataUrl.value, 'avatar.jpg'),
+    type: 'jpg'
+  });
+  const url = `https://${data.Location}`;
+
+  const newUser = user.value;
+  newUser.avatar = url;
+  const ress = await updateUser(newUser);
+  console.log("%c Line:188 🍕 ress", "color:#f5ce50", ress);
+  useStore().user.updateAvatar(url);
+  ElMessage.success('头像更新成功！')
+}
+
+const dataURLtoFile = (dataURL: string, filename: string) => {
+  // Convert base64/URLEncoded data component to raw binary data
+  var byteString;
+  if (dataURL.split(',')[0].indexOf('base64') >= 0)
+    byteString = atob(dataURL.split(',')[1]);
+  else
+    byteString = unescape(dataURL.split(',')[1]);
+
+  // Separate out the mime component
+  var mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+
+  // Write the bytes of the string to a typed array
+  var ia = new Uint8Array(byteString.length);
+  for (var i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+
+  // Create a Blob from the typed array
+  var blob = new Blob([ia], { type: mimeString });
+
+  // Create a File object from the Blob
+  var file = new File([blob], filename, { type: mimeString });
+  return file;
+}
 </script>
-<style lang="scss" scoped></style>
