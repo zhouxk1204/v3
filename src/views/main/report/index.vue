@@ -30,7 +30,7 @@
 
           <div class="flex justify-end mt-5">
             <el-button @click="toggleSelect">{{ checkList.length === 0 ? '全选' : '全不选' }}</el-button>
-            <el-button type="primary" @click="onCofirmHeader">确认</el-button>
+            <el-button type="primary" @click="onConfirmHeader">确认</el-button>
           </div>
 
         </el-dialog>
@@ -231,9 +231,13 @@ const exportHeaders = computed(() => {
   return reportCols.filter(e => checkList.value.includes(e.field)).map((e) => e.label);
 });
 
-const onCofirmHeader = () => {
-  localStorage.setItem('exportHeaders', JSON.stringify(checkList.value));
-  dialogTableVisible.value = false;
+const onConfirmHeader = () => {
+  if (checkList.value.length === 0) {
+    ElMessage.error("请至少选择一项");
+  } else {
+    localStorage.setItem('exportHeaders', JSON.stringify(checkList.value));
+    dialogTableVisible.value = false;
+  }
 }
 
 const toggleSelect = () => {
