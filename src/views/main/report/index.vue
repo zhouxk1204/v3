@@ -29,7 +29,7 @@
           </el-checkbox-group>
 
           <div class="flex justify-end mt-5">
-            <el-button @click="checkList = []">清空</el-button>
+            <el-button @click="toggleSelect">{{ checkList.length === 0 ? '全选' : '全不选' }}</el-button>
             <el-button type="primary" @click="onCofirmHeader">确认</el-button>
           </div>
 
@@ -234,5 +234,13 @@ const exportHeaders = computed(() => {
 const onCofirmHeader = () => {
   localStorage.setItem('exportHeaders', JSON.stringify(checkList.value));
   dialogTableVisible.value = false;
+}
+
+const toggleSelect = () => {
+  if (checkList.value.length === 0) {
+    checkList.value = reportCols.map(e => e.field);
+  } else {
+    checkList.value = [];
+  }
 }
 </script>

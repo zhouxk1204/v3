@@ -60,7 +60,4 @@ declare module 'vue' {
     UploadCos: typeof import('./components/UploadCos/index.vue')['default']
     UploadExcel: typeof import('./components/UploadExcel/index.vue')['default']
   }
-  export interface ComponentCustomProperties {
-    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
-  }
 }
