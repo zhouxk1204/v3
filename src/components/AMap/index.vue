@@ -29,8 +29,8 @@
 <script setup lang='ts'>
 import { AMAP_KEY } from '@/constants';
 import AMapLoader from '@amap/amap-jsapi-loader';
+import { ArrowLeftBold, Position } from '@element-plus/icons-vue';
 import { onMounted, ref } from 'vue';
-import { Position, ArrowLeftBold } from '@element-plus/icons-vue';
 
 interface Marker {
   point: number[];
@@ -64,7 +64,7 @@ const initAMap = () => {
   const loading = ElLoading.service({
     lock: true,
     text: '加载地图中，请稍后...',
-    background: 'rgba(255,255, 255, 0.3)',
+    background: "rgba(0, 0, 0, 0.2)",
   })
   AMapLoader.load({
     key: AMAP_KEY, // 申请好的Web端开发者Key，首次调用 load 时必填
@@ -167,7 +167,7 @@ const onNavigate = () => {
   const loading = ElLoading.service({
     lock: true,
     text: '正在规划驾车路线...',
-    background: 'rgba(255,255, 255, 0.3)',
+    background: "rgba(0, 0, 0, 0.2)",
   })
   //构造路线导航类
   drivingRef.value = new AMapRef.value.Driving({

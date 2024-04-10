@@ -4,7 +4,7 @@ import axiosRetry from "axios-retry";
 import { ElMessage } from "element-plus"; // 导入Element Plus的ElMessage组件，确保已安装Element Plus
 
 // 定义泛型接口，用于响应数据
-export interface ResponseData<T = any> {
+export interface ResponseData<T> {
   code: number;
   message: string;
   data: T;
@@ -14,10 +14,9 @@ let requestCount = 0;
 
 const instance: AxiosInstance = axios.create({
   // 设置你的API基础URL
-  // baseURL: "https://api.zhouxk.fun",
-  baseURL: "http://127.0.0.1:3002",
+  baseURL: "https://api.zhouxk.fun",
   // 设置请求超时时间
-  timeout: 10000,
+  timeout: 10 * 1000, // 10 seconds
 });
 
 // 创建 Loading 实例
@@ -38,7 +37,7 @@ instance.interceptors.request.use(
       loading = ElLoading.service({
         lock: true,
         text: "加载中...",
-        background: "rgba(255, 255, 255, 1)",
+        background: "rgba(0, 0, 0, 0.2)",
       });
     }
     requestCount += 1;
@@ -97,24 +96,16 @@ instance.interceptors.response.use(
 
 // 封装请求方法
 export const http = {
-  get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
+  get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     return instance.get(url, config);
   },
-  post<T = any>(
-    url: string,
-    data?: object,
-    config?: AxiosRequestConfig
-  ): Promise<T> {
+  post<T>(url: string, data?: object, config?: AxiosRequestConfig): Promise<T> {
     return instance.post(url, data, config);
   },
-  put<T = any>(
-    url: string,
-    data?: object,
-    config?: AxiosRequestConfig
-  ): Promise<T> {
+  put<T>(url: string, data?: object, config?: AxiosRequestConfig): Promise<T> {
     return instance.put(url, data, config);
   },
-  delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
+  delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     return instance.delete(url, config);
   },
 };

@@ -21,12 +21,18 @@
           <el-button type="primary" :icon="Download" @click="onExport">导出</el-button>
           <el-button type="primary" :icon="Setting" @click="dialogTableVisible = true" />
         </el-button-group>
-        <el-dialog v-model="dialogTableVisible" title="导出标题栏设置">
+        <el-dialog v-model="dialogTableVisible" title="导出表头项目设置">
           <el-checkbox-group v-model="checkList" class="flex flex-col border-t">
             <div v-for="item of reportCols" class="px-2 border-b hover:bg-gray-200">
               <el-checkbox :label="item.label" :value="item.field" size="large" />
             </div>
           </el-checkbox-group>
+
+          <div class="flex justify-end mt-5">
+            <el-button @click="checkList = []">清空</el-button>
+            <el-button type="primary" @click="onCofirmHeader">确认</el-button>
+          </div>
+
         </el-dialog>
         <el-popconfirm width="220" title="确认清空工分汇算?" @confirm="onResetReport">
           <template #reference>
@@ -186,13 +192,18 @@ const onImport = (data: any[]) => {
 const onExport = (): void => {
   const sheetName = dayjs(reportDate.value).format("YYYY年MM月");
   const fileName = `${sheetName}上班（加班）工分汇算`;
+
+
+  const data = reportList.value.map(item => {
+    return Object.keys(checkList.value).map(key => item[key as keyof IReport]);
+  });
+
+
   const exportExcelOptions: ExportExcelOption[] = [
     {
       title: fileName,
-      headers: reportCols.map((e) => e.label),
-      data: reportList.value.map((item) =>
-        reportCols.map((e) => e.field).map((key) => item[key])
-      ),
+      headers: exportHeaders.value,
+      data,
       remark: "时间总工分 = 其他岗位总工分 + 胃2岗位总工分 * 1.2",
     },
   ];
@@ -207,6 +218,21 @@ const onResetReport = () => {
 };
 
 const dialogTableVisible = ref<boolean>(false);
-const res = reportCols.map(e => e.field);
-const checkList = ref(res)
+
+const checkList = ref<(keyof IReport)[]>([]);
+const local = localStorage.getItem('exportHeaders');
+if (local) {
+  checkList.value = JSON.parse(local);
+} else {
+  checkList.value = reportCols.map(e => e.field);
+}
+
+const exportHeaders = computed(() => {
+  return reportCols.filter(e => checkList.value.includes(e.field)).map((e) => e.label);
+});
+
+const onCofirmHeader = () => {
+  localStorage.setItem('exportHeaders', JSON.stringify(checkList.value));
+  dialogTableVisible.value = false;
+}
 </script>

@@ -10,7 +10,7 @@
           <div class="flex items-center gap-3">
             <el-switch v-model="isDark" :active-action-icon="Moon" :inactive-action-icon="Sunny" />
             <el-dropdown>
-              <img :src="avatar" class="w-12 h-12 rounded-full" />
+              <Image :src="avatar" :rounded="true" class="w-12 h-12"></Image>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item @click="onClickSetting">
@@ -67,9 +67,8 @@ import router from "../../router";
 
 const { user } = storeToRefs(useStore().user);
 const avatar = computed(() => {
-  return user.value.avatar || new URL("../../assets/img/avatar.jpg", import.meta.url).href;
+  return user.value.avatar;
 })
-
 
 const currentRoute = useRouter().currentRoute;
 
@@ -96,7 +95,7 @@ const init = async () => {
     const loading = ElLoading.service({
       lock: true,
       text: "正在初始化...",
-      background: "rgba(255, 255, 255, 0.1)",
+      background: "rgba(0, 0, 0, 0.2)",
     });
     const selectOptionRes = await getAllSelectOption();
     useStore().selection.setSelectOptionList(selectOptionRes.data);
@@ -105,7 +104,7 @@ const init = async () => {
 }
 init();
 
-const isCollapse = ref<boolean>(false);
+const isCollapse = ref<boolean>(true);
 const toggleMenu = () => {
   isCollapse.value = !isCollapse.value;
 }

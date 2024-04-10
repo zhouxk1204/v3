@@ -125,3 +125,27 @@ export function generateId(): string {
 export function isNumeric(str: string) {
   return /^\d+(\.\d+)?$/.test(str);
 }
+
+export function dataURLtoFile(dataURL: string, filename: string) {
+  // Convert base64/URLEncoded data component to raw binary data
+  var byteString;
+  if (dataURL.split(",")[0].indexOf("base64") >= 0)
+    byteString = atob(dataURL.split(",")[1]);
+  else byteString = unescape(dataURL.split(",")[1]);
+
+  // Separate out the mime component
+  var mimeString = dataURL.split(",")[0].split(":")[1].split(";")[0];
+
+  // Write the bytes of the string to a typed array
+  var ia = new Uint8Array(byteString.length);
+  for (var i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+
+  // Create a Blob from the typed array
+  var blob = new Blob([ia], { type: mimeString });
+
+  // Create a File object from the Blob
+  var file = new File([blob], filename, { type: mimeString });
+  return file;
+}

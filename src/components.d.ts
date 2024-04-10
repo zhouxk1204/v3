@@ -12,6 +12,7 @@ declare module 'vue' {
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElButtonGroup: typeof import('element-plus/es')['ElButtonGroup']
+    ElCard: typeof import('element-plus/es')['ElCard']
     ElCheckbox: typeof import('element-plus/es')['ElCheckbox']
     ElCheckboxGroup: typeof import('element-plus/es')['ElCheckboxGroup']
     ElConfigProvider: typeof import('element-plus/es')['ElConfigProvider']
@@ -26,6 +27,7 @@ declare module 'vue' {
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
     ElHeader: typeof import('element-plus/es')['ElHeader']
     ElIcon: typeof import('element-plus/es')['ElIcon']
+    ElImage: typeof import('element-plus/es')['ElImage']
     ElInput: typeof import('element-plus/es')['ElInput']
     ElMain: typeof import('element-plus/es')['ElMain']
     ElMenu: typeof import('element-plus/es')['ElMenu']
@@ -45,6 +47,7 @@ declare module 'vue' {
     FillUp: typeof import('./components/FillUp/index.vue')['default']
     Form: typeof import('./components/Form/index.vue')['default']
     FormItem: typeof import('./components/FormItem/index.vue')['default']
+    Image: typeof import('./components/Image/index.vue')['default']
     MenuItem: typeof import('./components/MenuItem/index.vue')['default']
     MusicPlayer: typeof import('./components/MusicPlayer/index.vue')['default']
     RollingNumber: typeof import('./components/RollingNumber/index.vue')['default']
@@ -56,5 +59,8 @@ declare module 'vue' {
     Typewriter: typeof import('./components/Typewriter/index.vue')['default']
     UploadCos: typeof import('./components/UploadCos/index.vue')['default']
     UploadExcel: typeof import('./components/UploadExcel/index.vue')['default']
+  }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }
