@@ -14,7 +14,10 @@
 
     <div>
       <div class="flex gap-3 mb-2">
-        <UploadExcel @change="onImport" sheetName="护士">
+        <el-date-picker v-model="calcMonth" type="month" placeholder="选择汇算月份" format="YYYY/MM" value-format="YYYY/MM"
+          @change="onCalcMonthChange" />
+
+        <UploadExcel @change="onImport" sheetName="护士" class="ml-auto">
           <el-button type="primary" :icon="Upload">导入</el-button>
         </UploadExcel>
         <el-button-group>
@@ -34,11 +37,13 @@
           </div>
 
         </el-dialog>
+
         <el-popconfirm width="220" title="确认清空工分汇算?" @confirm="onResetReport">
           <template #reference>
             <el-button type="danger">清空</el-button>
           </template>
         </el-popconfirm>
+
       </div>
 
       <Table :list="reportList" :cols="reportCols" class="max-[450px]:hidden"></Table>
@@ -88,6 +93,7 @@
 </template>
 
 <script setup lang="ts">
+import { getRecordList, updateRecords } from "@/api/report.api";
 import { FieldItem } from "@/components/Form/form";
 import { DayRatioSettingForm } from "@/config/form.config";
 import { DayRatioSettingTable, ReportTable } from "@/config/table.config";
@@ -101,6 +107,7 @@ import { generateId } from "@/utils";
 import { parseExcelDateNumber, parseMonthDayTextDate } from "@/utils/date";
 import { Download, Plus, Setting, Upload } from '@element-plus/icons-vue';
 import dayjs from "dayjs";
+import _ from "lodash";
 import { storeToRefs } from "pinia";
 
 const formVisible = ref<boolean>(false);
@@ -127,14 +134,11 @@ const onDialogConfirm = () => {
 // 月次工分汇算
 const reportCols = ReportTable;
 
-const recordStore = useStore().record;
-const { list: recordList } = storeToRefs(recordStore);
-const { reset } = recordStore;
-
 const reportList = ref<IReport[]>([]);
 const errorList = ref<string[]>([]);
 const reportDate = ref<string>("");
 
+const originData = ref<IRecord[]>([]);
 const initReport = (list: IRecord[][], showSuccess: boolean = true) => {
   if (list.length > 0) {
     const { reports, errors, currentDate } = useReport(list);
@@ -150,8 +154,6 @@ const initReport = (list: IRecord[][], showSuccess: boolean = true) => {
     }
   }
 };
-
-initReport(recordList.value, false);
 
 // 导入
 const onImport = (data: any[]) => {
@@ -184,20 +186,19 @@ const onImport = (data: any[]) => {
     }
   });
   const list = Array.from(map.values());
-  recordStore.insert(list);
+  originData.value = list.flat();
   initReport(list);
 };
 
 // 导出
-const onExport = (): void => {
+const onExport = async () => {
   const sheetName = dayjs(reportDate.value).format("YYYY年MM月");
   const fileName = `${sheetName}上班（加班）工分汇算`;
 
 
   const data = reportList.value.map(item => {
-    return Object.keys(checkList.value).map(key => item[key as keyof IReport]);
+    return checkList.value.map(key => item[key as keyof IReport]);
   });
-
 
   const exportExcelOptions: ExportExcelOption[] = [
     {
@@ -208,13 +209,17 @@ const onExport = (): void => {
     },
   ];
   useExcel().exportExcel(exportExcelOptions, fileName);
+  if (originData.value.length > 0) {
+    await updateRecords(originData.value);
+  }
+  ElMessage.success("工分汇算结果导出成功🎉🎉🎉");
 };
 
 const onResetReport = () => {
-  reset();
   reportList.value = [];
   errorList.value = [];
   reportDate.value = "";
+  calcMonth.value = "";
 };
 
 const dialogTableVisible = ref<boolean>(false);
@@ -245,6 +250,20 @@ const toggleSelect = () => {
     checkList.value = reportCols.map(e => e.field);
   } else {
     checkList.value = [];
+  }
+}
+
+const calcMonth = ref('');
+const onCalcMonthChange = async (value: string) => {
+  const res = await getRecordList(value);
+  const { data } = res;
+  const groupedData = _.groupBy(data, 'employeeName');
+  if (data.length === 0) {
+    ElMessage.warning(`未查询到${calcMonth.value}的工分汇算结果，请手动导入工作表后重试`);
+    reportList.value = [];
+  } else {
+    const result = Object.values(groupedData);
+    initReport(result, false);
   }
 }
 </script>
