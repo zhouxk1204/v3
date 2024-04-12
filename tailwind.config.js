@@ -13,6 +13,9 @@ module.exports = {
       borderColor: {
         ep: "var(--el-border-color)", // Use the custom CSS variable for border color
       },
+      backgroundColor: {
+        primary: "var(--el-color-primary)", // Use the custom CSS variable
+      },
       keyframes: {
         zoomInOut: {
           "0%, 100%": {
