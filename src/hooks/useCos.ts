@@ -55,6 +55,7 @@ export function useCos(cosOption: CosOption) {
   const uploadProgress = ref();
 
   const upload = (uploadData: { uploadBody: UploadBody; type: string }) => {
+    const sd = new Date().getTime();
     uploadProgress.value = {
       taskId: "",
       status: "",
@@ -62,6 +63,8 @@ export function useCos(cosOption: CosOption) {
       loaded: "",
       speed: "",
       percent: 0,
+      expectedTime: "",
+      duration: "",
     };
 
     const { bucket, region, sliceSize, prefix } = cosOption;
@@ -91,6 +94,11 @@ export function useCos(cosOption: CosOption) {
             uploadProgress.value.loaded = convertBitsToBytes(loaded);
             uploadProgress.value.total = convertBitsToBytes(total);
             uploadProgress.value.speed = `${convertBitsToBytes(speed)}/s`;
+            if (speed > 0) {
+              uploadProgress.value.expectedTime = `${(total / speed).toFixed(
+                2
+              )}s`;
+            }
             const p = percent * 100;
             if (p === 100) {
               uploadProgress.value.percent = 99;
@@ -104,8 +112,10 @@ export function useCos(cosOption: CosOption) {
             uploadProgress.value.status = "exception";
             reject(`上传失败: ${err.message}`);
           } else {
+            const ed = new Date().getTime();
             uploadProgress.value.status = "success";
             uploadProgress.value.percent = 100;
+            uploadProgress.value.duration = `${((ed - sd) / 1000).toFixed(2)}s`;
             resolve(data);
           }
         }

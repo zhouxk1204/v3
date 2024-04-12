@@ -1,8 +1,8 @@
 <template>
   <el-card shadow="hover">
     <div class="flex items-center gap-5">
-      <div class="relative flex-none w-20 h-20 overflow-hidden border rounded-full shadow border-ep bg-gray-50">
-        <img :src="avatar" alt="avatar">
+      <div class="relative flex-none w-20 h-20 overflow-hidden border shadow border-ep bg-gray-50">
+        <Image :src="avatar" class="w-full h-full"></Image>
         <div
           class="absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-black bg-opacity-50 opacity-0 hover:opacity-100">
           <el-icon :size="20" color="#fff" @click="uploadAvatar = true">
@@ -21,18 +21,30 @@
 
   <el-dialog v-model="uploadAvatar" title="上传头像" width="500" align-center destroy-on-close
     :close-on-click-modal="false">
+    <div v-if="previewUrl.length > 0" class="flex flex-col gap-5">
+      <el-alert v-if="progress" type="success" :closable="progress.status === 'success'">
+        <template #title>
+          <span v-if="progress.status === 'uploading'">
+            总进度 {{ progress.percent }}% ,上传速度 {{ progress.speed || '获取中' }}，预计上传时间 {{ progress.expectedTime || '获取中' }}
+          </span>
+          <span v-if="progress.status === 'success'">
+            上传成功，耗时{{ progress.duration }}
+          </span>
+        </template>
+      </el-alert>
 
-    <div v-if="previewUrl.length > 0" class="flex items-start justify-center gap-5">
-      <div class="flex flex-col items-center justify-center flex-1 gap-2">
-        <div class="overflow-hidden border rounded-full border-ep" ref="imageContainer" @mousedown="startDrag"
-          @mousemove="dragImage" @mouseup="stopDrag" @mouseleave="stopDrag">
-          <canvas ref="canvasRef" :width="200" :height="200" style="cursor: move;"></canvas>
+      <div class="flex items-start justify-center gap-5">
+        <div class="flex flex-col items-center justify-center flex-1 gap-2">
+          <div class="overflow-hidden border border-ep" ref="imageContainer" @mousedown="startDrag"
+            @mousemove="dragImage" @mouseup="stopDrag" @mouseleave="stopDrag">
+            <canvas ref="canvasRef" :width="200" :height="200" style="cursor: move;"></canvas>
+          </div>
+          <el-slider v-model="scale" placement="bottom" :max="10" :min="0.5" :step="0.1" />
         </div>
-        <el-slider v-model="scale" placement="bottom" :max="10" :min="0.5" :step="0.1" />
-      </div>
-      <div class="flex flex-col items-center justify-center flex-1 gap-2">
-        <img :src="imageDataUrl" class="border rounded-full border-ep w-28 h-28" alt="" srcset="">
-        <span>头像预览</span>
+        <div class="flex flex-col items-center justify-center flex-1 gap-2">
+          <img :src="imageDataUrl" class="border rounded-full border-ep w-28 h-28" alt="" srcset="">
+          <span>头像预览</span>
+        </div>
       </div>
     </div>
 
@@ -54,8 +66,9 @@
     <template #footer>
       <div class="dialog-footer">
         <template v-if="previewUrl.length > 0">
-          <el-button @click="previewUrl = ''">上一步</el-button>
-          <el-button type="primary" @click="updateAvatar" v-if="previewUrl.length > 0">上传并保存</el-button>
+          <el-button @click="previewUrl = ''" v-if="!isUpload">上一步</el-button>
+          <el-button type="primary" @click="updateAvatar" v-if="previewUrl.length > 0" :loading="isUpload">{{ isUpload ?
+          '上传中' : '上传并保存' }}</el-button>
         </template>
         <el-button v-else @click="uploadAvatar = false">取消</el-button>
       </div>
@@ -72,6 +85,7 @@ import { Camera, Upload } from "@element-plus/icons-vue";
 import { UploadFile } from 'element-plus/es/components/upload/src/upload';
 import { storeToRefs } from "pinia";
 
+const isUpload = ref(false);
 
 const { user } = storeToRefs(useStore().user);
 const avatar = computed(() => {
@@ -172,23 +186,29 @@ const getImageData = () => {
   imageDataUrl.value = tempCanvas.toDataURL('image/jpeg');
 };
 
+const cos = useCos({
+  bucket: 'peach-1322235980', // 存储桶
+  region: 'ap-chengdu', // 地区
+  prefix: '/avatar/', // 存储桶文件夹路径 /xx/
+  stsUrl: 'https://api.zhouxk.fun/sts',
+});
+
+const progress = cos.uploadProgress;
+
 const updateAvatar = async () => {
-  uploadAvatar.value = false;
-  const data: any = await useCos({
-    bucket: 'peach-1322235980', // 存储桶
-    region: 'ap-chengdu', // 地区
-    prefix: '/avatar/', // 存储桶文件夹路径 /xx/
-    stsUrl: 'https://api.zhouxk.fun/sts',
-  }).upload({
+  isUpload.value = true;
+  const data: any = await cos.upload({
     uploadBody: dataURLtoFile(imageDataUrl.value, 'avatar.jpg'),
     type: 'jpg'
   });
   const url = `https://${data.Location}`;
+  console.log("%c Line:187 🍷 url", "color:#ed9ec7", url);
 
   const newUser = user.value;
   newUser.avatar = url;
   await updateUser(newUser);
   useStore().user.updateAvatar(url);
   ElMessage.success('头像更新成功！')
+  uploadAvatar.value = false;
 }
 </script>
