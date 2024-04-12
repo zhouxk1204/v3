@@ -21,7 +21,7 @@
       </el-card>
     </div>
 
-    <div class="p-2 border border-ep rounded-xl w-fit hover:shadow">
+    <el-card class="p-2 border border-ep rounded-xl w-fit hover:shadow">
       <div class="flex flex-col gap-2">
         <h2>月次工分</h2>
         <div class="flex items-center justify-between">
@@ -30,7 +30,7 @@
         </div>
       </div>
       <div id="pie" class="h-64 w-60 border-ep"></div>
-    </div>
+    </el-card>
   </div>
 </template>
 
