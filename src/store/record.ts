@@ -1,17 +1,17 @@
-import { IRecord } from "@/models/report.model";
+import { Record } from "@/types/report";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
 const useRecordStore = defineStore(
   "record",
   () => {
-    const list = ref<IRecord[][]>([]);
+    const list = ref<Record[][]>([]);
 
     /**
      * 设置
-     * @param {IRecord[][]} data
+     * @param {Record[][]} data
      */
-    const insert = (data: IRecord[][]): void => {
+    const insert = (data: Record[][]): void => {
       list.value = data;
     };
 

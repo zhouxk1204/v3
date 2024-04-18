@@ -9,7 +9,7 @@ const useEmployeeStore = defineStore(
 
     /**
      * 更新职工列表
-     * @param {IEmployee} data 待更新的职工信息
+     * @param {Employee} data 待更新的职工信息
      */
     const setEmployeeTempList = (list: Employee[]) => {
       employeeTempList.value = list;

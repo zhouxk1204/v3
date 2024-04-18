@@ -1,10 +1,10 @@
-import { IDayRatioSetting, IReport } from "@/types";
-
 import { TableColumnItem } from "@/components/Table/type";
 import { SELECT_OPTION } from "@/constants";
 import { useSelect } from "@/hooks/useSelect";
+import { IDayRatioSetting } from "@/types";
 import { Employee } from "@/types/employee";
 import { Holiday } from "@/types/holiday";
+import { Report } from "@/types/report";
 
 const { getOptionsByType } = useSelect();
 
@@ -186,7 +186,7 @@ export const DayRatioSettingTable: TableColumnItem<IDayRatioSetting>[] = [
   },
 ];
 
-export const ReportTable: TableColumnItem<IReport>[] = [
+export const ReportTable: TableColumnItem<Report>[] = [
   {
     field: "employeeName",
     label: "姓名",

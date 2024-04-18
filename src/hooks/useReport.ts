@@ -7,14 +7,23 @@ import {
   REST_INFO,
   WORK_TYPE_INFO,
 } from "@/constants";
-import { IPoint, IReport } from "@/types";
+import { Record, Report } from "@/types/report";
 import { fullToHalf, trim } from "@/utils/string";
 
-import { IRecord } from "@/models/report.model";
 import useStore from "@/store";
 import { isInRange } from "@/utils/date";
 import dayjs from "dayjs";
 import Decimal from "decimal.js";
+
+interface Point {
+  typeId: string; // 类别id 上班，加班，休假
+  typeName: string; // 类别名称 上班，加班，休假
+  jobId?: string; // 岗位id
+  jobName?: string; // 岗位名称
+  point: number; // 岗位工分（小时）
+  pointRatio?: number; // 岗位工分倍率
+  ratioPoint?: number; // 岗位工分 * 岗位工分倍率
+}
 
 interface RatioInfo {
   ratio: number;
@@ -24,8 +33,8 @@ interface RatioInfo {
   };
 }
 
-export function useReport(data: IRecord[][]) {
-  const reports: IReport[] = [];
+export function useReport(data: Record[][]) {
+  const reports: Report[] = [];
   // 保存报表所在的日期
   let currentDate = data[0][0].date;
   // 异常记录
@@ -40,7 +49,7 @@ export function useReport(data: IRecord[][]) {
     let workCount = 0;
 
     if (employee) {
-      let pointList: IPoint[] = [];
+      let pointList: Point[] = [];
       let hasError: boolean = false;
       for (let e of item) {
         const { record, date } = e;
@@ -126,7 +135,7 @@ export function useReport(data: IRecord[][]) {
       const totalGastroscopy = totalWorkGastroscopy.plus(
         totalOvertimeGastroscopy
       );
-      const iReport: IReport = {
+      const iReport: Report = {
         employeeName: employee.name,
         factor: employee.factor,
         annual: annual.toNumber(),
@@ -156,9 +165,9 @@ export function useReport(data: IRecord[][]) {
 /**
  * 根据休日文字获取信息
  * @param {string} text
- * @returns {IPoint | null}
+ * @returns {Point | null}
  */
-const getRestInfoByText = (text: string): IPoint | null => {
+const getRestInfoByText = (text: string): Point | null => {
   for (let item of Object.values(REST_INFO)) {
     if (item.label.includes(text)) {
       return {
@@ -330,12 +339,12 @@ const getLabelById = (id: string, obj: Object) => {
  * 解析工作记录字符串
  * @param {string} record 工分记录
  * @param {{ [k: string]: RatioInfo[] }} ratioObj 工分倍率信息
- * @returns {IPoint[]} 工分详细列表
+ * @returns {Point[]} 工分详细列表
  */
 const parseRecord = (
   record: string,
   ratioObj: { [k: string]: RatioInfo[] }
-): IPoint[] => {
+): Point[] => {
   // 去掉空格和大写转小写
   record = trim(fullToHalf(record));
   // 2.按'/'分成不同的种类进行解析
@@ -343,7 +352,7 @@ const parseRecord = (
   if (parts.length > 2) {
     return [];
   } else {
-    const res: IPoint[][] = [];
+    const res: Point[][] = [];
     for (let part of parts) {
       const iPoints = parsePart(part, ratioObj);
       if (iPoints.length > 0) {
@@ -364,12 +373,12 @@ const parseRecord = (
  * 解析岗位工分记录字符串
  * @param {string} part 岗位工分记录
  * @param {{ [k: string]: RatioInfo[] }} ratioObj 岗位工分记录
- * @returns {IPoint[]} 工分详细列表
+ * @returns {Point[]} 工分详细列表
  */
 const parsePart = (
   part: string,
   ratioObj: { [k: string]: RatioInfo[] }
-): IPoint[] => {
+): Point[] => {
   // 确定岗位
   let job = JOB_INFO.OTHER;
 

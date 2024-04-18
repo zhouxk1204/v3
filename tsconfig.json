@@ -28,7 +28,7 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["element-plus/global", "node"] // 找不到命名空间“NodeJS”。
+    "types": ["element-plus/global", "node", "vite/client"] // 找不到命名空间“NodeJS”。
   },
   "include": [
     "env.d.ts",

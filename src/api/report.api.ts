@@ -1,13 +1,19 @@
 import { ResponseData, http } from "./request";
 
-import { IRecord } from "@/models/report.model";
+import { Record } from "@/types/report";
 
-export const updateRecords = (records: IRecord[]) => {
+export const updateRecords = (records: Record[]) => {
   return http.post<ResponseData<Object>>("/report/insert", records);
 };
 
 export const getRecordList = (month: string) => {
-  return http.get<ResponseData<IRecord[]>>("/report/query", {
+  return http.get<ResponseData<Record[]>>("/report/query", {
+    params: { month },
+  });
+};
+
+export const getBarChartList = (month: string) => {
+  return http.get<ResponseData<any[]>>("/report/bar", {
     params: { month },
   });
 };

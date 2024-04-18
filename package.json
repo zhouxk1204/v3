@@ -1,12 +1,13 @@
 {
   "name": "v3",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "serve": "vite",
-    "dev": "vite --mode dev",
-    "build": "vue-tsc && vite build",
+    "dev": "vite --mode development",
+    "test": "vite --mode production",
+    "build": "vue-tsc && vite build --mode production",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -36,7 +37,6 @@
     "vite-plugin-node-polyfills": "^0.21.0",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4",
-    "vue-tailwind-datepicker": "^1.6.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

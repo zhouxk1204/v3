@@ -99,10 +99,9 @@ import { DayRatioSettingForm } from "@/config/form.config";
 import { DayRatioSettingTable, ReportTable } from "@/config/table.config";
 import { ExportExcelOption, useExcel } from "@/hooks/useExcel";
 import { useReport } from "@/hooks/useReport";
-import { IRecord } from "@/models/report.model";
 import router from "@/router";
 import useStore from "@/store";
-import { IDayRecord, IReport } from "@/types";
+import { Record, Report } from "@/types/report";
 import { generateId } from "@/utils";
 import { parseExcelDateNumber, parseMonthDayTextDate } from "@/utils/date";
 import { Download, Plus, Setting, Upload } from '@element-plus/icons-vue';
@@ -134,12 +133,12 @@ const onDialogConfirm = () => {
 // 月次工分汇算
 const reportCols = ReportTable;
 
-const reportList = ref<IReport[]>([]);
+const reportList = ref<Report[]>([]);
 const errorList = ref<string[]>([]);
 const reportDate = ref<string>("");
 
-const originData = ref<IRecord[]>([]);
-const initReport = (list: IRecord[][], showSuccess: boolean = true) => {
+const originData = ref<Record[]>([]);
+const initReport = (list: Record[][], showSuccess: boolean = true) => {
   if (list.length > 0) {
     const { reports, errors, currentDate } = useReport(list);
     reportList.value = reports;
@@ -160,7 +159,7 @@ const onImport = (data: any[]) => {
   if (data.length === 0) return;
 
   let header: any = {};
-  const map: Map<string, IDayRecord[]> = new Map();
+  const map: Map<string, Record[]> = new Map();
   data.forEach((item) => {
     const employeeName = item["__EMPTY"];
     if (!employeeName) {
@@ -197,7 +196,7 @@ const onExport = async () => {
 
 
   const data = reportList.value.map(item => {
-    return checkList.value.map(key => item[key as keyof IReport]);
+    return checkList.value.map(key => item[key as keyof Report]);
   });
 
   const exportExcelOptions: ExportExcelOption[] = [
@@ -224,7 +223,7 @@ const onResetReport = () => {
 
 const dialogTableVisible = ref<boolean>(false);
 
-const checkList = ref<(keyof IReport)[]>([]);
+const checkList = ref<(keyof Report)[]>([]);
 const local = localStorage.getItem('exportHeaders');
 if (local) {
   checkList.value = JSON.parse(local);
@@ -267,3 +266,4 @@ const onCalcMonthChange = async (value: string) => {
   }
 }
 </script>
+@/models/report
