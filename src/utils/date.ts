@@ -1,6 +1,6 @@
 import { DEFAULT_DATE_FORMAT } from "@/constants";
 import dayjs from "dayjs";
-import isBetween from 'dayjs/plugin/isBetween';
+import isBetween from "dayjs/plugin/isBetween";
 dayjs.extend(isBetween);
 /**
  * 将XX年XX日 转换为 YYYY/MM/DD
@@ -111,13 +111,31 @@ export function parseMonthDayTextDate(target: string) {
   }
 }
 
-export function isInRange(
-  range: [string, string] | string[],
-  target: string | Date
-): boolean {
-  const [start, end] = range;
-  const startDate = dayjs(start);
-  const endDate = dayjs(end);
-  const targetDate = dayjs(target);
-  return targetDate.isBetween(startDate, endDate, null, "[]"); // '[]' includes start and end date
+/**
+ * 获取指定日期的年月
+ * @param {string | Date | number} [date] - 指定日期，默认为当前日期。可以是字符串、Date对象或偏移量。
+ * @param {number} [offset=0] - 偏移量，可正可负，表示相对于指定日期的偏移月数。
+ * @returns {string} 指定日期的年月，格式为 'yyyy/mm'。
+ */
+export function getYearMonthFromDate(offset: number): string;
+export function getYearMonthFromDate(date: string, offset: number): string;
+export function getYearMonthFromDate(date: Date, offset: number): string;
+export function getYearMonthFromDate(
+  date?: string | Date | number,
+  offset: number = 0
+): string {
+  let targetDate;
+
+  if (typeof date === "string") {
+    targetDate = dayjs(new Date(date)).add(offset, "month");
+  } else if (date instanceof Date) {
+    targetDate = dayjs(date).add(offset, "month");
+  } else if (typeof date === "number") {
+    offset = date;
+    targetDate = dayjs().add(offset, "month");
+  } else {
+    targetDate = dayjs();
+  }
+
+  return targetDate.format("YYYY/MM");
 }

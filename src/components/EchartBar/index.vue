@@ -1,5 +1,5 @@
 <template>
-  <div ref="barRef" class="w-full h-full"></div>
+  <div ref="barRef" class="w-full h-[320px]"></div>
 </template>
 
 <script setup lang='ts'>

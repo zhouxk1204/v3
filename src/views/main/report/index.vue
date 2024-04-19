@@ -77,19 +77,6 @@
       </div>
     </div>
   </div>
-
-  <el-dialog v-model="dialogVisible" title="提示" center :showClose="false" :lose-on-click-modal="false"
-    :close-on-press-escape="false">
-    <div class="font-bold text-center">
-      您还没有添加员工信息，请添加员工信息后重试！
-    </div>
-
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button type="primary" @click="onDialogConfirm"> 确认 </el-button>
-      </div>
-    </template>
-  </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -99,7 +86,6 @@ import { DayRatioSettingForm } from "@/config/form.config";
 import { DayRatioSettingTable, ReportTable } from "@/config/table.config";
 import { ExportExcelOption, useExcel } from "@/hooks/useExcel";
 import { useReport } from "@/hooks/useReport";
-import router from "@/router";
 import useStore from "@/store";
 import { Record, Report } from "@/types/report";
 import { generateId } from "@/utils";
@@ -121,13 +107,6 @@ const form = ref<FieldItem[]>(DayRatioSettingForm);
 const handelSubmit = (data: any) => {
   data.id = generateId();
   insert(data);
-};
-
-const employeeStore = useStore().employee;
-const dialogVisible = employeeStore.employeeTempList.length <= 0;
-
-const onDialogConfirm = () => {
-  router.push("/main/employee");
 };
 
 // 月次工分汇算

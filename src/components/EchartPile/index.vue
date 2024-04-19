@@ -1,5 +1,5 @@
 <template>
-  <div ref="pieRef" class="w-full h-full"></div>
+  <div ref="pieRef" class="w-full h-[320px]"></div>
 </template>
 
 <script setup lang='ts'>
@@ -68,12 +68,12 @@ const renderChart = () => {
     },
     // 图例组件配置
     legend: {
-      bottom: 10, // 图例距容器顶部的距离
+      bottom: 0, // 图例距容器顶部的距离
       left: 'center' // 图例水平居中显示
     },
     series: [
       {
-        top: -20,
+        top: 0,
         // 系列名称
         name: props.title,
         // 系列类型为饼图
