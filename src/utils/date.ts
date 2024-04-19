@@ -139,3 +139,14 @@ export function getYearMonthFromDate(
 
   return targetDate.format("YYYY/MM");
 }
+
+export function isInRange(
+  range: [string, string] | string[],
+  target: string | Date
+): boolean {
+  const [start, end] = range;
+  const startDate = dayjs(start);
+  const endDate = dayjs(end);
+  const targetDate = dayjs(target);
+  return targetDate.isBetween(startDate, endDate, null, "[]"); // '[]' includes start and end date
+}
