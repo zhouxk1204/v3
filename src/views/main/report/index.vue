@@ -89,7 +89,7 @@ import { useReport } from "@/hooks/useReport";
 import useStore from "@/store";
 import { Record, Report } from "@/types/report";
 import { generateId } from "@/utils";
-import { parseExcelDateNumber, parseMonthDayTextDate } from "@/utils/date";
+import { getYearMonthFromDate, parseExcelDateNumber, parseMonthDayTextDate } from "@/utils/date";
 import { Download, Plus, Setting, Upload } from '@element-plus/icons-vue';
 import dayjs from "dayjs";
 import _ from "lodash";
@@ -231,7 +231,8 @@ const toggleSelect = () => {
   }
 }
 
-const calcMonth = ref('');
+const lastMonth = getYearMonthFromDate(-1);
+const calcMonth = ref(lastMonth);
 const onCalcMonthChange = async (value: string) => {
   const res = await getRecordList(value);
   const { data } = res;
@@ -244,5 +245,5 @@ const onCalcMonthChange = async (value: string) => {
     initReport(result, false);
   }
 }
+onCalcMonthChange(calcMonth.value);
 </script>
-@/models/report

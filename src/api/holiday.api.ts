@@ -6,8 +6,10 @@ export const submitHoliday = (holiday: Holiday) => {
   return http.post("/holiday/insert", holiday);
 };
 
-export const getHolidayList = () => {
-  return http.get<ResponseData<Holiday[]>>("/holiday/query");
+export const getHolidayList = (params: { year: string; hId: string }) => {
+  return http.get<ResponseData<Holiday[]>>("/holiday/query", {
+    params: params,
+  });
 };
 
 export const deleteHolidayById = (id: string) => {

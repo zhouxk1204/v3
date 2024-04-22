@@ -1,6 +1,17 @@
 <template>
   <div>
-    <el-button type="primary" :icon="Plus" @click="formVisible = true" class="mb-2">添加节假日</el-button>
+    <div class="flex items-center justify-between mb-2">
+      <div class="flex items-center gap-3">
+        <el-date-picker v-model="yearModel" type="year" placeholder="年份" @change="handleDatePikerChange" format="YYYY"
+          value-format="YYYY" />
+        <el-select-v2 v-model="holidayModel" placeholder="节假日" :clearable="true" :options="holidayOptions"
+          @change="handleSelectChange" />
+      </div>
+      <div class="flex items-center">
+        <el-button type="primary" size="default" @click="onRest">重置</el-button>
+        <el-button type="success" :icon="Plus" @click="formVisible = true">添加节假日</el-button>
+      </div>
+    </div>
     <Table :list="holidayList" :cols="cols" :editable="true" @remove="deleteHoliday($event)"
       @update="updateHoliday($event)">
     </Table>
@@ -17,6 +28,8 @@ import { FieldItem } from "@/components/Form/form";
 import { TableColumnItem } from "@/components/Table/type";
 import { HolidayForm } from "@/config/form.config";
 import { HolidayTable } from "@/config/table.config";
+import { SELECT_OPTION } from '@/constants';
+import { useSelect } from '@/hooks/useSelect';
 import useStore from "@/store";
 import { Holiday } from '@/types/holiday';
 import { generateId } from "@/utils";
@@ -35,7 +48,10 @@ onMounted(() => {
 const range = ref<string[][]>([]);
 
 const refreshHolidayList = async (message?: string) => {
-  const { data } = await getHolidayList();
+  const { data } = await getHolidayList({
+    year: yearModel.value,
+    hId: holidayModel.value
+  });
   holidayList.value = data;
   holidayStore.setHolidayTempList(data);
   range.value = data.map((e: Holiday) => e.date);
@@ -66,4 +82,22 @@ const handelSubmit = async (data: any) => {
   refreshHolidayList('节假日信息添加成功！')
   formVisible.value = false;
 };
+
+
+const yearModel = ref('');
+const holidayModel = ref('');
+const holidayOptions = useSelect().getOptionsByType(SELECT_OPTION.HOLIDAY);
+const handleDatePikerChange = async () => {
+  refreshHolidayList();
+}
+
+const handleSelectChange = async () => {
+  refreshHolidayList();
+}
+
+const onRest = () => {
+  yearModel.value = '';
+  holidayModel.value = '';
+  refreshHolidayList();
+}
 </script>

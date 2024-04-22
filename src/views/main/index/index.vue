@@ -7,22 +7,40 @@
         value-format="YYYY/MM" @change="onCalcMonthChange" />
     </div>
 
-    <div class="flex gap-3">
-      <el-card v-for="item in arr" class="flex-1">
-        <div class="flex h-full gap-2">
-          <div class="flex items-center justify-center w-16 rounded bg-primary aspect-square">
-            <el-icon :size="40" color="#fff">
-              <component :is="item.icon"></component>
-            </el-icon>
-          </div>
+    <el-row :gutter="12">
+      <el-col :xs="24" :sm="16" :md="8" :lg="8" :xl="4">
+        <el-card v-for="item in arr" class="flex-1">
+          <div class="relative flex items-center">
+            <el-popover placement="top-start" title="每日平均工作时长" :width="200" trigger="hover"
+              content="统计工作日、周末和节假日，包括其他岗位和胃镜2岗位的每日上班加班时长的平均，以小时为单位计算。">
+              <template #reference>
 
-          <div class="flex flex-col justify-between">
-            <div class="text-gray-500">{{ item.title }}</div>
-            <div class="text-3xl font-bold">{{ item.value }}</div>
+                <div class="absolute top-0 right-0">
+                  <el-icon :size="24" color="#c2c2c2">
+                    <QuestionFilled />
+                  </el-icon>
+                </div>
+              </template>
+            </el-popover>
+
+
+            <div class="flex items-center justify-center flex-none w-16 h-16 rounded-full bg-primary aspect-square">
+              <el-icon :size="40" color="#fff">
+                <component :is="item.icon"></component>
+              </el-icon>
+            </div>
+
+            <div class="flex flex-col justify-between flex-1 py-3 ml-3 font-bold">
+              <div class="flex items-end justify-between text-3xl">
+                <span>{{ item.value }}</span>
+              </div>
+              <div class="text-sm text-gray-500">{{ item.title }}</div>
+            </div>
           </div>
-        </div>
-      </el-card>
-    </div>
+        </el-card>
+      </el-col>
+    </el-row>
+
 
     <el-row :gutter="12">
       <el-col :span="6">
@@ -46,7 +64,7 @@ import { BarOption } from "@/components/EchartBar/index.vue";
 import { sumArray } from "@/utils/array";
 import { calculate, OperatorEnum } from "@/utils/calc";
 import { getYearMonthFromDate } from "@/utils/date";
-import { Calendar, Flag, Histogram, UserFilled } from "@element-plus/icons-vue";
+import { Histogram, QuestionFilled } from "@element-plus/icons-vue";
 
 
 const pileData = ref<{ name: string, value: number }[]>([])
@@ -55,24 +73,9 @@ const barChartOption = ref<BarOption | null>(null)
 
 const arr = ref([
   {
-    title: '员工人数',
-    value: 9,
-    icon: UserFilled,
-  },
-  {
     title: '',
     value: '',
     icon: Histogram,
-  },
-  {
-    title: '3月周末出勤',
-    value: 23,
-    icon: Calendar,
-  },
-  {
-    title: '3月年休天数',
-    value: 0,
-    icon: Flag,
   },
 ])
 
@@ -82,7 +85,6 @@ onMounted(() => {
 
 const refresh = async (value: string) => {
   const data = await getBarChartList(value);
-  console.log("%c Line:84 🍧 data", "color:#e41a6a", data);
 
   if (data.data.length === 0) return;
 
@@ -155,16 +157,16 @@ const refresh = async (value: string) => {
     { value: sumArray(gastroscopy), name: '胃2上班' }, // 第一个数据项
     { value: sumArray(gastroscopyOvertime), name: '胃2加班' }, // 第二个数据项
   ]
-
   const average = calculate(sumArray(total), total.length, OperatorEnum.DIVIDE);
-  arr.value[1].value = average + ' h';
+  const month = calcMonth.value.split('/')[1];
+  arr.value[0].title = `${+month}月每日平均工作时长`;
+  arr.value[0].value = `${average}h`;
 }
 
 const lastMonth = getYearMonthFromDate(-1);
 const calcMonth = ref(lastMonth);
-arr.value[1].title = calcMonth.value.split('/')[1] + '月每日平均';
 const pileChartTitle = computed(() => {
-  return `${calcMonth.value}工分类别占比`
+  return `${calcMonth.value}岗位工分占比`
 })
 const onCalcMonthChange = async (value: string) => {
   refresh(value);

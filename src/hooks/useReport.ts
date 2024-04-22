@@ -246,7 +246,7 @@ const getRatio = (
     const workRatio = +holiday.ratio1;
     const extraRatio = +holiday.ratio2;
     // 判断是节假日补班还是节假日加班
-    if (holiday.hId === HOLIDAY_TYPE.MAKEUP) {
+    if (holiday.tId === HOLIDAY_TYPE.MAKEUP) {
       jobIds.forEach((jobId) => {
         res[jobId] = [
           {
