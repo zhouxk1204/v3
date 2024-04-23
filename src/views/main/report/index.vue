@@ -233,8 +233,8 @@ const toggleSelect = () => {
 
 const lastMonth = getYearMonthFromDate(-1);
 const calcMonth = ref(lastMonth);
-const onCalcMonthChange = async (value: string) => {
-  const res = await getRecordList(value);
+const onCalcMonthChange = async (value: string | undefined) => {
+  const res = await getRecordList(value ?? '');
   const { data } = res;
   const groupedData = _.groupBy(data, 'employeeName');
   if (data.length === 0) {

@@ -49,8 +49,8 @@ const range = ref<string[][]>([]);
 
 const refreshHolidayList = async (message?: string) => {
   const { data } = await getHolidayList({
-    year: yearModel.value,
-    hId: holidayModel.value
+    year: yearModel.value ?? '',
+    hId: holidayModel.value ?? '',
   });
   holidayList.value = data;
   holidayStore.setHolidayTempList(data);
