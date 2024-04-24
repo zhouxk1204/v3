@@ -2,55 +2,51 @@
   <div class="flex flex-col gap-3">
 
     <div class="flex items-center justify-between">
-      <FillUp text="Hi, xz@520.com" class="text-6xl text-center" color="#f0a9a7"></FillUp>
-      <el-date-picker class="max-w-[50%]" v-model="calcMonth" type="month" placeholder="选择年月" format="YYYY/MM"
-        value-format="YYYY/MM" @change="onCalcMonthChange" />
+      <FillUp text="Hi, xz@520.com" class="text-4xl text-center" color="#f0a9a7"></FillUp>
     </div>
 
-    <el-row :gutter="12">
-      <el-col :xs="24" :sm="16" :md="8" :lg="8" :xl="4">
-        <el-card v-for="item in arr" class="flex-1">
-          <div class="relative flex items-center">
-            <el-popover placement="top-start" title="每日平均工作时长" :width="200" trigger="hover"
-              content="统计工作日、周末和节假日，包括其他岗位和胃镜2岗位的每日上班加班时长的平均，以小时为单位计算。">
-              <template #reference>
-
-                <div class="absolute top-0 right-0">
-                  <el-icon :size="24" color="#c2c2c2">
-                    <QuestionFilled />
-                  </el-icon>
-                </div>
-              </template>
-            </el-popover>
-
-
-            <div class="flex items-center justify-center flex-none w-16 h-16 rounded-full bg-primary aspect-square">
-              <el-icon :size="40" color="#fff">
-                <Histogram />
-              </el-icon>
-            </div>
-
-            <div class="flex flex-col justify-between flex-1 py-3 ml-3 font-bold">
-              <div class="flex items-end justify-between text-3xl">
-                <span>{{ item.value }}</span>
-              </div>
-              <div class="text-sm text-gray-500">{{ item.title }}</div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
-
+    <el-date-picker class="max-w-[50%]" v-model="calcMonth" type="month" placeholder="选择年月" format="YYYY/MM"
+      value-format="YYYY/MM" @change="onCalcMonthChange" />
 
     <el-row :gutter="12">
       <el-col :span="6">
-        <el-card v-if="pileData.length > 0">
-          <EchartPile :title="pileChartTitle" :data="pileData" class="h-[320px]"></EchartPile>
-        </el-card>
+        <div class="flex flex-col gap-3">
+          <el-card v-for="item in arr" class="flex-1 h-[104px]">
+            <div class="relative flex items-center">
+              <el-popover placement="top-start" title="每日平均工作时长" :width="200" trigger="hover"
+                content="统计工作日、周末和节假日，包括其他岗位和胃镜2岗位的每日上班加班时长的平均，以小时为单位计算。">
+                <template #reference>
+
+                  <div class="absolute top-0 right-0">
+                    <el-icon :size="24" color="#c2c2c2">
+                      <QuestionFilled />
+                    </el-icon>
+                  </div>
+                </template>
+              </el-popover>
+
+              <div class="flex items-center justify-center flex-none rounded-full h-14 w-14 bg-primary aspect-square">
+                <el-icon :size="40" color="#fff">
+                  <Histogram />
+                </el-icon>
+              </div>
+
+              <div class="flex flex-col justify-between flex-1 py-2 ml-2 font-bold">
+                <div class="flex items-end justify-between text-2xl">
+                  <span>{{ item.value }}</span>
+                </div>
+                <div class="text-xs text-gray-500">{{ item.title }}</div>
+              </div>
+            </div>
+          </el-card>
+          <el-card v-if="pileData.length > 0">
+            <EchartPile :title="pileChartTitle" :data="pileData" class="h-[320px]"></EchartPile>
+          </el-card>
+        </div>
       </el-col>
       <el-col :span="18">
         <el-card v-if="barChartOption">
-          <EchartBar class="h-[320px]" :option="barChartOption">
+          <EchartBar class="h-[439px]" :option="barChartOption">
           </EchartBar>
         </el-card>
       </el-col>
@@ -105,25 +101,25 @@ const refresh = async (value: string) => {
   barChartOption.value = {
     series: [
       {
-        name: '其他岗位上班',
+        name: '其他上班',
         value: other,
         unit: 'h',
         type: 'bar',
       },
       {
-        name: '其他岗位加班',
+        name: '其他加班',
         value: otherOvertime,
         unit: 'h',
         type: 'bar',
       },
       {
-        name: '胃2岗位上班',
+        name: '胃2上班',
         value: gastroscopy,
         unit: 'h',
         type: 'bar',
       },
       {
-        name: '胃2岗位加班',
+        name: '胃2加班',
         value: gastroscopyOvertime,
         unit: 'h',
         type: 'bar',
@@ -158,7 +154,7 @@ const refresh = async (value: string) => {
   ]
   const average = calculate(sumArray(total), total.length, OperatorEnum.DIVIDE);
   const month = calcMonth.value.split('/')[1];
-  arr.value[0].title = `${+month}月每日平均工作时长`;
+  arr.value[0].title = `${+month}月平均每日工作`;
   arr.value[0].value = `${average}h`;
 }
 
@@ -168,6 +164,6 @@ const pileChartTitle = computed(() => {
   return `${calcMonth.value}岗位工分占比`
 })
 const onCalcMonthChange = async (value: string) => {
-  refresh(value);
+  refresh(value ?? '');
 }
 </script>

@@ -74,11 +74,15 @@ const router = createRouter({
 router.beforeEach((to, _, next) => {
   const token = localStorage.getItem("token") ?? "";
   if (to.path.indexOf("main") < 0) {
+    document.title = `${to.meta.title}` || "Peach";
     next();
   } else if (token.length > 0) {
     if (to.path === "/login") {
       next("/main");
+      document.title = "Peach";
     } else {
+      // 设置标题
+      document.title = `${to.meta.title}` || "Peach";
       next();
     }
   } else {

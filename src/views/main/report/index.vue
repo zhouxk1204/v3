@@ -37,10 +37,9 @@
 
         <el-popconfirm width="220" title="确认清空工分汇算?" @confirm="onResetReport">
           <template #reference>
-            <el-button size="default" :icon="Refresh">重置</el-button>
+            <el-button size="default" :icon="Delete">清空</el-button>
           </template>
         </el-popconfirm>
-
       </div>
 
       <Table :list="reportList" :cols="reportCols" class="max-[450px]:hidden"></Table>
@@ -76,8 +75,8 @@
 
     <teleport to="body">
       <el-dialog v-model="dialogTableVisible" title="导出Excel表头设置" destroy-on-close align-center>
-        <el-checkbox-group v-model="checkList" class="flex flex-col border-t">
-          <div v-for="item of reportCols" class="px-2 border-b hover:bg-gray-200">
+        <el-checkbox-group v-model="checkList" class="flex flex-col border-t border-ep">
+          <div v-for="item of reportCols" class="px-2 border-b border-ep hover:bg-gray-200">
             <el-checkbox :label="item.label" :value="item.field" size="large" />
           </div>
         </el-checkbox-group>
@@ -102,7 +101,7 @@ import useStore from "@/store";
 import { Record, Report } from "@/types/report";
 import { generateId } from "@/utils";
 import { getYearMonthFromDate, parseExcelDateNumber, parseMonthDayTextDate } from "@/utils/date";
-import { ArrowLeft, ArrowRight, Download, Plus, Refresh, Setting, Upload } from '@element-plus/icons-vue';
+import { ArrowLeft, ArrowRight, Delete, Download, Plus, Setting, Upload } from '@element-plus/icons-vue';
 import dayjs from "dayjs";
 import _ from "lodash";
 import { storeToRefs } from "pinia";
@@ -268,6 +267,10 @@ const selectMonth = async (value: string | undefined) => {
 }
 // 切换月份
 const changeMonth = (offset: number) => {
+  if (!currentMonth.value || currentMonth.value.length === 0) {
+    currentMonth.value = getYearMonthFromDate(-1);
+  }
+
   const date = dayjs(currentMonth.value).add(offset, 'month').format('YYYY/MM');
   currentMonth.value = date
   selectMonth(date);

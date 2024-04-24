@@ -19,7 +19,7 @@
                     <el-icon>
                       <Setting />
                     </el-icon>
-                    <span>个人设置</span> </el-dropdown-item>
+                    <span>个人中心</span> </el-dropdown-item>
                   <el-dropdown-item @click="logoutDialogVisible = true" divided>
                     <el-icon>
                       <SwitchButton />

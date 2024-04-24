@@ -1,5 +1,5 @@
 <template>
-  <div ref="pieRef" class="w-full h-[320px]"></div>
+  <div ref="pieRef"></div>
 </template>
 
 <script setup lang='ts'>

@@ -1,5 +1,5 @@
 <template>
-  <el-table :data="list" class="w-full" border>
+  <el-table :data="list" class="w-full" border table-layout="auto">
     <el-table-column :key="item.field" :label="item.label" v-for="item in cols"
       :min-width="item.edit?.editType === 'daterange' ? 238 : 100">
       <template #default="scope">
