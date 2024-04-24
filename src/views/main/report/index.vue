@@ -234,11 +234,16 @@ const toggleSelect = () => {
 const lastMonth = getYearMonthFromDate(-1);
 const calcMonth = ref(lastMonth);
 const onCalcMonthChange = async (value: string | undefined) => {
-  const res = await getRecordList(value ?? '');
+  if (!value) {
+    reportList.value = [];
+    return;
+  }
+
+  const res = await getRecordList(value);
   const { data } = res;
   const groupedData = _.groupBy(data, 'employeeName');
   if (data.length === 0) {
-    ElMessage.warning(`未查询到${calcMonth.value}的工分汇算结果，请手动导入工作表后重试`);
+    ElMessage.warning(`未查询到${value}的工分汇算结果，请手动导入工作表后重试`);
     reportList.value = [];
   } else {
     const result = Object.values(groupedData);
