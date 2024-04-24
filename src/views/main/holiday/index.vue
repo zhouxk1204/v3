@@ -2,14 +2,12 @@
   <div>
     <div class="flex items-center justify-between mb-2">
       <div class="flex items-center gap-3">
+        <el-button type="primary" :icon="Plus" @click="formVisible = true">新增</el-button>
         <el-date-picker v-model="yearModel" type="year" placeholder="年份" @change="handleDatePikerChange" format="YYYY"
           value-format="YYYY" />
         <el-select-v2 v-model="holidayModel" placeholder="节假日" :clearable="true" :options="holidayOptions"
           @change="handleSelectChange" />
-      </div>
-      <div class="flex items-center">
-        <el-button type="primary" size="default" @click="onRest">重置</el-button>
-        <el-button type="success" :icon="Plus" @click="formVisible = true">添加节假日</el-button>
+        <el-button size="default" @click="onRest" :icon="Refresh">重置</el-button>
       </div>
     </div>
     <Table :list="holidayList" :cols="cols" :editable="true" @remove="deleteHoliday($event)"
@@ -33,7 +31,7 @@ import { useSelect } from '@/hooks/useSelect';
 import useStore from "@/store";
 import { Holiday } from '@/types/holiday';
 import { generateId } from "@/utils";
-import { Plus } from "@element-plus/icons-vue";
+import { Plus, Refresh } from "@element-plus/icons-vue";
 
 const holidayStore = useStore().holiday;
 

@@ -8,6 +8,8 @@
               @click="onClickLogo" />
           </h1>
           <div class="flex items-center gap-3">
+            <el-button type="info" text :icon="FullScreen" @click="toggleFullScreen">
+            </el-button>
             <el-switch v-model="isDark" :active-action-icon="Moon" :inactive-action-icon="Sunny" />
             <el-dropdown>
               <Image :src="avatar" :rounded="true" class="w-12 h-12"></Image>
@@ -18,7 +20,7 @@
                       <Setting />
                     </el-icon>
                     <span>个人设置</span> </el-dropdown-item>
-                  <el-dropdown-item @click="onClickLogout" divided>
+                  <el-dropdown-item @click="logoutDialogVisible = true" divided>
                     <el-icon>
                       <SwitchButton />
                     </el-icon>
@@ -53,13 +55,27 @@
         </el-container>
       </el-container>
     </el-container>
+
+    <el-dialog v-model="logoutDialogVisible" title="提示" width="500" align-center>
+      <span class="flex items-center gap-1"><el-icon :size="24" color="#dca550">
+          <WarningFilled />
+        </el-icon>确定注销并退出系统吗？</span>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="logoutDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="onClickLogout">
+            确认
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { getAllSelectOption } from "@/api/common";
 import useStore from "@/store";
-import { Moon, Operation, Setting, Sunny, SwitchButton } from "@element-plus/icons-vue";
+import { FullScreen, Moon, Operation, Setting, Sunny, SwitchButton, WarningFilled } from "@element-plus/icons-vue";
 import { useDark } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
@@ -73,18 +89,17 @@ const avatar = computed(() => {
 const currentRoute = useRouter().currentRoute;
 
 const parentRoute = "/main";
-const menuRoutes =
-  router.options.routes.find((e) => e.path === parentRoute)?.children ?? [];
-menuRoutes.sort(
-  (a, b) => Number(a.meta?.sort ?? 0) - Number(b.meta?.sort ?? 0)
-);
-4;
+const menuRoutes = (router.options.routes.find(e => e.path === parentRoute)?.children ?? [])
+  .filter(e => !(e.meta && e.meta.visible === false))
+  .sort((a, b) => Number(a.meta?.sort ?? 0) - Number(b.meta?.sort ?? 0));
 
 const onClickLogo = () => {
   router.replace("/home");
 }
 
+const logoutDialogVisible = ref(false);
 const onClickLogout = () => {
+  logoutDialogVisible.value = false;
   localStorage.removeItem("token");
   router.replace("/home");
 }
@@ -113,6 +128,16 @@ const isDark = useDark();
 const onClickSetting = () => {
   router.push("/main/profile");
 };
+
+const toggleFullScreen = () => {
+  //获取当前是否全屏展示
+  let full = document.fullscreenElement
+  if (!full) {
+    document.documentElement.requestFullscreen()
+  } else {
+    document.exitFullscreen()
+  }
+}
 </script>
 
 <style lang="scss" scoped>

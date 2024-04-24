@@ -14,45 +14,30 @@
 
     <div>
       <div class="flex gap-3 mb-2">
+        <UploadExcel @change="importData" sheetName="护士">
+          <el-button type="primary" :icon="Upload">导入</el-button>
+        </UploadExcel>
+        <el-button-group>
+          <el-button type="primary" :icon="Download" @click="exportData">导出</el-button>
+          <el-button type="primary" :icon="Setting" @click="dialogTableVisible = true" />
+        </el-button-group>
+
+
         <el-date-picker v-model="currentMonth" type="month" placeholder="选择汇算月份" format="YYYY/MM" value-format="YYYY/MM"
           @change="selectMonth" />
 
         <el-button-group>
-          <el-button type="primary" :icon="ArrowLeft" @click="changeMonth(-1)">上月</el-button>
-          <el-button type="primary" @click="changeMonth(1)">
+          <el-button type="success" :icon="ArrowLeft" @click="changeMonth(-1)">上月</el-button>
+          <el-button type="success" @click="changeMonth(1)">
             下月<el-icon class="el-icon--right">
               <ArrowRight />
             </el-icon>
           </el-button>
         </el-button-group>
 
-        <UploadExcel @change="importData" sheetName="护士" class="ml-auto">
-          <el-button type="primary" :icon="Upload">从 Excel 导入</el-button>
-        </UploadExcel>
-        <el-button-group>
-          <el-button type="primary" :icon="Download" @click="exportData">导出到 Excel</el-button>
-          <el-button type="primary" :icon="Setting" @click="dialogTableVisible = true" />
-        </el-button-group>
-
-        <teleport to="body">
-          <el-dialog v-model="dialogTableVisible" title="导出Excel表头设置" destroy-on-close align-center>
-            <el-checkbox-group v-model="checkList" class="flex flex-col border-t">
-              <div v-for="item of reportCols" class="px-2 border-b hover:bg-gray-200">
-                <el-checkbox :label="item.label" :value="item.field" size="large" />
-              </div>
-            </el-checkbox-group>
-
-            <div class="flex justify-between mt-5">
-              <el-checkbox @change="toggleSelect" v-model="isCheckAll" :label="isCheckAll ? '取消全选' : '选中所有'"
-                size="large" />
-              <el-button type="primary" @click="saveAndExport">保存设置并导出</el-button>
-            </div>
-          </el-dialog>
-        </teleport>
-
         <el-popconfirm width="220" title="确认清空工分汇算?" @confirm="onResetReport">
           <template #reference>
-            <el-button type="danger">清空</el-button>
+            <el-button size="default" :icon="Refresh">重置</el-button>
           </template>
         </el-popconfirm>
 
@@ -88,6 +73,21 @@
         </ul>
       </div>
     </div>
+
+    <teleport to="body">
+      <el-dialog v-model="dialogTableVisible" title="导出Excel表头设置" destroy-on-close align-center>
+        <el-checkbox-group v-model="checkList" class="flex flex-col border-t">
+          <div v-for="item of reportCols" class="px-2 border-b hover:bg-gray-200">
+            <el-checkbox :label="item.label" :value="item.field" size="large" />
+          </div>
+        </el-checkbox-group>
+
+        <div class="flex justify-between mt-5">
+          <el-checkbox @change="toggleSelect" v-model="isCheckAll" :label="isCheckAll ? '取消全选' : '选中所有'" size="large" />
+          <el-button type="primary" @click="saveAndExport">保存设置并导出</el-button>
+        </div>
+      </el-dialog>
+    </teleport>
   </div>
 </template>
 
@@ -102,7 +102,7 @@ import useStore from "@/store";
 import { Record, Report } from "@/types/report";
 import { generateId } from "@/utils";
 import { getYearMonthFromDate, parseExcelDateNumber, parseMonthDayTextDate } from "@/utils/date";
-import { ArrowLeft, ArrowRight, Download, Plus, Setting, Upload } from '@element-plus/icons-vue';
+import { ArrowLeft, ArrowRight, Download, Plus, Refresh, Setting, Upload } from '@element-plus/icons-vue';
 import dayjs from "dayjs";
 import _ from "lodash";
 import { storeToRefs } from "pinia";

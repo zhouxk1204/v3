@@ -26,7 +26,7 @@
 
             <div class="flex items-center justify-center flex-none w-16 h-16 rounded-full bg-primary aspect-square">
               <el-icon :size="40" color="#fff">
-                <component :is="item.icon"></component>
+                <Histogram />
               </el-icon>
             </div>
 
@@ -75,7 +75,6 @@ const arr = ref([
   {
     title: '',
     value: '',
-    icon: Histogram,
   },
 ])
 

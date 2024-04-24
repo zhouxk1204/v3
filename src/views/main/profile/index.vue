@@ -1,7 +1,12 @@
 <template>
-  <el-card shadow="hover">
-    <div class="flex items-center gap-5">
-      <div class="relative flex-none w-20 h-20 overflow-hidden border shadow border-ep bg-gray-50">
+  <el-card style="max-width: 300px">
+    <template #header>
+      <div class="card-header">
+        <span>个人信息</span>
+      </div>
+    </template>
+    <div class="flex flex-col gap-3">
+      <div class="relative flex-none w-24 h-24 mx-auto overflow-hidden border rounded-full shadow border-ep bg-gray-50">
         <Image :src="avatar" class="w-full h-full"></Image>
         <div
           class="absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-black bg-opacity-50 opacity-0 hover:opacity-100">
@@ -10,16 +15,67 @@
           </el-icon>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <p class="text-xl font-medium text-gray-700">{{ user.nickName }}</p>
-        <el-tag type="primary" effect="dark">
-          管理员
-        </el-tag>
+
+      <div class="flex flex-col gap-3 text-xs">
+        <div class="flex justify-between border-b item-center border-ep">
+          <div>
+            <el-icon>
+              <User />
+            </el-icon>
+            用户名称
+          </div>
+          <span>{{ user.nickName }}</span>
+        </div>
+        <div class="flex justify-between border-b item-center border-ep">
+          <div>
+            <el-icon>
+              <Iphone />
+            </el-icon>
+            手机号
+          </div>
+          <span>13558661148</span>
+        </div>
+        <div class="flex justify-between border-b item-center border-ep">
+          <div>
+            <el-icon>
+              <Message />
+            </el-icon>
+            邮箱
+          </div>
+          <span>346960620@qq.com</span>
+        </div>
+        <div class="flex justify-between border-b item-center border-ep">
+          <div>
+            <el-icon>
+              <OfficeBuilding />
+            </el-icon>
+            所属科室
+          </div>
+          <span>麻醉科</span>
+        </div>
+        <div class="flex justify-between border-b item-center border-ep">
+          <div>
+            <el-icon>
+              <Avatar />
+            </el-icon>
+            角色
+          </div>
+          <span>超级管理员</span>
+        </div>
+        <div class="flex justify-between border-b item-center border-ep">
+          <div>
+            <el-icon>
+              <Calendar />
+            </el-icon>
+            创建日期
+          </div>
+          <span>2024-01-01 00:00:00</span>
+        </div>
       </div>
     </div>
   </el-card>
 
-  <el-dialog v-model="uploadAvatar" title="上传头像" width="500" align-center destroy-on-close
+  <el-dialog v-model="uploadAvatar" title="修改头像" width="500" align-center destroy-on-close
     :close-on-click-modal="false">
     <div v-if="previewUrl.length > 0" class="flex flex-col gap-5">
       <el-alert v-if="progress" type="success" :closable="progress.status === 'success'">
@@ -81,7 +137,7 @@ import { updateUser } from "@/api/user.api";
 import { useCos } from "@/hooks/useCos";
 import useStore from "@/store";
 import { dataURLtoFile } from "@/utils";
-import { Camera, Upload } from "@element-plus/icons-vue";
+import { Avatar, Calendar, Camera, Iphone, Message, OfficeBuilding, Upload, User } from "@element-plus/icons-vue";
 import { UploadFile } from 'element-plus/es/components/upload/src/upload';
 import { storeToRefs } from "pinia";
 
