@@ -14,29 +14,41 @@
 
     <div>
       <div class="flex gap-3 mb-2">
-        <el-date-picker v-model="calcMonth" type="month" placeholder="选择汇算月份" format="YYYY/MM" value-format="YYYY/MM"
-          @change="onCalcMonthChange" />
+        <el-date-picker v-model="currentMonth" type="month" placeholder="选择汇算月份" format="YYYY/MM" value-format="YYYY/MM"
+          @change="selectMonth" />
 
-        <UploadExcel @change="onImport" sheetName="护士" class="ml-auto">
-          <el-button type="primary" :icon="Upload">导入</el-button>
+        <el-button-group>
+          <el-button type="primary" :icon="ArrowLeft" @click="changeMonth(-1)">上月</el-button>
+          <el-button type="primary" @click="changeMonth(1)">
+            下月<el-icon class="el-icon--right">
+              <ArrowRight />
+            </el-icon>
+          </el-button>
+        </el-button-group>
+
+        <UploadExcel @change="importData" sheetName="护士" class="ml-auto">
+          <el-button type="primary" :icon="Upload">从 Excel 导入</el-button>
         </UploadExcel>
         <el-button-group>
-          <el-button type="primary" :icon="Download" @click="onExport">导出</el-button>
+          <el-button type="primary" :icon="Download" @click="exportData">导出到 Excel</el-button>
           <el-button type="primary" :icon="Setting" @click="dialogTableVisible = true" />
         </el-button-group>
-        <el-dialog v-model="dialogTableVisible" title="导出表头项目设置">
-          <el-checkbox-group v-model="checkList" class="flex flex-col border-t">
-            <div v-for="item of reportCols" class="px-2 border-b hover:bg-gray-200">
-              <el-checkbox :label="item.label" :value="item.field" size="large" />
+
+        <teleport to="body">
+          <el-dialog v-model="dialogTableVisible" title="导出Excel表头设置" destroy-on-close align-center>
+            <el-checkbox-group v-model="checkList" class="flex flex-col border-t">
+              <div v-for="item of reportCols" class="px-2 border-b hover:bg-gray-200">
+                <el-checkbox :label="item.label" :value="item.field" size="large" />
+              </div>
+            </el-checkbox-group>
+
+            <div class="flex justify-between mt-5">
+              <el-checkbox @change="toggleSelect" v-model="isCheckAll" :label="isCheckAll ? '取消全选' : '选中所有'"
+                size="large" />
+              <el-button type="primary" @click="saveAndExport">保存设置并导出</el-button>
             </div>
-          </el-checkbox-group>
-
-          <div class="flex justify-end mt-5">
-            <el-button @click="toggleSelect">{{ checkList.length === 0 ? '全选' : '全不选' }}</el-button>
-            <el-button type="primary" @click="onConfirmHeader">确认</el-button>
-          </div>
-
-        </el-dialog>
+          </el-dialog>
+        </teleport>
 
         <el-popconfirm width="220" title="确认清空工分汇算?" @confirm="onResetReport">
           <template #reference>
@@ -90,7 +102,7 @@ import useStore from "@/store";
 import { Record, Report } from "@/types/report";
 import { generateId } from "@/utils";
 import { getYearMonthFromDate, parseExcelDateNumber, parseMonthDayTextDate } from "@/utils/date";
-import { Download, Plus, Setting, Upload } from '@element-plus/icons-vue';
+import { ArrowLeft, ArrowRight, Download, Plus, Setting, Upload } from '@element-plus/icons-vue';
 import dayjs from "dayjs";
 import _ from "lodash";
 import { storeToRefs } from "pinia";
@@ -134,7 +146,7 @@ const initReport = (list: Record[][], showSuccess: boolean = true) => {
 };
 
 // 导入
-const onImport = (data: any[]) => {
+const importData = (data: any[]) => {
   if (data.length === 0) return;
 
   let header: any = {};
@@ -169,7 +181,7 @@ const onImport = (data: any[]) => {
 };
 
 // 导出
-const onExport = async () => {
+const exportData = async () => {
   const sheetName = dayjs(reportDate.value).format("YYYY年MM月");
   const fileName = `${sheetName}上班（加班）工分汇算`;
 
@@ -197,7 +209,7 @@ const onResetReport = () => {
   reportList.value = [];
   errorList.value = [];
   reportDate.value = "";
-  calcMonth.value = "";
+  currentMonth.value = "";
 };
 
 const dialogTableVisible = ref<boolean>(false);
@@ -214,31 +226,35 @@ const exportHeaders = computed(() => {
   return reportCols.filter(e => checkList.value.includes(e.field)).map((e) => e.label);
 });
 
-const onConfirmHeader = () => {
+const saveAndExport = () => {
   if (checkList.value.length === 0) {
     ElMessage.error("请至少选择一项");
   } else {
     localStorage.setItem('exportHeaders', JSON.stringify(checkList.value));
     dialogTableVisible.value = false;
+    exportData();
   }
 }
 
+const isCheckAll = ref(false);
 const toggleSelect = () => {
   if (checkList.value.length === 0) {
     checkList.value = reportCols.map(e => e.field);
+    isCheckAll.value = true;
   } else {
     checkList.value = [];
+    isCheckAll.value = false;
   }
 }
 
-const lastMonth = getYearMonthFromDate(-1);
-const calcMonth = ref(lastMonth);
-const onCalcMonthChange = async (value: string | undefined) => {
+// 月份切换操作
+const currentMonth = ref(getYearMonthFromDate(-1));
+// 选择月份
+const selectMonth = async (value: string | undefined) => {
   if (!value) {
     reportList.value = [];
     return;
   }
-
   const res = await getRecordList(value);
   const { data } = res;
   const groupedData = _.groupBy(data, 'employeeName');
@@ -250,5 +266,12 @@ const onCalcMonthChange = async (value: string | undefined) => {
     initReport(result, false);
   }
 }
-onCalcMonthChange(calcMonth.value);
+// 切换月份
+const changeMonth = (offset: number) => {
+  const date = dayjs(currentMonth.value).add(offset, 'month').format('YYYY/MM');
+  currentMonth.value = date
+  selectMonth(date);
+};
+
+selectMonth(currentMonth.value);
 </script>
