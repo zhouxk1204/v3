@@ -37,6 +37,7 @@ export interface DictForm {
   status: string; // '0' '1'
   remark: string;
   createBy: string;
+  updateBy: string;
 }
 
 export interface DictSearchForm {
