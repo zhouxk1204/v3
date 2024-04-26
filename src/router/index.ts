@@ -1,4 +1,7 @@
+import { ROUTE, ROUTE_WHITE_LIST } from "@/constants";
 import { createRouter, createWebHistory } from "vue-router";
+
+import { STORAGE_KEY } from "@/constants/storage";
 
 const metaObj = import.meta.glob("@/views/**/meta.ts", {
   eager: true,
@@ -64,34 +67,37 @@ routes.push({
   path: "/",
   redirect: "home",
 });
-console.log("%c Line:64 🍩 routes", "color:#b03734", routes);
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
 });
 
-router.beforeEach((to, _, next) => {
-  const token = localStorage.getItem("token") ?? "";
-  if (to.path.indexOf("main") < 0) {
-    document.title = `${to.meta.title}` || "Peach";
-    next();
-  } else if (token.length > 0) {
-    if (to.path === "/login") {
-      next("/main");
-      document.title = "Peach";
-    } else {
-      // 设置标题
-      document.title = `${to.meta.title}` || "Peach";
-      next();
-    }
+router.beforeEach((to, from, next) => {
+  // 1.判断是访问登陆页，有 Token 就在当前页面，没有 Token 重置路由并放行到登陆页
+  if (to.path === ROUTE.LOGIN) {
+    return next();
+  }
+
+  // 2.判断访问页面是否在路由白名单(不需要登陆)地址中，如果存在直接放行
+  if (ROUTE_WHITE_LIST.includes(to.path)) {
+    return next();
+  }
+
+  const token = localStorage.getItem(STORAGE_KEY.TOKEN) ?? "";
+  // 3.判断是否有 Token，没有token跳转到登陆页面并且携带原目标路径
+  if (!token) {
+    ElMessageBox.alert("您还没有登录，请登录！", "提示", {
+      confirmButtonText: "去登录",
+      type: "warning",
+      showClose: false,
+      callback: (action: Action) => {
+        next({ path: ROUTE.LOGIN, query: { redirect: to.fullPath } });
+      },
+    });
+    return;
   } else {
-    if (to.path === "/login") {
-      next();
-    } else {
-      ElMessage.error("您还没有登录，请登录！");
-      next("/login");
-    }
+    next();
   }
 });
 

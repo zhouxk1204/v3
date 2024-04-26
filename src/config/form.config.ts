@@ -275,3 +275,47 @@ export const EmployeeForm: FieldItem[] = [
     value: "",
   },
 ];
+
+export const DictTypeForm: FieldItem[] = [
+  {
+    label: "字典名称",
+    field: "name",
+    type: "text",
+    placeholder: "请输入字典名称",
+    clearable: true,
+    value: "",
+  },
+  {
+    label: "字典类型",
+    field: "type",
+    type: "text",
+    placeholder: "请输入字典类型",
+    clearable: true,
+    value: "",
+  },
+  {
+    label: "状态",
+    field: "status",
+    type: "select",
+    options: [
+      {
+        label: "正常",
+        value: "0",
+      },
+      {
+        label: "停用",
+        value: "1",
+      },
+    ],
+    placeholder: "字典状态",
+    clearable: true,
+    value: "",
+  },
+  {
+    label: "创建日期",
+    field: "date",
+    type: "daterange",
+    clearable: true,
+    value: "",
+  },
+];

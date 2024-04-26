@@ -30,6 +30,8 @@
 
 <script setup lang="ts">
 import { login } from "@/api/login";
+import { ROUTE } from "@/constants";
+import { STORAGE_KEY } from "@/constants/storage";
 import router from "@/router";
 import useStore from "@/store";
 import { FormInstance, FormRules } from "element-plus/es/components/form";
@@ -81,12 +83,13 @@ const submitForm = () => {
       }
 
       const loginRes = await login(loginReq);
-      localStorage.setItem('token', loginRes.token);
+      localStorage.setItem(STORAGE_KEY.TOKEN, loginRes.token);
 
       const decoded: any = jwtDecode(loginRes.token);
       useStore().user.setUser(decoded.user);
       ElMessage.success('登录成功！');
-      router.replace("/main");
+      const query = router.currentRoute.value.query;
+      router.replace(`${query.redirect || ROUTE.MAIN}`);
     } else {
       console.log("error submit!", fields);
     }

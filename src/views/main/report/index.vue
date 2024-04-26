@@ -76,13 +76,13 @@
     <teleport to="body">
       <el-dialog v-model="dialogTableVisible" title="导出Excel表头设置" destroy-on-close align-center>
         <el-checkbox-group v-model="checkList" class="flex flex-col border-t border-ep">
-          <div v-for="item of reportCols" class="px-2 border-b border-ep hover:bg-gray-200">
+          <div v-for="item of reportCols" class="px-2 border-b border-ep">
             <el-checkbox :label="item.label" :value="item.field" size="large" />
           </div>
         </el-checkbox-group>
 
         <div class="flex justify-between mt-5">
-          <el-checkbox @change="toggleSelect" v-model="isCheckAll" :label="isCheckAll ? '取消全选' : '选中所有'" size="large" />
+          <el-checkbox @change="toggleSelect" v-model="isCheckAll" label="全选 / 全不选" size="large" />
           <el-button type="primary" @click="saveAndExport">保存设置并导出</el-button>
         </div>
       </el-dialog>

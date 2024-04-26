@@ -1,5 +1,6 @@
 <template>
-  <el-form :model="formModel" ref="formRef" label-width="auto" label-position="top" size="large">
+  <el-form :model="formModel" ref="formRef" label-width="auto" :label-position="labelPosition" size="large"
+    :inline="inline">
     <template v-for="item in form">
       <el-form-item :key="item.field" :label="item.label" :prop="item.field" :rules="item.rules"
         v-if="!(item.hidden && (item.hidden.value === formModel[item.hidden.key]))">
@@ -27,9 +28,9 @@
           :disabled="item.disabled" class="min-w-[176px]" />
       </el-form-item>
     </template>
-    <div class="flex">
-      <el-button type="primary" @click="handelSubmit" class="flex-1">添加</el-button>
-    <el-button type="danger" @click="handelReset" class="flex-1">清空</el-button>
+    <div :class="inline ? 'inline-block' : 'flex'">
+      <el-button type="primary" @click="handelSubmit" :class="inline ? 'mb-[22px]' : 'flex-1'">添加</el-button>
+      <el-button type="danger" @click="handelReset" :class="inline ? 'mb-[22px]' : 'flex-1'">清空</el-button>
     </div>
   </el-form>
 </template>
@@ -44,9 +45,14 @@ import { FieldItem } from "./form";
 const formRef = ref<FormInstance>();
 const formModel = ref<any>({});
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   form: FieldItem[];
-}>();
+  inline?: boolean;
+  labelPosition?: 'top' | 'left'
+}>(), {
+  inline: false,
+  labelPosition: 'top'
+});
 
 for (let item of props.form) {
   formModel.value[item.field] = item.value;

@@ -140,3 +140,12 @@ export const SELECT_OPTION = {
 type ValueOf<T> = T[keyof T];
 
 export type SelectOptionType = ValueOf<typeof SELECT_OPTION>;
+
+export const ROUTE_WHITE_LIST = ["/map"];
+export const ROUTE = {
+  LOGIN: "/login",
+  MAIN: "/main",
+  REPORT: "/report",
+  EMPLOYEE: "/employee",
+  HOLIDAY: "/holiday",
+};
