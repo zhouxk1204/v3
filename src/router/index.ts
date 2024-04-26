@@ -73,7 +73,7 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
   // 1.判断是访问登陆页，有 Token 就在当前页面，没有 Token 重置路由并放行到登陆页
   if (to.path === ROUTE.LOGIN) {
     return next();
@@ -91,7 +91,7 @@ router.beforeEach((to, from, next) => {
       confirmButtonText: "去登录",
       type: "warning",
       showClose: false,
-      callback: (action: Action) => {
+      callback: () => {
         next({ path: ROUTE.LOGIN, query: { redirect: to.fullPath } });
       },
     });

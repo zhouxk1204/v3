@@ -29,7 +29,6 @@
 </template>
 
 <script setup lang='ts'>
-import useUserStore from "@/store/user.store";
 import { DictForm } from "@/types/dict.d";
 import { FormInstance, FormRules } from "element-plus/es/components";
 import cloneDeep from "lodash/cloneDeep";

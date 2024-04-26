@@ -149,7 +149,7 @@ const handleEdit = (row: DictVO) => {
   actionFormData.dictType = row.dictType;
   actionFormData.status = row.status;
   actionFormData.remark = row.remark;
-  actionFormData.createBy = row.createBy;
+  actionFormData.createBy = '';
   actionFormData.updateBy = useUserStore().user.userId;
   currentDictId.value = row.dictId;
   actionFormVisible.value = true;
@@ -157,7 +157,7 @@ const handleEdit = (row: DictVO) => {
 
 const handleConfirm = (data: DictForm) => {
   if(mode.value === 'add'){
-    addDictType(data).then(res => {
+    addDictType(data).then((res:any) => {
       ElMessage.success(res.message);
       getAllDictTypeList();
     })
