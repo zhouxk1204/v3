@@ -94,8 +94,13 @@ const toggleSearch = () => {
   searchFormVisible.value = !searchFormVisible.value;
 };
 
-const handleEdit = (data: any) => { };
-const handleDelete = (data: any) => { };
+const handleEdit = (data: any) => {
+  console.log("%c Line:98 🍆 data", "color:#2eafb0", data);
+};
+const handleDelete = (data: any) => {
+  console.log("%c Line:102 🍌 data", "color:#2eafb0", data);
+
+};
 
 const tableData = ref<DictDetailVO[]>([]);
 const handleSelectionChange = () => { }

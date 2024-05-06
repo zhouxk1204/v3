@@ -8,12 +8,11 @@ import {
   WORK_TYPE_INFO,
 } from "@/constants";
 import { Record, Report } from "@/types/report";
-import { fullToHalf, trim } from "@/utils/string";
 
-import Decimal from "decimal.js";
-import dayjs from "dayjs";
-import { isInRange } from "@/utils/date";
 import useStore from "@/store";
+import { isInRange } from "@/utils/date";
+import dayjs from "dayjs";
+import Decimal from "decimal.js";
 
 interface Point {
   typeId: string; // 类别id 上班，加班，休假
