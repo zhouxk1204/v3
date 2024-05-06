@@ -16,7 +16,7 @@
           <el-button :icon="Search" circle @click="toggleSearch" />
         </el-tooltip>
         <el-tooltip effect="dark" content="刷新" placement="top">
-          <el-button :icon="Refresh" circle @click="getAllDictTypeList"/>
+          <el-button :icon="Refresh" circle @click="getAllDictTypeList" />
         </el-tooltip>
       </el-col>
     </el-row>
@@ -26,15 +26,19 @@
       <el-table-column label="字典编号" width="80" align="center">
         <template #default="scope">{{ scope.row.dictId }}</template>
       </el-table-column>
-      <el-table-column label="字典名称" align="center">
+      <el-table-column label="字典标签" align="center">
         <template #default="scope">{{ scope.row.dictName }}</template>
       </el-table-column>
       <el-table-column label="字典类型" align="center">
-        <template #default="scope">{{ scope.row.dictType }}</template>
+        <template #default="scope">
+          <el-link :underline="false" :href="'/main/dictDetail?dictType=' + scope.row.dictType">{{ scope.row.dictType
+            }}</el-link>
+        </template>
       </el-table-column>
       <el-table-column label="状态" align="center">
         <template #default="scope">
-          <el-tag :type="scope.row.status === '0'? 'primary': 'info'">{{ scope.row.status === '0' ? '正常' : '停用' }}</el-tag>
+          <el-tag :type="scope.row.status === '0' ? 'primary' : 'info'">{{ scope.row.status === '0' ? '正常' : '停用'
+            }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="备注" align="center">
@@ -55,17 +59,19 @@
       </el-table-column>
     </el-table>
 
-    <ActionForm v-model="actionFormVisible" :title="actionFormTitle" :formData="actionFormData" @confirm="handleConfirm"></ActionForm>
+    <ActionForm v-model="actionFormVisible" :title="actionFormTitle" :formData="actionFormData"
+      @confirm="handleConfirm">
+    </ActionForm>
   </div>
 </template>
 
 <script setup lang='ts'>
-import { deleteDictType, getDictTypeList, addDictType, updateDictType } from "@/api/dict.api";
+import { addDictType, deleteDictType, getDictTypeList, updateDictType } from "@/api/dict.api";
+import useUserStore from '@/store/user.store';
 import { DictForm, DictSearchForm, DictVO } from "@/types/dict.d";
 import { Delete, Edit, Plus, Refresh, Search } from "@element-plus/icons-vue";
 import ActionForm from './ActionForm.vue';
 import SearchForm from './SearchFrom.vue';
-import useUserStore from '@/store/user.store';
 
 const tableData = ref<DictVO[]>([]);
 const handleSearchFromAction = async (formData: DictSearchForm | null) => {
@@ -127,8 +133,8 @@ const actionFormData = reactive<DictForm>({
   createBy: '',
   updateBy: '',
 });
-const actionFormTitle = computed(()=> {
-  return mode.value === 'add' ? '新增字典类型' : mode.value === 'edit' ? '修改字典类型' : ''
+const actionFormTitle = computed(() => {
+  return mode.value === 'add' ? '添加字典类型' : mode.value === 'edit' ? '修改字典类型' : ''
 })
 
 const handleAdd = () => {
@@ -144,7 +150,7 @@ const handleAdd = () => {
 
 const currentDictId = ref(-1);
 const handleEdit = (row: DictVO) => {
-  mode.value =  'edit'
+  mode.value = 'edit'
   actionFormData.dictName = row.dictName;
   actionFormData.dictType = row.dictType;
   actionFormData.status = row.status;
@@ -156,18 +162,18 @@ const handleEdit = (row: DictVO) => {
 }
 
 const handleConfirm = (data: DictForm) => {
-  if(mode.value === 'add'){
-    addDictType(data).then((res:any) => {
+  if (mode.value === 'add') {
+    addDictType(data).then((res: any) => {
       ElMessage.success(res.message);
       getAllDictTypeList();
     })
-  }else if(mode.value === 'edit'){
+  } else if (mode.value === 'edit') {
     updateDictType(currentDictId.value, data).then(res => {
       currentDictId.value = -1;
       ElMessage.success(res.message);
       getAllDictTypeList();
     });
-  }else {
+  } else {
     return;
   }
 }
