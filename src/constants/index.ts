@@ -55,6 +55,10 @@ export const REST_INFO = {
     id: "r6",
     label: ["丧假"],
   },
+  STUDY: {
+    id: "r7",
+    label: ["学习"],
+  },
 };
 
 // 岗位
@@ -92,7 +96,7 @@ export const MODE_DIALOG = {
   },
 };
 
-export const RECORD_MARK = ["➕+"];
+export const RECORD_MARK = ["➕+", "／/"];
 
 export const DAY_OF_WEEK = [
   "星期日",

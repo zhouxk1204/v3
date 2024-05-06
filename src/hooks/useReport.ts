@@ -10,10 +10,10 @@ import {
 import { Record, Report } from "@/types/report";
 import { fullToHalf, trim } from "@/utils/string";
 
-import useStore from "@/store";
-import { isInRange } from "@/utils/date";
-import dayjs from "dayjs";
 import Decimal from "decimal.js";
+import dayjs from "dayjs";
+import { isInRange } from "@/utils/date";
+import useStore from "@/store";
 
 interface Point {
   typeId: string; // 类别id 上班，加班，休假
@@ -345,8 +345,6 @@ const parseRecord = (
   record: string,
   ratioObj: { [k: string]: RatioInfo[] }
 ): Point[] => {
-  // 去掉空格和大写转小写
-  record = trim(fullToHalf(record));
   // 2.按'/'分成不同的种类进行解析
   const parts = record.split("/");
   if (parts.length > 2) {

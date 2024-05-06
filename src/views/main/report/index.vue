@@ -101,6 +101,7 @@ import useStore from "@/store";
 import { Record, Report } from "@/types/report";
 import { generateId } from "@/utils";
 import { getYearMonthFromDate, parseExcelDateNumber, parseMonthDayTextDate } from "@/utils/date";
+import { fullToHalf, trim } from "@/utils/string";
 import { ArrowLeft, ArrowRight, Delete, Download, Plus, Setting, Upload } from '@element-plus/icons-vue';
 import dayjs from "dayjs";
 import _ from "lodash";
@@ -166,7 +167,7 @@ const importData = (data: any[]) => {
 
         return {
           date,
-          record: item[e2].toString(),
+          record: trim(fullToHalf(item[e2].toString())), // 去掉空格和大写转小写
           employeeName,
         };
       });

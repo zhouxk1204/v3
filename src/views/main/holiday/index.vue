@@ -5,6 +5,8 @@
         <el-button type="primary" :icon="Plus" @click="formVisible = true">新增</el-button>
         <el-date-picker v-model="yearModel" type="year" placeholder="年份" @change="handleDatePikerChange" format="YYYY"
           value-format="YYYY" />
+        <el-date-picker v-model="monthModel" type="month" placeholder="月份" @change="handleDatePikerChange" format="MM"
+          value-format="MM" />
         <el-select-v2 v-model="holidayModel" placeholder="节假日" :clearable="true" :options="holidayOptions"
           @change="handleSelectChange" />
         <el-button size="default" @click="onRest" :icon="Refresh">重置</el-button>
@@ -83,6 +85,7 @@ const handelSubmit = async (data: any) => {
 
 
 const yearModel = ref('');
+const monthModel = ref('');
 const holidayModel = ref('');
 const holidayOptions = useSelect().getOptionsByType(SELECT_OPTION.HOLIDAY);
 const handleDatePikerChange = async () => {

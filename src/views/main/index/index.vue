@@ -5,10 +5,20 @@
       <FillUp text="Hi, xz@520.com" class="text-4xl text-center" color="#f0a9a7"></FillUp>
     </div>
 
-    <el-date-picker class="max-w-[50%]" v-model="calcMonth" type="month" placeholder="选择年月" format="YYYY/MM"
-      value-format="YYYY/MM" @change="onCalcMonthChange" />
+    <div class="flex gap-3">
+      <el-date-picker class="max-w-[50%]" v-model="calcMonth" type="month" placeholder="选择年月" format="YYYY/MM"
+        value-format="YYYY/MM" @change="onCalcMonthChange" />
+      <el-button-group>
+        <el-button type="success" :icon="ArrowLeft" @click="changeMonth(-1)">上月</el-button>
+        <el-button type="success" @click="changeMonth(1)">
+          下月<el-icon class="el-icon--right">
+            <ArrowRight />
+          </el-icon>
+        </el-button>
+      </el-button-group>
+    </div>
 
-    <el-row :gutter="12">
+    <el-row :gutter="12" v-if="!isEmpty">
       <el-col :span="6">
         <div class="flex flex-col gap-3">
           <el-card v-for="item in arr" class="flex-1 h-[104px]">
@@ -60,7 +70,8 @@ import { BarOption } from "@/components/EchartBar/index.vue";
 import { sumArray } from "@/utils/array";
 import { calculate, OperatorEnum } from "@/utils/calc";
 import { getYearMonthFromDate } from "@/utils/date";
-import { Histogram, QuestionFilled } from "@element-plus/icons-vue";
+import { ArrowLeft, ArrowRight, Histogram, QuestionFilled, } from "@element-plus/icons-vue";
+import dayjs from "dayjs";
 
 
 const pileData = ref<{ name: string, value: number }[]>([])
@@ -74,6 +85,8 @@ const arr = ref([
   },
 ])
 
+const isEmpty = ref(true);
+
 onMounted(() => {
   refresh(calcMonth.value);
 })
@@ -81,7 +94,12 @@ onMounted(() => {
 const refresh = async (value: string) => {
   const data = await getBarChartList(value);
 
-  if (data.data.length === 0) return;
+  if (data.data.length === 0) {
+    isEmpty.value = true;
+    return;
+  };
+
+  isEmpty.value = false;
 
   const dateList: string[] = [];
   const other: number[] = [];
@@ -166,4 +184,15 @@ const pileChartTitle = computed(() => {
 const onCalcMonthChange = async (value: string) => {
   refresh(value ?? '');
 }
+
+// 切换月份
+const changeMonth = (offset: number) => {
+  if (!calcMonth.value || calcMonth.value.length === 0) {
+    calcMonth.value = getYearMonthFromDate(-1);
+  }
+
+  const date = dayjs(calcMonth.value).add(offset, 'month').format('YYYY/MM');
+  calcMonth.value = date
+  refresh(calcMonth.value);
+};
 </script>

@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang='ts'>
-import { DictSearchForm } from "@/types/dict";
+import { DictDetailSearchForm } from "@/types/dict";
 import { Refresh, Search } from "@element-plus/icons-vue";
 
 defineProps<{
@@ -31,7 +31,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "search", data: DictSearchForm): void;
+  (e: "search", data: DictDetailSearchForm): void;
   (e: "reset", data: null): void;
 }>();
 

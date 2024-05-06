@@ -57,6 +57,8 @@ export interface DictDetailForm {
   dictSort: number;
   status: string; // '0' '1'
   remark: string;
+  createBy: string;
+  updateBy: string;
 }
 
 export interface DictSearchForm {
@@ -68,7 +70,7 @@ export interface DictSearchForm {
 }
 
 export interface DictDetailSearchForm {
-  dictType: string;
-  dictLabel: string;
-  status: string; // '0' '1'
+  dictType?: string;
+  dictLabel?: string;
+  status?: string; // '0' '1'
 }

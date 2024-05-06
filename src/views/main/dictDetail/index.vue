@@ -63,15 +63,18 @@
 </template>
 
 <script setup lang='ts'>
-import { DictDetailForm, DictDetailVO } from "@/types/dict.d";
+import { addDictData, getDictDataList } from "@/api/dict.api";
+import useUserStore from "@/store/user.store";
+import { DictDetailForm, DictDetailSearchForm, DictDetailVO } from "@/types/dict.d";
 import { Delete, Edit, Plus, Refresh, Search } from "@element-plus/icons-vue";
 import { useRoute } from 'vue-router';
 import ActionForm from './ActionForm.vue';
 import SearchForm from './SearchFrom.vue';
 
 const searchFormVisible = ref(true);
-const handleSearchFromAction = (data: any) => {
-  console.log("%c Line:11 🌰 data", "color:#42b983", data);
+const handleSearchFromAction = async (formData: DictDetailSearchForm | null) => {
+  const data = await getDictDataList(formData);
+  tableData.value = data.data;
 }
 
 const dictType = `${useRoute().query.dictType ?? ''}`;
@@ -84,6 +87,7 @@ const handleAdd = () => {
   actionFormData.dictLabel = '';
   actionFormData.dictSort = 0;
   actionFormVisible.value = true;
+  actionFormData.createBy = useUserStore().user.userId;
 };
 const handleRefresh = () => { };
 const toggleSearch = () => {
@@ -102,8 +106,6 @@ const actionFormTitle = computed(() => {
   return mode.value === 'add' ? '添加字典数据' : mode.value === 'edit' ? '修改字典数据' : ''
 })
 
-
-
 const actionFormData = reactive<DictDetailForm>({
   dictType: '',
   dictLabel: '',
@@ -111,7 +113,31 @@ const actionFormData = reactive<DictDetailForm>({
   dictSort: 0,
   status: '0',
   remark: '',
+  createBy: "",
+  updateBy: ""
 });
 
-const handleConfirm = () => { }
+const handleConfirm = (data: any) => {
+  if (mode.value === 'add') {
+    addDictData(data).then((res: any) => {
+      ElMessage.success(res.message);
+      getAllDictDataList();
+    })
+  } else if (mode.value === 'edit') {
+    // updateDictData(currentDictId.value, data).then(res => {
+    //   currentDictId.value = -1;
+    //   ElMessage.success(res.message);
+    //   getAllDictTypeList();
+    // });
+  } else {
+    return;
+  }
+}
+
+const getAllDictDataList = () => {
+  getDictDataList({ dictType: dictType }).then(res => {
+    tableData.value = res.data;
+  })
+}
+getAllDictDataList();
 </script>
