@@ -34,9 +34,24 @@ export const deleteDictType = (dictIds: number[]) => {
   });
 };
 
+export const deleteDictData = (dictCodes: number[]) => {
+  return http.delete<ResponseData<Object>>("/dict/data/delete", {
+    params: { dictCodes },
+  });
+};
+
 export const updateDictType = (dictId: number, dictForm: DictForm) => {
   return http.post<ResponseData<Object>>(
     "/dict/type/update",
     Object.assign({ dictId }, dictForm)
+  );
+};
+export const updateDictData = (
+  dictCode: number,
+  dictDetailForm: DictDetailForm
+) => {
+  return http.post<ResponseData<Object>>(
+    "/dict/data/update",
+    Object.assign({ dictCode }, dictDetailForm)
   );
 };

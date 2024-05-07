@@ -31,8 +31,9 @@
       </el-table-column>
       <el-table-column label="字典类型" align="center">
         <template #default="scope">
-          <el-link :underline="false" :href="'/main/dictDetail?dictType=' + scope.row.dictType">{{ scope.row.dictType
-            }}</el-link>
+          <el-link type="primary" :underline="false" :href="'/main/dictDetail?dictId=' + scope.row.dictId">{{
+      scope.row.dictType
+    }}</el-link>
         </template>
       </el-table-column>
       <el-table-column label="状态" align="center">
@@ -49,12 +50,14 @@
       </el-table-column>
       <el-table-column label="操作" align="center">
         <template #default="scope">
-          <el-button size="small" :icon="Edit" @click="handleEdit(scope.row)">
-            编辑
-          </el-button>
-          <el-button size="small" type="danger" :icon="Delete" @click="handleDelete([scope.row.dictId])">
-            删除
-          </el-button>
+          <el-space :size="10">
+            <el-link type="primary" :underline="false" @click="handleEdit(scope.row)">
+              编辑
+            </el-link>
+            <el-link type="danger" :underline="false" @click="handleDelete([scope.row.dictId])">
+              删除
+            </el-link>
+          </el-space>
         </template>
       </el-table-column>
     </el-table>

@@ -1,5 +1,6 @@
 <template>
-  <SearchForm :visible="searchFormVisible" @search="handleSearchFromAction" @reset="handleSearchFromAction">
+  <SearchForm :visible="searchFormVisible" @search="handleSearchFromAction" @reset="handleSearchFromAction"
+    :dictId="dictId" @dictType="onDictType">
   </SearchForm>
 
   <el-row justify="space-between" class="mb-2">
@@ -9,6 +10,7 @@
         @click="handleEdit(multipleSelection[0])">修改</el-button>
       <el-button type="danger" plain :icon="Delete" :disabled="multipleSelection.length === 0"
         @click="handleDelete(multipleSelection.map(e => e.dictCode))">删除</el-button>
+      <el-button type="warning" plain :icon="Close" @click="handleClose">关闭</el-button>
     </el-col>
     <el-col :span="12" class="flex justify-end">
       <el-tooltip effect="dark" :content="searchFormVisible ? '隐藏搜索' : '显示搜索'" placement="top">
@@ -41,19 +43,25 @@
       </template>
     </el-table-column>
     <el-table-column label="备注" align="center">
-      <template #default="scope">{{ scope.row.remark }}</template>
+      <template #default="scope">
+        <el-text line-clamp="2">
+          {{ scope.row.remark }}
+        </el-text>
+      </template>
     </el-table-column>
     <el-table-column label="创建时间" align="center">
       <template #default="scope">{{ scope.row.createTime }}</template>
     </el-table-column>
     <el-table-column label="操作" align="center">
       <template #default="scope">
-        <el-button size="small" :icon="Edit" @click="handleEdit(scope.row)">
-          编辑
-        </el-button>
-        <el-button size="small" type="danger" :icon="Delete" @click="handleDelete([scope.row.dictId])">
-          删除
-        </el-button>
+        <el-space :size="10">
+          <el-link type="primary" :underline="false" @click="handleEdit(scope.row)">
+            编辑
+          </el-link>
+          <el-link type="danger" :underline="false" @click="handleDelete([scope.row.dictCode])">
+            删除
+          </el-link>
+        </el-space>
       </template>
     </el-table-column>
   </el-table>
@@ -63,28 +71,38 @@
 </template>
 
 <script setup lang='ts'>
-import { addDictData, getDictDataList } from "@/api/dict.api";
+import { addDictData, deleteDictData, getDictDataList, updateDictData } from "@/api/dict.api";
 import useUserStore from "@/store/user.store";
 import { DictDetailForm, DictDetailSearchForm, DictDetailVO } from "@/types/dict.d";
-import { Delete, Edit, Plus, Refresh, Search } from "@element-plus/icons-vue";
-import { useRoute } from 'vue-router';
+import { Close, Delete, Edit, Plus, Refresh, Search } from "@element-plus/icons-vue";
+import { useRoute, useRouter } from 'vue-router';
 import ActionForm from './ActionForm.vue';
 import SearchForm from './SearchFrom.vue';
 
 const searchFormVisible = ref(true);
 const handleSearchFromAction = async (formData: DictDetailSearchForm | null) => {
+  if (formData && formData.dictId) {
+    dictId.value = formData.dictId;
+  }
   const data = await getDictDataList(formData);
   tableData.value = data.data;
 }
 
-const dictType = `${useRoute().query.dictType ?? ''}`;
+const dictId = ref(+`${useRoute().query.dictId ?? ''}`);
+const dictType = ref('');
+
+const onDictType = (data: string) => {
+  dictType.value = data;
+};
+
 const multipleSelection = ref<DictDetailVO[]>([]);
 const handleAdd = () => {
   mode.value = 'add';
-  actionFormData.dictType = dictType;
+  actionFormData.dictType = dictType.value;
   actionFormData.status = '0';
   actionFormData.remark = '';
   actionFormData.dictLabel = '';
+  actionFormData.dictValue = '';
   actionFormData.dictSort = 0;
   actionFormVisible.value = true;
   actionFormData.createBy = useUserStore().user.userId;
@@ -94,16 +112,50 @@ const toggleSearch = () => {
   searchFormVisible.value = !searchFormVisible.value;
 };
 
-const handleEdit = (data: any) => {
-  console.log("%c Line:98 🍆 data", "color:#2eafb0", data);
+const currentDictCode = ref(-1);
+const handleEdit = (row: DictDetailVO) => {
+  mode.value = 'edit'
+  actionFormData.dictType = dictType.value;
+  actionFormData.dictLabel = row.dictLabel;
+  actionFormData.dictValue = row.dictValue;
+  actionFormData.dictSort = row.dictSort;
+  actionFormData.remark = row.remark;
+  actionFormData.status = row.status;
+  actionFormData.createBy = '';
+  actionFormData.updateBy = useUserStore().user.userId;
+  actionFormVisible.value = true;
+  currentDictCode.value = row.dictCode;
 };
-const handleDelete = (data: any) => {
-  console.log("%c Line:102 🍌 data", "color:#2eafb0", data);
 
+const handleDelete = (dictCodes: number[]) => {
+  ElMessageBox.confirm(
+    `是否确认删除字典编号为"${dictCodes.join(', ')}"的数据项？`,
+    '系统提示',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+    .then(async () => {
+      const res = await deleteDictData(dictCodes);
+      ElMessage.success(res.message);
+      getAllDictDataList();
+    })
+    .catch(() => {
+      ElMessage.info('取消删除！')
+    })
+};
+
+const router = useRouter();
+const handleClose = () => {
+  router.back();
 };
 
 const tableData = ref<DictDetailVO[]>([]);
-const handleSelectionChange = () => { }
+const handleSelectionChange = (val: DictDetailVO[]) => {
+  multipleSelection.value = val;
+}
 
 const actionFormVisible = ref(false);
 const mode = ref<"init" | "edit" | "add">("init");
@@ -113,6 +165,7 @@ const actionFormTitle = computed(() => {
 
 const actionFormData = reactive<DictDetailForm>({
   dictType: '',
+  dictId: -1,
   dictLabel: '',
   dictValue: '',
   dictSort: 0,
@@ -122,25 +175,26 @@ const actionFormData = reactive<DictDetailForm>({
   updateBy: ""
 });
 
-const handleConfirm = (data: any) => {
+const handleConfirm = (data: DictDetailForm) => {
   if (mode.value === 'add') {
+    data.dictId = dictId.value;
     addDictData(data).then((res: any) => {
       ElMessage.success(res.message);
       getAllDictDataList();
     })
   } else if (mode.value === 'edit') {
-    // updateDictData(currentDictId.value, data).then(res => {
-    //   currentDictId.value = -1;
-    //   ElMessage.success(res.message);
-    //   getAllDictTypeList();
-    // });
+    updateDictData(currentDictCode.value, data).then(res => {
+      currentDictCode.value = -1;
+      ElMessage.success(res.message);
+      getAllDictDataList();
+    });
   } else {
     return;
   }
 }
 
 const getAllDictDataList = () => {
-  getDictDataList({ dictType: dictType }).then(res => {
+  getDictDataList({ dictId: dictId.value }).then(res => {
     tableData.value = res.data;
   })
 }

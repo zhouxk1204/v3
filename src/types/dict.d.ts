@@ -52,6 +52,7 @@ export interface DictForm {
 
 export interface DictDetailForm {
   dictType: string;
+  dictId: number;
   dictLabel: string;
   dictValue: string;
   dictSort: number;
@@ -71,6 +72,7 @@ export interface DictSearchForm {
 
 export interface DictDetailSearchForm {
   dictType?: string;
+  dictId?: number;
   dictLabel?: string;
   status?: string; // '0' '1'
 }

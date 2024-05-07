@@ -6,3 +6,9 @@ export interface Holiday {
   ratio1: string; // 补班工作倍率
   ratio2: string; // 加班工作倍率
 }
+
+export interface HolidaySearchForm {
+  code: string;
+  year: string;
+  typeValue: string;
+}
