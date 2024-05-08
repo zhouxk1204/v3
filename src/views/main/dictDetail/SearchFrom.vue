@@ -37,7 +37,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "search", data: DictDetailSearchForm): void;
   (e: "reset", data: null): void;
-  (e: "dictType", data: String): void;
+  (e: "dictType", data: string): void;
 }>();
 
 const form = reactive<DictDetailSearchForm>({
