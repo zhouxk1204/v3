@@ -2,7 +2,7 @@
   <div class="flex flex-col gap-3">
 
     <div class="flex items-center justify-between">
-      <FillUp text="Hi, xz@520.com" class="text-4xl text-center" color="#f0a9a7"></FillUp>
+      <Typewriter text="永远相信美好的事情即将发生"></Typewriter>
     </div>
 
     <div class="flex gap-3">
@@ -19,7 +19,7 @@
     </div>
 
     <el-row :gutter="12" v-if="!isEmpty">
-      <el-col :span="6">
+      <el-col :span="6" :xs="24">
         <div class="flex flex-col gap-3">
           <el-card v-for="item in arr" class="flex-1 h-[104px]">
             <div class="relative flex items-center">
@@ -50,13 +50,13 @@
             </div>
           </el-card>
           <el-card v-if="pileData.length > 0">
-            <EchartPile :title="pileChartTitle" :data="pileData" class="h-[320px]"></EchartPile>
+            <EchartPile :title="pileChartTitle" :data="pileData" class="h-[320px] max-sm:h-[400px]"></EchartPile>
           </el-card>
         </div>
       </el-col>
-      <el-col :span="18">
+      <el-col :span="18" :xs="24" class="max-sm:mt-3">
         <el-card v-if="barChartOption">
-          <EchartBar class="h-[439px]" :option="barChartOption">
+          <EchartBar class="h-[439px] max-sm:h-[240px]" :option="barChartOption">
           </EchartBar>
         </el-card>
       </el-col>

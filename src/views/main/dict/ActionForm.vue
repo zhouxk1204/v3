@@ -1,6 +1,6 @@
 <template>
-  <el-dialog v-model="newModelValue" :title="title" width="500" destroy-on-close :append-to-body="true" :show-close="false"
-    :close-on-click-modal="false">
+  <el-dialog v-model="newModelValue" :title="title" width="360" destroy-on-close :append-to-body="true"
+    :show-close="false" :close-on-click-modal="false">
     <el-form :model="formData" label-width="auto" :rules="rules" status-icon ref="dictFormRef">
       <el-form-item label="字典名称" required prop="dictName">
         <el-input v-model="formData.dictName" placeholder="请输入字典名称" clearable />

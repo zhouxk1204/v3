@@ -3,9 +3,20 @@
     <el-container>
       <el-header class="relative">
         <div class="absolute inset-0 flex items-center justify-between px-5 border-b border-ep">
-          <h1>
-            <Icon icon="emojione-monotone:peach" width="40" height="40" class="text-red-300 cursor-pointer"
-              @click="onClickLogo" />
+          <h1 class="flex items-center gap-3">
+            <el-button :icon="Menu" circle @click="menuDrawer = true" class="hidden-sm-and-up" />
+            <Icon icon="emojione-monotone:peach" width="40" height="40"
+              class="text-red-300 cursor-pointer hidden-sm-and-down" @click="onClickLogo" />
+            <el-drawer v-model="menuDrawer" direction="ltr" size="70%">
+              <template #header>
+                <span class="text-xl font-bold text-red-300">Peach</span>
+              </template>
+              <el-menu class="h-full border-t border-ep" :default-active="currentRoute.name?.toString() ?? ''"
+                :router="true" popper-effect="light" :collapse-transition="false">
+                <MenuItem :menuList="menuRoutes" :parentRoute="parentRoute">
+                </MenuItem>
+              </el-menu>
+            </el-drawer>
           </h1>
           <div class="flex items-center gap-3">
             <el-button type="info" text :icon="FullScreen" @click="toggleFullScreen">
@@ -32,7 +43,7 @@
         </div>
       </el-header>
       <el-container class="h-[calc(100dvh-60px)]">
-        <el-aside :width="isCollapse ? '65px' : '200px'">
+        <el-aside :width="isCollapse ? '65px' : '200px'" class="hidden-sm-and-down">
           <el-menu class="h-[calc(100dvh-60px)] relative" :default-active="currentRoute.name?.toString() ?? ''"
             :router="true" popper-effect="light" :collapse-transition="false" :collapse="isCollapse">
             <MenuItem :menuList="menuRoutes" :parentRoute="parentRoute">
@@ -75,7 +86,7 @@
 <script lang="ts" setup>
 import { getAllSelectOption } from "@/api/common";
 import useStore from "@/store";
-import { FullScreen, Moon, Operation, Setting, Sunny, SwitchButton, WarningFilled } from "@element-plus/icons-vue";
+import { FullScreen, Menu, Moon, Operation, Setting, Sunny, SwitchButton, WarningFilled } from "@element-plus/icons-vue";
 import { useDark } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
@@ -138,6 +149,8 @@ const toggleFullScreen = () => {
     document.exitFullscreen()
   }
 }
+
+const menuDrawer = ref(false);
 </script>
 
 <style lang="scss" scoped>

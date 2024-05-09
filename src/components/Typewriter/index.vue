@@ -1,11 +1,11 @@
 <template>
   <div class="inline-block font-bold">
-    <p class="inline">
+    <p class="inline text-3xl font-bold text-red-300 max-sm:text-xl">
       {{ typedText }}
     </p>
-    <span class="relative -top-[2px]" :class="{
-      'custom-flash': cursorFlash,
-    }">|</span>
+    <span class="relative -top-[2px] text-red-300" :class="{
+        'custom-flash': cursorFlash,
+      }">|</span>
   </div>
 </template>
 
@@ -13,18 +13,15 @@
 import { useTypewriter } from "@/hooks/useTypewriter.ts";
 const { typedText, cursorFlash } = useTypewriter(
   [
-    // "自从你出现后，我才知道原来有人爱是那么的美好",
-    // "雾起时，我就在你的怀里，雾散后，却是一生",
-    // "我会永远陪着你，直到我们慢慢变老",
-    // "我有多喜欢你，可能我自己都描述不出来，就像你是月亮，我是星星，满天星河只为你",
-    // "我若是游子，你便是人间",
-    // "玫瑰是红的，紫罗兰是蓝的，糖是甜的，你也是",
-    // "余光是你，余生也是你",
-    // "我真想拉起你的手，逃向初晴的天空和田野，不畏缩也不回",
-    // "冗长的黑夜里，你是我唯一的光"
-    "Love without end hath no end.",
-    "Love's tongue is in the eyes.",
-    // "At the touch of love everyone becomes a poet.",
+    "永远相信美好的事情即将发生。",
+    "日落归山海，山海藏深意，你藏在我心里。",
+    "我会永远陪着你，直到我们慢慢变老。",
+    "我有多喜欢你，可能我自己都描述不出来，就像你是月亮，我是星星，满天星河只为你",
+    "我若是游子，你便是人间。",
+    "玫瑰是红的，紫罗兰是蓝的，糖是甜的，你也是。",
+    "余光是你，余生也是你。",
+    "我真想拉起你的手，逃向初晴的天空和田野，不畏缩也不回。",
+    "冗长的黑夜里，你是我唯一的光。",
   ],
   100
 );

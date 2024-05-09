@@ -4,14 +4,14 @@
     </SearchForm>
 
     <el-row justify="space-between" class="mb-2">
-      <el-col :span="12">
+      <el-col :span="18">
         <el-button type="primary" plain :icon="Plus" @click="handleAdd">新增</el-button>
         <el-button type="success" plain :icon="Edit" :disabled="!(multipleSelection.length === 1)"
           @click="handleEdit(multipleSelection[0])">修改</el-button>
         <el-button type="danger" plain :icon="Delete" :disabled="multipleSelection.length === 0"
           @click="handleDelete(multipleSelection.map(e => e.dictId))">删除</el-button>
       </el-col>
-      <el-col :span="12" class="flex justify-end">
+      <el-col :span="6" class="flex justify-end">
         <el-tooltip effect="dark" :content="searchFormVisible ? '隐藏搜索' : '显示搜索'" placement="top">
           <el-button :icon="Search" circle @click="toggleSearch" />
         </el-tooltip>
@@ -21,7 +21,8 @@
       </el-col>
     </el-row>
 
-    <el-table ref="dictTableRef" :data="tableData" class="w-full" @selection-change="handleSelectionChange">
+    <el-table ref="dictTableRef" :data="tableData" class="w-full hidden-sm-and-down"
+      @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="40" />
       <el-table-column label="字典编号" width="80" align="center">
         <template #default="scope">{{ scope.row.dictId }}</template>
@@ -61,6 +62,58 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <el-space :fill="true" wrap class="hidden-sm-and-up">
+      <el-card v-for="item in tableData">
+        <el-row class="mb-1">
+          <el-col :span="6">字典编号：</el-col>
+          <el-col :span="18">{{ item.dictId }}</el-col>
+        </el-row>
+        <el-row class="mb-1">
+          <el-col :span="6">字典标签：</el-col>
+          <el-col :span="18">{{ item.dictName }}</el-col>
+        </el-row>
+        <el-row class="mb-1">
+          <el-col :span="6">字典类型：</el-col>
+          <el-col :span="18">
+            <el-link type="primary" :underline="false" :href="'/main/dictDetail?dictId=' + item.dictId">{{
+      item.dictType
+    }}
+            </el-link>
+          </el-col>
+        </el-row>
+        <el-row class="mb-1">
+          <el-col :span="6">状&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;态：</el-col>
+          <el-col :span="18"><el-tag :type="item.status === '0' ? 'primary' : 'info'">{{ item.status === '0' ? '正常' :
+      '停用'
+              }}</el-tag></el-col>
+        </el-row>
+        <el-row class="mb-1">
+          <el-col :span="6">备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注：</el-col>
+          <el-col :span="18">{{ item.remark }}</el-col>
+        </el-row>
+        <el-row class="mb-1">
+          <el-col :span="6">创建时间：</el-col>
+          <el-col :span="18">{{ item.createTime }}</el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="6">
+            操&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;作：
+          </el-col>
+          <el-col :span="18">
+            <el-space :size="10">
+              <el-link type="primary" :underline="false" @click="handleEdit(item)">
+                编辑
+              </el-link>
+              <el-link type="danger" :underline="false" @click="handleDelete([item.dictId])">
+                删除
+              </el-link>
+            </el-space>
+          </el-col>
+        </el-row>
+
+      </el-card>
+    </el-space>
 
     <ActionForm v-model="actionFormVisible" :title="actionFormTitle" :formData="actionFormData"
       @confirm="handleConfirm">
