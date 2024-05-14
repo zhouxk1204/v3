@@ -21,7 +21,7 @@ export const WORK_TYPE_INFO = {
     label: "上班（补）",
   },
   MAKEUP_OVERTIME: {
-    id: "w4",
+    id: "w5",
     label: "加班（补）",
   },
 };

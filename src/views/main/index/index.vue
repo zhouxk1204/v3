@@ -6,7 +6,7 @@
     </div>
 
     <div class="flex gap-3">
-      <el-date-picker class="max-w-[50%]" v-model="calcMonth" type="month" placeholder="选择年月" format="YYYY/MM"
+      <el-date-picker class="max-w-[40%]" v-model="calcMonth" type="month" placeholder="选择年月" format="YYYY/MM"
         value-format="YYYY/MM" @change="onCalcMonthChange" />
       <el-button-group>
         <el-button type="success" :icon="ArrowLeft" @click="changeMonth(-1)">上月</el-button>

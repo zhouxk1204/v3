@@ -1,21 +1,28 @@
+import { Employee, EmployeeForm, EmployeeSearchForm } from "@/types/employee";
 import { ResponseData, http } from "./request";
 
-import { Employee } from "@/types/employee";
-
-export const submitEmployee = (employee: Employee | Employee[]) => {
+interface updateModel extends EmployeeForm {
+  id: string;
+}
+export const addEmployee = (employee: updateModel | updateModel[]) => {
   return http.post("/employee/insert", employee);
 };
 
-export const getEmployee = () => {
-  return http.get<ResponseData<Employee[]>>("/employee/query");
-};
-
-export const deleteEmployeeById = (id: string) => {
-  return http.delete<ResponseData<Object>>("/employee/delete", {
-    params: { id },
+export const getEmployeeList = (employeeSearchForm?: EmployeeSearchForm) => {
+  return http.get<ResponseData<Employee[]>>("/employee/query", {
+    params: { form: employeeSearchForm ?? {} },
   });
 };
 
-export const updateEmployeeData = (employee: Employee) => {
+export const deleteEmployeeByIds = (ids: string[]) => {
+  return http.delete<ResponseData<Object>>("/employee/delete", {
+    params: { ids },
+  });
+};
+
+interface updateModel extends EmployeeForm {
+  id: string;
+}
+export const updateEmployeeData = (employee: updateModel) => {
   return http.post<ResponseData<Object>>("/employee/update", employee);
 };

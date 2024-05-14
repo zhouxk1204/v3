@@ -4,14 +4,30 @@
     </SearchForm>
 
     <el-row justify="space-between" class="mb-2">
-      <el-col :span="18">
-        <el-button type="primary" plain :icon="Plus" @click="handleAdd">新增</el-button>
+      <el-col :span="17" class="hidden-sm-and-down">
+        <el-button type="primary" plain :icon="Plus" @click="handleAdd">
+          新增
+        </el-button>
         <el-button type="success" plain :icon="Edit" :disabled="!(multipleSelection.length === 1)"
-          @click="handleEdit(multipleSelection[0])">修改</el-button>
+          @click="handleEdit(multipleSelection[0])">
+          修改
+        </el-button>
         <el-button type="danger" plain :icon="Delete" :disabled="multipleSelection.length === 0"
-          @click="handleDelete(multipleSelection.map(e => e.dictId))">删除</el-button>
+          @click="handleDelete(multipleSelection.map(e => e.dictId))">
+          删除
+        </el-button>
       </el-col>
-      <el-col :span="6" class="flex justify-end">
+      <el-col :span="17" class="hidden-sm-and-up">
+        <el-button type="primary" plain :icon="Plus" @click="handleAdd" circle>
+        </el-button>
+        <el-button type="success" plain :icon="Edit" :disabled="!(multipleSelection.length === 1)"
+          @click="handleEdit(multipleSelection[0])" circle>
+        </el-button>
+        <el-button type="danger" plain :icon="Delete" :disabled="multipleSelection.length === 0"
+          @click="handleDelete(multipleSelection.map(e => e.dictId))" circle>
+        </el-button>
+      </el-col>
+      <el-col :span="7" class="flex justify-end">
         <el-tooltip effect="dark" :content="searchFormVisible ? '隐藏搜索' : '显示搜索'" placement="top">
           <el-button :icon="Search" circle @click="toggleSearch" />
         </el-tooltip>
@@ -66,16 +82,16 @@
     <el-space :fill="true" wrap class="hidden-sm-and-up">
       <el-card v-for="item in tableData">
         <el-row class="mb-1">
-          <el-col :span="6">字典编号：</el-col>
-          <el-col :span="18">{{ item.dictId }}</el-col>
+          <el-col :span="7">字典编号：</el-col>
+          <el-col :span="17">{{ item.dictId }}</el-col>
         </el-row>
         <el-row class="mb-1">
-          <el-col :span="6">字典标签：</el-col>
-          <el-col :span="18">{{ item.dictName }}</el-col>
+          <el-col :span="7">字典标签：</el-col>
+          <el-col :span="17">{{ item.dictName }}</el-col>
         </el-row>
         <el-row class="mb-1">
-          <el-col :span="6">字典类型：</el-col>
-          <el-col :span="18">
+          <el-col :span="7">字典类型：</el-col>
+          <el-col :span="17">
             <el-link type="primary" :underline="false" :href="'/main/dictDetail?dictId=' + item.dictId">{{
       item.dictType
     }}
@@ -83,24 +99,24 @@
           </el-col>
         </el-row>
         <el-row class="mb-1">
-          <el-col :span="6">状&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;态：</el-col>
-          <el-col :span="18"><el-tag :type="item.status === '0' ? 'primary' : 'info'">{{ item.status === '0' ? '正常' :
+          <el-col :span="7">状&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;态：</el-col>
+          <el-col :span="17"><el-tag :type="item.status === '0' ? 'primary' : 'info'">{{ item.status === '0' ? '正常' :
       '停用'
               }}</el-tag></el-col>
         </el-row>
         <el-row class="mb-1">
-          <el-col :span="6">备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注：</el-col>
-          <el-col :span="18">{{ item.remark }}</el-col>
+          <el-col :span="7">备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注：</el-col>
+          <el-col :span="17">{{ item.remark }}</el-col>
         </el-row>
         <el-row class="mb-1">
-          <el-col :span="6">创建时间：</el-col>
-          <el-col :span="18">{{ item.createTime }}</el-col>
+          <el-col :span="7">创建时间：</el-col>
+          <el-col :span="17">{{ item.createTime }}</el-col>
         </el-row>
         <el-row>
-          <el-col :span="6">
+          <el-col :span="7">
             操&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;作：
           </el-col>
-          <el-col :span="18">
+          <el-col :span="17">
             <el-space :size="10">
               <el-link type="primary" :underline="false" @click="handleEdit(item)">
                 编辑
