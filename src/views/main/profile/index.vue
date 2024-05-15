@@ -258,7 +258,6 @@ const updateAvatar = async () => {
     type: 'jpg'
   });
   const url = `https://${data.Location}`;
-  console.log("%c Line:187 🍷 url", "color:#ed9ec7", url);
 
   const newUser = user.value;
   newUser.avatar = url;

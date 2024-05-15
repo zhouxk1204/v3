@@ -18,7 +18,7 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="文件上传" prop="url">
-        <el-upload :class="{ uoloadSty: fileList.length >= 1, disUoloadSty: fileList.length >= 1 }" :limit="1"
+        <el-upload :class="{ upload: fileList.length >= 1, disUploadStyle: fileList.length >= 1 }" :limit="1"
           v-model:file-list="fileList" :auto-upload="false" list-type="picture-card"
           :on-preview="handlePictureCardPreview">
           <el-icon>
@@ -112,7 +112,7 @@ const submit = async (formEl: FormInstance | undefined) => {
       }
       emit("confirm", cloneDeep(form));
       emit("update:modelValue", false);
-      return
+      isConfirm.value = false;
     } else {
       console.log('error submit!', fields)
     }
@@ -143,13 +143,13 @@ const handleDialogClose = () => {
 
 </script>
 <style>
-.uoloadSty .el-upload--picture-card {
+.uploadStyle .el-upload--picture-card {
   width: 110px;
   height: 110px;
   line-height: 110px;
 }
 
-.disUoloadSty .el-upload--picture-card {
+.disUploadStyle .el-upload--picture-card {
   display: none;
   /* 上传按钮隐藏 */
 }

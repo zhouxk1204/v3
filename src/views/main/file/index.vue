@@ -126,7 +126,7 @@ const actionFormData = reactive<FileForm>({
   url: ''
 });
 const actionFormTitle = computed(() => {
-  return mode.value === 'add' ? '添加字典类型' : mode.value === 'edit' ? '修改字典类型' : ''
+  return mode.value === 'add' ? '添加文件信息' : mode.value === 'edit' ? '修改文件信息' : ''
 })
 
 const handleAdd = () => {
@@ -174,7 +174,7 @@ const handleConfirm = (data: FileForm) => {
 
 const handleDelete = (noList: number[]) => {
   ElMessageBox.confirm(
-    `是否确认删除字典编号为"${noList.join(', ')}"的数据项？`,
+    `是否确认删除文件编号为"${noList.join(', ')}"的数据项？`,
     '系统提示',
     {
       confirmButtonText: '确定',
