@@ -1,10 +1,10 @@
 <template>
   <el-form :inline="true" :model="form" class="mb-2" v-if="visible">
     <el-form-item label="节假日名称">
-      <el-input v-model="form.code" placeholder="请输入字典名称" clearable />
+      <el-input v-model="form.holidayId" placeholder="请输入字典名称" clearable />
     </el-form-item>
     <el-form-item label="节假日类别">
-      <el-input v-model="form.typeValue" placeholder="请输入字典类型" clearable />
+      <el-input v-model="form.statusId" placeholder="请输入字典类型" clearable />
     </el-form-item>
     <el-form-item label="年度">
       <el-date-picker v-model="form.year" type="year" placeholder="年份" format="YYYY" value-format="YYYY" />
@@ -29,13 +29,13 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: "search", data: HolidaySearchForm): void;
-  (e: "reset", data: null): void;
+  (e: "reset", data: undefined): void;
 }>();
 
 const form = reactive<HolidaySearchForm>({
-  code: '',
+  holidayId: '',
+  statusId: '',
   year: '',
-  typeValue: '',
 })
 
 const handleSearch = () => {
@@ -43,9 +43,9 @@ const handleSearch = () => {
 }
 
 const handleReset = () => {
-  form.code = '';
+  form.holidayId = '';
+  form.statusId = '';
   form.year = '';
-  form.typeValue = '';
-  emit("reset", null);
+  emit("reset", undefined);
 }
 </script>

@@ -8,7 +8,7 @@ export interface Holiday {
 }
 
 export interface HolidaySearchForm {
-  code: string;
+  holidayId: string;
+  statusId: string;
   year: string;
-  typeValue: string;
 }

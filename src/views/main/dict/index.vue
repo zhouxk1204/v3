@@ -28,12 +28,14 @@
         </el-button>
       </el-col>
       <el-col :span="7" class="flex justify-end">
-        <el-tooltip effect="dark" :content="searchFormVisible ? '隐藏搜索' : '显示搜索'" placement="top">
-          <el-button :icon="Search" circle @click="toggleSearch" />
-        </el-tooltip>
-        <el-tooltip effect="dark" content="刷新" placement="top">
-          <el-button :icon="Refresh" circle @click="getAllDictTypeList" />
-        </el-tooltip>
+        <el-row justify="end">
+          <el-tooltip effect="dark" :content="searchFormVisible ? '隐藏搜索' : '显示搜索'" placement="top">
+            <el-button :icon="Search" circle @click="toggleSearch" />
+          </el-tooltip>
+          <el-tooltip effect="dark" content="刷新" placement="top">
+            <el-button :icon="Refresh" circle @click="getAllDictTypeList" />
+          </el-tooltip>
+        </el-row>
       </el-col>
     </el-row>
 

@@ -1,145 +1,80 @@
 <template>
-  <el-form :inline="true" :model="searchForm" class="mb-2" v-if="searchFormVisible">
-    <el-form-item label="节假日名称">
-      <el-select v-model="searchForm.holidayValue" placeholder="节假日名称" clearable class="min-w-36">
-        <el-option :label="item.dictLabel" :value="item.dictValue" v-for="item in options1" />
-      </el-select>
-    </el-form-item>
-    <el-form-item label="节假日类别">
-      <el-select v-model="searchForm.holidayValue" placeholder="节假日类别" clearable class="min-w-36">
-        <el-option :label="item.dictLabel" :value="item.dictValue" v-for="item in options2" />
-      </el-select>
-    </el-form-item>
-    <el-form-item label="年度">
-      <el-date-picker v-model="searchForm.year" type="year" placeholder="年份" format="YYYY" value-format="YYYY" />
-    </el-form-item>
-
-    <el-form-item>
-      <el-button type="primary" @click="handleSearch" :icon="Search">搜索</el-button>
-    </el-form-item>
-    <el-form-item>
-      <el-button @click="handleReset" :icon="Refresh">重置</el-button>
-    </el-form-item>
-  </el-form>
+  <SearchForm :visible="searchFormVisible" @search="handleSearchFromAction" @reset="handleSearchFromAction">
+  </SearchForm>
 
   <el-row justify="space-between" class="mb-2">
     <el-col :span="12">
       <el-button type="primary" plain :icon="Plus" @click="handleAdd">新增</el-button>
-      <el-button type="success" plain :icon="Edit" :disabled="!(multipleSelection.length === 1)"
-        @click="handleEdit()">修改</el-button>
-      <el-button type="danger" plain :icon="Delete" :disabled="multipleSelection.length === 0"
-        @click="handleDelete()">删除</el-button>
+      <el-button type="success" plain :icon="Edit" :disabled="!(multipleSelection.length === 1)">修改</el-button>
+      <el-button type="danger" plain :icon="Delete" :disabled="multipleSelection.length === 0">删除</el-button>
     </el-col>
     <el-col :span="12" class="flex justify-end">
-      <el-tooltip effect="dark" :content="searchFormVisible ? '隐藏搜索' : '显示搜索'" placement="top">
-        <el-button :icon="Search" circle @click="toggleSearch" />
-      </el-tooltip>
-      <el-tooltip effect="dark" content="刷新" placement="top">
-        <el-button :icon="Refresh" circle @click="handleRefresh" />
-      </el-tooltip>
+      <el-row justify="end">
+        <el-tooltip effect="dark" :content="searchFormVisible ? '隐藏搜索' : '显示搜索'" placement="top">
+          <el-button :icon="Search" circle @click="toggleSearch" />
+        </el-tooltip>
+        <el-tooltip effect="dark" content="刷新" placement="top">
+          <el-button :icon="Refresh" circle @click="handleRefresh" />
+        </el-tooltip>
+      </el-row>
     </el-col>
   </el-row>
 
-  <!-- <el-table ref="dictTableRef" :data="tableData" class="w-full" @selection-change="handleSelectionChange">
+  <el-table :data="tableData" class="w-full" @selection-change="handleSelectionChange">
     <el-table-column type="selection" width="40" />
     <el-table-column label="日期" align="center">
       <template #default="scope">{{ scope.row.date }}</template>
-</el-table-column>
-<el-table-column label="节假日" align="center">
-  <template #default="scope">{{ scope.row.holidayLabel }}</template>
-</el-table-column>
-<el-table-column label="类别" align="center">
-  <template #default="scope">{{ scope.row.holidayTypeLabel }}</template>
-</el-table-column>
-<el-table-column label="上班倍率" align="center">
-  <template #default="scope">{{ scope.row.ratio }}</template>
-</el-table-column>
-<el-table-column label="加班倍率" align="center">
-  <template #default="scope">{{ scope.row.extraRatio }}</template>
-</el-table-column>
-<el-table-column label="备注" align="center">
-  <template #default="scope">
+    </el-table-column>
+    <el-table-column label="节假日" align="center">
+      <template #default="scope">{{ scope.row.holidayLabel }}</template>
+    </el-table-column>
+    <el-table-column label="类别" align="center">
+      <template #default="scope">{{ scope.row.holidayTypeLabel }}</template>
+    </el-table-column>
+    <el-table-column label="上班倍率" align="center">
+      <template #default="scope">{{ scope.row.ratio }}</template>
+    </el-table-column>
+    <el-table-column label="加班倍率" align="center">
+      <template #default="scope">{{ scope.row.extraRatio }}</template>
+    </el-table-column>
+    <el-table-column label="备注" align="center">
+      <template #default="scope">
         <el-text line-clamp="2">
           {{ scope.row.remark }}
         </el-text>
       </template>
-</el-table-column>
-<el-table-column label="操作" align="center">
-  <template #default="scope">
+    </el-table-column>
+    <!-- <el-table-column label="操作" align="center">
+      <template #default="scope">
         <el-space :size="10">
-          <el-link type="primary" :underline="false" @click="handleEdit(scope.row)">
+          <el-link type="primary" :underline="false">
             编辑
           </el-link>
-          <el-link type="danger" :underline="false" @click="handleDelete([scope.row.dictCode])">
+          <el-link type="danger" :underline="false">
             删除
           </el-link>
         </el-space>
       </template>
-</el-table-column>
-</el-table> -->
+    </el-table-column> -->
+  </el-table>
 
-  <!-- <div>
-    <div class="flex items-center justify-between mb-2">
-      <div class="flex items-center gap-3">
-        <el-button type="primary" :icon="Plus" @click="formVisible = true">新增</el-button>
-        <el-date-picker v-model="yearModel" type="year" placeholder="年份" @change="handleDatePikerChange" format="YYYY"
-          value-format="YYYY" />
-        <el-date-picker v-model="monthModel" type="month" placeholder="月份" @change="handleDatePikerChange" format="MM"
-          value-format="MM" />
-        <el-select-v2 v-model="holidayModel" placeholder="节假日" :clearable="true" :options="holidayOptions"
-          @change="handleSelectChange" />
-        <el-button size="default" @click="onRest" :icon="Refresh">重置</el-button>
-      </div>
-    </div>
-    <Table :list="holidayList" :cols="cols" :editable="true" @remove="deleteHoliday($event)"
-      @update="updateHoliday($event)">
-    </Table>
-  </div>
-  <el-dialog v-model="formVisible" title="添加节假日" width="500" destroy-on-close :append-to-body="true"
-    :close-on-click-modal="false">
-    <Form :form="form" @submit="handelSubmit" ref='holidayFormRef'></Form>
-  </el-dialog> -->
+
 </template>
 
 <script setup lang="ts">
-import { getHolidayOptions } from '@/api/holiday.api';
-import { DictDetailVO } from '@/types/dict';
+import { HolidaySearchForm } from '@/types/holiday';
 import { Delete, Edit, Plus, Refresh, Search } from "@element-plus/icons-vue";
+import SearchForm from './SearchFrom.vue';
 
 const searchFormVisible = ref(true);
-const searchForm = reactive({
-  holidayValue: '',
-  holidayTypeValue: '',
-  year: ''
-})
-const handleSearch = () => {
-
+const handleSearchFromAction = (formData: HolidaySearchForm | undefined) => {
+  console.log("%c Line:74 🌮 formData", "color:#2eafb0", formData);
+  // const data = await getFileList(formData);
+  // tableData.value = data.data;
 }
 
-const handleReset = () => {
-  searchForm.holidayValue = '';
-  searchForm.holidayTypeValue = '';
-  searchForm.year = '';
-}
-
-const options1 = ref<DictDetailVO[]>([]);
-const options2 = ref<DictDetailVO[]>([]);
-const getOptions = () => {
-  getHolidayOptions().then((res: any) => {
-    console.log("%c Line:75 🍏 res", "color:#f5ce50", res);
-    options1.value = res.data[0];
-    console.log("%c Line:76 🍺 options1.value", "color:#fca650", options1.value);
-    options2.value = res.data[1];
-    console.log("%c Line:78 🍏 options2.value", "color:#b03734", options2.value);
-  })
-}
-getOptions();
-
-
-const multipleSelection = ref([]);
+const multipleSelection = ref<any>([]);
 const handleAdd = () => { }
-const handleEdit = () => { }
-const handleDelete = () => { }
 const toggleSearch = () => {
   searchFormVisible.value = !searchFormVisible.value;
 }
@@ -210,4 +145,59 @@ const handleRefresh = () => { }
 //   holidayModel.value = '';
 //   refreshHolidayList();
 // }
+// const mode = ref<"init" | "edit" | "add">("init");
+// const actionFormVisible = ref(false);
+// const actionFormData = reactive<FileForm>({
+//   name: '',
+//   typeId: '0',
+//   statusId: '0',
+//   remark: '',
+//   createBy: '',
+//   updateBy: '',
+//   url: ''
+// });
+// // const actionFormTitle = computed(() => {
+// //   return mode.value === 'add' ? '添加文件信息' : mode.value === 'edit' ? '修改文件信息' : ''
+// // })
+
+
+const tableData = ref([]);
+const handleSelectionChange = (val: any[]) => {
+  multipleSelection.value = val;
+}
+
+// const currentNo = ref(-1);
+// const handleEdit = (row: FileInfo) => {
+//   mode.value = 'edit';
+//   actionFormData.name = row.name;
+//   actionFormData.typeId = row.typeId;
+//   actionFormData.statusId = row.statusId;
+//   actionFormData.remark = row.remark;
+//   actionFormData.createBy = '';
+//   actionFormData.url = row.url;
+//   currentNo.value = row.no;
+//   actionFormVisible.value = true;
+// }
+
+// const handleDelete = (noList: number[]) => {
+//   ElMessageBox.confirm(
+//     `是否确认删除文件编号为"${noList.join(', ')}"的数据项？`,
+//     '系统提示',
+//     {
+//       confirmButtonText: '确定',
+//       cancelButtonText: '取消',
+//       type: 'warning',
+//     }
+//   )
+//     .then(async () => {
+//       const res = await deleteFilesByIds(noList);
+//       ElMessage.success(res.message);
+//       const data = await getFileList();
+//       tableData.value = data.data;
+//     })
+//     .catch(() => {
+//       ElMessage.info('取消删除！')
+//     })
+// }
+
 </script>

@@ -32,13 +32,15 @@
           @click="handleDelete(multipleSelection.map(e => e.id))" circle>
         </el-button>
       </el-col>
-      <el-col :span="7" class="flex justify-end">
-        <el-tooltip effect="dark" :content="searchFormVisible ? '隐藏搜索' : '显示搜索'" placement="top">
-          <el-button :icon="Search" circle @click="toggleSearch" />
-        </el-tooltip>
-        <el-tooltip effect="dark" content="刷新" placement="top">
-          <el-button :icon="Refresh" circle @click="refresh(true)" />
-        </el-tooltip>
+      <el-col :span="7">
+        <el-row justify="end">
+          <el-tooltip effect="dark" :content="searchFormVisible ? '隐藏搜索' : '显示搜索'" placement="top">
+            <el-button :icon="Search" circle @click="toggleSearch" />
+          </el-tooltip>
+          <el-tooltip effect="dark" content="刷新" placement="top">
+            <el-button :icon="Refresh" circle @click="refresh(true)" />
+          </el-tooltip>
+        </el-row>
       </el-col>
     </el-row>
 
@@ -152,17 +154,6 @@ onMounted(() => {
   refreshEmployeeList();
 })
 
-const status = ['全部', '离职', '在职',];
-const statusId = ref(status[2]);
-const onStatusChange = (value: any) => {
-  const index = status.indexOf(value);
-  if (index > 0) {
-    employeeList.value = employeeStore.employeeTempList.filter(e => e.statusId === `${index - 1}`);
-  } else {
-    employeeList.value = employeeStore.employeeTempList;
-  }
-}
-
 // /**
 //  * 导入EXCEL 员工
 //  * @param {any[]} data 员工信息列表
@@ -203,7 +194,7 @@ const onStatusChange = (value: any) => {
 const refreshEmployeeList = async (message?: string) => {
   const res = await getEmployeeList();
   employeeStore.setEmployeeTempList(res.data);
-  onStatusChange(statusId.value);
+  employeeList.value = employeeStore.employeeTempList;
   if (message) {
     ElMessage.success(message)
   }
