@@ -52,9 +52,19 @@
       <el-table-column label="员工姓名" align="center">
         <template #default="scope">{{ scope.row.name }}</template>
       </el-table-column>
-      <el-table-column label="员工系数" align="center">
+      <el-table-column align="center">
+        <template #header>
+          <el-row :gutter="10" justify="center">
+            <div>员工系数</div>
+            <el-tooltip content="显示当前系数" placement="top" effect="light">
+              <el-icon :size="21" color="#ddd">
+                <QuestionFilled />
+              </el-icon>
+            </el-tooltip>
+          </el-row>
+        </template>
         <template #default="scope">
-          <el-text type="danger">{{ scope.row.factor }}</el-text>
+          <el-link type="primary" :href="'/main/employee/factor'">{{ scope.row.factor }}</el-link>
         </template>
       </el-table-column>
       <el-table-column label="员工性别" align="center">
@@ -144,7 +154,7 @@ import { addEmployee, deleteEmployeeByIds, getEmployeeList, updateEmployeeData }
 import useStore from "@/store";
 import { Employee, EmployeeForm, EmployeeSearchForm } from "@/types/employee";
 import { generateId } from "@/utils";
-import { Delete, Edit, Plus, Refresh, Search } from "@element-plus/icons-vue";
+import { Delete, Edit, Plus, QuestionFilled, Refresh, Search } from "@element-plus/icons-vue";
 import ActionForm from './ActionForm.vue';
 import SearchForm from './SearchFrom.vue';
 const employeeStore = useStore().employee;

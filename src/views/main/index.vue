@@ -89,7 +89,7 @@ import useStore from "@/store";
 import { FullScreen, Menu, Moon, Operation, Setting, Sunny, SwitchButton, WarningFilled } from "@element-plus/icons-vue";
 import { useDark } from "@vueuse/core";
 import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router";
+import { RouteRecordRaw, useRouter } from "vue-router";
 import router from "../../router";
 
 const { user } = storeToRefs(useStore().user);
@@ -100,9 +100,24 @@ const avatar = computed(() => {
 const currentRoute = useRouter().currentRoute;
 
 const parentRoute = "/main";
-const menuRoutes = (router.options.routes.find(e => e.path === parentRoute)?.children ?? [])
-  .filter(e => !(e.meta && e.meta.visible === false))
-  .sort((a, b) => Number(a.meta?.sort ?? 0) - Number(b.meta?.sort ?? 0));
+// const menuRoutes = (router.options.routes.find(e => e.path === parentRoute)?.children ?? [])
+//   .filter(e => !(e.meta && e.meta.visible === false))
+//   .sort((a, b) => Number(a.meta?.sort ?? 0) - Number(b.meta?.sort ?? 0));
+const sortRoutes = (routes: Readonly<RouteRecordRaw[]>) => {
+  return routes
+    .filter(e => !(e.meta && e.meta.visible === false)) // 过滤掉 meta.visible === false 的路由
+    .map(route => {
+      if (route.children && route.children.length > 0) {
+        route.children = sortRoutes(route.children);
+      }
+      return route;
+    })
+    .sort((a, b) => Number(a.meta?.sort ?? 0) - Number(b.meta?.sort ?? 0)); // 根据 meta.sort 进行排序
+}
+
+const menuRoutes = sortRoutes(router.options.routes.find(e => e.path === parentRoute)?.children ?? []);
+
+console.log("%c Line:104 🥤 menuRoutes", "color:#ed9ec7", menuRoutes);
 
 const onClickLogo = () => {
   router.replace("/home");
@@ -149,6 +164,8 @@ const toggleFullScreen = () => {
     document.exitFullscreen()
   }
 }
+
+
 
 const menuDrawer = ref(false);
 </script>
