@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang='ts'>
-import { EmployeeForm } from "@/types/employee.d.ts";
+import { EmployeeForm } from "@/types/employee";
 import { FormInstance, FormRules } from "element-plus/es/components";
 import cloneDeep from "lodash/cloneDeep";
 import { reactive, ref, watch } from "vue";
