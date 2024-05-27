@@ -6,7 +6,7 @@
       <el-form-item :label="item.label">
         <!-- 输入框 -->
         <el-input v-model="formModel[item.field]" :placeholder="item.placeholder ?? '请输入' + item.label" clearable
-          v-if="item.type === 'input'" />
+          v-if="item.type === 'text'" />
         <!-- 下拉选项 -->
         <el-select-v2 v-else-if="item.type === 'select'" v-model="formModel[item.field]" class="min-w-40"
           :placeholder="item.placeholder ?? '请选择' + item.label" clearable :options="item.options ?? []" />

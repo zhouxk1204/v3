@@ -4,10 +4,12 @@
       <el-button type="primary" plain :icon="Plus" @click="handleAdd">
         新增
       </el-button>
-      <el-button type="success" plain :icon="Edit" :disabled="!(multipleSelection.length === 1)" @click="handleEdit()">
+      <el-button type="success" plain :icon="Edit" :disabled="!(multipleSelection.length === 1)"
+        @click="handleEdit(multipleSelection[0])">
         修改
       </el-button>
-      <el-button type="danger" plain :icon="Delete" :disabled="multipleSelection.length === 0" @click="handleDelete()">
+      <el-button type="danger" plain :icon="Delete" :disabled="multipleSelection.length === 0"
+        @click="handleDelete(multipleSelection)">
         删除
       </el-button>
       <slot></slot>
@@ -40,29 +42,50 @@
           <el-link type="primary" :underline="false" @click="handleEdit(scope.row)">
             编辑
           </el-link>
-          <el-link type="danger" :underline="false" @click="handleDelete([scope.row.id])">
+          <el-link type="danger" :underline="false" @click="handleDelete([scope.row])">
             删除
           </el-link>
         </el-space>
       </template>
     </el-table-column>
   </el-table>
-
 </template>
 
 <script setup lang='ts'>
 import { Delete, Edit, Plus, Refresh, Search } from "@element-plus/icons-vue";
 
-const props = defineProps<{
-  columns: { field: string; label: string }[],
+defineProps<{
+  columns: { field: string; label: string; style?: string }[],
   tableData: any[]
 }>();
 
-const multipleSelection: any[] = [];
-const handleAdd = () => { }
-const handleEdit = (data?: any) => { }
-const handleDelete = (data?: any) => { }
-const refresh = () => { }
+const emit = defineEmits<{
+  (e: "add", data: null): void,
+  (e: "edit", data: any): void,
+  (e: "delete", data: any[]): void,
+  (e: "refresh", data: null): void,
+}>();
 
-const handleSelectionChange = () => { }
+const multipleSelection = ref<any[]>([]);
+const handleSelectionChange = (val: any[]) => {
+  multipleSelection.value = val;
+}
+
+const handleAdd = () => {
+  emit('add', null);
+}
+
+const handleEdit = (data: any) => {
+  emit('edit', data);
+}
+
+const handleDelete = (data: any[]) => {
+  emit('delete', data);
+}
+
+const refresh = () => {
+  emit('refresh', null);
+}
+
+
 </script>

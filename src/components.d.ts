@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AMap: typeof import('./components/AMap/index.vue')['default']
+    copy: typeof import('./components/Form2/index.vue')['default']
     EchartBar: typeof import('./components/EchartBar/index.vue')['default']
     EchartPile: typeof import('./components/EchartPile/index.vue')['default']
     ElAlert: typeof import('element-plus/es')['ElAlert']
@@ -61,6 +62,7 @@ declare module 'vue' {
     ElWatermark: typeof import('element-plus/es')['ElWatermark']
     FillUp: typeof import('./components/FillUp/index.vue')['default']
     Form: typeof import('./components/Form/index.vue')['default']
+    Form2: typeof import('./components/Form2/index.vue')['default']
     FormItem: typeof import('./components/FormItem/index.vue')['default']
     Image: typeof import('./components/Image/index.vue')['default']
     MenuItem: typeof import('./components/MenuItem/index.vue')['default']
