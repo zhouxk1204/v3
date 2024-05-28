@@ -8,7 +8,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AMap: typeof import('./components/AMap/index.vue')['default']
-    copy: typeof import('./components/Form2/index.vue')['default']
     EchartBar: typeof import('./components/EchartBar/index.vue')['default']
     EchartPile: typeof import('./components/EchartPile/index.vue')['default']
     ElAlert: typeof import('element-plus/es')['ElAlert']

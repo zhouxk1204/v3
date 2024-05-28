@@ -56,7 +56,7 @@
         <template #header>
           <el-row :gutter="10" justify="center">
             <div>员工系数</div>
-            <el-tooltip content="显示当前系数" placement="top" effect="light">
+            <el-tooltip content="显示当前时间的最新系数" placement="top" effect="light">
               <el-icon :size="21" color="#ddd">
                 <QuestionFilled />
               </el-icon>
@@ -64,7 +64,9 @@
           </el-row>
         </template>
         <template #default="scope">
-          <el-link type="primary" :href="'/main/employee/factor'">{{ scope.row.factor }}</el-link>
+          <el-link v-if="scope.row.weighted > 0" type="success" :href="'/main/employee/factor'">{{ (scope.row.factor +
+      scope.row.weighted).toFixed(2) }}</el-link>
+          <span v-else>{{ scope.row.factor }}</span>
         </template>
       </el-table-column>
       <el-table-column label="员工性别" align="center">
@@ -284,7 +286,7 @@ const handleAdd = () => {
   mode.value = 'add';
   actionFormData.no = 0;
   actionFormData.name = '';
-  actionFormData.factor = 0.45;
+  actionFormData.factor = 0;
   actionFormData.genderId = '0';
   actionFormData.positionId = '0';
   actionFormData.statusId = '1';

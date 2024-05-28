@@ -9,6 +9,7 @@ export interface Employee {
   gender: string; //
   statusId: string; // "0": 离职; "1": 在职
   status: string; //
+  weighted: number;
 }
 
 export interface EmployeeSearchForm {
@@ -18,11 +19,10 @@ export interface EmployeeSearchForm {
   positionId: string; // "0": 护士; "1": 护士长
 }
 
-
 export interface EmployeeForm {
   no: number;
   name: string;
-  factor:number;
+  factor: number;
   genderId: string; // "0": 女; "1": 男
   statusId: string; // "0": 离职; "1": 在职
   positionId: string; // "0": 护士; "1": 护士长

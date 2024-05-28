@@ -1,63 +1,85 @@
 <template>
-  <Search :visible="true" :form="form"></Search>
+  <Search v-if="searchFormVisible" :form="form" @search="onSearch"></Search>
 
-  <Table2 :columns="columns" :tableData="tableData" @add="onAdd" @edit="onEdit" @delete="onDelete" @refresh="onRefresh">
+  <Table2 :columns="columns" :tableData="tableData" @add="onAdd" @edit="onEdit" @delete="onDelete" @refresh="onRefresh"
+    @toggle="onToggle">
   </Table2>
 
-  <el-dialog v-model="actionFormVisible" :title="formTitle" :width="deviceType === 'mobile' ? '95%' : '60%'"
+  <el-dialog v-model="actionFormVisible" :title="formTitle" :width="deviceType === 'mobile' ? '95%' : '420'"
     destroy-on-close :append-to-body="true" :show-close="false" :close-on-click-modal="false">
     <Form2 :rules="rules" :form="actionForm" @confirm="onConfirm" @cancel="onClose"></Form2>
   </el-dialog>
 </template>
 
 <script setup lang='ts'>
-import { SearchFormItem } from '@/components/Search/type';
+import { getSelectOptionByType } from "@/api/common.api";
+import { addFactorInfo, deleteFactorInfo, getFactorList, updateFactorInfo } from "@/api/factor.api";
+import { SelectTypeEnum } from "@/constants";
 import useDevice from '@/hooks/useDevice';
+import useUserStore from "@/store/user.store";
+import { FormItem, SelectOption } from '@/types/common';
+import { FactorTableData } from "@/types/factor";
 import { FormRules } from "element-plus/es/components";
 
 const { deviceType } = useDevice();
 
 const actionFormVisible = ref(false);
+const searchFormVisible = ref(true);
 const mode = ref<"init" | "edit" | "add">("init");
 const formTitle = computed(() => {
   return mode.value === 'add' ? '添加系数变更信息' : mode.value === 'edit' ? '修改系数变更信息' : ''
 })
 
-const form: SearchFormItem[] = [
-  {
-    field: 'name',
-    label: '姓名',
-    type: 'text',
-    value: '',
-  },
-]
+const form = ref<FormItem[]>([]);
+const actionForm = ref<FormItem[]>([]);
 
-const actionForm: SearchFormItem[] = [
-  {
-    field: 'name',
-    label: '职工姓名',
-    type: 'text',
-    value: '',
-  },
-  {
-    field: 'weighted',
-    label: '系数变更',
-    type: 'number',
-    value: '',
-  },
-  {
-    field: 'effectiveMonth',
-    label: '生效起始月份',
-    type: 'month',
-    value: '',
-  },
-  {
-    field: 'remark',
-    label: '系数变更备注',
-    type: 'textarea',
-    value: '',
-  },
-]
+const initForm = (options: SelectOption[]) => {
+
+  form.value = [
+    {
+      field: 'id',
+      label: '职工姓名',
+      type: 'select',
+      value: '',
+      options
+    },
+  ];
+
+  actionForm.value = [
+    {
+      field: 'id',
+      label: '职工姓名',
+      type: 'select',
+      value: '',
+      options
+    },
+    {
+      field: 'weighted',
+      label: '系数变更',
+      type: 'number',
+      value: '',
+      step: 0.01
+    },
+    {
+      field: 'effectiveMonth',
+      label: '生效起始月份',
+      type: 'month',
+      value: '',
+    },
+    {
+      field: 'remark',
+      label: '系数变更备注',
+      type: 'textarea',
+      value: '',
+    },
+  ]
+}
+
+const getEmployeeSelectOptions = async () => {
+  const res = await getSelectOptionByType(SelectTypeEnum.EMPLOYEE);
+  initForm(res.data);
+}
+getEmployeeSelectOptions();
 
 const rules = reactive<FormRules<any>>({
   name: [
@@ -75,6 +97,10 @@ const rules = reactive<FormRules<any>>({
 });
 
 const columns = [
+  {
+    field: "no",
+    label: "编号"
+  },
   {
     field: "name",
     label: "姓名"
@@ -96,28 +122,43 @@ const columns = [
   }
 ]
 
-const tableData = [
-  {
-    no: 1,
-    name: "张三",
-    weighted: "1.2",
-    effectiveMonth: "2021-01",
-    createTime: "2021-01-01 00:00:00",
-    remark: "中级职称中级职称中级职称中级职称中级职称中级职称中级职称中级职称"
-  }
-]
+const tableData = ref<FactorTableData[]>([])
 
+const editRowNo = ref<number>(-1);
 const onEdit = (row: any) => {
+  editRowNo.value = row.no;
   mode.value = 'edit';
-  console.log(row)
+  actionFormVisible.value = true;
+  Object.keys(row).forEach(key => {
+    const item = actionForm.value.find(e2 => e2.field === key);
+    if (item) item.value = row[key];
+  })
 }
 
-const onDelete = (row: any) => {
-  console.log(row);
+const onDelete = (rows: any[]) => {
+  console.log(rows);
+  const nos = rows.map(e => e.no);
+  ElMessageBox.confirm(
+    `是否确认删除编号为"${nos.join(', ')}"的数据项？`,
+    '系统提示',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+    .then(async () => {
+      const res = await deleteFactorInfo(nos);
+      ElMessage.success(res.message);
+      await getTableData();
+    })
+    .catch(() => {
+      ElMessage.info('取消删除！')
+    })
 }
 
 const onRefresh = () => {
-  console.log('refresh');
+  getTableData();
 }
 
 const onAdd = () => {
@@ -126,11 +167,41 @@ const onAdd = () => {
 }
 
 const onConfirm = (data: any) => {
-  console.log("%c Line:126 🥟 data", "color:#6ec1c2", data);
+
   onClose();
+  const userId = useUserStore().user.userId;
+  if (mode.value === 'add') {
+    const body = Object.assign(data, { createBy: userId });
+    addFactorInfo(body).then((res: any) => {
+      ElMessage.success(res.message);
+      getTableData();
+    })
+  } else if (mode.value === 'edit') {
+    updateFactorInfo(Object.assign(data, { no: editRowNo.value, updateBy: userId })).then(res => {
+      editRowNo.value = -1;
+      ElMessage.success(res.message);
+      getTableData();
+    });
+  } else {
+    return;
+  }
 }
 
 const onClose = () => {
   actionFormVisible.value = false;
 }
+
+const onSearch = (data: any) => {
+  getTableData(data);
+}
+
+const onToggle = () => {
+  searchFormVisible.value = !searchFormVisible.value;
+}
+
+const getTableData = async (data?: Record<string, any>) => {
+  const res = await getFactorList(data);
+  tableData.value = res.data;
+}
+getTableData();
 </script>

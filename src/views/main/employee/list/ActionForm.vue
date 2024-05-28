@@ -8,8 +8,8 @@
       <el-form-item label="员工姓名" required prop="name">
         <el-input v-model="formData.name" placeholder="请输入员工姓名" clearable />
       </el-form-item>
-      <el-form-item label="员工系数" required prop="factor">
-        <el-input-number v-model="formData.factor" :min="0.45" :step="0.05" />
+      <el-form-item label="员工基础系数" required prop="factor" v-if="formData.factor === 0">
+        <el-input-number v-model="formData.factor" :step="0.05" />
       </el-form-item>
       <el-form-item label="员工性别" prop="genderId">
         <el-radio-group v-model="formData.genderId">
@@ -72,9 +72,9 @@ const rules = reactive<FormRules<EmployeeForm>>({
   name: [
     { required: true, message: '请输入员工姓名', trigger: 'blur' },
   ],
-  factor: [
-    { required: true, message: '请输入员工系数', trigger: 'blur' },
-  ],
+  // factor: [
+  //   { required: true, message: '请输入员工系数', trigger: 'blur' },
+  // ],
 });
 
 const submit = async (formEl: FormInstance | undefined) => {

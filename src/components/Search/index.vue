@@ -1,6 +1,6 @@
 <template>
   <el-form :inline="!isMobile" :model="formModel" :class="isMobile ? 'px-5 pt-5 border rounded-md border-ep' : ''"
-    v-if="visible" label-width="auto">
+    label-width="auto">
 
     <template v-for="item in form">
       <el-form-item :label="item.label">
@@ -21,15 +21,14 @@
 </template>
 
 <script setup lang='ts'>
+import { FormItem } from "@/types/common";
 import { Refresh, Search } from "@element-plus/icons-vue";
 import cloneDeep from 'lodash/cloneDeep';
-import { SearchFormItem } from "./type";
 // 监听窗口大小变化
 const isMobile = ref(window.innerWidth < 768);
 
 const props = defineProps<{
-  form: SearchFormItem[],
-  visible: boolean
+  form: FormItem[],
 }>();
 
 const emit = defineEmits<{
@@ -49,5 +48,6 @@ const handleReset = () => {
   Object.keys(formModel.value).forEach(key => {
     formModel.value[key] = '';
   });
+  emit("search", {});
 }
 </script>

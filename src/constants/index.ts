@@ -153,3 +153,7 @@ export const ROUTE = {
   EMPLOYEE: "/employee",
   HOLIDAY: "/holiday",
 };
+
+export enum SelectTypeEnum {
+  EMPLOYEE = "employee",
+}

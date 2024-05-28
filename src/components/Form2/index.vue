@@ -8,9 +8,9 @@
           :placeholder="item.placeholder ?? '请输入' + item.label" clearable />
         <!-- 文本域 -->
         <el-input v-else-if="item.type === 'textarea'" v-model="formModel[item.field]"
-          :placeholder="item.placeholder ?? '请输入' + item.label" autosize type="textarea" clearable />
+          :placeholder="item.placeholder ?? '请输入' + item.label" autosize type="textarea" />
         <!-- 数字 -->
-        <el-input-number v-else-if="item.type === 'number'" v-model="formModel[item.field]" />
+        <el-input-number v-else-if="item.type === 'number'" v-model="formModel[item.field]" :step="item.step ?? 1" />
         <!-- 下拉选项 -->
         <el-select-v2 v-else-if="item.type === 'select'" v-model="formModel[item.field]" class="min-w-40"
           :placeholder="item.placeholder ?? '请选择' + item.label" clearable :options="item.options ?? []" />
@@ -28,13 +28,13 @@
 </template>
 
 <script setup lang='ts'>
+import { FormItem } from "@/types/common";
 import { FormInstance, FormRules } from "element-plus/es/components";
 import cloneDeep from 'lodash/cloneDeep';
-import { SearchFormItem } from "./type";
 const formRef = ref<FormInstance>();
 
 const props = defineProps<{
-  form: SearchFormItem[],
+  form: FormItem[],
   rules: FormRules,
 }>();
 

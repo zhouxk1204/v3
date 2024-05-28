@@ -17,7 +17,7 @@
     <el-col :span="5">
       <el-row justify="end">
         <el-tooltip effect="dark" :content="true ? '隐藏搜索' : '显示搜索'" placement="top">
-          <el-button :icon="Search" circle />
+          <el-button :icon="Search" circle @click="onToggle" />
         </el-tooltip>
         <el-tooltip effect="dark" content="刷新" placement="top">
           <el-button :icon="Refresh" circle @click="refresh()" />
@@ -64,6 +64,7 @@ const emit = defineEmits<{
   (e: "edit", data: any): void,
   (e: "delete", data: any[]): void,
   (e: "refresh", data: null): void,
+  (e: "toggle", data: null): void,
 }>();
 
 const multipleSelection = ref<any[]>([]);
@@ -87,5 +88,8 @@ const refresh = () => {
   emit('refresh', null);
 }
 
+const onToggle = () => {
+  emit('toggle', null);
+}
 
 </script>
