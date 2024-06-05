@@ -12,3 +12,41 @@ export interface HolidaySearchForm {
   statusId: string;
   year: string;
 }
+
+export interface HolidayTableData {
+  no: number;
+  dateStart: string;
+  dateEnd: string;
+  id: string;
+  name: string;
+  type: string;
+  typeName: string;
+  ratio1: number;
+  ratio2: number;
+}
+
+export interface HolidaySearchForm2 {
+  year: string;
+  id: string;
+}
+
+export interface HolidayAddInfo {
+  dateStart: string;
+  dateEnd: string;
+  id: string;
+  type: string;
+  ratio1: number;
+  ratio2: number;
+  createBy: string;
+}
+
+export interface HolidayUpdateInfo {
+  dateStart: string;
+  dateEnd: string;
+  id: string;
+  type: string;
+  ratio1: number;
+  ratio2: number;
+  updateBy: string;
+  no: number;
+}

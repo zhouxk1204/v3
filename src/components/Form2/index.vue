@@ -17,6 +17,11 @@
         <!-- 月份 -->
         <el-date-picker v-else-if="item.type === 'month'" v-model="formModel[item.field]" class="min-w-40" type="month"
           :placeholder="item.placeholder ?? '请选择' + item.label" format="YYYY/MM" value-format="YYYY/MM" clearable />
+        <!-- 日期范围 -->
+        <el-date-picker v-if="item.type === 'date-range'" v-model="formModel[item.field]" clearable type="daterange"
+          unlink-panels range-separator="~" start-placeholder="开始日期" end-placeholder="结束日期" format="YYYY/MM/DD"
+          value-format="YYYY/MM/DD"
+          :disabled-date="(date: Date) => isDisabledDate(date, item.disableDates ?? [])" />
       </el-form-item>
     </template>
 
@@ -29,6 +34,7 @@
 
 <script setup lang='ts'>
 import { FormItem } from "@/types/common";
+import { isInRange } from "@/utils/date";
 import { FormInstance, FormRules } from "element-plus/es/components";
 import cloneDeep from 'lodash/cloneDeep';
 const formRef = ref<FormInstance>();
@@ -63,5 +69,17 @@ const cancel = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.resetFields();
   emit("cancel", null);
+}
+
+// 禁用日期范围方法
+const isDisabledDate = (time: Date, range: string[][]) => {
+  if (range.length === 0) return false;
+
+  for (let dates of range) {
+    if (isInRange(dates, time)) {
+      return true;
+    }
+  }
+  return false;
 }
 </script>

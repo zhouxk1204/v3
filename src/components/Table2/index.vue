@@ -12,6 +12,7 @@
         @click="handleDelete(multipleSelection)">
         删除
       </el-button>
+      <el-button v-if="back" type="warning" plain :icon="Close" @click="handleClose">关闭</el-button>
       <slot></slot>
     </el-col>
     <el-col :span="5">
@@ -52,11 +53,13 @@
 </template>
 
 <script setup lang='ts'>
-import { Delete, Edit, Plus, Refresh, Search } from "@element-plus/icons-vue";
+import { Close, Delete, Edit, Plus, Refresh, Search } from "@element-plus/icons-vue";
+import { useRouter } from "vue-router";
 
 defineProps<{
   columns: { field: string; label: string; style?: string }[],
   tableData: any[]
+  back?: boolean
 }>();
 
 const emit = defineEmits<{
@@ -92,4 +95,8 @@ const onToggle = () => {
   emit('toggle', null);
 }
 
+const router = useRouter();
+const handleClose = () => {
+  router.back();
+}
 </script>
