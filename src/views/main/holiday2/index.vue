@@ -1,8 +1,8 @@
 <template>
   <Search v-if="searchFormVisible" :form="form" @search="onSearch"></Search>
 
-  <Table2 :back="true" :columns="columns" :tableData="tableData" @add="onAdd" @edit="onEdit" @delete="onDelete"
-    @refresh="onRefresh" @toggle="onToggle">
+  <Table2 :columns="columns" :tableData="tableData" @add="onAdd" @edit="onEdit" @delete="onDelete" @refresh="onRefresh"
+    @toggle="onToggle">
   </Table2>
 
   <el-dialog v-model="actionFormVisible" :title="formTitle" :width="deviceType === 'mobile' ? '95%' : '420'"
@@ -13,12 +13,12 @@
 
 <script setup lang='ts'>
 import { getSelectOptionByType2 } from "@/api/common.api";
-import { addHolidayInfo, deleteHolidayByNos, getHolidayList2 } from "@/api/holiday.api";
+import { addHolidayInfo, deleteHolidayByNos, getHolidayList2, updateHolidayInfo } from "@/api/holiday.api";
 import { SelectTypeEnum } from "@/constants";
 import useDevice from '@/hooks/useDevice';
 import useUserStore from "@/store/user.store";
 import { FormItem, SelectOption } from '@/types/common';
-import { HolidayTableData } from "@/types/holiday";
+import { HolidaySearchForm2, HolidayTableData } from "@/types/holiday";
 import { FormRules } from "element-plus/es/components";
 
 const { deviceType } = useDevice();
@@ -102,6 +102,7 @@ const actionForm = computed<FormItem[]>(() => {
 const getHolidaySelectOptions = async () => {
   const res = await getSelectOptionByType2(SelectTypeEnum.HOLIDAY);
   holidayOptions.value = res.data;
+  await initHolidayType();
 }
 getHolidaySelectOptions();
 
@@ -124,7 +125,8 @@ const columns = [
   },
   {
     field: "date",
-    label: "节假日日期"
+    label: "节假日日期",
+    width: 200
   },
   {
     field: "name",
@@ -132,7 +134,13 @@ const columns = [
   }, {
     field: "typeName",
     label: "放假 / 补班",
-    style: 'tag',
+    style: {
+      type: 'tag',
+      color: (val: string) => {
+        const index = holidayTypeOptions.value.findIndex(e => e.label == val);
+        return ['success', 'danger'][index > 0 && index < 2 ? index : 0];
+      }
+    },
   }, {
     field: "ratio1",
     label: "补班倍率"
@@ -154,12 +162,11 @@ const onEdit = async (row: any) => {
   currentForm.value.type = row.type;
   currentForm.value.ratio1 = row.ratio1;
   currentForm.value.ratio2 = row.ratio2;
-  await initHolidayType();
+
   actionFormVisible.value = true;
 }
 
 const onDelete = (rows: any[]) => {
-  console.log(rows);
   const nos = rows.map(e => e.no);
   ElMessageBox.confirm(
     `是否确认删除编号为"${nos.join(', ')}"的数据项？`,
@@ -186,7 +193,6 @@ const onRefresh = () => {
 
 const onAdd = async () => {
   mode.value = 'add';
-  await initHolidayType();
   actionFormVisible.value = true;
 }
 
@@ -201,14 +207,12 @@ const onConfirm = (data: any) => {
       getTableData();
     })
   } else if (mode.value === 'edit') {
-    console.log("%c Line:206 🥛 data", "color:#465975", data);
     const body = Object.assign(extra, { updateBy: userId, dateStart: date[0], dateEnd: date[1], no: editRowNo.value, });
-    console.log("%c Line:206 🍎 body", "color:#7f2b82", body);
-    // updateFactorInfo(Object.assign(data, { no: editRowNo.value, updateBy: userId })).then(res => {
-    //   editRowNo.value = -1;
-    //   ElMessage.success(res.message);
-    //   getTableData();
-    // });
+    updateHolidayInfo(body).then(res => {
+      editRowNo.value = -1;
+      ElMessage.success(res.message);
+      getTableData();
+    });
   } else {
     return;
   }
@@ -226,9 +230,8 @@ const onToggle = () => {
   searchFormVisible.value = !searchFormVisible.value;
 }
 
-const getTableData = async (data?: Record<string, any>) => {
-  const res = await getHolidayList2();
-  console.log("%c Line:217 🥛 res", "color:#33a5ff", res);
+const getTableData = async (data?: HolidaySearchForm2) => {
+  const res = await getHolidayList2(data);
   tableData.value = res.data;
 }
 getTableData();

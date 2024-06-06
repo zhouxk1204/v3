@@ -62,7 +62,6 @@ const dictTypeList = ref<DictVO[]>([])
 const getAllDictTypeList = () => {
   getDictTypeList().then(res => {
     dictTypeList.value = res.data;
-    console.log("%c Line:65 🥥 dictTypeList.value", "color:#2eafb0", dictTypeList.value);
     emit("dictType", dictType.value);
   });
 }

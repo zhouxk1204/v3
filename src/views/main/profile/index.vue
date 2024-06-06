@@ -154,7 +154,6 @@ const imageDataUrl = ref('');
 
 const previewUrl = ref('');
 const onChange = (uploadFile: UploadFile) => {
-  console.log(uploadFile.raw);
   const file = uploadFile.raw;
   const reader = new FileReader();
   reader.onload = () => {

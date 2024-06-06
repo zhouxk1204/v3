@@ -156,6 +156,9 @@ export const ROUTE = {
 
 export enum SelectTypeEnum {
   EMPLOYEE = "employee",
-  HOLIDAY = "holiday",
-  HOLIDAY_TYPE = "holidayType",
+  GENDER = "1",
+  POSITION = "2",
+  STATUS = "3",
+  HOLIDAY = "5",
+  HOLIDAY_TYPE = "4",
 }

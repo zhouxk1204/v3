@@ -157,7 +157,6 @@ const onChange = (uploadFile: UploadFile) => {
     },
     onProgress: (progressData: COS.ProgressInfo) => {
       const { loaded, total, speed, percent } = progressData;
-      console.log(JSON.stringify(progressData));
       progressInfo.value.loaded = convertBitsToBytes(loaded);
       progressInfo.value.total = convertBitsToBytes(total);
       progressInfo.value.speed = `${convertBitsToBytes(speed)}/s`;
@@ -176,7 +175,6 @@ const onChange = (uploadFile: UploadFile) => {
       progressInfo.value.status = "success";
       ElMessage.success('上传成功');
       imgSrc.value = `https://${data.Location}`;
-      console.log("%c Line:181 🥛 imgSrc.value", "color:#ed9ec7", imgSrc.value);
     }
     progressInfo.value.percent = 100;
   });

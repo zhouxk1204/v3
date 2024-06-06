@@ -90,7 +90,6 @@ export function useCos(cosOption: CosOption) {
           },
           onProgress: (progressData: COS.ProgressInfo) => {
             const { loaded, total, speed, percent } = progressData;
-            console.log(JSON.stringify(progressData));
             uploadProgress.value.loaded = convertBitsToBytes(loaded);
             uploadProgress.value.total = convertBitsToBytes(total);
             uploadProgress.value.speed = `${convertBitsToBytes(speed)}/s`;

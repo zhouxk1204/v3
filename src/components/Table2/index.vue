@@ -30,9 +30,10 @@
   <el-table :data="tableData" class="w-full hidden-sm-and-down" @selection-change="handleSelectionChange">
     <el-table-column type="selection" width="40" />
 
-    <el-table-column v-for="item in columns" :label="item.label" align="center">
+    <el-table-column v-for="item in columns" :label="item.label" align="center" :width="item.width ?? ''">
       <template #default="scope">
-        <el-tag v-if="item.style === 'tag'">{{ scope.row[item.field] }}</el-tag>
+        <el-tag v-if="item.style?.type === 'tag'" :type="item.style?.color(scope.row[item.field])">{{
+      scope.row[item.field] }}</el-tag>
         <span v-else>{{ scope.row[item.field] }}</span>
       </template>
     </el-table-column>
@@ -57,7 +58,12 @@ import { Close, Delete, Edit, Plus, Refresh, Search } from "@element-plus/icons-
 import { useRouter } from "vue-router";
 
 defineProps<{
-  columns: { field: string; label: string; style?: string }[],
+  columns: {
+    field: string; label: string; style?: {
+      type: 'tag',
+      color: Function
+    }, width?: number
+  }[],
   tableData: any[]
   back?: boolean
 }>();

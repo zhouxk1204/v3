@@ -19,7 +19,7 @@ export const getHolidayList = (params: HolidaySearchForm2) => {
   });
 };
 
-export const getHolidayList2 = (params?: HolidaySearchForm2) => {
+export const getHolidayList2 = (params: HolidaySearchForm2 | undefined) => {
   return http.get<ResponseData<HolidayTableData[]>>("/holiday/query2", {
     params: params ?? {},
   });
@@ -52,5 +52,5 @@ export const deleteHolidayByNos = (nos: number[]) => {
 };
 
 export const updateHolidayInfo = (holiday: HolidayUpdateInfo) => {
-  return http.post<ResponseData<Object>>("/holiday/update", holiday);
+  return http.post<ResponseData<Object>>("/holiday/update2", holiday);
 };

@@ -107,7 +107,12 @@ const columns = [
   }, {
     field: "weighted",
     label: "系数变化",
-    style: 'tag',
+    style: {
+      type: 'tag',
+      color: (val: number) => {
+        return val > 0 ? 'primary' : 'danger';
+      }
+    }
   }, {
     field: "effectiveMonth",
     label: "生效起始月份"
@@ -136,7 +141,6 @@ const onEdit = (row: any) => {
 }
 
 const onDelete = (rows: any[]) => {
-  console.log(rows);
   const nos = rows.map(e => e.no);
   ElMessageBox.confirm(
     `是否确认删除编号为"${nos.join(', ')}"的数据项？`,

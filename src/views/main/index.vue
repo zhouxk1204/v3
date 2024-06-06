@@ -117,8 +117,6 @@ const sortRoutes = (routes: Readonly<RouteRecordRaw[]>) => {
 
 const menuRoutes = sortRoutes(router.options.routes.find(e => e.path === parentRoute)?.children ?? []);
 
-console.log("%c Line:104 🥤 menuRoutes", "color:#ed9ec7", menuRoutes);
-
 const onClickLogo = () => {
   router.replace("/home");
 }
@@ -145,7 +143,7 @@ const init = async () => {
 }
 init();
 
-const isCollapse = ref<boolean>(true);
+const isCollapse = ref<boolean>(false);
 const toggleMenu = () => {
   isCollapse.value = !isCollapse.value;
 }
