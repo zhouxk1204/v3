@@ -47,43 +47,43 @@
       <el-space :fill="true" wrap class="font-bold hidden-sm-and-up">
         <el-watermark v-for="item in reportList" :content="item.employeeName" :gap="[50, 50]">
           <el-card v-if="item.total > 0">
-            <el-row class="mb-1" >
+            <el-row class="mb-1">
               <el-col :span="10" class="disperse">员工姓名</el-col>：
               <el-col :span="12">{{ item.employeeName }}</el-col>
             </el-row>
-            <el-row class="mb-1" >
+            <el-row class="mb-1">
               <el-col :span="10" class="disperse">员工系数</el-col>：
               <el-col :span="12"><el-tag effect="dark" type="danger">{{ item.factor }}</el-tag></el-col>
             </el-row>
-            <el-row class="mb-1"  v-if="item.totalOther > 0">
+            <el-row class="mb-1" v-if="item.totalOther > 0">
               <el-col :span="10" class="disperse">其他岗位工分</el-col>：
               <el-col :span="12">{{ item.totalOther }}</el-col>
             </el-row>
-            <el-row class="mb-1"  v-if="item.totalGastroscopy > 0">
+            <el-row class="mb-1" v-if="item.totalGastroscopy > 0">
               <el-col :span="10" class="disperse">胃镜岗位工分</el-col>：
               <el-col :span="12">{{ item.totalGastroscopy }}</el-col>
             </el-row>
-            <el-row class="mb-1" >
+            <el-row class="mb-1">
               <el-col :span="10" class="disperse">时间总工分</el-col>：
               <el-col :span="12"><el-text type="primary" size="large">{{ item.total }}</el-text></el-col>
             </el-row>
-            <el-row class="mb-1" >
+            <el-row class="mb-1">
               <el-col :span="10" class="disperse">本月上班天数</el-col>：
               <el-col :span="12">
                 <el-text :type="item.workDayCount > 0 ? 'danger' : 'info'" size="large">{{ item.workDayCount
                   }}&nbsp;天</el-text></el-col>
             </el-row>
-            <el-row class="mb-1"  v-if="item.annual > 0">
+            <el-row class="mb-1" v-if="item.annual > 0">
               <el-col :span="10" class="disperse">本月年休天数</el-col>：
               <el-col :span="12"><el-text type="success" size="large">{{ item.annual
                   }}&nbsp;天</el-text></el-col>
             </el-row>
-            <el-row class="mb-1"  v-if="item.leave > 0">
+            <el-row class="mb-1" v-if="item.leave > 0">
               <el-col :span="10" class="disperse">本月补休天数</el-col>：
               <el-col :span="12"><el-text type="success" size="large">{{ item.leave
                   }}&nbsp;天</el-text></el-col>
             </el-row>
-            <el-row class="mb-1"  v-if="item.serve > 0">
+            <el-row class="mb-1" v-if="item.serve > 0">
               <el-col :span="10" class="disperse">本月科务天数</el-col>：
               <el-col :span="12"><el-tag effect="dark" type="primary">{{ item.serve
                   }}&nbsp;天</el-tag></el-col>
@@ -278,6 +278,11 @@ const toggleSelect = () => {
 const currentMonth = ref(getYearMonthFromDate(-1));
 // 选择月份
 const selectMonth = async (value: string | undefined) => {
+
+  const adsadsa = useStore().holiday2.getHolidayTempList();
+  console.log("%c Line:283 🍐 data", "color:#f5ce50", adsadsa);
+
+
   if (!value) {
     reportList.value = [];
     return;

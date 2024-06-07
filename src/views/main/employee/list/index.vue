@@ -1,244 +1,201 @@
 <template>
-  <div>
-    <SearchForm class="mb-2" :visible="searchFormVisible" @search="handleSearchFromAction"
-      @reset="handleSearchFromAction">
-    </SearchForm>
+  <Search v-if="searchFormVisible" :form="form" @search="onSearch"></Search>
 
-    <el-row justify="space-between" class="mb-2">
-      <el-col :span="17" class="flex items-center hidden-sm-and-down">
-        <el-button type="primary" plain :icon="Plus" @click="handleAdd">
-          新增
-        </el-button>
-        <el-button type="success" plain :icon="Edit" :disabled="!(multipleSelection.length === 1)"
-          @click="handleEdit(multipleSelection[0])">
-          修改
-        </el-button>
-        <el-button type="danger" plain :icon="Delete" :disabled="multipleSelection.length === 0"
-          @click="handleDelete(multipleSelection.map(e => e.id))">
-          删除
-        </el-button>
-        <!-- <el-button type="primary" plain :icon="Download" @click="onDownload">下载模板</el-button>
-        <UploadExcel @change="importExcelData" class="ml-3">
-          <el-button type="primary" plain :icon="Upload">导入</el-button>
-        </UploadExcel> -->
-      </el-col>
-      <el-col :span="17" class="hidden-sm-and-up">
-        <el-button type="primary" plain :icon="Plus" @click="handleAdd" circle>
-        </el-button>
-        <el-button type="success" plain :icon="Edit" :disabled="!(multipleSelection.length === 1)"
-          @click="handleEdit(multipleSelection[0])" circle>
-        </el-button>
-        <el-button type="danger" plain :icon="Delete" :disabled="multipleSelection.length === 0"
-          @click="handleDelete(multipleSelection.map(e => e.id))" circle>
-        </el-button>
-      </el-col>
-      <el-col :span="7">
-        <el-row justify="end">
-          <el-tooltip effect="dark" :content="searchFormVisible ? '隐藏搜索' : '显示搜索'" placement="top">
-            <el-button :icon="Search" circle @click="toggleSearch" />
-          </el-tooltip>
-          <el-tooltip effect="dark" content="刷新" placement="top">
-            <el-button :icon="Refresh" circle @click="refresh(true)" />
-          </el-tooltip>
-        </el-row>
-      </el-col>
-    </el-row>
+  <Table2 :back="true" :columns="columns" :tableData="tableData" @add="onAdd" @edit="onEdit" @delete="onDelete"
+    @refresh="onRefresh" @toggle="onToggle">
+  </Table2>
 
-    <el-table :data="employeeList" class="w-full hidden-sm-and-down" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="40" />
-      <el-table-column label="员工序号" width="80" align="center">
-        <template #default="scope">{{ scope.row.no }}</template>
-      </el-table-column>
-      <el-table-column label="员工姓名" align="center">
-        <template #default="scope">{{ scope.row.name }}</template>
-      </el-table-column>
-      <el-table-column align="center">
-        <template #header>
-          <el-row :gutter="10" justify="center">
-            <div>员工系数</div>
-            <el-tooltip content="显示当前时间的最新系数" placement="top" effect="light">
-              <el-icon :size="21" color="#ddd">
-                <QuestionFilled />
-              </el-icon>
-            </el-tooltip>
-          </el-row>
-        </template>
-        <template #default="scope">
-          <el-link v-if="scope.row.weighted > 0" type="success" :href="'/main/employee/factor'">{{ (scope.row.factor +
-      scope.row.weighted).toFixed(2) }}</el-link>
-          <span v-else>{{ scope.row.factor }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="员工性别" align="center">
-        <template #default="scope">
-          <el-tag :type="scope.row.gender.indexOf('男') > -1 ? 'primary' : 'danger'">{{ scope.row.gender }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="员工职位" align="center">
-        <template #default="scope">
-          <el-tag :type="scope.row.position.indexOf('长') > -1 ? 'primary' : 'info'">{{ scope.row.position }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="员工状态" align="center">
-        <template #default="scope">
-          <el-tag :type="scope.row.status === '在职' ? 'success' : 'info'">{{ scope.row.status }}</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center">
-        <template #default="scope">
-          <el-space :size="10">
-            <el-link type="primary" :underline="false" @click="handleEdit(scope.row)">
-              编辑
-            </el-link>
-            <el-link type="danger" :underline="false" @click="handleDelete([scope.row.id])">
-              删除
-            </el-link>
-          </el-space>
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <el-space :fill="true" wrap class="hidden-sm-and-up">
-      <el-card v-for="item in employeeList">
-        <el-row class="mb-1">
-          <el-col :span="7">员工序号：</el-col>
-          <el-col :span="17">{{ item.no }}</el-col>
-        </el-row>
-        <el-row class="mb-1">
-          <el-col :span="7">员工姓名：</el-col>
-          <el-col :span="17">{{ item.name }}</el-col>
-        </el-row>
-        <el-row class="mb-1">
-          <el-col :span="7">员工系数：</el-col>
-          <el-col :span="17"><el-tag type="success">{{ item.factor }}</el-tag></el-col>
-        </el-row>
-        <el-row class="mb-1">
-          <el-col :span="7">员工性别：</el-col>
-          <el-col :span="17"><el-tag :type="item.genderId === '0' ? 'danger' : 'primary'">{{ item.gender
-              }}</el-tag></el-col>
-        </el-row>
-        <el-row class="mb-1">
-          <el-col :span="7">员工职位：</el-col>
-          <el-col :span="17">{{ item.position }}</el-col>
-        </el-row>
-        <el-row class="mb-1">
-          <el-col :span="7">员工状态：</el-col>
-          <el-col :span="17">{{ item.status }}</el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="7">
-            操作：
-          </el-col>
-          <el-col :span="17">
-            <el-space :size="10">
-              <el-button type="primary" size="small" @click="handleEdit(item)">
-                编辑
-              </el-button>
-              <el-button type="danger" size="small" @click="handleDelete([item.id])">
-                删除
-              </el-button>
-            </el-space>
-          </el-col>
-        </el-row>
-      </el-card>
-    </el-space>
-
-    <ActionForm v-model="actionFormVisible" :title="actionFormTitle" :formData="actionFormData"
-      @confirm="handleConfirm">
-    </ActionForm>
-  </div>
-
-
+  <el-dialog v-model="actionFormVisible" :title="formTitle" :width="deviceType === 'mobile' ? '95%' : '420'"
+    destroy-on-close :append-to-body="true" :show-close="false" :close-on-click-modal="false">
+    <Form2 :rules="rules" :form="actionForm" @confirm="onConfirm" @cancel="onClose"></Form2>
+  </el-dialog>
 </template>
 
-<script setup lang="ts">
-import { addEmployee, deleteEmployeeByIds, getEmployeeList, updateEmployeeData } from "@/api/employee.api";
-import useStore from "@/store";
-import { Employee, EmployeeForm, EmployeeSearchForm } from "@/types/employee";
-import { generateId } from "@/utils";
-import { Delete, Edit, Plus, QuestionFilled, Refresh, Search } from "@element-plus/icons-vue";
-import ActionForm from './ActionForm.vue';
-import SearchForm from './SearchFrom.vue';
-const employeeStore = useStore().employee;
-const employeeList = ref<Employee[]>([]);
+<script setup lang='ts'>
+import { addEmployeeInfo, deleteEmployeeInfo, getEmployeeInfoList, getEmployeeSelection, updateEmployeeInfo } from "@/api/employee.api";
+import useDevice from '@/hooks/useDevice';
+import useUserStore from "@/store/user.store";
+import { SelectOption } from "@/types/common";
+import { EmployeeSearchForm, EmployeeTableData } from "@/types/employee";
+import { FormRules } from "element-plus/es/components";
 
-onMounted(() => {
-  refreshEmployeeList();
+const { deviceType } = useDevice();
+
+const actionFormVisible = ref(false);
+const searchFormVisible = ref(true);
+const mode = ref<"init" | "edit" | "add">("init");
+const formTitle = computed(() => {
+  return mode.value === 'add' ? '添加系数变更信息' : mode.value === 'edit' ? '修改系数变更信息' : ''
 })
 
-// /**
-//  * 导入EXCEL 员工
-//  * @param {any[]} data 员工信息列表
-//  */
-// const importExcelData = async (data: any[]) => {
-//   if (data.length > 0) {
-//     const list: Employee[] = [];
-//     data.forEach((item: any) => {
-//       const obj: any = {};
-//       Object.keys(item).forEach((label: string) => {
-//         const el = cols.find(el => el.label === label)
-//         if (el) {
-//           const key = el.field;
-//           const text = item[label];
-//           if (el.edit && el.edit.editType === 'select') {
-//             const { selectType } = el.edit
-//             const option = getOption('label', text, selectType)
-//             if (option) {
-//               obj[key] = option.value;
-//             }
-//           } else {
-//             obj[key] = text;
-//           }
-//         }
-//       })
-//       obj.id = v4();
-//       list.push(obj);
-//     });
-//     await submitEmployee(list);
-//     await refreshEmployeeList();
-//     ElMessage.success('员工导入成功！');
-//   }
-// };
+const selectOptionObj = reactive<{
+  gender: SelectOption[],
+  position: SelectOption[],
+  status: SelectOption[],
+}>({
+  gender: [],
+  position: [],
+  status: []
+})
 
-/**
- * 刷新员工列表
- */
-const refreshEmployeeList = async (message?: string) => {
-  const res = await getEmployeeList();
-  employeeStore.setEmployeeTempList(res.data);
-  employeeList.value = employeeStore.employeeTempList;
-  if (message) {
-    ElMessage.success(message)
+
+const form = computed(() => {
+  return [
+    {
+      field: 'name',
+      label: '姓名',
+      type: 'text',
+      value: '',
+    },
+    {
+      field: 'genderId',
+      label: '性别',
+      type: 'select',
+      value: '',
+      options: selectOptionObj.gender
+    },
+    {
+      field: 'positionId',
+      label: '职位',
+      type: 'select',
+      value: '',
+      options: selectOptionObj.position
+    },
+    {
+      field: 'statusId',
+      label: '状态',
+      type: 'select',
+      value: '',
+      options: selectOptionObj.status
+    },
+  ];
+})
+
+const actionForm = computed(() => {
+  return [
+    {
+      field: 'name',
+      label: '职工姓名',
+      type: 'text',
+      value: '',
+    },
+    {
+      field: 'factor',
+      label: '基础系数',
+      type: 'number',
+      value: '',
+      step: 0.01
+    },
+    {
+      field: 'genderId',
+      label: '职工性别',
+      type: 'select',
+      value: '',
+      options: selectOptionObj.gender
+    },
+    {
+      field: 'positionId',
+      label: '员工职位',
+      type: 'select',
+      value: '',
+      options: selectOptionObj.position
+    },
+    {
+      field: 'statusId',
+      label: '员工状态',
+      type: 'select',
+      value: '',
+      options: selectOptionObj.status
+    },
+  ]
+});
+
+const rules = reactive<FormRules<any>>({
+  name: [
+    { required: true, message: '请输入职工名称', trigger: 'blur' },
+  ],
+  weighted: [
+    { required: true, message: '请输入系数变化值', trigger: 'blur' },
+  ],
+  effectiveMonth: [
+    { required: true, message: '请输入系数变化生效起始月份', trigger: 'blur' },
+  ],
+  remark: [
+    { required: true, message: '请输入系数变化备注信息', trigger: 'blur' },
+  ],
+});
+
+const columns = [
+  {
+    field: "no",
+    label: "编号"
+  },
+  {
+    field: "name",
+    label: "姓名"
+  },
+  {
+    field: "factor",
+    label: "系数",
+  },
+  {
+    field: "gender",
+    label: "性别",
+    style: {
+      type: 'tag',
+      color: (val: string) => {
+        const index = selectOptionObj.gender.findIndex(e => e.label == val);
+        return ['danger', 'primary'][index > 0 && index < 2 ? index : 0];
+      }
+    },
+  },
+  {
+    field: "position",
+    label: "职位",
+    style: {
+      type: 'tag',
+      color: (val: string) => {
+        const index = selectOptionObj.position.findIndex(e => e.label == val);
+        return ['info', 'danger'][index > 0 && index < 2 ? index : 0];
+      }
+    },
+  },
+  {
+    field: "status",
+    label: "状态",
+    style: {
+      type: 'tag',
+      color: (val: string) => {
+        const index = selectOptionObj.status.findIndex(e => e.label == val);
+        return ['info', 'success'][index > 0 && index < 2 ? index : 0];
+      }
+    },
   }
-}
+]
 
-////
-const searchFormVisible = ref(true);
-const handleSearchFromAction = (employeeSearchForm: EmployeeSearchForm | null) => {
-  getEmployeeList(employeeSearchForm ?? undefined).then(({ data }) => {
-    employeeList.value = data;
-  });
-}
+const tableData = ref<EmployeeTableData[]>([])
 
-/// 
-const multipleSelection = ref<Employee[]>([]);
-
-const currentEmployeeId = ref('');
-const handleEdit = (employee: Employee) => {
+const editRowNo = ref<number>(-1);
+const onEdit = (row: any) => {
+  editRowNo.value = row.no;
   mode.value = 'edit';
-  actionFormData.no = employee.no;
-  actionFormData.name = employee.name;
-  actionFormData.factor = employee.factor;
-  actionFormData.genderId = employee.genderId;
-  actionFormData.positionId = employee.positionId;
-  actionFormData.statusId = employee.statusId;
-  currentEmployeeId.value = employee.id;
   actionFormVisible.value = true;
-};
+  Object.keys(row).forEach(key => {
+    const item = actionForm.value.find(e2 => e2.field === key);
+    if (item) {
+      if (key === 'factor') {
+        item.value = row.baseFactor;
+      } else {
+        item.value = row[key]
+      }
+    };
+  })
+}
 
-const handleDelete = (ids: string[]) => {
+const onDelete = (rows: any[]) => {
+  const nos = rows.map(e => e.no);
   ElMessageBox.confirm(
-    `是否确认删除${ids.length > 1 ? '勾选的' : '该'}员工？`,
+    `是否确认删除编号为"${nos.join(', ')}"的数据项？`,
     '系统提示',
     {
       confirmButtonText: '确定',
@@ -247,71 +204,69 @@ const handleDelete = (ids: string[]) => {
     }
   )
     .then(async () => {
-      const res = await deleteEmployeeByIds(ids);
+      const res = await deleteEmployeeInfo(nos);
       ElMessage.success(res.message);
-      const data = await getEmployeeList();
-      employeeList.value = data.data;
+      await getTableData();
     })
     .catch(() => {
       ElMessage.info('取消删除！')
     })
-};
-const toggleSearch = () => {
-  searchFormVisible.value = !searchFormVisible.value;
 }
 
-const refresh = async (showMessage: boolean = false) => {
-  const res = await getEmployeeList();
-  employeeStore.setEmployeeTempList(res.data);
-  employeeList.value = res.data;
-  showMessage && ElMessage.success('刷新成功')
-};
-
-/// 
-const handleSelectionChange = (val: Employee[]) => {
-  multipleSelection.value = val;
+const onRefresh = () => {
+  getTableData();
 }
 
-/// 
-const actionFormData = reactive<EmployeeForm>({
-  no: 0,
-  name: '',
-  factor: 0.45,
-  genderId: '0',
-  positionId: '0',
-  statusId: '1',
-});
-const actionFormVisible = ref(false);
-const handleAdd = () => {
+const onAdd = () => {
   mode.value = 'add';
-  actionFormData.no = 0;
-  actionFormData.name = '';
-  actionFormData.factor = 0;
-  actionFormData.genderId = '0';
-  actionFormData.positionId = '0';
-  actionFormData.statusId = '1';
   actionFormVisible.value = true;
-};
-const mode = ref<"init" | "edit" | "add">("init");
-const actionFormTitle = computed(() => {
-  return mode.value === 'add' ? '添加员工信息' : mode.value === 'edit' ? '修改员工信息' : ''
-})
-const handleConfirm = (
-  data: EmployeeForm
-) => {
+}
+
+const onConfirm = (data: any) => {
+
+  onClose();
+  const userId = useUserStore().user.userId;
   if (mode.value === 'add') {
-    addEmployee(Object.assign(data, { id: generateId() })).then((res: any) => {
+    const body = Object.assign(data, { createBy: userId });
+    addEmployeeInfo(body).then((res: any) => {
       ElMessage.success(res.message);
-      refresh();
+      getTableData();
     })
   } else if (mode.value === 'edit') {
-    updateEmployeeData(Object.assign(data, { id: currentEmployeeId.value })).then(res => {
-      currentEmployeeId.value = '';
+    updateEmployeeInfo(Object.assign(data, { no: editRowNo.value, updateBy: userId })).then(res => {
+      editRowNo.value = -1;
       ElMessage.success(res.message);
-      refresh();
+      getTableData();
     });
   } else {
     return;
   }
 }
+
+const onClose = () => {
+  actionFormVisible.value = false;
+}
+
+const onSearch = (data: any) => {
+  getTableData(data);
+}
+
+const onToggle = () => {
+  searchFormVisible.value = !searchFormVisible.value;
+}
+
+const getTableData = async (data?: EmployeeSearchForm) => {
+  const res = await getEmployeeInfoList(data);
+  tableData.value = res.data;
+}
+getTableData();
+
+const initSelection = async () => {
+  const res = await getEmployeeSelection();
+  selectOptionObj.gender = res.gender;
+  selectOptionObj.position = res.position;
+  selectOptionObj.status = res.status;
+}
+
+initSelection();
 </script>

@@ -16,6 +16,7 @@ import { getSelectOptionByType2 } from "@/api/common.api";
 import { addHolidayInfo, deleteHolidayByNos, getHolidayList2, updateHolidayInfo } from "@/api/holiday.api";
 import { SelectTypeEnum } from "@/constants";
 import useDevice from '@/hooks/useDevice';
+import useStore from "@/store";
 import useUserStore from "@/store/user.store";
 import { FormItem, SelectOption } from '@/types/common';
 import { HolidaySearchForm2, HolidayTableData } from "@/types/holiday";
@@ -232,6 +233,9 @@ const onToggle = () => {
 
 const getTableData = async (data?: HolidaySearchForm2) => {
   const res = await getHolidayList2(data);
+  if (!data) {
+    useStore().holiday2.setHolidayTempList(res.data);
+  }
   tableData.value = res.data;
 }
 getTableData();

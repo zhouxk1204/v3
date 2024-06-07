@@ -1,28 +1,49 @@
-import { Employee, EmployeeForm, EmployeeSearchForm } from "@/types/employee";
+import {
+  EmployeeAddInfo,
+  EmployeeSearchForm,
+  EmployeeTableData,
+  EmployeeUpdateInfo,
+} from "@/types/employee";
 import { ResponseData, http } from "./request";
 
-interface updateModel extends EmployeeForm {
-  id: string;
-}
-export const addEmployee = (employee: updateModel | updateModel[]) => {
-  return http.post("/employee/insert", employee);
+import { SelectTypeEnum } from "@/constants";
+import { getSelectOptionByType2 } from "./common.api";
+
+export const deleteEmployeeInfo = (nos: number[]) => {
+  return http.delete<ResponseData<Object>>("/employee/delete", {
+    params: { nos },
+  });
 };
 
-export const getEmployeeList = (employeeSearchForm?: EmployeeSearchForm) => {
-  return http.get<ResponseData<Employee[]>>("/employee/query", {
+export const addEmployeeInfo = (employeeAddInfo: EmployeeAddInfo) => {
+  return http.post("/employee/insert", employeeAddInfo);
+};
+
+export const updateEmployeeInfo = (employeeUpdateInfo: EmployeeUpdateInfo) => {
+  return http.post<ResponseData<Object>>(
+    "/employee/update",
+    employeeUpdateInfo
+  );
+};
+
+export const getEmployeeInfoList = (
+  employeeSearchForm?: EmployeeSearchForm
+) => {
+  return http.get<ResponseData<EmployeeTableData[]>>("/employee/query", {
     params: { form: employeeSearchForm ?? {} },
   });
 };
 
-export const deleteEmployeeByIds = (ids: string[]) => {
-  return http.delete<ResponseData<Object>>("/employee/delete", {
-    params: { ids },
-  });
-};
+export const getEmployeeSelection = async () => {
+  const [gender, position, status] = await Promise.all([
+    getSelectOptionByType2(SelectTypeEnum.GENDER),
+    getSelectOptionByType2(SelectTypeEnum.POSITION),
+    getSelectOptionByType2(SelectTypeEnum.STATUS),
+  ]);
 
-interface updateModel extends EmployeeForm {
-  id: string;
-}
-export const updateEmployeeData = (employee: updateModel) => {
-  return http.post<ResponseData<Object>>("/employee/update", employee);
+  return {
+    gender: gender.data,
+    position: position.data,
+    status: status.data,
+  };
 };
