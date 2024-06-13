@@ -1,9 +1,3 @@
-export interface Record {
-  date: string; // 日期
-  employeeName: string; // 姓名
-  record: string; // 工分记录
-}
-
 export interface Report {
   employeeName: string; // 姓名
   factor: number; // 系数

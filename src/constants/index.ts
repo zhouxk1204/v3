@@ -154,11 +154,12 @@ export const ROUTE = {
   HOLIDAY: "/holiday",
 };
 
-export enum SelectTypeEnum {
+export enum DictDetailTypeEnum {
   EMPLOYEE = "employee",
   GENDER = "1",
   POSITION = "2",
   STATUS = "3",
   HOLIDAY = "5",
   HOLIDAY_TYPE = "4",
+  REST_INFO = "10",
 }

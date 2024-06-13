@@ -1,7 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 
-import axiosRetry from "axios-retry";
 import { ElMessage } from "element-plus"; // 导入Element Plus的ElMessage组件，确保已安装Element Plus
+import axiosRetry from "axios-retry";
+import useStore from "@/store";
 
 // 定义泛型接口，用于响应数据
 export interface ResponseData<T> {
@@ -19,9 +20,6 @@ const instance: AxiosInstance = axios.create({
   timeout: 10 * 1000, // 10 seconds
 });
 
-// 创建 Loading 实例
-let loading: any;
-
 // 添加axios-retry的配置
 axiosRetry(instance, {
   retries: 0, // 设置重试次数
@@ -33,12 +31,7 @@ axiosRetry(instance, {
 instance.interceptors.request.use(
   (config) => {
     if (requestCount === 0) {
-      // 显示 Loading
-      loading = ElLoading.service({
-        lock: true,
-        text: "加载中...",
-        background: "rgba(0, 0, 0, 0.2)",
-      });
+      useStore().loading.setLoading(true);
     }
     requestCount += 1;
 
@@ -112,6 +105,6 @@ export const http = {
 
 const hideLoading = (count: number) => {
   if (count === 0) {
-    loading.close();
+    useStore().loading.setLoading(false);
   }
 };

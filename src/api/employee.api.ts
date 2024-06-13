@@ -6,7 +6,7 @@ import {
 } from "@/types/employee";
 import { ResponseData, http } from "./request";
 
-import { SelectTypeEnum } from "@/constants";
+import { DictDetailTypeEnum } from "@/constants";
 import { getSelectOptionByType2 } from "./common.api";
 
 export const deleteEmployeeInfo = (nos: number[]) => {
@@ -36,9 +36,9 @@ export const getEmployeeInfoList = (
 
 export const getEmployeeSelection = async () => {
   const [gender, position, status] = await Promise.all([
-    getSelectOptionByType2(SelectTypeEnum.GENDER),
-    getSelectOptionByType2(SelectTypeEnum.POSITION),
-    getSelectOptionByType2(SelectTypeEnum.STATUS),
+    getSelectOptionByType2(DictDetailTypeEnum.GENDER),
+    getSelectOptionByType2(DictDetailTypeEnum.POSITION),
+    getSelectOptionByType2(DictDetailTypeEnum.STATUS),
   ]);
 
   return {

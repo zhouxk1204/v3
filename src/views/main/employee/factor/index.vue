@@ -1,8 +1,8 @@
 <template>
   <Search v-if="searchFormVisible" :form="form" @search="onSearch"></Search>
 
-  <Table2 :back="true" :columns="columns" :tableData="tableData" @add="onAdd" @edit="onEdit" @delete="onDelete"
-    @refresh="onRefresh" @toggle="onToggle">
+  <Table2 :columns="columns" :tableData="tableData" @add="onAdd" @edit="onEdit" @delete="onDelete" @refresh="onRefresh"
+    @toggle="onToggle">
   </Table2>
 
   <el-dialog v-model="actionFormVisible" :title="formTitle" :width="deviceType === 'mobile' ? '95%' : '420'"
@@ -14,7 +14,7 @@
 <script setup lang='ts'>
 import { getSelectOptionByType2 } from "@/api/common.api";
 import { addFactorInfo, deleteFactorInfo, getFactorList, updateFactorInfo } from "@/api/factor.api";
-import { SelectTypeEnum } from "@/constants";
+import { DictDetailTypeEnum } from "@/constants";
 import useDevice from '@/hooks/useDevice';
 import useUserStore from "@/store/user.store";
 import { FormItem, SelectOption } from '@/types/common';
@@ -76,7 +76,7 @@ const initForm = (options: SelectOption[]) => {
 }
 
 const getEmployeeSelectOptions = async () => {
-  const res = await getSelectOptionByType2(SelectTypeEnum.EMPLOYEE);
+  const res = await getSelectOptionByType2(DictDetailTypeEnum.EMPLOYEE);
   initForm(res.data);
 }
 getEmployeeSelectOptions();

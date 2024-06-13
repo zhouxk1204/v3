@@ -1,4 +1,4 @@
-import { SelectTypeEnum } from "@/constants";
+import { DictDetailTypeEnum } from "@/constants";
 
 export interface FormItem {
   label: string;
@@ -15,10 +15,11 @@ export interface FormItem {
   placeholder?: string;
   options?: { label: string; value: string }[];
   step?: number;
-  disableDates?: string[];
+  disableDates?: string[][];
 }
 
-export type SelectType = (typeof SelectTypeEnum)[keyof typeof SelectTypeEnum];
+export type SelectType =
+  (typeof DictDetailTypeEnum)[keyof typeof DictDetailTypeEnum];
 
 export interface SelectOption {
   label: string;

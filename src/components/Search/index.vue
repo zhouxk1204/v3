@@ -1,5 +1,5 @@
 <template>
-  <el-form :inline="!isMobile" :model="formModel" :class="isMobile ? 'px-5 pt-5 border rounded-md border-ep' : ''"
+  <el-form :inline="!isMobile" :model="formModel" :class="isMobile ? 'px-5 pt-5 mb-5 border rounded-md border-ep' : ''"
     label-width="auto">
 
     <template v-for="item in form">

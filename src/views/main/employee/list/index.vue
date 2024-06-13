@@ -1,7 +1,7 @@
 <template>
   <Search v-if="searchFormVisible" :form="form" @search="onSearch"></Search>
 
-  <Table2 :back="true" :columns="columns" :tableData="tableData" @add="onAdd" @edit="onEdit" @delete="onDelete"
+  <Table2 :back="false" :columns="columns" :tableData="tableData" @add="onAdd" @edit="onEdit" @delete="onDelete"
     @refresh="onRefresh" @toggle="onToggle">
   </Table2>
 
@@ -15,7 +15,7 @@
 import { addEmployeeInfo, deleteEmployeeInfo, getEmployeeInfoList, getEmployeeSelection, updateEmployeeInfo } from "@/api/employee.api";
 import useDevice from '@/hooks/useDevice';
 import useUserStore from "@/store/user.store";
-import { SelectOption } from "@/types/common";
+import { FormItem, SelectOption } from "@/types/common";
 import { EmployeeSearchForm, EmployeeTableData } from "@/types/employee";
 import { FormRules } from "element-plus/es/components";
 
@@ -39,7 +39,7 @@ const selectOptionObj = reactive<{
 })
 
 
-const form = computed(() => {
+const form = computed<FormItem[]>(() => {
   return [
     {
       field: 'name',
@@ -71,7 +71,7 @@ const form = computed(() => {
   ];
 })
 
-const actionForm = computed(() => {
+const actionForm = computed<FormItem[]>(() => {
   return [
     {
       field: 'name',

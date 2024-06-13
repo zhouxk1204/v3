@@ -14,16 +14,16 @@
 <script setup lang='ts'>
 import { getSelectOptionByType2 } from "@/api/common.api";
 import { addHolidayInfo, deleteHolidayByNos, getHolidayList2, updateHolidayInfo } from "@/api/holiday.api";
-import { SelectTypeEnum } from "@/constants";
+import { DictDetailTypeEnum } from "@/constants";
 import useDevice from '@/hooks/useDevice';
 import useStore from "@/store";
 import useUserStore from "@/store/user.store";
 import { FormItem, SelectOption } from '@/types/common';
 import { HolidaySearchForm2, HolidayTableData } from "@/types/holiday";
+import { TableColumn, TagType } from '@/types/table';
 import { FormRules } from "element-plus/es/components";
 
 const { deviceType } = useDevice();
-
 const actionFormVisible = ref(false);
 const searchFormVisible = ref(true);
 const mode = ref<"init" | "edit" | "add">("init");
@@ -59,6 +59,51 @@ const currentForm = ref<any>({
   ratio1: 0,
   ratio2: 0,
 });
+
+const columns = ref<TableColumn[]>([
+  {
+    field: "no",
+    label: "编号",
+    width: 80,
+  },
+  {
+    field: "date",
+    label: "节假日日期",
+    width: 200
+  },
+  {
+    field: "name",
+    label: "节假日名称"
+  }, {
+    field: "typeName",
+    label: "放假 / 补班",
+    style: {
+      type: 'tag',
+      color: (val: string) => {
+        const index = holidayTypeOptions.value.findIndex(e => e.label == val);
+        let color = TagType.success;
+        switch (index) {
+          case 0:
+            color = TagType.success;
+            break;
+          case 1:
+            color = TagType.danger;
+            break;
+          default:
+            break;
+        }
+        return color;
+      }
+    },
+  }, {
+    field: "ratio1",
+    label: "补班倍率"
+  },
+  {
+    field: "ratio2",
+    label: "加班倍率"
+  },
+]);
 
 const actionForm = computed<FormItem[]>(() => {
   return [
@@ -101,7 +146,7 @@ const actionForm = computed<FormItem[]>(() => {
 })
 
 const getHolidaySelectOptions = async () => {
-  const res = await getSelectOptionByType2(SelectTypeEnum.HOLIDAY);
+  const res = await getSelectOptionByType2(DictDetailTypeEnum.HOLIDAY);
   holidayOptions.value = res.data;
   await initHolidayType();
 }
@@ -119,38 +164,7 @@ const rules = reactive<FormRules<any>>({
   ],
 });
 
-const columns = [
-  {
-    field: "no",
-    label: "编号"
-  },
-  {
-    field: "date",
-    label: "节假日日期",
-    width: 200
-  },
-  {
-    field: "name",
-    label: "节假日名称"
-  }, {
-    field: "typeName",
-    label: "放假 / 补班",
-    style: {
-      type: 'tag',
-      color: (val: string) => {
-        const index = holidayTypeOptions.value.findIndex(e => e.label == val);
-        return ['success', 'danger'][index > 0 && index < 2 ? index : 0];
-      }
-    },
-  }, {
-    field: "ratio1",
-    label: "补班倍率"
-  },
-  {
-    field: "ratio2",
-    label: "加班倍率"
-  },
-]
+
 
 const tableData = ref<HolidayTableData[]>([])
 
@@ -242,7 +256,7 @@ getTableData();
 
 const initHolidayType = async () => {
   if (holidayTypeOptions.value.length === 0) {
-    const res = await getSelectOptionByType2(SelectTypeEnum.HOLIDAY_TYPE);
+    const res = await getSelectOptionByType2(DictDetailTypeEnum.HOLIDAY_TYPE);
     holidayTypeOptions.value = res.data;
   }
 }

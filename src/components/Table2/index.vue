@@ -54,16 +54,12 @@
 </template>
 
 <script setup lang='ts'>
+import { TableColumn } from '@/types/table';
 import { Close, Delete, Edit, Plus, Refresh, Search } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 
 defineProps<{
-  columns: {
-    field: string; label: string; style?: {
-      type: 'tag',
-      color: Function
-    }, width?: number
-  }[],
+  columns: TableColumn[],
   tableData: any[]
   back?: boolean
 }>();

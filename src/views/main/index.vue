@@ -52,7 +52,8 @@
           </el-menu>
         </el-aside>
         <el-container>
-          <el-main>
+          <el-main v-loading="isLoading" element-loading-text="正在加载..."
+            :element-loading-background="isDark ? 'rgb(18, 18, 18)' : 'rgb(255, 255, 255)'">
             <router-view></router-view>
           </el-main>
           <el-footer class="border-t border-ep">
@@ -92,12 +93,16 @@ import { storeToRefs } from "pinia";
 import { RouteRecordRaw, useRouter } from "vue-router";
 import router from "../../router";
 
+const { isLoading } = storeToRefs(useStore().loading);
+
 const { user } = storeToRefs(useStore().user);
 const avatar = computed(() => {
   return user.value.avatar;
 })
 
 const currentRoute = useRouter().currentRoute;
+
+
 
 const parentRoute = "/main";
 // const menuRoutes = (router.options.routes.find(e => e.path === parentRoute)?.children ?? [])

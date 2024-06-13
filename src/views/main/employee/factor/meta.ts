@@ -1,8 +1,8 @@
-import { User } from "@element-plus/icons-vue";
+import { Coin } from "@element-plus/icons-vue";
 
 export default {
-  title: "系数管理",
+  title: "职工系数变更",
   sort: 2,
-  visible: false,
-  icon: User,
+  visible: true,
+  icon: Coin,
 };

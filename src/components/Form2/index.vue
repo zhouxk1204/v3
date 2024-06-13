@@ -20,8 +20,7 @@
         <!-- 日期范围 -->
         <el-date-picker v-if="item.type === 'date-range'" v-model="formModel[item.field]" clearable type="daterange"
           unlink-panels range-separator="~" start-placeholder="开始日期" end-placeholder="结束日期" format="YYYY/MM/DD"
-          value-format="YYYY/MM/DD"
-          :disabled-date="(date: Date) => isDisabledDate(date, item.disableDates ?? [])" />
+          value-format="YYYY/MM/DD" :disabled-date="(date: Date) => isDisabledDate(date, item.disableDates ?? [])" />
       </el-form-item>
     </template>
 

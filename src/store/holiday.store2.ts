@@ -1,6 +1,6 @@
-import { getHolidayList2 } from "@/api/holiday.api";
 import { HolidayTableData } from "@/types/holiday";
 import { defineStore } from "pinia";
+import { getHolidayList2 } from "@/api/holiday.api";
 import { ref } from "vue";
 
 const useHolidayStore2 = defineStore("holiday2", () => {
@@ -10,7 +10,7 @@ const useHolidayStore2 = defineStore("holiday2", () => {
     holidayTempList.value = list;
   };
 
-  const getHolidayTempList = async () => {
+  const getHolidayTempList = async (): Promise<HolidayTableData[]> => {
     if (holidayTempList.value.length === 0) {
       const res = await getHolidayList2();
       setHolidayTempList(res.data);
