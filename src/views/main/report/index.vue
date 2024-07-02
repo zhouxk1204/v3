@@ -156,9 +156,9 @@ const errorList = ref<string[]>([]);
 const reportDate = ref<string>("");
 
 const originData = ref<Record[]>([]);
-const initReport = (list: Record[][], showSuccess: boolean = true) => {
+const initReport = async (list: Record[][], showSuccess: boolean = true) => {
   if (list.length > 0) {
-    const { reports, errors, currentDate } = useReport(list);
+    const { reports, errors, currentDate } = await useReport(list);
     reportList.value = reports;
     errorList.value = errors;
     reportDate.value = currentDate;

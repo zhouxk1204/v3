@@ -4,17 +4,19 @@ import {
   DictDetailTypeEnum,
   HOLIDAY_TYPE,
   JOB_INFO,
-  POST_INFO,
   REST_INFO,
   WORK_TYPE_INFO,
 } from "@/constants";
 
 import Decimal from "decimal.js";
+import { HolidayTableData } from "@/types/holiday";
 import { Report } from "@/types/report";
 import { SelectOption } from "@/types/common";
 import dayjs from "dayjs";
-import { isInRange } from "@/utils/date";
+import isBetween from "dayjs/plugin/isBetween";
 import useStore from "@/store";
+
+dayjs.extend(isBetween);
 
 interface Point {
   typeId: string; // 类别id 上班，加班，休假
@@ -24,6 +26,16 @@ interface Point {
   point: number; // 岗位工分（小时）
   pointRatio?: number; // 岗位工分倍率
   ratioPoint?: number; // 岗位工分 * 岗位工分倍率
+}
+
+interface AttendanceRecord {
+  date: string; // 日期
+  activityType: string; // 出勤、休假
+  dayType: string; // 工作日类型：工作日、周末加班、节假日加班、节假日补班等
+  workType?: string; // 上班类型：正常上班、加班等
+  postType?: string; // 岗位类型：胃镜、其他等
+  durationHours: number; // 时长（小时）
+  workPointsRatio?: number; // 岗位工分倍率
 }
 
 interface RatioInfo {
@@ -47,152 +59,175 @@ export interface GroupedDailyRecords {
 
 export async function useReport2(data: GroupedDailyRecords) {
   const reports: Report[] = [];
-  // 保存报表所在的日期
-  let currentDate = "";
+  // 保存报表所在的月份
+  let currentMonth = -1;
   // 异常记录
   const errors: string[] = [];
-
   // 职工列表
   const employeeList = await useStore().employee2.getEmployeeTempList();
-
   for (let employeeName of Object.keys(data)) {
     // 职工信息
     const employee = employeeList.find((el) => el.name === employeeName);
     if (!employee) {
-      return;
+      console.warn(`未知的员工：${employeeName}，请检查！！！`);
+      continue;
     }
     // 工分填报信息列表
     const dailyRecordList = data[employeeName];
     if (dailyRecordList.length === 0) {
-      return;
+      console.info(`员工：${employeeName} 本月工分信息为空！！！`);
+      continue;
     }
-
     // 请加类型字典集
-    const restInfoList =
+    const restInfoDictList =
       await useStore().dictDetail.getDictTempListBySelectType(
         DictDetailTypeEnum.REST_INFO
       );
-      
-    // 
+
+    const postInfoDictList =
+      await useStore().dictDetail.getDictTempListBySelectType(
+        DictDetailTypeEnum.POST_INFO
+      );
+
+    if (currentMonth === -1) {
+      currentMonth = dayjs(dailyRecordList[0].date).month();
+    }
+    const holidayInfoList = await useStore().holiday2.getHolidayTempList();
+    const currentMonthHolidayList = holidayInfoList.filter(
+      (el) =>
+        dayjs(el.dateStart).month() === currentMonth ||
+        dayjs(el.dateEnd).month() === currentMonth
+    );
+
     for (let item of dailyRecordList) {
       const { record, date } = item;
-      
-      parseDailyRecord(record, restInfoList);
+
+      const postRatioObject = getRatioList(
+        date,
+        postInfoDictList,
+        currentMonthHolidayList
+      );
+
+      parseDailyRecord({
+        record,
+        restInfoDictList,
+        postInfoDictList,
+      });
     }
   }
 
-  for (let item of data) {
-    const employee = employeeList.find(
-      (el) => el.name === item[0].employeeName
-    );
+  // for (let item of data) {
+  //   const employee = employeeList.find(
+  //     (el) => el.name === item[0].employeeName
+  //   );
 
-    let workDayCount = 0;
-    let workCount = 0;
+  //   let workDayCount = 0;
+  //   let workCount = 0;
 
-    if (!employee) {
-      continue;
-    }
+  //   if (!employee) {
+  //     continue;
+  //   }
 
-    let pointList: Point[] = [];
-    let hasError: boolean = false;
-    for (let e of item) {
-      const { record, date } = e;
-      // 1.纯文字的记录：各种休
-      if (!/\d/.test(record)) {
-        // 获取休日信息
-        const p = getRestInfoByText(record);
-        if (!p) {
-          hasError = true;
-        } else {
-          pointList.push(p);
-        }
-      } else {
-        // 当日是否为工作日或节假日补班
-        const ratioObj = getRatio(date, employee.id);
+  //   let pointList: Point[] = [];
+  //   let hasError: boolean = false;
+  //   for (let e of item) {
+  //     const { record, date } = e;
+  //     // 1.纯文字的记录：各种休
+  //     if (!/\d/.test(record)) {
+  //       // 获取休日信息
+  //       const p = getRestInfoByText(record);
+  //       if (!p) {
+  //         hasError = true;
+  //       } else {
+  //         pointList.push(p);
+  //       }
+  //     } else {
+  //       // 当日是否为工作日或节假日补班
+  //       const ratioObj = getRatio(date, employee.id);
 
-        const typeid = Object.values(ratioObj)[0].map((e) => e.type.id)[0];
+  //       const typeid = Object.values(ratioObj)[0].map((e) => e.type.id)[0];
 
-        if (
-          [WORK_TYPE_INFO.MAKEUP.id, WORK_TYPE_INFO.WEEKDAY.id].includes(typeid)
-        ) {
-          workDayCount += 1;
-        }
-        workCount += 1;
+  //       if (
+  //         [WORK_TYPE_INFO.MAKEUP.id, WORK_TYPE_INFO.WEEKDAY.id].includes(typeid)
+  //       ) {
+  //         workDayCount += 1;
+  //       }
+  //       workCount += 1;
 
-        const iPoints = parseRecord(record, ratioObj);
-        if (iPoints.length === 0) {
-          hasError = true;
-        } else {
-          pointList.push(...iPoints);
-        }
-      }
+  //       const iPoints = parseRecord(record, ratioObj);
+  //       if (iPoints.length === 0) {
+  //         hasError = true;
+  //       } else {
+  //         pointList.push(...iPoints);
+  //       }
+  //     }
 
-      if (hasError) {
-        errors.push(
-          `${employee.name}：在${date} 填写的工分记录：${record} 填写错误，无法解析，请核对！！！`
-        );
-        hasError = false;
-      }
-    }
+  //     if (hasError) {
+  //       errors.push(
+  //         `${employee.name}：在${date} 填写的工分记录：${record} 填写错误，无法解析，请核对！！！`
+  //       );
+  //       hasError = false;
+  //     }
+  //   }
 
-    let annual = new Decimal(0);
-    let leave = 0;
-    let totalWorkOther = new Decimal(0);
-    let totalWorkGastroscopy = new Decimal(0);
-    let totalOvertimeOther = new Decimal(0);
-    let totalOvertimeGastroscopy = new Decimal(0);
-    pointList.forEach((el) => {
-      const { typeId, ratioPoint = 0 } = el;
-      if (typeId === REST_INFO.ANNUAL_LEAVE.id) {
-        annual = annual.plus(el.point);
-      } else if (typeId === REST_INFO.LEAVE.id) {
-        leave += 1;
-      } else {
-        // 工作日上班 & 工作日（补）上班
-        if (
-          [WORK_TYPE_INFO.WEEKDAY.id, WORK_TYPE_INFO.MAKEUP.id].includes(typeId)
-        ) {
-          // 其他岗位
-          if (el.jobId === JOB_INFO.OTHER.id) {
-            totalWorkOther = totalWorkOther.plus(ratioPoint);
-          } else if (el.jobId === JOB_INFO.GASTROSCOPY.id) {
-            totalWorkGastroscopy = totalWorkGastroscopy.plus(ratioPoint);
-          }
-        } else {
-          // 加班
-          // 其他岗位
-          if (el.jobId === JOB_INFO.OTHER.id) {
-            totalOvertimeOther = totalOvertimeOther.plus(ratioPoint);
-          } else if (el.jobId === JOB_INFO.GASTROSCOPY.id) {
-            totalOvertimeGastroscopy =
-              totalOvertimeGastroscopy.plus(ratioPoint);
-          }
-        }
-      }
-    });
+  //   let annual = new Decimal(0);
+  //   let leave = 0;
+  //   let totalWorkOther = new Decimal(0);
+  //   let totalWorkGastroscopy = new Decimal(0);
+  //   let totalOvertimeOther = new Decimal(0);
+  //   let totalOvertimeGastroscopy = new Decimal(0);
+  //   pointList.forEach((el) => {
+  //     const { typeId, ratioPoint = 0 } = el;
+  //     if (typeId === REST_INFO.ANNUAL_LEAVE.id) {
+  //       annual = annual.plus(el.point);
+  //     } else if (typeId === REST_INFO.LEAVE.id) {
+  //       leave += 1;
+  //     } else {
+  //       // 工作日上班 & 工作日（补）上班
+  //       if (
+  //         [WORK_TYPE_INFO.WEEKDAY.id, WORK_TYPE_INFO.MAKEUP.id].includes(typeId)
+  //       ) {
+  //         // 其他岗位
+  //         if (el.jobId === JOB_INFO.OTHER.id) {
+  //           totalWorkOther = totalWorkOther.plus(ratioPoint);
+  //         } else if (el.jobId === JOB_INFO.GASTROSCOPY.id) {
+  //           totalWorkGastroscopy = totalWorkGastroscopy.plus(ratioPoint);
+  //         }
+  //       } else {
+  //         // 加班
+  //         // 其他岗位
+  //         if (el.jobId === JOB_INFO.OTHER.id) {
+  //           totalOvertimeOther = totalOvertimeOther.plus(ratioPoint);
+  //         } else if (el.jobId === JOB_INFO.GASTROSCOPY.id) {
+  //           totalOvertimeGastroscopy =
+  //             totalOvertimeGastroscopy.plus(ratioPoint);
+  //         }
+  //       }
+  //     }
+  //   });
 
-    const totalOther = totalWorkOther.plus(totalOvertimeOther);
-    const totalGastroscopy = totalWorkGastroscopy.plus(
-      totalOvertimeGastroscopy
-    );
-    const iReport: Report = {
-      employeeName: employee.name,
-      factor: new Decimal(employee.factor).plus(employee.weighted).toNumber(),
-      annual: annual.toNumber(),
-      leave,
-      workDayCount,
-      workCount,
-      totalWorkOther: totalWorkOther.toNumber(),
-      totalWorkGastroscopy: totalWorkGastroscopy.toNumber(),
-      totalOvertimeOther: totalOvertimeOther.toNumber(),
-      totalOvertimeGastroscopy: totalOvertimeGastroscopy.toNumber(),
-      totalOther: totalOther.toNumber(),
-      totalGastroscopy: totalGastroscopy.toNumber(),
-      total: totalOther.plus(totalGastroscopy.times(1.2)).toNumber(),
-      serve: employee.positionId === POST_INFO.HEAD_NURSE.id ? 2 : 0,
-    };
-    reports.push(iReport);
-  }
+  //   const totalOther = totalWorkOther.plus(totalOvertimeOther);
+  //   const totalGastroscopy = totalWorkGastroscopy.plus(
+  //     totalOvertimeGastroscopy
+  //   );
+  //   const iReport: Report = {
+  //     employeeName: employee.name,
+  //     factor: new Decimal(employee.factor).plus(employee.weighted).toNumber(),
+  //     annual: annual.toNumber(),
+  //     leave,
+  //     workDayCount,
+  //     workCount,
+  //     totalWorkOther: totalWorkOther.toNumber(),
+  //     totalWorkGastroscopy: totalWorkGastroscopy.toNumber(),
+  //     totalOvertimeOther: totalOvertimeOther.toNumber(),
+  //     totalOvertimeGastroscopy: totalOvertimeGastroscopy.toNumber(),
+  //     totalOther: totalOther.toNumber(),
+  //     totalGastroscopy: totalGastroscopy.toNumber(),
+  //     total: totalOther.plus(totalGastroscopy.times(1.2)).toNumber(),
+  //     serve: employee.positionId === POST_INFO.HEAD_NURSE.id ? 2 : 0,
+  //   };
+  //   reports.push(iReport);
+  // }
 
   return {
     reports,
@@ -201,19 +236,21 @@ export async function useReport2(data: GroupedDailyRecords) {
   };
 }
 
-const parseDailyRecord = (
-  dailyRecord: string,
-  restInfoList: SelectOption[]
-) => {
-  // 1.纯文字的记录
-  if (!/\d/.test(dailyRecord)) {
-    for (let item of restInfoList) {
+const parseDailyRecord = (data: {
+  record: string;
+  restInfoDictList: SelectOption[];
+  postInfoDictList: SelectOption[];
+}) => {
+  const { record, restInfoDictList, postInfoDictList } = data;
+  // 纯文字
+  if (!/\d/.test(record)) {
+    for (let item of restInfoDictList) {
       const { label, value } = item;
       const labels = label.split(",");
-      if (labels.includes(dailyRecord)) {
+      if (labels.includes(record)) {
         return {
           typeId: value,
-          typeName: dailyRecord,
+          typeName: record,
           point: 1,
         };
       }
@@ -221,11 +258,70 @@ const parseDailyRecord = (
     return null;
   } else {
     // 分割
-    const parts = dailyRecord.split("/");
-    if(parts.length > 2){
-      return null;
+    const partList = record.split("/");
+    if (partList.length > 2) {
+      return null; // TODO
+    }
+    for (let part of partList) {
+      const postInfo = getPostByPart(part, postInfoDictList);
+      if (!postInfo) {
+      }
+    }
+
+    // for (let part of parts) {
+    //   // 确定岗位
+    //   for(let post of postInfoDictList){
+    //     if()
+    //   }
+    //   if (isGastroscopyPostPart(part)) {
+    //     job = JOB_INFO.GASTROSCOPY;
+    //   } else if (isOtherPostPart(part)) {
+    //     job = JOB_INFO.OTHER;
+    //   } else if (isAnnualPart(part)) {
+    //     const { id, label } = REST_INFO.ANNUAL_LEAVE;
+    //     return [
+    //       {
+    //         typeId: id,
+    //         typeName: label[0],
+    //         point: 0.5,
+    //       },
+    //     ];
+    //   } else {
+    //     return [];
+    //   }
+
+    //   // const iPoints = parsePart(part, ratioObj);
+    //   // if (iPoints.length > 0) {
+    //   //   res.push(iPoints);
+    //   // } else {
+    //   //   return [];
+    //   // }
+    // }
+  }
+};
+
+const getPostByPart = (
+  part: string,
+  postInfoDictList: SelectOption[]
+): {
+  postId: string;
+  postName: string;
+} | null => {
+  for (let post of postInfoDictList) {
+    const { label, value } = post;
+    const labelList = label.split(",");
+    const regexStr = `^(${labelList.join(
+      "|"
+    )})\\d+(\\.\\d+)?(\\+\\d+(\\.\\d+)?)?$`;
+    const regex = new RegExp(regexStr);
+    if (regex.test(part)) {
+      return {
+        postId: value,
+        postName: labelList[0],
+      };
     }
   }
+  return null;
 };
 
 /**
@@ -293,9 +389,10 @@ const isAnnualPart = (target: string) => {
  * @param {string} employeeId 员工id
  * @returns {{[k: string]: RatioInfo[]}}
  */
-const getRatio = (
+const getRatioList = (
   date: string,
-  employeeId: string
+  postList: SelectOption[],
+  currentMonthHolidayList: HolidayTableData[]
 ): {
   [k: string]: { ratio: number; type: { id: string; label: string } }[];
 } => {
@@ -306,11 +403,12 @@ const getRatio = (
   const jobIds = Object.values(JOB_INFO).map((e) => e.id);
 
   // 节假日列表
-  const holidayList = useStore().holiday.holidayTempList;
-  const holiday = holidayList.find((e) => isInRange(e.date, date));
+  const holiday = currentMonthHolidayList.find((el) =>
+    dayjs(date).isBetween(el.dateStart, el.dateEnd, null, "[]")
+  );
   if (holiday) {
-    const workRatio = +holiday.ratio1;
-    const extraRatio = +holiday.ratio2;
+    const workRatio = holiday.ratio1;
+    const extraRatio = holiday.ratio2;
     // 判断是节假日补班还是节假日加班
     if (holiday.tId === HOLIDAY_TYPE.MAKEUP) {
       jobIds.forEach((jobId) => {
@@ -371,24 +469,24 @@ const getRatio = (
     }
   }
 
-  // 岗位特殊设定
-  const ratioSetting = useStore().dayRatioSetting.list;
+  // // 岗位特殊设定
+  // const ratioSetting = useStore().dayRatioSetting.list;
 
-  Object.keys(res).forEach((jobId) => {
-    const setting = ratioSetting.find(
-      (el) =>
-        el.date === date && // 日期
-        el.jobId === jobId && // 岗位
-        el.employeeId === employeeId // 姓名
-    );
-    if (setting) {
-      if (setting.workTypeId === "0") {
-        res[jobId][0].ratio = +setting.ratio;
-      } else {
-        res[jobId][1].ratio = +setting.ratio;
-      }
-    }
-  });
+  // Object.keys(res).forEach((jobId) => {
+  //   const setting = ratioSetting.find(
+  //     (el) =>
+  //       el.date === date && // 日期
+  //       el.jobId === jobId && // 岗位
+  //       el.employeeId === employeeId // 姓名
+  //   );
+  //   if (setting) {
+  //     if (setting.workTypeId === "0") {
+  //       res[jobId][0].ratio = +setting.ratio;
+  //     } else {
+  //       res[jobId][1].ratio = +setting.ratio;
+  //     }
+  //   }
+  // });
 
   return res;
 };

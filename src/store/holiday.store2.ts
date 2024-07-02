@@ -1,6 +1,6 @@
+import { getHolidayList2 } from "@/api/holiday.api";
 import { HolidayTableData } from "@/types/holiday";
 import { defineStore } from "pinia";
-import { getHolidayList2 } from "@/api/holiday.api";
 import { ref } from "vue";
 
 const useHolidayStore2 = defineStore("holiday2", () => {

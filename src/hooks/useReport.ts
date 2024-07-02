@@ -9,10 +9,10 @@ import {
 } from "@/constants";
 import { Record, Report } from "@/types/report";
 
-import Decimal from "decimal.js";
-import dayjs from "dayjs";
-import { isInRange } from "@/utils/date";
 import useStore from "@/store";
+import { isInRange } from "@/utils/date";
+import dayjs from "dayjs";
+import Decimal from "decimal.js";
 
 interface Point {
   typeId: string; // 类别id 上班，加班，休假
@@ -32,15 +32,18 @@ interface RatioInfo {
   };
 }
 
-export function useReport(data: Record[][]) {
+export async function useReport(data: Record[][]) {
   const reports: Report[] = [];
   // 保存报表所在的日期
   let currentDate = data[0][0].date;
   // 异常记录
   const errors: string[] = [];
 
+  // 职工列表
+  const employeeList = await useStore().employee2.getEmployeeTempList();
+
   for (let item of data) {
-    const employee = useStore().employee.employeeTempList.find(
+    const employee = employeeList.find(
       (el) => el.name === item[0].employeeName
     );
 
@@ -63,7 +66,7 @@ export function useReport(data: Record[][]) {
           }
         } else {
           // 当日是否为工作日或节假日补班
-          const ratioObj = getRatio(date, employee.id);
+          const ratioObj = getRatio(date);
 
           const typeid = Object.values(ratioObj)[0].map((e) => e.type.id)[0];
 
@@ -227,8 +230,7 @@ const isAnnualPart = (target: string) => {
  * @returns {{[k: string]: RatioInfo[]}}
  */
 const getRatio = (
-  date: string,
-  employeeId: string
+  date: string
 ): {
   [k: string]: { ratio: number; type: { id: string; label: string } }[];
 } => {
@@ -305,23 +307,23 @@ const getRatio = (
   }
 
   // 岗位特殊设定
-  const ratioSetting = useStore().dayRatioSetting.list;
+  // const ratioSetting = useStore().dayRatioSetting.list;
 
-  Object.keys(res).forEach((jobId) => {
-    const setting = ratioSetting.find(
-      (el) =>
-        el.date === date && // 日期
-        el.jobId === jobId && // 岗位
-        el.employeeId === employeeId // 姓名
-    );
-    if (setting) {
-      if (setting.workTypeId === "0") {
-        res[jobId][0].ratio = +setting.ratio;
-      } else {
-        res[jobId][1].ratio = +setting.ratio;
-      }
-    }
-  });
+  // Object.keys(res).forEach((jobId) => {
+  //   const setting = ratioSetting.find(
+  //     (el) =>
+  //       el.date === date && // 日期
+  //       el.jobId === jobId && // 岗位
+  //       el.employeeId === employeeId // 姓名
+  //   );
+  //   if (setting) {
+  //     if (setting.workTypeId === "0") {
+  //       res[jobId][0].ratio = +setting.ratio;
+  //     } else {
+  //       res[jobId][1].ratio = +setting.ratio;
+  //     }
+  //   }
+  // });
 
   return res;
 };

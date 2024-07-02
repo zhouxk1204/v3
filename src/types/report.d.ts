@@ -14,3 +14,9 @@ export interface Report {
   workCount: number; // 工作天数（包括工作日，周末加班，节假日加班）
   serve: number; // 科务天数
 }
+
+export interface Record {
+  date: string; // 日期
+  employeeName: string; // 姓名
+  record: string; // 工分记录
+}
