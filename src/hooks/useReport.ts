@@ -9,10 +9,12 @@ import {
 } from "@/constants";
 import { Record, Report } from "@/types/report";
 
-import useStore from "@/store";
-import { isInRange } from "@/utils/date";
-import dayjs from "dayjs";
 import Decimal from "decimal.js";
+import dayjs from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
+import useStore from "@/store";
+
+dayjs.extend(isBetween);
 
 interface Point {
   typeId: string; // 类别id 上班，加班，休假
@@ -66,7 +68,7 @@ export async function useReport(data: Record[][]) {
           }
         } else {
           // 当日是否为工作日或节假日补班
-          const ratioObj = getRatio(date);
+          const ratioObj = await getRatio(date);
 
           const typeid = Object.values(ratioObj)[0].map((e) => e.type.id)[0];
 
@@ -229,103 +231,78 @@ const isAnnualPart = (target: string) => {
  * @param {string} employeeId 员工id
  * @returns {{[k: string]: RatioInfo[]}}
  */
-const getRatio = (
-  date: string
-): {
-  [k: string]: { ratio: number; type: { id: string; label: string } }[];
-} => {
+const getRatio = async (date: string) => {
   let res: {
     [k: string]: RatioInfo[];
   } = {};
 
-  const jobIds = Object.values(JOB_INFO).map((e) => e.id);
-
   // 节假日列表
-  const holidayList = useStore().holiday.holidayTempList;
-  const holiday = holidayList.find((e) => isInRange(e.date, date));
+  const holidayList = await useStore().holiday2.getHolidayTempList();
+  const holiday = holidayList.find((el) =>
+    dayjs(date).isBetween(el.dateStart, el.dateEnd, null, "[]")
+  );
+
   if (holiday) {
     const workRatio = +holiday.ratio1;
     const extraRatio = +holiday.ratio2;
-    // 判断是节假日补班还是节假日加班
-    if (holiday.tId === HOLIDAY_TYPE.MAKEUP) {
-      jobIds.forEach((jobId) => {
-        res[jobId] = [
-          {
-            ratio: workRatio,
-            type: WORK_TYPE_INFO.MAKEUP,
-          },
-          {
-            ratio: extraRatio,
-            type: WORK_TYPE_INFO.MAKEUP_OVERTIME,
-          },
-        ];
-      });
-    } else {
-      jobIds.forEach((jobId) => {
-        res[jobId] = [
-          {
-            ratio: extraRatio,
-            type: WORK_TYPE_INFO.HOLIDAY,
-          },
-          {
-            ratio: extraRatio,
-            type: WORK_TYPE_INFO.HOLIDAY,
-          },
-        ];
-      });
-    }
+    const workType =
+      holiday.type === HOLIDAY_TYPE.MAKEUP
+        ? WORK_TYPE_INFO.MAKEUP
+        : WORK_TYPE_INFO.HOLIDAY;
+    const overtimeType =
+      holiday.type === HOLIDAY_TYPE.MAKEUP
+        ? WORK_TYPE_INFO.MAKEUP_OVERTIME
+        : WORK_TYPE_INFO.HOLIDAY;
+
+    res = getWorkDetails(workRatio, extraRatio, workType, overtimeType);
   } else {
     const dayOfWeek = dayjs(date).day();
-    // 是否是周末加班的情况
     if ([0, 6].includes(dayOfWeek)) {
-      jobIds.forEach((jobId) => {
-        res[jobId] = [
-          {
-            ratio: DEFAULT_OVERTIME_RATIO,
-            type: WORK_TYPE_INFO.WEEKEND_OVERTIME,
-          },
-          {
-            ratio: DEFAULT_OVERTIME_RATIO,
-            type: WORK_TYPE_INFO.WEEKEND_OVERTIME,
-          },
-        ];
-      });
+      res = getWorkDetails(
+        DEFAULT_OVERTIME_RATIO,
+        DEFAULT_OVERTIME_RATIO,
+        WORK_TYPE_INFO.WEEKEND_OVERTIME,
+        WORK_TYPE_INFO.WEEKEND_OVERTIME
+      );
     } else {
-      jobIds.forEach((jobId) => {
-        res[jobId] = [
-          {
-            ratio: DEFAULT_WORK_RATIO,
-            type: WORK_TYPE_INFO.WEEKDAY,
-          },
-          {
-            ratio: DEFAULT_OVERTIME_RATIO,
-            type: WORK_TYPE_INFO.WEEKDAY_OVERTIME,
-          },
-        ];
-      });
+      res = getWorkDetails(
+        DEFAULT_WORK_RATIO,
+        DEFAULT_OVERTIME_RATIO,
+        WORK_TYPE_INFO.WEEKDAY,
+        WORK_TYPE_INFO.WEEKDAY_OVERTIME
+      );
     }
   }
-
-  // 岗位特殊设定
-  // const ratioSetting = useStore().dayRatioSetting.list;
-
-  // Object.keys(res).forEach((jobId) => {
-  //   const setting = ratioSetting.find(
-  //     (el) =>
-  //       el.date === date && // 日期
-  //       el.jobId === jobId && // 岗位
-  //       el.employeeId === employeeId // 姓名
-  //   );
-  //   if (setting) {
-  //     if (setting.workTypeId === "0") {
-  //       res[jobId][0].ratio = +setting.ratio;
-  //     } else {
-  //       res[jobId][1].ratio = +setting.ratio;
-  //     }
-  //   }
-  // });
-
   return res;
+};
+
+const getWorkDetails = (
+  workRatio: number,
+  extraRatio: number,
+  workType: {
+    id: string;
+    label: string;
+  },
+  overtimeType: {
+    id: string;
+    label: string;
+  }
+) => {
+  const jobIds = Object.values(JOB_INFO).map((e) => e.id);
+
+  return jobIds.reduce((acc: any, jobId) => {
+    acc[jobId] = [
+      {
+        ratio: workRatio,
+        type: workType,
+      },
+      {
+        ratio: extraRatio,
+        type: overtimeType,
+      },
+    ];
+    return acc;
+  }, {});
 };
 
 const getJobNameById = (id: string) => {

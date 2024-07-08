@@ -109,8 +109,8 @@ export const DAY_OF_WEEK = [
 ];
 
 export const HOLIDAY_TYPE = {
-  MAKEUP: "0",
-  HOLIDAY: "1",
+  MAKEUP: "1",
+  HOLIDAY: "0",
 };
 
 export const DAY_TYPE = {

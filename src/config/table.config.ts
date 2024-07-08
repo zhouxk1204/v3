@@ -1,10 +1,10 @@
-import { TableColumnItem } from "@/components/Table/type";
-import { SELECT_OPTION } from "@/constants";
-import { useSelect } from "@/hooks/useSelect";
-import { IDayRatioSetting } from "@/types";
 import { Employee } from "@/types/employee";
 import { Holiday } from "@/types/holiday";
+import { IDayRatioSetting } from "@/types";
 import { Report } from "@/types/report";
+import { SELECT_OPTION } from "@/constants";
+import { TableColumnItem } from "@/components/Table/type";
+import { useSelect } from "@/hooks/useSelect";
 
 const { getOptionsByType } = useSelect();
 
@@ -225,22 +225,22 @@ export const ReportTable: TableColumnItem<Report>[] = [
   },
   {
     field: "annual",
-    label: "年休(天)",
+    label: "年休",
   },
   {
     field: "leave",
-    label: "补休(天)",
+    label: "补休",
   },
   {
     field: "workDayCount",
-    label: "工作日(天)",
+    label: "工作日",
   },
   {
     field: "workCount",
-    label: "出勤(天)",
+    label: "出勤",
   },
   {
     field: "serve",
-    label: "科务(天)",
+    label: "科务",
   },
 ];

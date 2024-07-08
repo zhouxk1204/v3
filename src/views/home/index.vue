@@ -80,7 +80,7 @@ const wordList = [
   "Distance makes the hearts grow fonder。"
 ]
 
-const currentBg = localStorage.getItem('loginBg') ?? '';
+const currentBg = localStorage.getItem('loginBg') ?? new URL(`../../assets/img/bg/${1}.avif`, import.meta.url).href;
 const index = imgList.findIndex(e => e === currentBg);
 const curIndex = index > -1 ? index : 1
 const currentIndex = ref(curIndex);
