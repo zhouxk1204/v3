@@ -17,6 +17,7 @@ import useDevice from '@/hooks/useDevice';
 import useUserStore from "@/store/user.store";
 import { FormItem, SelectOption } from "@/types/common";
 import { EmployeeSearchForm, EmployeeTableData } from "@/types/employee";
+import { TableColumn, TagType } from "@/types/table";
 import { FormRules } from "element-plus/es/components";
 
 const { deviceType } = useDevice();
@@ -125,7 +126,7 @@ const rules = reactive<FormRules<any>>({
   ],
 });
 
-const columns = [
+const columns: TableColumn[] = [
   {
     field: "no",
     label: "编号"
@@ -145,7 +146,7 @@ const columns = [
       type: 'tag',
       color: (val: string) => {
         const index = selectOptionObj.gender.findIndex(e => e.label == val);
-        return ['danger', 'primary'][index > 0 && index < 2 ? index : 0];
+        return ['danger', 'primary'][index > 0 && index < 2 ? index : 0] as TagType;
       }
     },
   },
@@ -156,7 +157,7 @@ const columns = [
       type: 'tag',
       color: (val: string) => {
         const index = selectOptionObj.position.findIndex(e => e.label == val);
-        return ['info', 'danger'][index > 0 && index < 2 ? index : 0];
+        return ['info', 'danger'][index > 0 && index < 2 ? index : 0] as TagType;
       }
     },
   },
@@ -167,7 +168,7 @@ const columns = [
       type: 'tag',
       color: (val: string) => {
         const index = selectOptionObj.status.findIndex(e => e.label == val);
-        return ['info', 'success'][index > 0 && index < 2 ? index : 0];
+        return ['info', 'success'][index > 0 && index < 2 ? index : 0] as TagType;
       }
     },
   }

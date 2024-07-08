@@ -9,9 +9,11 @@ export enum TagType {
 export interface TableColumn {
   field: string;
   label: string;
-  style?: {
-    type: "tag";
-    color: (...args: any[]) => TagType;
-  };
+  style?:
+    | {
+        type: "tag";
+        color: (...args: any[]) => TagType;
+      }
+    | undefined;
   width?: number;
 }

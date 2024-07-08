@@ -19,6 +19,7 @@ import useDevice from '@/hooks/useDevice';
 import useUserStore from "@/store/user.store";
 import { FormItem, SelectOption } from '@/types/common';
 import { FactorTableData } from "@/types/factor";
+import { TableColumn, TagType } from "@/types/table";
 import { FormRules } from "element-plus/es/components";
 
 const { deviceType } = useDevice();
@@ -96,7 +97,7 @@ const rules = reactive<FormRules<any>>({
   ],
 });
 
-const columns = [
+const columns: TableColumn[] = [
   {
     field: "no",
     label: "编号"
@@ -110,7 +111,7 @@ const columns = [
     style: {
       type: 'tag',
       color: (val: number) => {
-        return val > 0 ? 'primary' : 'danger';
+        return (val > 0 ? 'primary' : 'danger') as TagType;
       }
     }
   }, {
