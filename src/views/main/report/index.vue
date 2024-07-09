@@ -284,27 +284,12 @@ const selectMonth = async (value: string | undefined) => {
   }
   const res = await getRecordList(value);
   const { data } = res;
-  // 示例数组
-  const array = [
-    { name: 'abc', data: 1 },
-    { name: 'abc', data: 2 },
-    { name: 'sss', data: 3 }
-  ];
-
-  // 使用 lodash 的 groupBy 方法
-  const grouped = _.groupBy(array, 'name');
-
-  console.log(grouped);
-
-
   const groupedData = _.groupBy(data, 'employeeName');
-  console.log("%c Line:288 🥟 groupedData", "color:#ffdd4d", groupedData);
   if (data.length === 0) {
     ElMessage.warning(`未查询到${value}的工分汇算结果，请手动导入工作表后重试`);
     reportList.value = [];
   } else {
     const result = Object.values(groupedData);
-    console.log("%c Line:298 🍒 result", "color:#ea7e5c", result);
     initReport(result, false);
   }
 }
@@ -320,14 +305,4 @@ const changeMonth = (offset: number) => {
 };
 
 selectMonth(currentMonth.value);
-
-// const { getEmployeeTempList } = useStore().employee2;
-// const { getHolidayTempList } = useStore().holiday2;
-// const init = async () => {
-//   const employeeList = await getEmployeeTempList();
-//   const holidayList = await getHolidayTempList();
-//   console.log("%c Line:319 🥝 holidayList", "color:#e41a6a", holidayList);
-//   console.log("%c Line:317 🍿 employeeList", "color:#2eafb0", employeeList);
-// }
-// init();
 </script>

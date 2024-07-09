@@ -89,7 +89,6 @@ const submitForm = () => {
       useStore().user.setUser(decoded.user);
       ElMessage.success('登录成功！');
       const query = router.currentRoute.value.query;
-      console.log("%c Line:93 🥖 `${query.redirect || ROUTE.MAIN}`", "color:#42b983", `${query.redirect || ROUTE.MAIN}`);
       router.replace(`${query.redirect || ROUTE.MAIN}`);
     } else {
       console.log("error submit!", fields);

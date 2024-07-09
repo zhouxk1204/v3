@@ -9,10 +9,10 @@ import {
 } from "@/constants";
 import { Record, Report } from "@/types/report";
 
-import Decimal from "decimal.js";
+import useStore from "@/store";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-import useStore from "@/store";
+import Decimal from "decimal.js";
 
 dayjs.extend(isBetween);
 
@@ -82,6 +82,7 @@ export async function useReport(data: Record[][]) {
           workCount += 1;
 
           const iPoints = parseRecord(record, ratioObj);
+
           if (iPoints.length === 0) {
             hasError = true;
           } else {
@@ -243,7 +244,7 @@ const getRatio = async (date: string) => {
   );
 
   if (holiday) {
-    const workRatio = +holiday.ratio1;
+    const workRatio = +holiday.ratio2;
     const extraRatio = +holiday.ratio2;
     const workType =
       holiday.type === HOLIDAY_TYPE.MAKEUP
