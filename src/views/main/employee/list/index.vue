@@ -74,6 +74,13 @@ const form = computed<FormItem[]>(() => {
 
 const actionForm = computed<FormItem[]>(() => {
   return [
+  {
+      field: 'no',
+      label: 'No.',
+      type: 'number',
+      value: '',
+      step: 1,
+    },
     {
       field: 'name',
       label: '职工姓名',
