@@ -194,8 +194,6 @@ const onNavigate = () => {
       });
       // const device = detectDevice();
       // const from = `${lng},${lat},我的位置`
-      // console.log("%c Line:108 🥪 lng", "color:#93c0a4", lng);
-      // console.log("%c Line:108 🥛 lat", "color:#7f2b82", lat);
       // const to = '104.026494,30.698211,安泰安蓉锦江宾馆(成都一品天下金沙店)'; // address：目的地
       // if (device === 'iOS') {
       //   const [longitude, latitude, name] = to.split(',');

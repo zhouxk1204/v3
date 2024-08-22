@@ -74,7 +74,7 @@ const form = computed<FormItem[]>(() => {
 
 const actionForm = computed<FormItem[]>(() => {
   return [
-  {
+   {
       field: 'no',
       label: 'No.',
       type: 'number',
@@ -85,6 +85,12 @@ const actionForm = computed<FormItem[]>(() => {
       field: 'name',
       label: '职工姓名',
       type: 'text',
+      value: '',
+    },
+    {
+      field: 'entryDate',
+      label: '入职时间',
+      type: 'month',
       value: '',
     },
     {
@@ -145,6 +151,10 @@ const columns: TableColumn[] = [
   {
     field: "factor",
     label: "系数",
+  },
+  {
+    field: "entryDate",
+    label: "入职年月",
   },
   {
     field: "gender",
@@ -241,7 +251,12 @@ const onConfirm = (data: any) => {
       getTableData();
     })
   } else if (mode.value === 'edit') {
-    updateEmployeeInfo(Object.assign(data, { no: editRowNo.value, updateBy: userId })).then(res => {
+    const id = tableData.value.find(e => e.no === editRowNo.value)?.id ?? "";
+    if(id.length === 0) {
+      ElMessage.error('职员信息更新失败！');
+      return;
+    }
+    updateEmployeeInfo(Object.assign(data, { no: editRowNo.value, updateBy: userId, id })).then(res => {
       editRowNo.value = -1;
       ElMessage.success(res.message);
       getTableData();

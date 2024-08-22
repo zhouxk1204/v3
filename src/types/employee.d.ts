@@ -29,6 +29,7 @@ export interface EmployeeSearchForm {
 }
 
 export interface EmployeeTableData {
+  id: string; // uuid
   no: number; // 顺序
   name: string; // 姓名
   factor: number; // 当前系数
@@ -40,6 +41,7 @@ export interface EmployeeTableData {
   gender: string; //
   statusId: string; // "0": 离职; "1": 在职
   status: string; //
+  entryDate: string; // 入职年月
 }
 
 export interface EmployeeUpdateInfo {
