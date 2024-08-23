@@ -1,6 +1,6 @@
 <template>
-  <el-row justify="space-between" class="mb-4">
-    <el-col :span="19">
+  <div  class="flex justify-between mb-4">
+    <div>
       <el-button type="primary" plain :icon="Plus" @click="handleAdd">
         新增
       </el-button>
@@ -14,8 +14,8 @@
       </el-button>
       <el-button v-if="back" type="warning" plain :icon="Close" @click="handleClose">关闭</el-button>
       <slot></slot>
-    </el-col>
-    <el-col :span="5">
+    </div>
+    <div>
       <el-row justify="end">
         <el-tooltip effect="dark" :content="true ? '隐藏搜索' : '显示搜索'" placement="top">
           <el-button :icon="Search" circle @click="onToggle" />
@@ -24,8 +24,8 @@
           <el-button :icon="Refresh" circle @click="refresh()" />
         </el-tooltip>
       </el-row>
-    </el-col>
-  </el-row>
+    </div>
+  </div>
 
   <el-table :data="tableData" class="w-full hidden-sm-and-down" @selection-change="handleSelectionChange">
     <el-table-column type="selection" width="40" />
