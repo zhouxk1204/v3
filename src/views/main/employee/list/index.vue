@@ -5,6 +5,21 @@
     @refresh="onRefresh" @toggle="onToggle">
   </Table2>
 
+  <div class="flex flex-col gap-2 hidden-sm-and-up">
+    <el-card v-for="item in tableData" shadow="never">
+      <template #header>
+        <span class="font-bold">{{item.name}}</span>
+      </template>
+      <div class="flex flex-col gap-2 text-sm">
+        <p>职工系数：<el-tag type="warning">{{item.factor}}</el-tag></p>
+        <p>职工性别：<el-tag :type="item.genderId === '1' ? 'primary': 'danger'">{{item.gender}}</el-tag></p>
+        <p>职工职位：<el-tag :type="item.positionId === '1' ? 'primary': 'info'">{{item.position}}</el-tag></p>
+        <p>存续状态：<el-tag :type="item.statusId === '1' ? 'success': 'info'">{{item.status}}</el-tag></p>
+        <p v-if="item.entryDate.length">入职年月：{{item.entryDate}}</p>
+      </div>
+    </el-card>
+  </div>
+
   <el-dialog v-model="actionFormVisible" :title="formTitle" :width="deviceType === 'mobile' ? '95%' : '420'"
     destroy-on-close :append-to-body="true" :show-close="false" :close-on-click-modal="false">
     <Form2 :rules="rules" :form="actionForm" @confirm="onConfirm" @cancel="onClose"></Form2>

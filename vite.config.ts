@@ -1,3 +1,10 @@
+/*
+ * @Author: 周小康
+ * @Date: 2024-08-20 20:27:30
+ * @LastEditors: 周小康
+ * @LastEditTime: 2024-08-22 20:01:41
+ * @Description: 
+ */
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
@@ -11,6 +18,15 @@ import vue from "@vitejs/plugin-vue";
 const pathSrc = path.resolve(__dirname, "src");
 // https://vitejs.dev/config/
 export default defineConfig({
+  build:{
+    rollupOptions:{
+      manualChunks(id) {
+        if (id.includes('node_modules')) {
+          return 'vendor';
+        }
+      }
+    }
+  },
   plugins: [
     nodePolyfills(), // Vite: `Buffer is not defined` のエラーが発生した場合の対処方法
     vue(),
