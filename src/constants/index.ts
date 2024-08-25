@@ -163,4 +163,5 @@ export enum DictDetailTypeEnum {
   HOLIDAY_TYPE = "4",
   POST_INFO = "9",
   REST_INFO = "10",
+  TITLE = '12'
 }

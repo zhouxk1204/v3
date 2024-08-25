@@ -35,15 +35,17 @@ export const getEmployeeInfoList = (
 };
 
 export const getEmployeeSelection = async () => {
-  const [gender, position, status] = await Promise.all([
+  const [gender, position, status, title] = await Promise.all([
     getSelectOptionByType2(DictDetailTypeEnum.GENDER),
     getSelectOptionByType2(DictDetailTypeEnum.POSITION),
     getSelectOptionByType2(DictDetailTypeEnum.STATUS),
+    getSelectOptionByType2(DictDetailTypeEnum.TITLE),
   ]);
 
   return {
     gender: gender.data,
     position: position.data,
     status: status.data,
+    title: title.data
   };
 };

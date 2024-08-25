@@ -48,10 +48,12 @@ const selectOptionObj = reactive<{
   gender: SelectOption[],
   position: SelectOption[],
   status: SelectOption[],
+  title: SelectOption[],
 }>({
   gender: [],
   position: [],
-  status: []
+  status: [],
+  title: [],
 })
 
 
@@ -101,6 +103,13 @@ const actionForm = computed<FormItem[]>(() => {
       label: '职工姓名',
       type: 'text',
       value: '',
+    },
+    {
+      field: 'titleId',
+      label: '职称',
+      type: 'select',
+      value: '',
+      options: selectOptionObj.title,
     },
     {
       field: 'entryDate',
@@ -170,6 +179,10 @@ const columns: TableColumn[] = [
   {
     field: "entryDate",
     label: "入职年月",
+  },
+  {
+    field: "title",
+    label: "职称",
   },
   {
     field: "gender",
@@ -304,6 +317,7 @@ const initSelection = async () => {
   selectOptionObj.gender = res.gender;
   selectOptionObj.position = res.position;
   selectOptionObj.status = res.status;
+  selectOptionObj.title = res.title;
 }
 
 initSelection();
