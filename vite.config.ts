@@ -2,7 +2,7 @@
  * @Author: 周小康
  * @Date: 2024-08-20 20:27:30
  * @LastEditors: 周小康
- * @LastEditTime: 2024-08-22 20:01:41
+ * @LastEditTime: 2024-08-28 15:52:15
  * @Description: 
  */
 import AutoImport from "unplugin-auto-import/vite";
@@ -19,13 +19,21 @@ const pathSrc = path.resolve(__dirname, "src");
 // https://vitejs.dev/config/
 export default defineConfig({
   build:{
-    rollupOptions:{
-      manualChunks(id) {
-        if (id.includes('node_modules')) {
-          return 'vendor';
-        }
-      }
-    }
+    minify: 'esbuild', // or 'esbuild' for faster builds
+    terserOptions: {
+      compress: {
+        drop_console: true, // 移除 console 语句
+      },
+    },
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          }
+        },
+      },
+    },
   },
   plugins: [
     nodePolyfills(), // Vite: `Buffer is not defined` のエラーが発生した場合の対処方法

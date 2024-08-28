@@ -1,3 +1,10 @@
+/*
+ * @Author: 周小康
+ * @Date: 2024-08-26 14:17:15
+ * @LastEditors: 周小康
+ * @LastEditTime: 2024-08-28 16:17:42
+ * @Description: 
+ */
 import {
   EmployeeAddInfo,
   EmployeeSearchForm,
@@ -27,10 +34,10 @@ export const updateEmployeeInfo = (employeeUpdateInfo: EmployeeUpdateInfo) => {
 };
 
 export const getEmployeeInfoList = (
-  employeeSearchForm?: EmployeeSearchForm
+  employeeSearchForm: EmployeeSearchForm | {date: string} | undefined,
 ) => {
   return http.get<ResponseData<EmployeeTableData[]>>("/employee/query", {
-    params: { form: employeeSearchForm ?? {} },
+    params:  employeeSearchForm ?? {}
   });
 };
 

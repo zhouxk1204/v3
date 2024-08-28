@@ -166,7 +166,7 @@ const rules = reactive<FormRules<any>>({
 const columns: TableColumn[] = [
   {
     field: "no",
-    label: "编号"
+    label: "工号"
   },
   {
     field: "name",
@@ -175,6 +175,13 @@ const columns: TableColumn[] = [
   {
     field: "factor",
     label: "系数",
+    style: {
+      type: 'css',
+      style: {
+        'color': 'red',
+        'font-weight': 'bold'
+      }
+    },
   },
   {
     field: "entryDate",
@@ -183,6 +190,13 @@ const columns: TableColumn[] = [
   {
     field: "title",
     label: "职称",
+    style: {
+      type: 'tag',
+      color: (val: string) => {
+        const index = selectOptionObj.title.findIndex(e => e.label == val);
+        return [ 'primary', 'warning', 'danger'][index % 3] as TagType;
+      }
+    },
   },
   {
     field: "gender",

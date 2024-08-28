@@ -112,10 +112,6 @@ const rules = reactive<FormRules<any>>({
 
 const columns: TableColumn[] = [
   {
-    field: "no",
-    label: "编号"
-  },
-  {
     field: "name",
     label: "姓名"
   }, {

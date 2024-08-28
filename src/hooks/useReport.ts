@@ -9,10 +9,10 @@ import {
 } from "@/constants";
 import { Record, Report } from "@/types/report";
 
-import useStore from "@/store";
+import Decimal from "decimal.js";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-import Decimal from "decimal.js";
+import useStore from "@/store";
 
 dayjs.extend(isBetween);
 
@@ -40,9 +40,8 @@ export async function useReport(data: Record[][]) {
   let currentDate = data[0][0].date;
   // 异常记录
   const errors: string[] = [];
-
   // 职工列表
-  const employeeList = await useStore().employee2.getEmployeeTempList();
+  const employeeList = await useStore().employee2.getEmployeeTempList(currentDate);
 
   for (let item of data) {
     const employee = employeeList.find(

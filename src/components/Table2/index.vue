@@ -34,7 +34,8 @@
       <template #default="scope">
         <el-tag v-if="item.style?.type === 'tag'" :type="item.style?.color(scope.row[item.field])">{{
       scope.row[item.field] }}</el-tag>
-        <span v-else>{{ scope.row[item.field] }}</span>
+      <span v-else-if="item.style?.type === 'css'" :style="item.style?.style ?? {}">{{ scope.row[item.field] }}</span>
+      <span v-else>{{ scope.row[item.field] }}</span>
       </template>
     </el-table-column>
 
