@@ -13,8 +13,10 @@
       <div class="flex flex-col gap-2 text-sm">
         <p>职工系数：<el-tag type="warning">{{item.factor}}</el-tag></p>
         <p>职工性别：<el-tag :type="item.genderId === '1' ? 'primary': 'danger'">{{item.gender}}</el-tag></p>
+        <p>职工职称：<el-tag :type="[ TagType.primary, TagType.warning, TagType.danger][+item.titleId % 3]">{{item.title}}</el-tag></p>
         <p>职工职位：<el-tag :type="item.positionId === '1' ? 'primary': 'info'">{{item.position}}</el-tag></p>
         <p>存续状态：<el-tag :type="item.statusId === '1' ? 'success': 'info'">{{item.status}}</el-tag></p>
+      
         <p v-if="item.entryDate.length">入职年月：{{item.entryDate}}</p>
       </div>
     </el-card>
@@ -194,7 +196,7 @@ const columns: TableColumn[] = [
       type: 'tag',
       color: (val: string) => {
         const index = selectOptionObj.title.findIndex(e => e.label == val);
-        return [ 'primary', 'warning', 'danger'][index % 3] as TagType;
+        return [ TagType.primary, TagType.warning, TagType.danger][index % 3];
       }
     },
   },
@@ -205,7 +207,7 @@ const columns: TableColumn[] = [
       type: 'tag',
       color: (val: string) => {
         const index = selectOptionObj.gender.findIndex(e => e.label == val);
-        return ['danger', 'primary'][index > 0 && index < 2 ? index : 0] as TagType;
+        return [TagType.danger, TagType.primary,][index % 2];
       }
     },
   },
@@ -216,7 +218,7 @@ const columns: TableColumn[] = [
       type: 'tag',
       color: (val: string) => {
         const index = selectOptionObj.position.findIndex(e => e.label == val);
-        return ['info', 'danger'][index > 0 && index < 2 ? index : 0] as TagType;
+        return [TagType.info, TagType.primary,][index % 2];
       }
     },
   },
@@ -227,7 +229,7 @@ const columns: TableColumn[] = [
       type: 'tag',
       color: (val: string) => {
         const index = selectOptionObj.status.findIndex(e => e.label == val);
-        return ['info', 'success'][index > 0 && index < 2 ? index : 0] as TagType;
+        return [TagType.info, TagType.success,][index % 2];
       }
     },
   }

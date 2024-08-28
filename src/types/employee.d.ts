@@ -1,3 +1,10 @@
+/*
+ * @Author: 周小康
+ * @Date: 2024-08-20 20:27:30
+ * @LastEditors: 周小康
+ * @LastEditTime: 2024-08-28 18:00:53
+ * @Description: 
+ */
 export interface Employee {
   id: string;
   no: number; // 顺序
@@ -42,6 +49,8 @@ export interface EmployeeTableData {
   statusId: string; // "0": 离职; "1": 在职
   status: string; //
   entryDate: string; // 入职年月
+  title: string; // 职称
+  titleId: string; 
 }
 
 export interface EmployeeUpdateInfo {

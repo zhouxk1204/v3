@@ -56,14 +56,6 @@
             :element-loading-background="isDark ? 'rgb(18, 18, 18)' : 'rgb(255, 255, 255)'">
             <router-view></router-view>
           </el-main>
-          <el-footer class="border-t border-ep">
-            <div class="flex flex-col items-center justify-center h-full text-xs text-gray-400">
-              <div class="underline">
-                <a href="https://beian.miit.gov.cn/" target="_blank">蜀ICP备2024053978号</a>
-              </div>
-              <span>Powered by zhouxk © 2024 </span>
-            </div>
-          </el-footer>
         </el-container>
       </el-container>
     </el-container>
