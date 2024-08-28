@@ -5,6 +5,19 @@
     @toggle="onToggle">
   </Table2>
 
+  <div class="flex flex-col gap-2 hidden-sm-and-up">
+    <el-card v-for="item in tableData" shadow="never">
+      <template #header>
+        <span class="font-bold">{{item.name}}</span>
+      </template>
+      <div class="flex flex-col gap-2 text-sm">
+        <p>生效年月：<el-tag>{{item.effectiveMonth}}</el-tag></p>
+        <p>系数变化：<el-tag type="primary">{{item.weighted}}</el-tag></p>
+        <p>调整原因：{{item.remark}}</p>
+      </div>
+    </el-card>
+  </div>
+
   <el-dialog v-model="actionFormVisible" :title="formTitle" :width="deviceType === 'mobile' ? '95%' : '420'"
     destroy-on-close :append-to-body="true" :show-close="false" :close-on-click-modal="false">
     <Form2 :rules="rules" :form="actionForm" @confirm="onConfirm" @cancel="onClose"></Form2>
