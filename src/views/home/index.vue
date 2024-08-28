@@ -46,8 +46,9 @@
     </div>
   </div>
 
-  <div id="mouse-scroll">
-    <div class="mouse">
+  <div id="mouse-scroll" class="flex flex-col justify-center gap-2">
+    <div class="flex flex-col justify-center">
+      <div class="mouse">
       <div class="mouse-in"></div>
     </div>
     <div>
@@ -55,7 +56,18 @@
       <span class="down-arrow-2"></span>
       <span class="down-arrow-3"></span>
     </div>
-  </div>
+    </div>
+    <div class="fixed flex flex-col items-center justify-center w-48 h-full text-xs text-white -translate-x-1/2 left-1/2 bottom-14">
+              <div class="underline">
+                <a href="https://beian.miit.gov.cn/" target="_blank">蜀ICP备2024053978号</a>
+              </div>
+              <div>Powered by zhouxk © 2024 </div>
+            </div>
+ </div>
+
+ 
+
+  
 </template>
 
 <script setup lang='ts'>
