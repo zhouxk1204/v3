@@ -145,7 +145,7 @@ import useUserStore from '@/store/user.store';
 import { DictForm, DictSearchForm, DictVO } from "@/types/dict.d";
 import { Delete, Edit, Plus, Refresh, Search } from "@element-plus/icons-vue";
 import ActionForm from './ActionForm.vue';
-import SearchForm from './SearchFrom.vue';
+import SearchForm from './SearchForm.vue';
 
 const tableData = ref<DictVO[]>([]);
 const handleSearchFromAction = async (formData: DictSearchForm | null) => {

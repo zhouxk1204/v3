@@ -77,7 +77,7 @@ import { DictDetailForm, DictDetailSearchForm, DictDetailVO } from "@/types/dict
 import { Close, Delete, Edit, Plus, Refresh, Search } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from 'vue-router';
 import ActionForm from './ActionForm.vue';
-import SearchForm from './SearchFrom.vue';
+import SearchForm from './SearchForm.vue'
 
 const searchFormVisible = ref(true);
 const handleSearchFromAction = async (formData: DictDetailSearchForm | null) => {
