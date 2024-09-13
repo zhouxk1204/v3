@@ -9,6 +9,17 @@
     destroy-on-close :append-to-body="true" :show-close="false" :close-on-click-modal="false">
     <Form2 :rules="rules" :form="actionForm" @confirm="onConfirm" @cancel="onClose"></Form2>
   </el-dialog>
+
+  <div class="flex flex-col gap-2 hidden-sm-and-up">
+    <el-card v-for="item in tableData" shadow="never">
+      <div class="flex flex-col gap-2 text-sm">
+        <p>节假日名称：<el-tag>{{item.name}}</el-tag></p>
+        <p>节假日日期：{{item.dateStart}}{{item.dateEnd === item.dateStart ? '' : ' ～ '+ item.dateEnd}}</p>
+        <p>上班倍率：<el-tag type="success">{{item.ratio1}}</el-tag></p>
+        <p>加班倍率：<el-tag type="danger">{{item.ratio2}}</el-tag></p>
+      </div>
+    </el-card>
+  </div>
 </template>
 
 <script setup lang='ts'>
