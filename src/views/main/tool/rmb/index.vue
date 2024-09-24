@@ -6,8 +6,8 @@
     <el-input size="large" v-model="target" placeholder="输入需要转换为大写的金额（最多两位小数）" @input="handleInput">
       <template #prepend>人民币金额</template>
     </el-input>
-    <el-alert v-show="showError" title="请输入人民币金额" type="error" size="large" show-icon />
-    <el-alert v-show="result.length > 0" :title="result" type="info" size="large" :closable="false" />
+    <el-alert v-if="showError" title="请输入人民币金额" type="error" size="large" show-icon @close="showError = false"/>
+    <el-alert v-if="result.length > 0" :title="result" type="info" size="large" :closable="false" />
     <div>
       <el-button type="primary" size="large" @click="onTrans">转换</el-button>
       <el-button type="success" size="large" @click="onCopy">复制</el-button>
@@ -79,10 +79,15 @@ const onTrans = () => {
 const onCopy = () => {
   if (result.value) {
     navigator.clipboard.writeText(result.value);
+    ElMessage.success('复制成功！🎉');
   }
 }
 
 const trans = () => {
+  if(+target.value === 0){
+    return `${target.value}元整`;
+  }
+  
   if (+target.value % 1 === 0) {
 
   } else {
