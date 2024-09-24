@@ -1,5 +1,6 @@
 <template>
-  <div class="flex flex-col items-center gap-5 ">
+  <div>
+    <div class="flex flex-col items-center gap-5 ">
     <h1>
       <el-text type="primary"><span class="text-3xl">人民币大小写转换工具</span></el-text>
     </h1>
@@ -47,6 +48,7 @@
       <p>在票据和结算凭证的大写金额栏内，不得预印固定的“仟、佰、拾、万、元、角、分”字样。若小写金额中含有“0”，大写金额的书写应遵循汉语规则，并符合金额构成及防止涂改的要求。</p>
     </div>
   </section>
+  </div>
 </template>
 
 <script setup lang='ts'>
@@ -72,8 +74,11 @@ const onClear = () => {
 const showError = ref(false);
 
 const onTrans = () => {
-  showError.value = target.value === '';
-  result.value = trans();
+  if(target.value === '') {
+    showError.value = true;
+  }else{
+    result.value = trans();
+  }
 }
 
 const onCopy = () => {
