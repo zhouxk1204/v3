@@ -22,8 +22,9 @@ interface Point {
   jobId?: string; // 岗位id
   jobName?: string; // 岗位名称
   point: number; // 岗位工分（小时）
-  pointRatio?: number; // 岗位工分倍率
+  ratio?: number; // 岗位工分倍率
   ratioPoint?: number; // 岗位工分 * 岗位工分倍率
+  date: string;
 }
 
 interface RatioInfo {
@@ -59,7 +60,7 @@ export async function useReport(data: Record[][]) {
         // 1.纯文字的记录：各种休
         if (!/\d/.test(record)) {
           // 获取休日信息
-          const p = getRestInfoByText(record);
+          const p = getRestInfoByText(record, date);
           if (!p) {
             hasError = true;
           } else {
@@ -80,7 +81,7 @@ export async function useReport(data: Record[][]) {
           }
           workCount += 1;
 
-          const iPoints = parseRecord(record, ratioObj);
+          const iPoints = parseRecord(record, ratioObj, date);
 
           if (iPoints.length === 0) {
             hasError = true;
@@ -96,6 +97,20 @@ export async function useReport(data: Record[][]) {
           hasError = false;
         }
       }
+      pointList.sort((a,b) => {
+        return dayjs(a.date).unix() - dayjs(b.date).unix();
+      })
+      console.log("%c Line:90 🥝 pointList", "color:#3f7cff", pointList.map(el => {
+        return {
+          date: el.date,
+          typeName: el.typeName,
+          jobName: el.jobName,
+          point: el.point,
+          ratio: el.ratio,
+          ratioPoint: el.ratioPoint
+        }
+      }));
+
 
       let annual = new Decimal(0);
       let leave = 0;
@@ -171,13 +186,14 @@ export async function useReport(data: Record[][]) {
  * @param {string} text
  * @returns {Point | null}
  */
-const getRestInfoByText = (text: string): Point | null => {
+const getRestInfoByText = (text: string, date: string): Point | null => {
   for (let item of Object.values(REST_INFO)) {
     if (item.label.includes(text)) {
       return {
         typeId: item.id,
         typeName: item.label[0],
         point: 1,
+        date
       };
     }
   }
@@ -243,12 +259,16 @@ const getRatio = async (date: string) => {
   );
 
   if (holiday) {
-    const workRatio = +holiday.ratio2;
+    let workRatio = +holiday.ratio2;
     const extraRatio = +holiday.ratio2;
     const workType =
       holiday.type === HOLIDAY_TYPE.MAKEUP
         ? WORK_TYPE_INFO.MAKEUP
         : WORK_TYPE_INFO.HOLIDAY;
+
+    if(workType.id === WORK_TYPE_INFO.MAKEUP.id){
+      workRatio = holiday.ratio1;
+    }
     const overtimeType =
       holiday.type === HOLIDAY_TYPE.MAKEUP
         ? WORK_TYPE_INFO.MAKEUP_OVERTIME
@@ -321,7 +341,8 @@ const getLabelById = (id: string, obj: Object) => {
  */
 const parseRecord = (
   record: string,
-  ratioObj: { [k: string]: RatioInfo[] }
+  ratioObj: { [k: string]: RatioInfo[] },
+  date: string
 ): Point[] => {
   // 2.按'/'分成不同的种类进行解析
   const parts = record.split("/");
@@ -330,7 +351,7 @@ const parseRecord = (
   } else {
     const res: Point[][] = [];
     for (let part of parts) {
-      const iPoints = parsePart(part, ratioObj);
+      const iPoints = parsePart(part, ratioObj, date);
       if (iPoints.length > 0) {
         res.push(iPoints);
       } else {
@@ -353,7 +374,8 @@ const parseRecord = (
  */
 const parsePart = (
   part: string,
-  ratioObj: { [k: string]: RatioInfo[] }
+  ratioObj: { [k: string]: RatioInfo[] },
+  date: string 
 ): Point[] => {
   // 确定岗位
   let job = JOB_INFO.OTHER;
@@ -369,6 +391,7 @@ const parsePart = (
         typeId: id,
         typeName: label[0],
         point: 0.5,
+        date
       },
     ];
   } else {
@@ -389,6 +412,7 @@ const parsePart = (
       jobName: getJobNameById(jobId),
       typeId: type.id, // 0 上班，1：加班
       typeName: type.label, // 0 上班，1：加班,
+      date
     };
   });
 };
