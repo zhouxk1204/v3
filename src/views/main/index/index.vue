@@ -10,7 +10,7 @@
         value-format="YYYY/MM" @change="onCalcMonthChange" />
       <el-button-group>
         <el-button type="success" :icon="ArrowLeft" @click="changeMonth(-1)">上月</el-button>
-        <el-button type="success" @click="changeMonth(1)">
+        <el-button type="success" @click="changeMonth(1)" :disabled="isNextDisabled">
           下月<el-icon class="el-icon--right">
             <ArrowRight />
           </el-icon>
@@ -96,6 +96,9 @@ const refresh = async (value: string) => {
 
   if (data.data.length === 0) {
     isEmpty.value = true;
+    offsetTemp += 1;
+    calcMonth.value = getYearMonthFromDate(offsetTemp * -1)
+    refresh(calcMonth.value);
     return;
   };
 
@@ -175,8 +178,8 @@ const refresh = async (value: string) => {
   arr.value[0].title = `${+month}月平均每日工作`;
   arr.value[0].value = `${average}h`;
 }
-
-const lastMonth = getYearMonthFromDate(-1);
+let offsetTemp = 1;
+const lastMonth = getYearMonthFromDate(offsetTemp * -1);
 const calcMonth = ref(lastMonth);
 const pileChartTitle = computed(() => {
   return `${calcMonth.value}岗位工分占比`
@@ -191,8 +194,19 @@ const changeMonth = (offset: number) => {
     calcMonth.value = getYearMonthFromDate(-1);
   }
 
+  if (offset === 1) {
+    const now = dayjs().add(offsetTemp * -1, 'month').format('YYYY/MM');
+    if (calcMonth.value === now) {
+      return;
+    }
+  }
+
   const date = dayjs(calcMonth.value).add(offset, 'month').format('YYYY/MM');
   calcMonth.value = date
   refresh(calcMonth.value);
 };
+
+const isNextDisabled = computed(() => {
+  return calcMonth.value === dayjs().add(offsetTemp * -1, 'month').format('YYYY/MM');
+})
 </script>

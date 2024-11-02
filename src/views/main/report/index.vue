@@ -28,7 +28,7 @@
 
         <el-button-group>
           <el-button type="success" :icon="ArrowLeft" @click="changeMonth(-1)">上月</el-button>
-          <el-button type="success" @click="changeMonth(1)">
+          <el-button :disabled="isNextDisabled" type="success" @click="changeMonth(1)">
             下月<el-icon class="el-icon--right">
               <ArrowRight />
             </el-icon>
@@ -47,47 +47,24 @@
       <el-space :fill="true" wrap class="font-bold hidden-sm-and-up">
         <el-watermark v-for="item in reportList" :content="item.employeeName" :gap="[50, 50]">
           <el-card v-if="item.total > 0">
-            <el-row class="mb-1">
-              <el-col :span="10" class="disperse">员工姓名</el-col>：
-              <el-col :span="12">{{ item.employeeName }}</el-col>
-            </el-row>
-            <el-row class="mb-1">
-              <el-col :span="10" class="disperse">员工系数</el-col>：
-              <el-col :span="12"><el-tag effect="dark" type="danger">{{ item.factor }}</el-tag></el-col>
-            </el-row>
-            <el-row class="mb-1" v-if="item.totalOther > 0">
-              <el-col :span="10" class="disperse">其他岗位工分</el-col>：
-              <el-col :span="12">{{ item.totalOther }}</el-col>
-            </el-row>
-            <el-row class="mb-1" v-if="item.totalGastroscopy > 0">
-              <el-col :span="10" class="disperse">胃镜岗位工分</el-col>：
-              <el-col :span="12">{{ item.totalGastroscopy }}</el-col>
-            </el-row>
-            <el-row class="mb-1">
-              <el-col :span="10" class="disperse">时间总工分</el-col>：
-              <el-col :span="12"><el-text type="primary" size="large">{{ item.total }}</el-text></el-col>
-            </el-row>
-            <el-row class="mb-1">
-              <el-col :span="10" class="disperse">本月上班天数</el-col>：
-              <el-col :span="12">
-                <el-text :type="item.workDayCount > 0 ? 'danger' : 'info'" size="large">{{ item.workDayCount
-                  }}&nbsp;天</el-text></el-col>
-            </el-row>
-            <el-row class="mb-1" v-if="item.annual > 0">
-              <el-col :span="10" class="disperse">本月年休天数</el-col>：
-              <el-col :span="12"><el-text type="success" size="large">{{ item.annual
-                  }}&nbsp;天</el-text></el-col>
-            </el-row>
-            <el-row class="mb-1" v-if="item.leave > 0">
-              <el-col :span="10" class="disperse">本月补休天数</el-col>：
-              <el-col :span="12"><el-text type="success" size="large">{{ item.leave
-                  }}&nbsp;天</el-text></el-col>
-            </el-row>
-            <el-row class="mb-1" v-if="item.serve > 0">
-              <el-col :span="10" class="disperse">本月科务天数</el-col>：
-              <el-col :span="12"><el-tag effect="dark" type="primary">{{ item.serve
-                  }}&nbsp;天</el-tag></el-col>
-            </el-row>
+            <template #header>
+              <div class="flex items-center justify-between">
+                <h2 class="text-xl font-bold">{{ item.employeeName }}
+                </h2>
+                <p>系数：<span class="text-xl text-red-500">{{ item.factor }}</span></p>
+              </div>
+            </template>
+            <div class="flex flex-col gap-2">
+              <p>其他岗位工分：<el-tag type="primary" effect="dark">{{ item.totalOther }}</el-tag></p>
+              <p>胃镜岗位工分：<el-tag type="danger" effect="dark">{{ item.totalGastroscopy }}</el-tag></p>
+              <p>时间工分合计：<el-tag type="success" effect="dark">{{ item.total }}</el-tag></p>
+              <p>本月上班天数：<span class="text-red-500">{{ item.workDayCount
+                  }}&nbsp;天</span></p>
+              <p v-if="item.leave > 0">本月补休天数：<el-text type="success" size="large">{{ item.leave
+                  }}&nbsp;天</el-text></p>
+              <p v-if="item.serve > 0">本月科务天数：<span class="text-red-300" size="large">{{ item.serve
+                  }}&nbsp;天</span></p>
+            </div>
           </el-card>
         </el-watermark>
       </el-space>
@@ -275,7 +252,8 @@ const toggleSelect = () => {
 }
 
 // 月份切换操作
-const currentMonth = ref(getYearMonthFromDate(-1));
+let offsetTemp = 1;
+const currentMonth = ref(getYearMonthFromDate(offsetTemp * -1));
 // 选择月份
 const selectMonth = async (value: string | undefined) => {
   if (!value) {
@@ -286,8 +264,11 @@ const selectMonth = async (value: string | undefined) => {
   const { data } = res;
   const groupedData = _.groupBy(data, 'employeeName');
   if (data.length === 0) {
-    ElMessage.warning(`未查询到${value}的工分汇算结果，请手动导入工作表后重试`);
     reportList.value = [];
+    offsetTemp += 1;
+    currentMonth.value = getYearMonthFromDate(offsetTemp * -1)
+    selectMonth(currentMonth.value)
+    ElMessage.warning(`未查询到${value}的工分汇算结果，目前已切换到${currentMonth.value}的工分汇算结果`);
   } else {
     const result = Object.values(groupedData);
     initReport(result, false);
@@ -298,11 +279,20 @@ const changeMonth = (offset: number) => {
   if (!currentMonth.value || currentMonth.value.length === 0) {
     currentMonth.value = getYearMonthFromDate(-1);
   }
-
+  if (offset > 0) {
+    const now = dayjs().add(offsetTemp * -1, 'month').format('YYYY/MM');
+    if (currentMonth.value === now) {
+      return;
+    }
+  }
   const date = dayjs(currentMonth.value).add(offset, 'month').format('YYYY/MM');
   currentMonth.value = date
   selectMonth(date);
 };
+
+const isNextDisabled = computed(() => {
+  return currentMonth.value === dayjs().add(offsetTemp * -1, 'month').format('YYYY/MM');
+})
 
 selectMonth(currentMonth.value);
 </script>

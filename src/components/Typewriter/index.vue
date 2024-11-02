@@ -1,11 +1,11 @@
 <template>
-  <div class="inline-block font-bold">
-    <p class="inline text-3xl font-bold text-red-300 max-sm:text-xl">
+  <div class="inline-block text-3xl font-bold max-sm:text-xl">
+    <p class="inline font-bold text-red-300 max-sm:text-xl">
       {{ typedText }}
     </p>
-    <span class="relative -top-[2px] text-red-300" :class="{
-        'custom-flash': cursorFlash,
-      }">|</span>
+    <span class="relative -top-[2px] text-red-300 text-[1em]" :class="{
+      'custom-flash': cursorFlash,
+    }">|</span>
   </div>
 </template>
 
@@ -14,6 +14,7 @@ import { useTypewriter } from "@/hooks/useTypewriter.ts";
 const { typedText, cursorFlash } = useTypewriter(
   [
     "永远相信美好的事情即将发生。",
+    "如果你是海，我愿做那片海浪，轻轻拍打着你的心岸，永不离去。",
     "日落归山海，山海藏深意，你藏在我心里。",
     "我会永远陪着你，直到我们慢慢变老。",
     "我有多喜欢你，可能我自己都描述不出来，就像你是月亮，我是星星，满天星河只为你",
@@ -22,6 +23,7 @@ const { typedText, cursorFlash } = useTypewriter(
     "余光是你，余生也是你。",
     "我真想拉起你的手，逃向初晴的天空和田野，不畏缩也不回。",
     "冗长的黑夜里，你是我唯一的光。",
+    "在这世间，你就是我最珍贵的宝藏，值得我用一生去守护。"
   ],
   100
 );
