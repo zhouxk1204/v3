@@ -62,7 +62,7 @@
                   }}&nbsp;天</span></p>
               <p v-if="item.leave > 0">本月补休天数：<el-text type="success" size="large">{{ item.leave
                   }}&nbsp;天</el-text></p>
-              <p v-if="item.serve > 0">本月科务天数：<span class="text-red-300" size="large">{{ item.serve
+              <p v-if="item.serve > 0">本月科务天数：<span class="text-purple-500" size="large">{{ item.serve
                   }}&nbsp;天</span></p>
             </div>
           </el-card>
@@ -78,8 +78,9 @@
     </div>
 
     <teleport to="body">
-      <el-dialog v-model="dialogTableVisible" title="导出Excel表头设置" destroy-on-close align-center>
-        <el-checkbox-group v-model="checkList" class="flex flex-col border-t border-ep">
+      <el-dialog v-model="dialogTableVisible" title="导出工分汇算表头设置" destroy-on-close align-center :width="dialogWidth"
+        class="max-h-[80%] md:max-h-full overflow-auto">
+        <el-checkbox-group v-model="checkList" class="flex flex-col w-full border-t border-ep">
           <div v-for="item of reportCols" class="px-2 border-b border-ep">
             <el-checkbox :label="item.label" :value="item.field" size="large" />
           </div>
@@ -112,6 +113,22 @@ import _ from "lodash";
 import { storeToRefs } from "pinia";
 
 const formVisible = ref<boolean>(false);
+
+// 弹窗宽度
+const dialogWidth = ref('90%');
+const updateDialogWidth = () => {
+  dialogWidth.value = window.innerWidth < 768 ? '90%' : '50%';
+};
+
+onMounted(() => {
+  updateDialogWidth();
+  window.addEventListener('resize', updateDialogWidth);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateDialogWidth);
+});
+// 弹窗宽度
 
 // 岗位工分倍率特殊设定
 const dayRatioSettingCols = DayRatioSettingTable;
