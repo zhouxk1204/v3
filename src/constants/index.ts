@@ -114,10 +114,10 @@ export const HOLIDAY_TYPE = {
 };
 
 export const DAY_TYPE = {
-  WEEKDAY: "0",
-  WEEKEND: "1",
-  HOLIDAY: "2",
-  MAKEUP: "3",
+  MAKEUP: "1",
+  HOLIDAY: "0",
+  WEEKDAY: "2",
+  WEEKEND: "3",
 };
 
 export const DEFAULT_WORK_RATIO = 1;
@@ -163,5 +163,10 @@ export enum DictDetailTypeEnum {
   HOLIDAY_TYPE = "4",
   POST_INFO = "9",
   REST_INFO = "10",
-  TITLE = '12'
+  TITLE = "12",
 }
+
+export const DEFAULT_RATIO = {
+  WORK: 1,
+  OVERTIME: 1.5,
+};

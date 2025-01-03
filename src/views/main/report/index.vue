@@ -100,6 +100,7 @@ import { getRecordList, updateRecords } from "@/api/report.api";
 import { FieldItem } from "@/components/Form/form";
 import { DayRatioSettingForm } from "@/config/form.config";
 import { DayRatioSettingTable, ReportTable } from "@/config/table.config";
+import useDate from "@/hooks/useDate";
 import { ExportExcelOption, useExcel } from "@/hooks/useExcel";
 import { useReport } from "@/hooks/useReport";
 import useStore from "@/store";
@@ -152,6 +153,7 @@ const reportDate = ref<string>("");
 const originData = ref<Record[]>([]);
 const initReport = async (list: Record[][], showSuccess: boolean = true) => {
   if (list.length > 0) {
+    getValidateData(list);
     const { reports, errors, currentDate } = await useReport(list);
     reportList.value = reports;
     errorList.value = errors;
@@ -198,6 +200,7 @@ const importData = (data: any[]) => {
   });
   const list = Array.from(map.values());
   originData.value = list.flat();
+
   initReport(list);
 };
 
@@ -312,4 +315,10 @@ const isNextDisabled = computed(() => {
 })
 
 selectMonth(currentMonth.value);
+
+const getValidateData = async (list: Record[][]) => {
+  await useDate(currentMonth.value, 1, list)
+}
+
+
 </script>
