@@ -1,9 +1,11 @@
 <template>
   <div class="flex items-center justify-center min-h-screen">
     <div class="flex flex-col gap-1 p-3  bg-[#f1f1f1] rounded-2xl max-w-[768px] w-full">
-      <textarea class="p-2 bg-[#f1f1f1] outline-none resize-none" placeholder="给DeepSeek发送消息"></textarea>
+      <textarea v-model="question" class="p-2 bg-[#f1f1f1] outline-none resize-none"
+        placeholder="给DeepSeek发送消息"></textarea>
       <div class="flex justify-end">
-        <button class="w-8 h-8 overflow-hidden text-white bg-black rounded-full">
+        <button :class="question.length === 0 ? 'text-[#f1f1f1] bg-[#cecece]' : 'text-white bg-black'"
+          class="w-8 h-8 overflow-hidden text-white bg-black rounded-full" :disabled="question.length === 0">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
             class="icon-2xl">
             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -18,6 +20,7 @@
 
 <script setup lang='ts'>
 // import axios from 'axios';
+const question = ref("");
 
 const message = ref('');
 
