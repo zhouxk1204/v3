@@ -50,18 +50,23 @@
 <script setup lang='ts'>
 // import axios from 'axios';
 const question = ref("");
-const chatList: {
-  role: '',
-  content: ''
-}[] = ref([])
+const chatList = ref<{
+  role: string,
+  content: string
+}[]>([]);
 
 const onChat = () => {
+  chatList.value.push({
+    role: 'user',
+    content: question.value
+  })
   fetchStreamData(question.value);
 }
 // 调用示例
 // fetchStreamData("hello");
 
 async function fetchStreamData(prompt: string) {
+  let message = '';
   const response = await fetch(import.meta.env.APP_API_BASE_URL + "/chat/ask", {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -79,7 +84,13 @@ async function fetchStreamData(prompt: string) {
   while (true) {
     // 逐块读取流数据
     const { value, done } = await reader.read();
-    if (done) break; // 读取完成
+    if (done) {
+      chatList.value.push({
+        role: 'assistant',
+        content: message
+      });
+      break;
+    }; // 读取完成
 
     // 解码数据
     const lines = decoder.decode(value).split('\n');
@@ -98,7 +109,7 @@ async function fetchStreamData(prompt: string) {
         try {
           const data = JSON.parse(jsonString);
           const content = data.choices[0]?.delta?.content || '';
-          message.value += content;
+          message += content;
           console.log(content); // 输出内容
         } catch (error) {
           console.error('解析错误:', error);
