@@ -1,6 +1,7 @@
 import { DAY_TYPE, DEFAULT_RATIO, JOB_INFO } from "@/constants";
 import useStore from "@/store";
 import { Record } from "@/types/report";
+import { getMonthWeeksList } from "@/utils/date";
 import dayjs from "dayjs";
 
 export interface RecordInfo {
@@ -202,6 +203,9 @@ export default async function useDate(
   }
   console.log("%c Line:191 🍿 resList", "color:#465975", resList);
 
+  const weeksList: string[][] = getMonthWeeksList(yearMonth);
+  console.log("weeksList: " + weeksList);
+
   // 获取年、月
   const [year, month] = yearMonth.split("/").map((e) => +e);
 
@@ -244,7 +248,6 @@ export default async function useDate(
   }
   const verificationList: any = {};
   const filterList = resList.filter((item: any) => weeks.includes(item.date));
-  console.log("%c Line:289 🍷 filterList", "color:#e41a6a", filterList);
   employeeList.forEach((emp) => {
     const employeeRecords = weeks.map((date: string, index: number) => {
       if (date.length > 0) {
@@ -291,6 +294,7 @@ export default async function useDate(
       }
     });
     verificationList[emp.name] = employeeRecords;
+    console.log("verificationList: " + verificationList);
   });
   return {
     verificationList,

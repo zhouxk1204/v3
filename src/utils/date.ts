@@ -150,3 +150,51 @@ export function isInRange(
   const targetDate = dayjs(target);
   return targetDate.isBetween(startDate, endDate, null, "[]"); // '[]' includes start and end date
 }
+
+export function getMonthWeeksList(yearMonth: string): string[][] {
+  // 获取年、月
+  const [year, month] = yearMonth.split("/").map((e) => +e);
+
+  // 获取该月的第一天和最后一天
+  const firstDayOfMonth = dayjs(`${year}-${month}-01`);
+  const lastDayOfMonth = firstDayOfMonth.endOf("month");
+
+  // 获取该月的第一天是星期几 (0=周日, 1=周一, ..., 6=周六)
+  const firstDayWeekday = firstDayOfMonth.day();
+
+  // 计算偏移量，让一周从周一开始排列 (0 表示周日，转换为 6)
+  const offset = firstDayWeekday === 0 ? 6 : firstDayWeekday - 1;
+
+  // 初始化结果数组
+  const weeks: string[][] = [];
+  let currentWeek: string[] = [];
+
+  // 填充第一周的空白日期
+  for (let i = 0; i < offset; i++) {
+    currentWeek.push("");
+  }
+
+  // 遍历整个日期范围
+  for (let day = 1; day <= lastDayOfMonth.date(); day++) {
+    const currentDate = dayjs(`${year}-${month}-${day}`).format("YYYY-MM-DD");
+    currentWeek.push(currentDate);
+
+    // 如果当前周已满7天，则存入结果数组并创建新一周
+    if (currentWeek.length === 7) {
+      weeks.push(currentWeek);
+      currentWeek = [];
+    }
+  }
+
+  // 补充最后一周的空白日期
+  while (currentWeek.length > 0 && currentWeek.length < 7) {
+    currentWeek.push("");
+  }
+
+  // 将最后一周加入结果数组
+  if (currentWeek.length > 0) {
+    weeks.push(currentWeek);
+  }
+  console.log(weeks);
+  return weeks;
+}
