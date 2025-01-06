@@ -54,18 +54,6 @@ export default async function useDate(
     return regex.test(target);
   };
 
-  // /**
-  //  * 检测是否为包含半天年休的公分记录
-  //  * @param target
-  //  * @returns {boolean}
-  //  */
-  // const isAnnualPart = (target: string) => {
-  //   const prefixes: string[] = REST_INFO.ANNUAL_LEAVE.label; // 定义可能的开头字符串
-  //   const regexStr = `^(半天|0\\.5)(${prefixes.join("|")})$`;
-  //   const regex = new RegExp(regexStr);
-  //   return regex.test(target);
-  // };
-
   const getNumberFromString = (str: string): number => {
     return +str.replace(/[\u4e00-\u9fa5]/g, "");
   };
@@ -214,16 +202,6 @@ export default async function useDate(
   }
   console.log("%c Line:191 🍿 resList", "color:#465975", resList);
 
-  // {
-  //   employeeId: "",
-  //   dates: [],
-  //   records: [],
-  //   ss: [],
-  //   ssj: [],
-  //   wj: [],
-  //   wjj: [],
-  // }
-
   // 获取年、月
   const [year, month] = yearMonth.split("/").map((e) => +e);
 
@@ -264,26 +242,6 @@ export default async function useDate(
       }
     }
   }
-  console.log("%c Line:246 🍆 weeks", "color:#ea7e5c", weeks);
-
-  // const array: RecordInfo[] = employeeList.map((e) => {
-  //   return {
-  //     employeeId: e.id,
-  //     employeeName: e.name,
-  //     date: el,
-  //     record: "",
-  //     ss: 0,
-  //     ssj: 0,
-  //     wj: 0,
-  //     wjj: 0,
-  //     weekDay: -1,
-  //     name: "",
-  //     type: "",
-  //     typeName: "",
-  //     ratio1: 0,
-  //     ratio2: 0,
-  //   };
-  // });
   const verificationList: any = {};
   const filterList = resList.filter((item: any) => weeks.includes(item.date));
   console.log("%c Line:289 🍷 filterList", "color:#e41a6a", filterList);
@@ -334,7 +292,6 @@ export default async function useDate(
     });
     verificationList[emp.name] = employeeRecords;
   });
-  console.log("%c Line:257 🥒 result", "color:#33a5ff", verificationList);
   return {
     verificationList,
   };
