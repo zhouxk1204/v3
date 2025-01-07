@@ -54,3 +54,49 @@
   text-align-last: justify;
   height: 24px;
 }
+
+.markdown {
+  &:first-child {
+    @apply mt-0;
+  }
+
+  &:last-child {
+    @apply mb-0;
+  }
+
+  p {
+    @apply my-3 mx-0;
+  }
+
+  li::marker {
+    color: rgb(139 139 139);
+  }
+
+  li {
+    @apply mt-1;
+  }
+
+  ul,
+  ol {
+    margin: 12px 0;
+    padding-left: 24px;
+  }
+
+  ol {
+    display: block;
+    list-style-type: decimal;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    padding-inline-start: 40px;
+    unicode-bidi: isolate;
+  }
+
+  h3{
+    font-weight: 600;
+    margin-bottom: .5rem;
+    margin-top: 1rem;
+    font-size: 20px;
+  }
+}
