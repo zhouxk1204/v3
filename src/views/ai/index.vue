@@ -1,13 +1,14 @@
 <template>
   <div class="flex flex-col items-center justify-center h-screen overflow-hidden">
-    <div class="max-w-[768px] w-full flex-1 overflow-auto pt-5 flex flex-col gap-8 px-5" v-if="chatList.length > 0">
+    <div ref="chatAreaDomRef"
+      class="hide-scrollbar max-w-[768px] w-full flex-1 overflow-auto py-5 flex flex-col gap-8 px-5"
+      v-if="chatList.length > 0">
       <div v-for="item in chatList" class="flex gap-5" :class="item.role === 'user' ? 'justify-end' : ''">
-        <div class="flex flex-col group">
+        <div class="flex flex-col">
           <div class="markdown" :class="item.role === 'user' ? 'bg-[#f1f1f1] rounded-2xl px-5' : 'px-5 py-2'"
             v-html="renderMarkdown(item.content)">
           </div>
-          <div class="flex gap-[2px] group-hover:opacity-100 opacity-0 transition-opacity duration-200"
-            v-if="item.role !== 'user'">
+          <div class="flex gap-[2px]" v-if="item.role !== 'user' && isAnswerLoaded">
             <el-tooltip class="box-item" effect="dark" content="复制" placement="bottom">
               <button @click="onCopyResult(item.content)"
                 class="flex items-center justify-center hover:bg-[#f1f1f1] active:bg-[#f1f1f1] rounded-xl w-8 h-8">
@@ -16,22 +17,18 @@
                 </el-icon>
               </button>
             </el-tooltip>
-            <el-tooltip class="box-item" effect="dark" content="重新生成" placement="bottom">
-              <button
-                class="flex items-center justify-center hover:bg-[#f1f1f1] active:bg-[#f1f1f1] rounded-xl w-8 h-8">
-                <el-icon size='18'>
-                  <Refresh />
-                </el-icon>
-              </button>
-            </el-tooltip>
           </div>
         </div>
       </div>
     </div>
     <div class="flex flex-col gap-1 max-w-[768px] w-full  px-5 mb-8">
+      <h1 class="flex items-center justify-center gap-2 mb-4" v-if="chatList.length === 0">
+        <img src="/peach.png" alt="peach" class="w-9 h-9">
+        <strong class="text-3xl text-[#f99b52]">AI</strong>
+      </h1>
       <div class="flex flex-col gap-1 p-3  bg-[#f1f1f1] rounded-2xl max-w-[768px] w-full">
         <textarea rows="1" v-model="question" class="p-2 bg-[#f1f1f1] outline-none resize-none"
-          placeholder="给DeepSeek发送消息" @keydown.enter.prevent="onChat"></textarea>
+          placeholder="给Peach AI发送消息"></textarea>
         <div class="flex justify-end">
           <el-tooltip class="box-item" effect="dark" content="请输入您的问题" placement="top">
             <button @click="onChat"
@@ -53,25 +50,36 @@
 </template>
 
 <script setup lang='ts'>
-import { CopyDocument, Refresh } from "@element-plus/icons-vue";
+import { CopyDocument } from "@element-plus/icons-vue";
+import hljs from 'highlight.js';
+import 'highlight.js/styles/atom-one-light.css'; // 引入样式，选择自己喜欢的样式
 import { marked } from 'marked'; // 引入 marked 库
 
+const isAnswerLoaded = ref(false);
 const question = ref("");
 const chatList = ref<{
   role: string,
   content: string
-}[]>([]);
+}[]>([
+  //   {
+  //     role: 'asss',
+  //     content: `<p>在 JavaScript 中，你可以使用 <code>console.log()</code> 函数在控制台输出 &quot;Hello, World!&quot;。以下是一个简单的代码示例：</p>
+  // <pre><code class="language-javascript">console.log(&quot;Hello, World!&quot;);
+  // </code></pre>
+  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>`
+  //   }
+]);
 
 const onChat = () => {
+  isAnswerLoaded.value = false;
   chatList.value.push({
     role: 'user',
     content: question.value
   })
   fetchStreamData(question.value);
   question.value = '';
+
 }
-// 调用示例
-// fetchStreamData("hello");
 
 async function fetchStreamData(prompt: string) {
   let message = '';
@@ -114,7 +122,7 @@ async function fetchStreamData(prompt: string) {
         // 检查流结束标识
         if (jsonString === '[DONE]') {
           console.log('流式数据接收完成');
-          console.log('message>>>>>>' + message);
+          isAnswerLoaded.value = true;
           return;
         }
 
@@ -123,7 +131,6 @@ async function fetchStreamData(prompt: string) {
           const content = data.choices[0]?.delta?.content || '';
           message += content;
           chatList.value[currentIndex].content = message;
-          console.log(content); // 输出内容
         } catch (error) {
           console.error('解析错误:', error);
         }
@@ -133,15 +140,45 @@ async function fetchStreamData(prompt: string) {
 }
 
 const renderMarkdown = (content: string) => {
-  const html = marked(content);
-  console.log(html);
-  return html; // 使用 marked 解析 Markdown
+  // 使用 marked 解析 Markdown 为 HTML
+  let html = marked(content) as string;
+  // 替换生成的 HTML 中的 <pre> 标签，插入语言名称和复制按钮
+  html = html.replace(/<pre><code class="language-(\w+)">([\s\S]*?)<\/code><\/pre>/g, (_match, language, code) => {
+    // 生成替换的 HTML
+    return `
+      <pre><div class="flex items-center justify-between px-4 py-2 text-xs bg-gray-100">
+        <span>${language}</span>
+        <button class="copy-btn" data-clipboard-text="${code}">复制</button>
+      </div><code class="language-${language}">${code}</code></pre>
+    `;
+  });
+
+  // 等到 DOM 渲染完成后，再高亮代码
+  nextTick(() => {
+    // 找到所有的 code 块
+    const codeBlocks = document.querySelectorAll('pre code');
+    codeBlocks.forEach((block: any) => {
+      hljs.highlightElement(block); // 高亮每个代码块
+    });
+    // 为所有的复制按钮绑定点击事件
+    const copyButtons = document.querySelectorAll('.copy-btn');
+    copyButtons.forEach((button: any) => {
+      button.addEventListener('click', () => {
+        const text = button.getAttribute('data-clipboard-text');
+        if (text) {
+          // 执行复制操作
+          onCopyResult(text);
+        }
+      });
+    });
+    scrollToBottom();
+  });
+  return html;
 }
 
 const onCopyResult = (content: string) => {
   navigator.clipboard.writeText(content)
     .then(() => {
-      console.log('内容已复制到剪贴板');
       ElMessage({
         message: '复制成功',
         type: 'success',
@@ -151,4 +188,30 @@ const onCopyResult = (content: string) => {
       console.error('复制失败:', err);
     });
 }
+
+const chatAreaDomRef = ref();
+const scrollToBottom = () => {
+  const container = chatAreaDomRef.value; // 选择聊天列表容器
+  if (container) {
+    container.scrollTop = container.scrollHeight; // 滚动到容器底部
+  }
+}
 </script>
+<style lang="scss" scoped>
+.hide-scrollbar {
+  overflow-y: auto;
+  /* 允许垂直滚动 */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+  /* 隐藏 Chrome, Safari 和 Opera 的滚动条 */
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  /* IE 和 Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+</style>
