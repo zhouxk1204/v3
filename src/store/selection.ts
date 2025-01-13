@@ -1,3 +1,10 @@
+/*
+ * @Author: 周小康
+ * @Date: 2024-08-20 20:27:30
+ * @LastEditors: 周小康
+ * @LastEditTime: 2025-01-13 09:59:39
+ * @Description: 
+ */
 import { SelectOption } from "@/api/common/type";
 import { SelectOptionType } from "@/constants";
 import { defineStore } from "pinia";
