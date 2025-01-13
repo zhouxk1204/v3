@@ -5,7 +5,7 @@
       v-if="chatList.length > 0">
       <div v-for="item in chatList" class="flex gap-5" :class="item.role === 'user' ? 'justify-end' : ''">
         <div class="flex flex-col">
-          <div class="markdown" :class="item.role === 'user' ? 'bg-[#f1f1f1] rounded-2xl px-5' : 'px-5 py-2'"
+          <div class="markdown" :class="item.role === 'user' ? 'bg-[#f1f1f1] rounded-2xl' : ''"
             v-html="renderMarkdown(item.content)">
           </div>
           <div class="flex gap-[2px]" v-if="item.role !== 'user' && isAnswerLoaded">
@@ -171,7 +171,6 @@ const renderMarkdown = (content: string) => {
         }
       });
     });
-    scrollToBottom();
   });
   return html;
 }
@@ -190,12 +189,12 @@ const onCopyResult = (content: string) => {
 }
 
 const chatAreaDomRef = ref();
-const scrollToBottom = () => {
-  const container = chatAreaDomRef.value; // 选择聊天列表容器
-  if (container) {
-    container.scrollTop = container.scrollHeight; // 滚动到容器底部
-  }
-}
+// const scrollToBottom = () => {
+//   const container = chatAreaDomRef.value; // 选择聊天列表容器
+//   if (container) {
+//     container.scrollTop = container.scrollHeight; // 滚动到容器底部
+//   }
+// }
 </script>
 <style lang="scss" scoped>
 .hide-scrollbar {
