@@ -49,7 +49,13 @@ for (const [path, meta] of detail) {
   }
 }
 
-routes = routes.map((e: any) => ({ ...e, path: `/${e.path}` }));
+routes = routes.map((e: any) => {
+  if (e.path === "home") {
+    return { ...e, path: `/` };
+  } else {
+    return { ...e, path: `/${e.path}` };
+  }
+});
 
 function setDefault(routes: any[]) {
   routes.forEach((route) => {
@@ -86,7 +92,7 @@ router.beforeEach((to, _, next) => {
 
   const token = localStorage.getItem(STORAGE_KEY.TOKEN) ?? "";
   // 3.判断是否有 Token，没有token跳转到登陆页面并且携带原目标路径
-  if (!token) {
+  if (!token && to.path.includes("main")) {
     ElMessageBox.alert("您还没有登录，请登录！", "提示", {
       confirmButtonText: "去登录",
       type: "warning",
