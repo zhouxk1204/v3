@@ -5,7 +5,7 @@ export function useScrollBar(domRef: Ref<HTMLElement | undefined>) {
 
   const debounce = (func: Function, delay: number) => {
     let timeout: ReturnType<typeof setTimeout>;
-    return (...args: any[]) => {
+    return () => {
       clearTimeout(timeout);
       timeout = setTimeout(() => func(), delay);
     };
