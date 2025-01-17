@@ -47,7 +47,8 @@
               height: '34px',
               boxShadow: 'none'
             }" size="large" resize="none" :autosize="{ minRows: 1, maxRows: 12 }" v-model="form.question"
-              @keydown="onEnter" placeholder="给Peach AI发送消息" type="textarea" />
+              @compositionstart="isComposing = true" @compositionend="isComposing = false" @keydown="onEnter"
+              placeholder="给Peach AI发送消息" type="textarea" />
           </el-form-item>
           <div class="flex justify-between">
             <div class="flex gap-2 items-center">
@@ -57,13 +58,10 @@
             </div>
             <button @click="onChat"
               :class="isQuestionEmpty ? 'text-[#f1f1f1] bg-[#cecece] cursor-not-allowed' : 'text-white bg-black'"
-              class="overflow-hidden w-8 h-8 rounded-full" :disabled="isQuestionEmpty">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
-                class="icon-2xl">
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                  d="M15.1918 8.90615C15.6381 8.45983 16.3618 8.45983 16.8081 8.90615L21.9509 14.049C22.3972 14.4953 22.3972 15.2189 21.9509 15.6652C21.5046 16.1116 20.781 16.1116 20.3347 15.6652L17.1428 12.4734V22.2857C17.1428 22.9169 16.6311 23.4286 15.9999 23.4286C15.3688 23.4286 14.8571 22.9169 14.8571 22.2857V12.4734L11.6652 15.6652C11.2189 16.1116 10.4953 16.1116 10.049 15.6652C9.60265 15.2189 9.60265 14.4953 10.049 14.049L15.1918 8.90615Z"
-                  fill="currentColor"></path>
-              </svg>
+              class="flex overflow-hidden justify-center items-center w-8 h-8 rounded-full" :disabled="isQuestionEmpty">
+              <el-icon size="20">
+                <Top />
+              </el-icon>
             </button>
           </div>
         </el-form>
@@ -75,7 +73,7 @@
 
 <script setup lang='ts'>
 import { useScrollBar } from "@/hooks/useScrollBar";
-import { Bottom, CopyDocument } from "@element-plus/icons-vue";
+import { Bottom, CopyDocument, Top } from "@element-plus/icons-vue";
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-light.css'; // 引入样式
 import { marked } from 'marked'; // 引入 marked 库
@@ -86,24 +84,12 @@ const chatList = ref<{
   content: string
 }[]>([
   // {
-  //   role: 'user',
-  //   content: '你好'
+  //   "role": "user",
+  //   "content": "五个ts的工具函数"
   // },
   // {
-  //   role: 'asss',
-  //   content: `<p>在 JavaScript 中，你可以使用 <code>console.log()</code> 函数在控制台输出 &quot;Hello, World!&quot;。以下是一个简单的代码示例：</p>
-  // <pre><code class="language-javascript">console.log(&quot;Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!&quot;);
-  // </code></pre>
-  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
-  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
-  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
-  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
-  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
-  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
-  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
-  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
-  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
-  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>`
+  //   "role": "assistant",
+  //   "content": "以下是五个常用的 TypeScript 工具函数示例，涵盖了常见的开发需求：\n\n---\n\n### 1. **深拷贝对象**\n```typescript\nfunction deepClone<T>(obj: T): T {\n  return JSON.parse(JSON.stringify(obj));\n}\n\n// 示例\nconst original = { a: 1, b: { c: 2 } };\nconst cloned = deepClone(original);\nconsole.log(cloned); // { a: 1, b: { c: 2 } }\n```\n\n---\n\n### 2. **防抖函数**\n```typescript\nfunction debounce<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => void {\n  let timeoutId: ReturnType<typeof setTimeout>;\n  return (...args: Parameters<T>) => {\n    clearTimeout(timeoutId);\n    timeoutId = setTimeout(() => fn(...args), delay);\n  };\n}\n\n// 示例\nconst logMessage = debounce((message: string) => {\n  console.log(message);\n}, 300);\n\nlogMessage(\"Hello, World!\"); // 300ms 后打印 \"Hello, World!\"\n```\n\n---\n\n### 3. **节流函数**\n```typescript\nfunction throttle<T extends (...args: any[]) => any>(fn: T, limit: number): (...args: Parameters<T>) => void {\n  let inThrottle: boolean;\n  return (...args: Parameters<T>) => {\n    if (!inThrottle) {\n      fn(...args);\n      inThrottle = true;\n      setTimeout(() => (inThrottle = false), limit);\n    }\n  };\n}\n\n// 示例\nconst logScroll = throttle(() => {\n  console.log(\"Scrolling...\");\n}, 1000);\n\nwindow.addEventListener(\"scroll\", logScroll); // 每 1 秒最多打印一次 \"Scrolling...\"\n```\n\n---\n\n### 4. **检查对象是否为空**\n```typescript\nfunction isEmpty(obj: Record<string, any>): boolean {\n  return Object.keys(obj).length === 0;\n}\n\n// 示例\nconst emptyObj = {};\nconst nonEmptyObj = { a: 1 };\n\nconsole.log(isEmpty(emptyObj)); // true\nconsole.log(isEmpty(nonEmptyObj)); // false\n```\n\n---\n\n### 5. **生成随机字符串**\n```typescript\nfunction generateRandomString(length: number): string {\n  const chars = \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\";\n  let result = \"\";\n  for (let i = 0; i < length; i++) {\n    result += chars.charAt(Math.floor(Math.random() * chars.length));\n  }\n  return result;\n}\n\n// 示例\nconst randomStr = generateRandomString(10);\nconsole.log(randomStr); // 例如 \"aB3dE7fG9h\"\n```\n\n---\n\n这些工具函数可以帮助你在 TypeScript 项目中更高效地处理常见任务。如果需要进一步优化或扩展功能，可以根据具体需求进行调整。"
   // }
 ]);
 
@@ -112,10 +98,11 @@ const form = reactive({
 })
 
 const contextMode = ref(false);
-
+const isComposing = ref(false);
 const isScrollbarShow = ref(false);
 const chatAreaDomRef = ref();
-const { isBottom, checkScrollbar } = useScrollBar(chatAreaDomRef);
+
+const { isBottom, checkScrollbar } = useScrollBar(chatAreaDomRef.value);
 
 const isQuestionEmpty = computed<boolean>(() => {
   return form.question.length === 0;
@@ -130,13 +117,10 @@ const onChat = () => {
   chatList.value.push(questionItem)
   fetchStreamData(questionItem);
   form.question = '';
-  isScrollbarShow.value = checkScrollbar();
-  console.log('isScrollbarShow.value', isScrollbarShow.value);
 }
 
 const onEnter = (event: any) => {
-  console.log(event);
-  if (event.key === "Enter" && !event.shiftKey && !event.altKey) {
+  if (event.key === "Enter" && !event.shiftKey && !event.altKey && !isComposing.value) {
     event.preventDefault();
     onChat();
   }
@@ -148,7 +132,6 @@ async function fetchStreamData(questionItem: {
 }) {
   let message = '';
   const body = JSON.stringify(contextMode.value ? chatList.value : [questionItem]);
-  console.log(body);
   const response = await fetch(import.meta.env.APP_API_BASE_URL + "/chat/ask", {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -186,9 +169,7 @@ async function fetchStreamData(questionItem: {
 
         // 检查流结束标识
         if (jsonString === '[DONE]') {
-          console.log('流式数据接收完成');
           isAnswerLoaded.value = true;
-          console.log(chatList.value);
           return;
         }
 
@@ -231,14 +212,20 @@ const renderMarkdown = (content: string) => {
     // 为所有的复制按钮绑定点击事件
     const copyButtons = document.querySelectorAll('.copy-btn');
     copyButtons.forEach((button: any) => {
-      button.addEventListener('click', () => {
-        const text = button.getAttribute('data-clipboard-text');
-        if (text) {
-          // 执行复制操作
-          onCopyResult(text);
-        }
-      });
+      // 检查是否已经注册过事件
+      if (!button.hasAttribute('data-click-registered')) {
+        button.addEventListener('click', () => {
+          const text = button.getAttribute('data-clipboard-text');
+          if (text) {
+            // 执行复制操作
+            onCopyResult(text);
+          }
+        });
+        // 标记为已注册
+        button.setAttribute('data-click-registered', 'true');
+      }
     });
+    isScrollbarShow.value = checkScrollbar();
   });
   return html;
 }

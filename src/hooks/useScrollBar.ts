@@ -1,6 +1,6 @@
 import { onMounted, onUnmounted, ref } from "vue";
 
-export function useScrollBar(domRef: Ref<HTMLElement | undefined>) {
+export function useScrollBar(domRef: HTMLElement | undefined) {
   const isBottom = ref(false);
 
   const debounce = (func: Function, delay: number) => {
@@ -12,33 +12,34 @@ export function useScrollBar(domRef: Ref<HTMLElement | undefined>) {
   };
 
   const checkScrollbar = (): boolean => {
-    if (!domRef.value) {
+    if (!domRef) {
       return false;
     }
-    return domRef.value.scrollHeight > domRef.value.clientHeight;
+    return domRef.scrollHeight > domRef.clientHeight;
   };
 
   const checkBottom = () => {
-    if (domRef.value) {
-      const {
-        scrollTop = 0,
-        scrollHeight = 0,
-        clientHeight = 0,
-      } = domRef.value;
-      console.log(scrollTop, scrollHeight, clientHeight);
+    if (domRef) {
+      const { scrollTop = 0, scrollHeight = 0, clientHeight = 0 } = domRef;
       isBottom.value = scrollTop + clientHeight >= scrollHeight;
-      console.log(isBottom.value);
     }
   };
 
   const debouncedCheckBottom = debounce(checkBottom, 10);
 
   onMounted(() => {
-    domRef.value?.addEventListener("scroll", debouncedCheckBottom);
+    console.log("domRef", domRef);
+    if (domRef) {
+      domRef.addEventListener("scroll", debouncedCheckBottom);
+      window.addEventListener("resize", debouncedCheckBottom);
+    }
   });
 
   onUnmounted(() => {
-    domRef.value?.removeEventListener("scroll", debouncedCheckBottom);
+    if (domRef) {
+      domRef.removeEventListener("scroll", debouncedCheckBottom);
+      window.removeEventListener("resize", debouncedCheckBottom);
+    }
   });
 
   return {
