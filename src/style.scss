@@ -101,7 +101,7 @@
   }
 
   pre{
-   @apply rounded overflow-hidden border border-gray-300;
+   @apply rounded overflow-hidden border border-gray-300 w-[calc(100vw-84px)] md:w-[684px];
   }
 
   code{

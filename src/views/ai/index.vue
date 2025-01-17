@@ -1,14 +1,23 @@
 <template>
-  <div class="flex flex-col items-center justify-center h-screen overflow-hidden">
-    <div ref="chatAreaDomRef"
-      class="hide-scrollbar max-w-[768px] w-full flex-1 overflow-auto py-5 flex flex-col gap-8 px-5"
-      v-if="chatList.length > 0">
-      <div v-for="item in chatList" class="flex gap-4" :class="item.role === 'user' ? 'justify-end' : ''">
-        <div class="flex-none pt-3 " v-if="item.role !== 'user'">
+  <div ref="chatContainerDomRef" class="flex overflow-hidden relative flex-col items-center h-screen"
+    :class="chatList.length === 0 ? 'justify-center' : ''">
+    <div class="flex fixed right-0 left-0 bottom-40 z-10 justify-center items-center">
+      <button @click="onGoToBottom" v-show="!isBottom && isScrollbarShow"
+        class="flex justify-center items-center w-10 h-10 bg-white rounded-full border shadow-xl">
+        <el-icon>
+          <Bottom />
+        </el-icon>
+      </button>
+    </div>
+    <div ref="chatAreaDomRef" v-if="chatList.length !== 0"
+      class="hide-scrollbar max-w-[768px] w-full flex-1 overflow-y-auto overflow-x-hidden py-5 flex flex-col gap-8 px-4 relative">
+      <div v-for="item in chatList" class="flex gap-4 w-full" :class="item.role === 'user' ? 'justify-end' : ''">
+        <div class="flex-none pt-3" v-if="item.role !== 'user'">
           <img src="/peach.png" alt="peach" class="border rounded-full p-[6px] w-9 h-9">
         </div>
         <div class="flex flex-col">
-          <div class="markdown" :class="item.role === 'user' ? 'bg-[#f1f1f1] rounded-[32px] px-[18px]' : ''"
+          <div class="flex flex-col flex-1 markdown"
+            :class="item.role === 'user' ? 'bg-[#f1f1f1] rounded-[32px] px-[18px]' : ''"
             v-html="renderMarkdown(item.content)">
           </div>
           <div class="flex gap-[2px]" v-if="item.role !== 'user' && isAnswerLoaded">
@@ -24,19 +33,31 @@
         </div>
       </div>
     </div>
-    <div class="flex flex-col gap-1 max-w-[768px] w-full  px-5 mb-8">
-      <h1 class="flex items-center justify-center gap-2 mb-4" v-if="chatList.length === 0">
+    <div class="flex flex-col gap-1 max-w-[768px] w-full  px-5 mb-8 relative">
+      <h1 class="flex gap-2 justify-center items-center mb-4" v-if="chatList.length === 0">
         <img src="/peach.png" alt="peach" class="w-9 h-9">
         <strong class="text-3xl text-[#f99b52]">AI</strong>
       </h1>
       <div class="flex flex-col gap-1 p-3  bg-[#f1f1f1] rounded-2xl max-w-[768px] w-full">
-        <textarea rows="1" v-model="question" class="p-2 bg-[#f1f1f1] outline-none resize-none"
-          placeholder="给Peach AI发送消息"></textarea>
-        <div class="flex justify-end">
-          <el-tooltip class="box-item" effect="dark" content="请输入您的问题" placement="top" v-if="question.length === 0">
+        <el-form :model="form">
+          <el-form-item label="">
+            <el-input :input-style="{
+              backgroundColor: '#f1f1f1',
+              border: 'none',
+              height: '34px',
+              boxShadow: 'none'
+            }" size="large" resize="none" :autosize="{ minRows: 1, maxRows: 12 }" v-model="form.question"
+              @keydown="onEnter" placeholder="给Peach AI发送消息" type="textarea" />
+          </el-form-item>
+          <div class="flex justify-between">
+            <div class="flex gap-2 items-center">
+              <el-switch size="large" v-model="contextMode" class="ml-2"
+                style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" />
+              <span class="text-xs text-gray-400">{{ contextMode ? '开启' : '关闭' }}记忆</span>
+            </div>
             <button @click="onChat"
-              :class="question.length === 0 ? 'text-[#f1f1f1] bg-[#cecece] cursor-not-allowed' : 'text-white bg-black'"
-              class="w-8 h-8 overflow-hidden rounded-full" :disabled="question.length === 0">
+              :class="isQuestionEmpty ? 'text-[#f1f1f1] bg-[#cecece] cursor-not-allowed' : 'text-white bg-black'"
+              class="overflow-hidden w-8 h-8 rounded-full" :disabled="isQuestionEmpty">
               <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
                 class="icon-2xl">
                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -44,62 +65,94 @@
                   fill="currentColor"></path>
               </svg>
             </button>
-          </el-tooltip>
-          <button v-else @click="onChat"
-            :class="question.length === 0 ? 'text-[#f1f1f1] bg-[#cecece] cursor-not-allowed' : 'text-white bg-black'"
-            class="w-8 h-8 overflow-hidden rounded-full" :disabled="question.length === 0">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
-              class="icon-2xl">
-              <path fill-rule="evenodd" clip-rule="evenodd"
-                d="M15.1918 8.90615C15.6381 8.45983 16.3618 8.45983 16.8081 8.90615L21.9509 14.049C22.3972 14.4953 22.3972 15.2189 21.9509 15.6652C21.5046 16.1116 20.781 16.1116 20.3347 15.6652L17.1428 12.4734V22.2857C17.1428 22.9169 16.6311 23.4286 15.9999 23.4286C15.3688 23.4286 14.8571 22.9169 14.8571 22.2857V12.4734L11.6652 15.6652C11.2189 16.1116 10.4953 16.1116 10.049 15.6652C9.60265 15.2189 9.60265 14.4953 10.049 14.049L15.1918 8.90615Z"
-                fill="currentColor"></path>
-            </svg>
-          </button>
-        </div>
+          </div>
+        </el-form>
       </div>
-      <p class="fixed bottom-0 left-0 w-full py-2 text-xs text-center text-gray-400">内容由AI生成，请注意甄别</p>
+      <p class="fixed bottom-0 left-0 py-2 w-full text-xs text-center text-gray-400">内容由AI生成，请注意甄别</p>
     </div>
   </div>
 </template>
 
 <script setup lang='ts'>
-import { CopyDocument } from "@element-plus/icons-vue";
+import { useScrollBar } from "@/hooks/useScrollBar";
+import { Bottom, CopyDocument } from "@element-plus/icons-vue";
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-light.css'; // 引入样式
 import { marked } from 'marked'; // 引入 marked 库
 
-const isAnswerLoaded = ref(false);
-const question = ref("");
+const isAnswerLoaded = ref(true);
 const chatList = ref<{
   role: string,
   content: string
 }[]>([
-  //   {
-  //     role: 'asss',
-  //     content: `<p>在 JavaScript 中，你可以使用 <code>console.log()</code> 函数在控制台输出 &quot;Hello, World!&quot;。以下是一个简单的代码示例：</p>
-  // <pre><code class="language-javascript">console.log(&quot;Hello, World!&quot;);
+  // {
+  //   role: 'user',
+  //   content: '你好'
+  // },
+  // {
+  //   role: 'asss',
+  //   content: `<p>在 JavaScript 中，你可以使用 <code>console.log()</code> 函数在控制台输出 &quot;Hello, World!&quot;。以下是一个简单的代码示例：</p>
+  // <pre><code class="language-javascript">console.log(&quot;Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!Hello, World!&quot;);
   // </code></pre>
+  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
+  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
+  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
+  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
+  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
+  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
+  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
+  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
+  // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>
   // <p>将这段代码复制到你的 JavaScript 文件或浏览器的开发者工具控制台中，运行后你将在控制台看到输出 <code>Hello, World!</code>。</p>`
-  //   }
+  // }
 ]);
+
+const form = reactive({
+  question: ''
+})
+
+const contextMode = ref(false);
+
+const isScrollbarShow = ref(false);
+const chatAreaDomRef = ref();
+const { isBottom, checkScrollbar } = useScrollBar(chatAreaDomRef);
+
+const isQuestionEmpty = computed<boolean>(() => {
+  return form.question.length === 0;
+});
 
 const onChat = () => {
   isAnswerLoaded.value = false;
-  chatList.value.push({
+  const questionItem = {
     role: 'user',
-    content: question.value
-  })
-  fetchStreamData(question.value);
-  question.value = '';
-
+    content: form.question
+  };
+  chatList.value.push(questionItem)
+  fetchStreamData(questionItem);
+  form.question = '';
+  isScrollbarShow.value = checkScrollbar();
+  console.log('isScrollbarShow.value', isScrollbarShow.value);
 }
 
-async function fetchStreamData(prompt: string) {
+const onEnter = (event: any) => {
+  console.log(event);
+  if (event.key === "Enter" && !event.shiftKey && !event.altKey) {
+    event.preventDefault();
+    onChat();
+  }
+}
+
+async function fetchStreamData(questionItem: {
+  role: string,
+  content: string
+}) {
   let message = '';
+  const body = JSON.stringify(contextMode.value ? chatList.value : [questionItem]);
+  console.log(body);
   const response = await fetch(import.meta.env.APP_API_BASE_URL + "/chat/ask", {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt }),
+    body: body,
   });
 
   // 获取可读流的 reader
@@ -120,7 +173,6 @@ async function fetchStreamData(prompt: string) {
     // 逐块读取流数据
     const { value, done } = await reader.read();
     if (done) {
-
       break;
     }; // 读取完成
 
@@ -136,6 +188,7 @@ async function fetchStreamData(prompt: string) {
         if (jsonString === '[DONE]') {
           console.log('流式数据接收完成');
           isAnswerLoaded.value = true;
+          console.log(chatList.value);
           return;
         }
 
@@ -159,7 +212,7 @@ const renderMarkdown = (content: string) => {
   html = html.replace(/<pre><code class="language-(\w+)">([\s\S]*?)<\/code><\/pre>/g, (_match, language, code) => {
     // 生成替换的 HTML
     return `
-      <pre><div class="flex items-center justify-between px-4 py-2 text-xs bg-gray-100">
+      <pre><div class="flex justify-between items-center px-4 py-2 text-xs bg-gray-100">
         <span>${language}</span>
         <button class="copy-btn" data-clipboard-text="${code}">复制</button>
       </div><code class="language-${language}">${code}</code></pre>
@@ -171,7 +224,9 @@ const renderMarkdown = (content: string) => {
     // 找到所有的 code 块
     const codeBlocks = document.querySelectorAll('pre code');
     codeBlocks.forEach((block: any) => {
-      hljs.highlightElement(block); // 高亮每个代码块
+      if (!block.hasAttribute('data-highlighted')) {
+        hljs.highlightBlock(block); // 高亮每个代码块
+      }
     });
     // 为所有的复制按钮绑定点击事件
     const copyButtons = document.querySelectorAll('.copy-btn');
@@ -201,7 +256,12 @@ const onCopyResult = (content: string) => {
     });
 }
 
-const chatAreaDomRef = ref();
+const onGoToBottom = () => {
+  chatAreaDomRef.value.scrollTo({
+    top: chatAreaDomRef.value.scrollHeight,
+    behavior: 'smooth'
+  })
+}
 
 </script>
 <style lang="scss" scoped>
@@ -220,5 +280,10 @@ const chatAreaDomRef = ref();
   /* IE 和 Edge */
   scrollbar-width: none;
   /* Firefox */
+}
+
+:deep(.el-textarea__inner:focus) {
+  box-shadow: none;
+  box-shadow: none;
 }
 </style>
