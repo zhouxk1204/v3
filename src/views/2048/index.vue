@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center justify-center w-full h-full select-none bg-[#faf8f0]">
     <div>
-      <div class="flex items-center justify-between mb-4" :style="{ width: boardSize + 'px' }">
+      <div class="flex justify-between items-center mb-4" :style="{ width: boardSize + 'px' }">
         <h1 class="font-bold text-7xl text-[#756e66]">2048</h1>
         <div class="flex gap-2">
           <div class="bg-[#bbada0] rounded-md inline-block px-2 py-1 font-bold">
@@ -48,26 +48,26 @@
           </div>
         </div>
         <div :style="{
-        width: blockSize + 'px',
-        height: blockSize + 'px',
-      }" v-for="index in defaultSize * defaultSize" :key="index" class="bg-[#cac1b5] rounded-md">
+          width: blockSize + 'px',
+          height: blockSize + 'px',
+        }" v-for="index in defaultSize * defaultSize" :key="index" class="bg-[#cac1b5] rounded-md">
           &nbsp;
         </div>
         <template v-for="item in matrix">
           <div :style="{
-        top: `${item.row * blockSize + (item.row + 1) * space}px`,
-        left: `${item.col * blockSize + (item.col + 1) * space}px`,
-        width: blockSize + 'px',
-        height: blockSize + 'px',
-        'z-index': item.val,
-        'background-color': color[item.val],
-        color:
-          item.val === 0
-            ? 'transparent'
-            : item.val < 8
-              ? '#756e66'
-              : '#f8f6f2',
-      }" class="absolute flex items-center justify-center font-bold transition-all rounded-md zoom-out" :class="item.val === 0 ? 'm-el' : item.val > 100 ? 'text-4xl' : 'text-6xl'
+            top: `${item.row * blockSize + (item.row + 1) * space}px`,
+            left: `${item.col * blockSize + (item.col + 1) * space}px`,
+            width: blockSize + 'px',
+            height: blockSize + 'px',
+            'z-index': item.val,
+            'background-color': color[item.val],
+            color:
+              item.val === 0
+                ? 'transparent'
+                : item.val < 8
+                  ? '#756e66'
+                  : '#f8f6f2',
+          }" class="flex absolute justify-center items-center font-bold rounded-md transition-all" :class="item.val === 0 ? 'm-el' : item.val > 100 ? 'text-4xl' : 'text-6xl'
         ">
             {{ item.val }}
           </div>

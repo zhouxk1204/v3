@@ -101,10 +101,10 @@
   }
 
   pre{
-   @apply rounded overflow-hidden border border-gray-300 w-[calc(100vw-84px)] md:w-[684px];
+   @apply rounded overflow-hidden border border-gray-300 w-full;
   }
 
   code{
-    @apply text-sm;
+    @apply text-sm whitespace-pre-wrap break-all;
   }
 }

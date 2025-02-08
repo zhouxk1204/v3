@@ -18,9 +18,14 @@
           <el-button type="primary" plain :icon="Upload">导入</el-button>
         </UploadExcel>
         <el-button-group>
-          <el-button type="primary" plain :icon="Download" @click="exportData">导出</el-button>
+          <el-button type="primary" plain :icon="Download" @click="exportData">Excel导出</el-button>
           <el-button type="primary" plain :icon="Setting" @click="dialogTableVisible = true" />
         </el-button-group>
+        <el-button-group>
+          <el-button type="primary" plain @click="exportData">图片导出</el-button>
+          <el-button type="primary" plain :icon="Setting" @click="dialogTableVisible = true" />
+        </el-button-group>
+
 
 
         <el-date-picker v-model="currentMonth" class="max-w-28" type="month" placeholder="选择汇算月份" format="YYYY/MM"
@@ -48,7 +53,7 @@
         <el-watermark v-for="item in reportList" :content="item.employeeName" :gap="[50, 50]">
           <el-card v-if="item.total > 0">
             <template #header>
-              <div class="flex items-center justify-between">
+              <div class="flex justify-between items-center">
                 <h2 class="text-xl font-bold">{{ item.employeeName }}
                 </h2>
                 <p>系数：<span class="text-xl text-red-500">{{ item.factor }}</span></p>
