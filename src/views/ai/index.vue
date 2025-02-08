@@ -15,7 +15,7 @@
         <div class="flex-none pt-3" v-if="item.role !== 'user'">
           <img src="/peach.png" alt="peach" class="border rounded-full p-[6px] w-9 h-9">
         </div>
-        <div :class="item.role === 'user' ? 'flex flex-col justify-end items-end max-w-[66%]' : 'flex flex-col'">
+        <div :class="item.role === 'user' ? 'flex flex-col justify-end items-end max-w-[66%]' : 'flex flex-col pt-1'">
           <div class="flex flex-col flex-1 markdown"
             :class="item.role === 'user' ? 'bg-red-300 text-white rounded-[32px] px-[18px] w-full' : ''"
             v-html="renderMarkdown(item.content)">
@@ -33,7 +33,8 @@
         </div>
       </div>
     </div>
-    <div class="flex flex-col gap-3 max-w-[768px] w-full mb-8 flex-1 fixed px-4 bg-white" :class="chatList.length > 0 ? 'bottom-0 mb-8' : 'top-1/2 -translate-y-1/2'">
+    <div class="flex flex-col gap-3 max-w-[768px] w-full mb-8 flex-1 fixed px-4 bg-white"
+      :class="chatList.length > 0 ? 'bottom-0 mb-8' : 'top-1/2 -translate-y-1/2'">
       <div class="flex flex-col items-center justify-center gap-2" v-if="chatList.length === 0">
         <div class="flex gap-2">
           <img src="/peach.png" alt="peach" class="w-9 h-9">
@@ -69,7 +70,7 @@
           </div>
         </el-form>
       </div>
-  </div>
+    </div>
     <p class="fixed bottom-0 left-0 w-full py-2 text-xs text-center text-gray-400 bg-white">内容由AI生成，请注意甄别</p>
 
   </div>
