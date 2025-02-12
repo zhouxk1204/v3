@@ -2,7 +2,7 @@
   <div class="flex flex-col gap-3">
 
     <div class="flex items-center justify-between">
-      <Typewriter text="永远相信美好的事情即将发生"></Typewriter>
+      <Typewriter :contents="[]"></Typewriter>
     </div>
 
     <div class="flex gap-3">

@@ -12,6 +12,9 @@ module.exports = {
       backgroundColor: {
         primary: "var(--el-color-primary)", // Use the custom CSS variable
       },
+      boxShadow: {
+        primary: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px", // Add custom box-shadow
+      },
       keyframes: {
         zoomInOut: {
           "0%, 100%": {

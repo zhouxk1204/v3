@@ -33,16 +33,16 @@
         </div>
       </div>
     </div>
-    <div class="flex flex-col gap-3 max-w-[768px] w-full mb-8 flex-1 fixed px-4 bg-white"
-      :class="chatList.length > 0 ? 'bottom-0 mb-8' : 'top-1/2 -translate-y-1/2'">
-      <div class="flex flex-col items-center justify-center gap-2" v-if="chatList.length === 0">
+    <div class="flex flex-col gap-1 max-w-[768px] w-full flex-1 fixed px-4 bg-white"
+      :class="chatList.length > 0 ? 'bottom-0' : 'top-1/2 -translate-y-1/2'">
+      <div class="flex flex-col items-center justify-center gap-2 mb-2" v-if="chatList.length === 0">
         <div class="flex gap-2">
           <img src="/peach.png" alt="peach" class="w-9 h-9">
-          <strong class="text-4xl text-[#f99b52]">Peach AI</strong>
+          <strong class="text-3xl text-[#f99b52]">Peach AI</strong>
         </div>
-        <strong class="text-2xl">有什么可以帮忙的？</strong>
+        <Typewriter :contents="slogans"></Typewriter>
       </div>
-      <div class="flex flex-col gap-1 p-3  bg-white rounded-2xl max-w-[768px] w-full border">
+      <div class="flex flex-col gap-1 p-3 bg-white rounded-2xl max-w-[768px] w-full border shadow-primary">
         <el-form :model="form">
           <el-form-item label="">
             <el-input :input-style="{
@@ -55,7 +55,8 @@
               placeholder="给Peach AI发送消息" type="textarea" />
           </el-form-item>
           <div class="flex justify-between">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center flex-1 gap-2">
+              <Dropdown v-model="currentModel" :options="models" class="w-36"></Dropdown>
               <el-switch size="large" v-model="contextMode" class="ml-2"
                 style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" />
               <span class="text-xs text-gray-400">{{ contextMode ? '开启' : '关闭' }}记忆</span>
@@ -70,9 +71,8 @@
           </div>
         </el-form>
       </div>
+      <p class="w-full py-2 text-xs text-center text-gray-400 bg-white">内容由AI生成，请注意甄别</p>
     </div>
-    <p class="fixed bottom-0 left-0 w-full py-2 text-xs text-center text-gray-400 bg-white">内容由AI生成，请注意甄别</p>
-
   </div>
 </template>
 
@@ -97,6 +97,32 @@ const chatList = ref<{
   //   "content": "以下是五个常用的 TypeScript 工具函数示例，涵盖了常见的开发需求：\n\n---\n\n### 1. **深拷贝对象**\n```typescript\nfunction deepClone<T>(obj: T): T {\n  return JSON.parse(JSON.stringify(obj));\n}\n\n// 示例\nconst original = { a: 1, b: { c: 2 } };\nconst cloned = deepClone(original);\nconsole.log(cloned); // { a: 1, b: { c: 2 } }\n```\n\n---\n\n### 2. **防抖函数**\n```typescript\nfunction debounce<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => void {\n  let timeoutId: ReturnType<typeof setTimeout>;\n  return (...args: Parameters<T>) => {\n    clearTimeout(timeoutId);\n    timeoutId = setTimeout(() => fn(...args), delay);\n  };\n}\n\n// 示例\nconst logMessage = debounce((message: string) => {\n  console.log(message);\n}, 300);\n\nlogMessage(\"Hello, World!\"); // 300ms 后打印 \"Hello, World!\"\n```\n\n---\n\n### 3. **节流函数**\n```typescript\nfunction throttle<T extends (...args: any[]) => any>(fn: T, limit: number): (...args: Parameters<T>) => void {\n  let inThrottle: boolean;\n  return (...args: Parameters<T>) => {\n    if (!inThrottle) {\n      fn(...args);\n      inThrottle = true;\n      setTimeout(() => (inThrottle = false), limit);\n    }\n  };\n}\n\n// 示例\nconst logScroll = throttle(() => {\n  console.log(\"Scrolling...\");\n}, 1000);\n\nwindow.addEventListener(\"scroll\", logScroll); // 每 1 秒最多打印一次 \"Scrolling...\"\n```\n\n---\n\n### 4. **检查对象是否为空**\n```typescript\nfunction isEmpty(obj: Record<string, any>): boolean {\n  return Object.keys(obj).length === 0;\n}\n\n// 示例\nconst emptyObj = {};\nconst nonEmptyObj = { a: 1 };\n\nconsole.log(isEmpty(emptyObj)); // true\nconsole.log(isEmpty(nonEmptyObj)); // false\n```\n\n---\n\n### 5. **生成随机字符串**\n```typescript\nfunction generateRandomString(length: number): string {\n  const chars = \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\";\n  let result = \"\";\n  for (let i = 0; i < length; i++) {\n    result += chars.charAt(Math.floor(Math.random() * chars.length));\n  }\n  return result;\n}\n\n// 示例\nconst randomStr = generateRandomString(10);\nconsole.log(randomStr); // 例如 \"aB3dE7fG9h\"\n```\n\n---\n\n这些工具函数可以帮助你在 TypeScript 项目中更高效地处理常见任务。如果需要进一步优化或扩展功能，可以根据具体需求进行调整。"
   // }
 ]);
+
+const slogans = [
+  "有什么可以帮忙的？",
+  "需要帮助？AI随时为你服务！",
+  "让AI成为你的得力助手",
+  "有什么问题？AI来帮忙！",
+  "AI，随时准备提供帮助",
+  "用AI，让每个问题都迎刃而解",
+  "有什么需要，AI随时待命",
+  "智能助手，帮你轻松应对挑战",
+  "AI在这里，任何事都能帮忙",
+  "无论什么问题，AI帮你解决"
+];
+
+const models = ref([
+  {
+    label: 'DeepSeek V3',
+    value: 'v3'
+  },
+  {
+    label: 'DeepSeek R1',
+    value: 'r1'
+  },
+]);
+
+const currentModel = ref(models.value[0]);
 
 const form = reactive({
   question: ''
@@ -276,6 +302,11 @@ const onGoToBottom = () => {
 
 :deep(.el-textarea__inner:focus) {
   box-shadow: none;
+  box-shadow: none;
+}
+
+.custom-select .el-select__inner {
+  border: none;
   box-shadow: none;
 }
 </style>
