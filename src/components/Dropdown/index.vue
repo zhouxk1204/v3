@@ -1,8 +1,8 @@
 <template>
-  <div class="relative inline-block w-full text-left">
+  <div class="relative inline-block text-left w-36">
     <div>
       <button type="button" @click="isShowOption = !isShowOption"
-        class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50"
+        class="inline-flex w-36 justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50"
         id="menu-button" aria-expanded="true" aria-haspopup="true">
         {{ currentOption.label }}
         <svg class="-mr-1 text-gray-400 size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
