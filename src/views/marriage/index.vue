@@ -26,7 +26,7 @@
       <hr />
 
       <div class="flex justify-center overflow-x-hidden">
-        <Typewriter class="font-arvo"></Typewriter>
+        <!-- <Typewriter class="font-arvo"></Typewriter> -->
       </div>
     </div>
   </div>
