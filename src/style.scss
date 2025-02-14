@@ -100,6 +100,11 @@
     font-size: 20px;
   }
 
+  h4{
+    margin-top: .5rem;
+    margin-bottom: .5rem;
+  }
+
   pre{
    @apply rounded overflow-hidden border border-gray-300 w-full;
   }
@@ -107,4 +112,8 @@
   code{
     @apply text-sm whitespace-pre-wrap break-all;
   }
+}
+
+.reasoner p {
+  @apply mb-3
 }

@@ -31,7 +31,7 @@
                 <ArrowDown />
               </el-icon></button>
             <div class="loader" v-if="item.reasoning_content.length === 0"></div>
-            <div class="flex gap-3 my-1 " v-if="item.reasoning_content.length > 0 && isShowReasoning">
+            <div class="flex gap-3 my-1 reasoner" v-if="item.reasoning_content.length > 0 && isShowReasoning">
               <div class="bg-[#e5e5e5] w-[2px]">&nbsp;</div>
               <div class="text-[#8b8b8b] text-sm" v-html="renderMarkdown(item.reasoning_content)">
               </div>
