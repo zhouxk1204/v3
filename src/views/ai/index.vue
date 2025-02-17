@@ -33,7 +33,7 @@
             <div class="loader" v-if="item.reasoning_content.length === 0"></div>
             <div class="flex gap-3 my-1 reasoner" v-if="item.reasoning_content.length > 0 && isShowReasoning">
               <div class="bg-[#e5e5e5] w-[2px]">&nbsp;</div>
-              <div class="text-[#8b8b8b] text-sm" v-html="renderMarkdown(item.reasoning_content)">
+              <div class="text-gray-400 text-sm leading-[1.8]" v-html="renderMarkdown(item.reasoning_content)">
               </div>
             </div>
           </div>
@@ -60,9 +60,9 @@
     <div class="flex flex-col gap-1 max-w-[768px] w-full flex-1 fixed px-4 bg-white"
       :class="chatList.length > 0 ? 'bottom-0' : 'top-1/2 -translate-y-1/2'">
       <div class="flex flex-col items-center justify-center gap-2 mb-2" v-if="chatList.length === 0">
-        <div class="flex gap-2">
-          <img src="/peach.png" alt="peach" class="w-9 h-9">
-          <strong class="text-3xl text-[#f99b52]">Peach AI</strong>
+        <div class="flex items-center gap-2">
+          <img src="/peach.png" alt="peach" class="w-12 md:w-24 drop-shadow-[0px_0px_7px_#f99b52]">
+          <strong class="pr-6 text-5xl text-glow md:text-8xl" data-shadow="Peach AI">Peach AI</strong>
         </div>
         <Typewriter :contents="slogans"></Typewriter>
       </div>
@@ -83,7 +83,7 @@
               <Dropdown v-model="currentModel" :options="models" class="w-36"></Dropdown>
               <el-switch size="large" v-model="contextMode" class="ml-2"
                 style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" />
-              <span class="text-xs text-gray-400 w-36">{{ contextMode ? '开启' : '关闭' }}记忆</span>
+              <span class="text-xs text-gray-400">{{ contextMode ? '开启' : '关闭' }}记忆</span>
             </div>
             <button @click="onChat"
               :class="isQuestionEmpty ? 'text-[#f1f1f1] bg-[#cecece] cursor-not-allowed' : 'text-white bg-black'"
@@ -225,8 +225,6 @@ async function fetchStreamData(questionItem: {
   const decoder = new TextDecoder('utf-8');
 
   const currentIndex = chatList.value.length - 1;
-  console.log("%c Line:225 🌭 currentIndex", "color:#ed9ec7", currentIndex);
-
 
   while (true) {
     // 逐块读取流数据
@@ -251,7 +249,6 @@ async function fetchStreamData(questionItem: {
 
         try {
           const data = JSON.parse(jsonString);
-          console.log("%c Line:214 🥤 data", "color:#fca650", data);
           const content = data.choices[0]?.delta?.content || '';
           const reason = data.choices[0]?.delta?.reasoning_content || '';
           message += content;
@@ -259,7 +256,6 @@ async function fetchStreamData(questionItem: {
           chatList.value[currentIndex].content = message;
           chatList.value[currentIndex].reasoning_content = reasoningContext;
         } catch (error) {
-          console.error('解析错误:', error);
           chatList.value[currentIndex].content = '系统繁忙，请稍后再试！';
         }
       }
@@ -374,6 +370,67 @@ const onGoToBottom = () => {
 @keyframes l13 {
   100% {
     transform: rotate(1turn)
+  }
+}
+
+// .text-glow {
+//   text-shadow: 0 0 10px #f99b52, 0 0 20px #f99b52, 0 0 30px #f99b52, 0 0 40px #f99b52, 0 0 50px #f99b52;
+// }
+
+// /* 自定义闪烁动画 */
+// @keyframes blink {
+//   0% {
+//     opacity: 0.8;
+//   }
+
+//   50% {
+//     opacity: 0.5;
+//   }
+
+//   100% {
+//     opacity: 0.8;
+//   }
+// }
+
+// .animate-blink {
+//   animation: blink 1.5s infinite;
+// }
+
+.text-glow {
+  display: inline-block;
+  position: relative;
+  color: #f99b52;
+  // font-family: 'Righteous', serif;
+  text-shadow: .03em .03em 0 white;
+}
+
+.text-glow:after {
+  content: attr(data-shadow);
+  position: absolute;
+  top: .06em;
+  left: .06em;
+  z-index: -1;
+  text-shadow: none;
+  background-image:
+    linear-gradient(45deg,
+      transparent 45%,
+      #f99b52 45%,
+      #f99b52 55%,
+      transparent 0);
+  background-size: .05em .05em;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  animation: shad-anim 15s linear infinite;
+}
+
+@keyframes shad-anim {
+  0% {
+    background-position: 0 0
+  }
+
+  0% {
+    background-position: 100% -100%
   }
 }
 </style>

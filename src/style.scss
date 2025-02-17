@@ -115,5 +115,8 @@
 }
 
 .reasoner p {
-  @apply mb-3
+  @apply mb-3;
+  &:last-child{
+    @apply mb-0;
+  }
 }
