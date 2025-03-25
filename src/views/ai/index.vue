@@ -1,25 +1,24 @@
 <template>
   <div ref="chatContainerDomRef" class="relative flex flex-col items-center overflow-hidden h-100dvh pb-[150px]"
     :class="chatList.length === 0 ? 'justify-center' : ''">
-    <div class="fixed left-0 right-0 z-10 flex items-center justify-center bottom-40">
+    <!-- <div class="fixed left-0 right-0 z-10 flex items-center justify-center bottom-40">
       <button @click="onGoToBottom" v-show="!isBottom && isScrollbarShow"
         class="flex items-center justify-center w-10 h-10 bg-white border rounded-full shadow-xl">
         <el-icon>
           <Bottom />
         </el-icon>
       </button>
-    </div>
-    <div ref="chatAreaDomRef" v-if="chatList.length !== 0"
+    </div> -->
+    <div v-if="chatList.length !== 0"
       class="hide-scrollbar max-w-[768px] w-full flex-1 overflow-y-auto overflow-x-hidden py-5 flex flex-col gap-8 px-4 relative">
-      <div v-for="item in chatList" class="flex w-full gap-2" :class="item.role === 'user' ? 'justify-end' : ''">
-        <div class="flex-none" v-if="item.role !== 'user'"
-          :class="currentModel.value === 'deepseek-reasoner' ? '' : 'pt-3'">
+      <div v-for="(item, index) in chatList" class="flex w-full gap-2"
+        :class="item.role === 'user' ? 'justify-end' : ''">
+        <div class="flex-none" v-if="item.role !== 'user'" :class="isDeepThinking ? '' : 'pt-3'">
           <img src="/peach.png" alt="peach" class="border rounded-full p-[6px] w-9 h-9">
         </div>
 
         <div :class="item.role === 'user' ? 'flex flex-col justify-end items-end max-w-[66%]' : 'flex flex-col pt-1'">
-          <div class="flex flex-col items-start gap-3"
-            v-if="item.role === 'assistant' && currentModel.value === 'deepseek-reasoner'">
+          <div class="flex flex-col items-start gap-3" v-if="item.role === 'assistant' && isDeepThinking">
             <button
               class="px-[14px] py-[7px] text-xs bg-gray-100 rounded-[10px] hover:bg-[#e9e8e8] text-[#262626] flex items-center gap-1"
               @click="isShowReasoning = !isShowReasoning">
@@ -30,26 +29,26 @@
               <el-icon v-else>
                 <ArrowDown />
               </el-icon></button>
-            <div class="loader" v-if="item.reasoning_content.length === 0"></div>
-            <div class="flex gap-3 my-1 reasoner" v-if="item.reasoning_content.length > 0 && isShowReasoning">
+            <div class="flex gap-3 my-1 reasoner" v-if="item.reasoning_content.length > 0">
               <div class="bg-[#e5e5e5] w-[2px]">&nbsp;</div>
               <div class="text-gray-400 text-sm leading-[1.8]" v-html="renderMarkdown(item.reasoning_content)">
               </div>
             </div>
           </div>
-          <div class="mt-3 loader"
-            v-if="item.content.length === 0 && item.role === 'assistant' && currentModel.value === 'deepseek-chat'">
-          </div>
+          <div class="mt-3 loader" v-if="isLoading && item.role !== 'user' && index === chatList.length - 1"></div>
           <div class="flex flex-col flex-1 markdown"
             :class="item.role === 'user' ? 'bg-red-300 text-white rounded-[32px] px-[18px] w-full' : ''"
             v-html="renderMarkdown(item.content)">
           </div>
-          <div class="flex gap-[2px]" v-if="item.role !== 'user' && isAnswerLoaded">
+          <div class="flex gap-[2px]" v-if="item.role !== 'user' && !isLoading">
             <el-tooltip class="box-item" effect="dark" content="复制" placement="bottom">
               <button @click="onCopyResult(item.content)"
                 class="flex items-center justify-center hover:bg-[#f1f1f1] active:bg-[#f1f1f1] rounded-xl w-8 h-8">
                 <el-icon size='18'>
                   <CopyDocument />
+                </el-icon>
+                <el-icon size='18'>
+                  <Check />
                 </el-icon>
               </button>
             </el-tooltip>
@@ -85,13 +84,19 @@
                 style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" />
               <span class="text-xs text-gray-400">{{ contextMode ? '开启' : '关闭' }}记忆</span>
             </div>
-            <button @click="onChat"
+            <!-- <button @click="onChat"
               :class="isQuestionEmpty ? 'text-[#f1f1f1] bg-[#cecece] cursor-not-allowed' : 'text-white bg-black'"
               class="flex items-center justify-center w-8 h-8 overflow-hidden rounded-full" :disabled="isQuestionEmpty">
-              <el-icon size="20">
-                <Top />
-              </el-icon>
-            </button>
+              <img src="../../../public/icons/stop.svg" alt="send" v-if="isLoading" class="w-7 h-7">
+              <img src="../../../public/icons/up.svg" alt="send" v-else>
+            </button> -->
+            <div v-show="isLoading" class="w-10 h-10 p-1 text-white bg-black rounded-full cursor-pointer">
+              <img src="../../../public/icons/stop.svg" alt="stop" @click="abortRequest">
+            </div>
+            <div v-show="!isLoading" class="w-10 h-10 p-1 text-white rounded-full"
+              :class="isQuestionEmpty ? 'bg-[#cecece] cursor-not-allowed' : 'bg-black cursor-pointer'">
+              <img src="../../../public/icons/up.svg" alt="up" @click="onChat">
+            </div>
           </div>
         </el-form>
       </div>
@@ -101,13 +106,22 @@
 </template>
 
 <script setup lang='ts'>
-import { useScrollBar } from "@/hooks/useScrollBar";
-import { ArrowDown, ArrowUp, Bottom, CopyDocument, Top } from "@element-plus/icons-vue";
+import { ArrowDown, ArrowUp, Check, CopyDocument } from "@element-plus/icons-vue";
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-light.css'; // 引入样式
+import _ from "lodash";
 import { marked } from 'marked'; // 引入 marked 库
+import { useAiModel } from "./useAiModel";
+import { useAiRequest } from "./useAiRequest";
 
-const isAnswerLoaded = ref(true);
+
+// 模型定义相关
+const { models, currentModel, isDeepThinking } = useAiModel();
+
+// ai接口调用
+const { getResult, abortRequest } = useAiRequest();
+
+const isLoading = ref(false);
 const isShowReasoning = ref(true);
 const chatList = ref<{
   role: string,
@@ -147,44 +161,72 @@ const slogans = [
   "无论什么问题，AI帮你解决"
 ];
 
-const models = ref([
-  {
-    label: 'DeepSeek V3',
-    value: 'deepseek-chat'
-  },
-  {
-    label: 'DeepSeek R1',
-    value: 'deepseek-reasoner'
-  },
-]);
-
-const currentModel = ref(models.value[0]);
-
 const form = reactive({
   question: ''
 })
 
+// 是否开启上下文模式
 const contextMode = ref(false);
-const isComposing = ref(false);
-const isScrollbarShow = ref(false);
-const chatAreaDomRef = ref();
 
-const { isBottom, checkScrollbar } = useScrollBar(chatAreaDomRef.value);
+
+const isComposing = ref(false);
+// const isScrollbarShow = ref(false);
+// const chatAreaDomRef = ref();
+
+// const { isBottom, checkScrollbar } = useScrollBar(chatAreaDomRef.value);
 
 const isQuestionEmpty = computed<boolean>(() => {
   return form.question.length === 0;
 });
 
 const onChat = () => {
-  isAnswerLoaded.value = false;
-  const questionItem = {
+  if (isQuestionEmpty.value) return;
+
+  const question = {
     role: 'user',
     content: form.question,
     reasoning_content: ''
   };
-  chatList.value.push(questionItem)
-  fetchStreamData(questionItem);
+
+  chatList.value.push(question);
+
+  const context = _.cloneDeep(chatList.value);
+
+  const answer = {
+    role: 'assistant',
+    content: "",
+    reasoning_content: "",
+  };
+  chatList.value.push(answer);
+
+  const currentIndex = chatList.value.length - 1;
+
+  isLoading.value = true;
+  getResult({
+    body: {
+      context: context,
+      model: currentModel.value.value,
+      temperature: 1.0,
+    },
+    onProcess: (contentChunk, reasoningContentChunk) => {
+      chatList.value[currentIndex].content += contentChunk;
+      console.log('answer.content', answer.content);
+      if (isDeepThinking.value) {
+        chatList.value[currentIndex].reasoning_content += reasoningContentChunk;
+      }
+    },
+    onError: (errorMessage: string) => {
+      console.error('onError', errorMessage);
+      isLoading.value = false;
+      chatList.value[currentIndex].content = '服务器繁忙，请稍后再试。'
+    },
+    onDone: () => {
+      isLoading.value = false;
+    }
+  });
+
   form.question = '';
+
 }
 
 const onEnter = (event: any) => {
@@ -194,74 +236,74 @@ const onEnter = (event: any) => {
   }
 }
 
-async function fetchStreamData(questionItem: {
-  role: string,
-  content: string
-}) {
-  let message = '';
-  let reasoningContext = '';
-  chatList.value.push({
-    role: 'assistant',
-    content: "",
-    reasoning_content: "",
-  });
-  const body = {
-    context: contextMode.value ? chatList.value : [questionItem],
-    model: currentModel.value.value,
-    temperature: 1,
-  }
-  const response = await fetch(import.meta.env.APP_API_BASE_URL + "/chat/ask", {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+// async function fetchStreamData(questionItem: {
+//   role: string,
+//   content: string
+// }) {
+//   let message = '';
+//   let reasoningContext = '';
+//   chatList.value.push({
+//     role: 'assistant',
+//     content: "",
+//     reasoning_content: "",
+//   });
+//   const body = {
+//     context: contextMode.value ? chatList.value : [questionItem],
+//     model: currentModel.value.value,
+//     temperature: 1,
+//   }
+//   const response = await fetch(import.meta.env.APP_API_BASE_URL + "/chat/ask", {
+//     method: 'POST',
+//     headers: { 'Content-Type': 'application/json' },
+//     body: JSON.stringify(body),
+//   });
 
-  // 获取可读流的 reader
-  if (!response.body) {
-    throw Error('body is null')
-  }
+//   // 获取可读流的 reader
+//   if (!response.body) {
+//     throw Error('body is null')
+//   }
 
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder('utf-8');
+//   const reader = response.body.getReader();
+//   const decoder = new TextDecoder('utf-8');
 
-  const currentIndex = chatList.value.length - 1;
+//   const currentIndex = chatList.value.length - 1;
 
-  while (true) {
-    // 逐块读取流数据
-    const { value, done } = await reader.read();
-    if (done) {
-      break;
-    }; // 读取完成
+//   while (true) {
+//     // 逐块读取流数据
+//     const { value, done } = await reader.read();
+//     if (done) {
+//       break;
+//     }; // 读取完成
 
-    // 解码数据
-    const lines = decoder.decode(value).split('\n');
+//     // 解码数据
+//     const lines = decoder.decode(value).split('\n');
 
-    // 解析每一行流式数据
-    for (let line of lines) {
-      if (line.startsWith('data:')) {
-        const jsonString = line.replace('data: ', '').trim();
+//     // 解析每一行流式数据
+//     for (let line of lines) {
+//       if (line.startsWith('data:')) {
+//         const jsonString = line.replace('data: ', '').trim();
 
-        // 检查流结束标识
-        if (jsonString === '[DONE]') {
-          isAnswerLoaded.value = true;
-          return;
-        }
+//         // 检查流结束标识
+//         if (jsonString === '[DONE]') {
+//           isLoading.value = true;
+//           return;
+//         }
 
-        try {
-          const data = JSON.parse(jsonString);
-          const content = data.choices[0]?.delta?.content || '';
-          const reason = data.choices[0]?.delta?.reasoning_content || '';
-          message += content;
-          reasoningContext += reason;
-          chatList.value[currentIndex].content = message;
-          chatList.value[currentIndex].reasoning_content = reasoningContext;
-        } catch (error) {
-          chatList.value[currentIndex].content = '系统繁忙，请稍后再试！';
-        }
-      }
-    }
-  }
-}
+//         try {
+//           const data = JSON.parse(jsonString);
+//           const content = data.choices[0]?.delta?.content || '';
+//           const reason = data.choices[0]?.delta?.reasoning_content || '';
+//           message += content;
+//           reasoningContext += reason;
+//           chatList.value[currentIndex].content = message;
+//           chatList.value[currentIndex].reasoning_content = reasoningContext;
+//         } catch (error) {
+//           chatList.value[currentIndex].content = '系统繁忙，请稍后再试！';
+//         }
+//       }
+//     }
+//   }
+// }
 
 const renderMarkdown = (content: string) => {
   // 使用 marked 解析 Markdown 为 HTML
@@ -302,7 +344,7 @@ const renderMarkdown = (content: string) => {
         button.setAttribute('data-click-registered', 'true');
       }
     });
-    isScrollbarShow.value = checkScrollbar();
+    // isScrollbarShow.value = checkScrollbar();
   });
   return html;
 }
@@ -320,12 +362,12 @@ const onCopyResult = (content: string) => {
     });
 }
 
-const onGoToBottom = () => {
-  chatAreaDomRef.value.scrollTo({
-    top: chatAreaDomRef.value.scrollHeight,
-    behavior: 'smooth'
-  })
-}
+// const onGoToBottom = () => {
+//   chatAreaDomRef.value.scrollTo({
+//     top: chatAreaDomRef.value.scrollHeight,
+//     behavior: 'smooth'
+//   })
+// }
 
 </script>
 <style lang="scss" scoped>
@@ -373,34 +415,10 @@ const onGoToBottom = () => {
   }
 }
 
-// .text-glow {
-//   text-shadow: 0 0 10px #f99b52, 0 0 20px #f99b52, 0 0 30px #f99b52, 0 0 40px #f99b52, 0 0 50px #f99b52;
-// }
-
-// /* 自定义闪烁动画 */
-// @keyframes blink {
-//   0% {
-//     opacity: 0.8;
-//   }
-
-//   50% {
-//     opacity: 0.5;
-//   }
-
-//   100% {
-//     opacity: 0.8;
-//   }
-// }
-
-// .animate-blink {
-//   animation: blink 1.5s infinite;
-// }
-
 .text-glow {
   display: inline-block;
   position: relative;
   color: #f99b52;
-  // font-family: 'Righteous', serif;
   text-shadow: .03em .03em 0 white;
 }
 
