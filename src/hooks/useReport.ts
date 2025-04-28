@@ -9,10 +9,10 @@ import {
 } from "@/constants";
 import { Record, Report } from "@/types/report";
 
-import Decimal from "decimal.js";
+import useStore from "@/store";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-import useStore from "@/store";
+import Decimal from "decimal.js";
 
 dayjs.extend(isBetween);
 
@@ -42,7 +42,9 @@ export async function useReport(data: Record[][]) {
   // 异常记录
   const errors: string[] = [];
   // 职工列表
-  const employeeList = await useStore().employee2.getEmployeeTempList(currentDate);
+  const employeeList = await useStore().employee2.getEmployeeTempList(
+    currentDate
+  );
 
   for (let item of data) {
     const employee = employeeList.find(
@@ -57,8 +59,17 @@ export async function useReport(data: Record[][]) {
       let hasError: boolean = false;
       for (let e of item) {
         const { record, date } = e;
+        if (record === WORK_TYPE_INFO.SERVE.label) {
+          const serve: Point = {
+            typeId: WORK_TYPE_INFO.SERVE.id,
+            typeName: WORK_TYPE_INFO.SERVE.label,
+            point: 1,
+            date,
+          };
+          pointList.push(serve);
+        }
         // 1.纯文字的记录：各种休
-        if (!/\d/.test(record)) {
+        else if (!/\d/.test(record)) {
           // 获取休日信息
           const p = getRestInfoByText(record, date);
           if (!p) {
@@ -97,33 +108,24 @@ export async function useReport(data: Record[][]) {
           hasError = false;
         }
       }
-      pointList.sort((a,b) => {
+      pointList.sort((a, b) => {
         return dayjs(a.date).unix() - dayjs(b.date).unix();
-      })
-      console.log("%c Line:90 🥝 pointList", "color:#3f7cff", pointList.map(el => {
-        return {
-          date: el.date,
-          typeName: el.typeName,
-          jobName: el.jobName,
-          point: el.point,
-          ratio: el.ratio,
-          ratioPoint: el.ratioPoint
-        }
-      }));
-
-
+      });
       let annual = new Decimal(0);
       let leave = 0;
       let totalWorkOther = new Decimal(0);
       let totalWorkGastroscopy = new Decimal(0);
       let totalOvertimeOther = new Decimal(0);
       let totalOvertimeGastroscopy = new Decimal(0);
+      let totalServe = new Decimal(0);
       pointList.forEach((el) => {
         const { typeId, ratioPoint = 0 } = el;
         if (typeId === REST_INFO.ANNUAL_LEAVE.id) {
           annual = annual.plus(el.point);
         } else if (typeId === REST_INFO.LEAVE.id) {
           leave += 1;
+        } else if (typeId === WORK_TYPE_INFO.SERVE.id) {
+          totalServe = totalServe.plus(el.point);
         } else {
           // 工作日上班 & 工作日（补）上班
           if (
@@ -168,7 +170,9 @@ export async function useReport(data: Record[][]) {
         totalOther: totalOther.toNumber(),
         totalGastroscopy: totalGastroscopy.toNumber(),
         total: totalOther.plus(totalGastroscopy.times(1.2)).toNumber(),
-        serve: employee.positionId === POST_INFO.HEAD_NURSE.id ? 2 : 0,
+        serve: totalServe
+          .plus(employee.positionId === POST_INFO.HEAD_NURSE.id ? 2 : 0)
+          .toNumber(),
       };
       reports.push(iReport);
     }
@@ -193,7 +197,7 @@ const getRestInfoByText = (text: string, date: string): Point | null => {
         typeId: item.id,
         typeName: item.label[0],
         point: 1,
-        date
+        date,
       };
     }
   }
@@ -266,7 +270,7 @@ const getRatio = async (date: string) => {
         ? WORK_TYPE_INFO.MAKEUP
         : WORK_TYPE_INFO.HOLIDAY;
 
-    if(workType.id === WORK_TYPE_INFO.MAKEUP.id){
+    if (workType.id === WORK_TYPE_INFO.MAKEUP.id) {
       workRatio = holiday.ratio1;
     }
     const overtimeType =
@@ -375,7 +379,7 @@ const parseRecord = (
 const parsePart = (
   part: string,
   ratioObj: { [k: string]: RatioInfo[] },
-  date: string 
+  date: string
 ): Point[] => {
   // 确定岗位
   let job = JOB_INFO.OTHER;
@@ -391,7 +395,7 @@ const parsePart = (
         typeId: id,
         typeName: label[0],
         point: 0.5,
-        date
+        date,
       },
     ];
   } else {
@@ -412,7 +416,7 @@ const parsePart = (
       jobName: getJobNameById(jobId),
       typeId: type.id, // 0 上班，1：加班
       typeName: type.label, // 0 上班，1：加班,
-      date
+      date,
     };
   });
 };

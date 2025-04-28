@@ -1,25 +1,22 @@
-/*
- * @Author: 周小康
- * @Date: 2024-08-20 20:27:30
- * @LastEditors: 周小康
- * @LastEditTime: 2024-08-28 15:52:15
- * @Description: 
- */
+import vue from "@vitejs/plugin-vue";
+import path from "path"; // 找不到模块 ‘path’ 或其相对应的类型声明 -> npm install @types/node --save-dev
 import AutoImport from "unplugin-auto-import/vite";
-import Components from "unplugin-vue-components/vite";
-import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
-import Icons from "unplugin-icons/vite";
 import IconsResolver from "unplugin-icons/resolver";
+import Icons from "unplugin-icons/vite";
+import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
+import Components from "unplugin-vue-components/vite";
 import { defineConfig } from "vite";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
-import path from "path"; // 找不到模块 ‘path’ 或其相对应的类型声明 -> npm install @types/node --save-dev
-import vue from "@vitejs/plugin-vue";
 
 const pathSrc = path.resolve(__dirname, "src");
 // https://vitejs.dev/config/
 export default defineConfig({
-  build:{
-    minify: 'esbuild', // or 'esbuild' for faster builds
+  esbuild: {
+    pure: ["console.log"], // 删除 console.log
+    drop: ["debugger"], // 删除 debugger
+  },
+  build: {
+    minify: "esbuild", // or 'esbuild' for faster builds
     terserOptions: {
       compress: {
         drop_console: true, // 移除 console 语句
@@ -28,8 +25,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return id.toString().split('node_modules/')[1].split('/')[0].toString();
+          if (id.includes("node_modules")) {
+            return id
+              .toString()
+              .split("node_modules/")[1]
+              .split("/")[0]
+              .toString();
           }
         },
       },

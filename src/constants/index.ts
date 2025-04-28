@@ -24,6 +24,10 @@ export const WORK_TYPE_INFO = {
     id: "w5",
     label: "加班（补）",
   },
+  SERVE: {
+    id: "w6",
+    label: "科务",
+  },
 };
 
 export const REST_INFO = {
@@ -58,6 +62,10 @@ export const REST_INFO = {
   STUDY: {
     id: "r7",
     label: ["学习"],
+  },
+  SUPPORT: {
+    id: "r8",
+    label: ["支援消化"],
   },
 };
 
