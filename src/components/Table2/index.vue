@@ -42,12 +42,12 @@
     <el-table-column label="操作" align="center">
       <template #default="scope">
         <el-space :size="10">
-          <el-link type="primary" :underline="false" @click="handleEdit(scope.row)">
+          <el-button size="small" type="primary" :underline="false" @click="handleEdit(scope.row)">
             编辑
-          </el-link>
-          <el-link type="danger" :underline="false" @click="handleDelete([scope.row])">
+          </el-button>
+          <el-button size="small" type="danger" :underline="false" @click="handleDelete([scope.row])">
             删除
-          </el-link>
+          </el-button>
         </el-space>
       </template>
     </el-table-column>
