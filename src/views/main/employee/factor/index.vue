@@ -72,11 +72,17 @@ const initForm = (options: SelectOption[]) => {
       label: '系数变更',
       type: 'number',
       value: '',
-      step: 0.01
+      step: 0.05
     },
     {
       field: 'effectiveMonth',
-      label: '生效起始月份',
+      label: '开始生效月份',
+      type: 'month',
+      value: '',
+    },
+    {
+      field: 'effectiveEndMonth',
+      label: '结束生效月份',
       type: 'month',
       value: '',
     },
@@ -97,16 +103,19 @@ getEmployeeSelectOptions();
 
 const rules = reactive<FormRules<any>>({
   name: [
-    { required: true, message: '请输入职工名称', trigger: 'blur' },
+    { required: true, message: '请选择职工姓名', trigger: 'blur' },
   ],
   weighted: [
-    { required: true, message: '请输入系数变化值', trigger: 'blur' },
+    { required: true, message: '请输入系数调整值', trigger: 'blur' },
   ],
   effectiveMonth: [
-    { required: true, message: '请输入系数变化生效起始月份', trigger: 'blur' },
+    { required: true, message: '请输入系数调整开始生效月份', trigger: 'blur' },
+  ],
+  effectiveEndMonth: [
+    { required: false, message: '请输入系数调整结束生效月份', trigger: 'blur' },
   ],
   remark: [
-    { required: true, message: '请输入系数变化备注信息', trigger: 'blur' },
+    { required: true, message: '请输入系数调整备注信息', trigger: 'blur' },
   ],
 });
 
@@ -125,7 +134,11 @@ const columns: TableColumn[] = [
     }
   }, {
     field: "effectiveMonth",
-    label: "生效起始月份"
+    label: "开始生效月份"
+  },
+  {
+    field: "effectiveEndMonth",
+    label: "结束生效月份"
   },
   {
     field: "createTime",

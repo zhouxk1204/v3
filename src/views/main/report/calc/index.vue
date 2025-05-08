@@ -22,7 +22,7 @@
           <el-button type="primary" plain :icon="Setting" @click="dialogTableVisible = true" />
         </el-button-group>
         <el-button-group>
-          <el-button type="primary" plain @click="exportData">图片导出</el-button>
+          <el-button type="primary" plain @click="exportImage">图片导出</el-button>
           <el-button type="primary" plain :icon="Setting" @click="dialogTableVisible = true" />
         </el-button-group>
 
@@ -53,7 +53,7 @@
         <el-watermark v-for="item in reportList" :content="item.employeeName" :gap="[50, 50]">
           <el-card v-if="item.total > 0">
             <template #header>
-              <div class="flex justify-between items-center">
+              <div class="flex items-center justify-between">
                 <h2 class="text-xl font-bold">{{ item.employeeName }}
                 </h2>
                 <p>系数：<span class="text-xl text-red-500">{{ item.factor }}</span></p>
@@ -97,6 +97,10 @@
         </div>
       </el-dialog>
     </teleport>
+
+    <div class="w-full h-full" ref="canvasRef">
+      <canvas id="canvas" height="300px"></canvas>
+    </div>
   </div>
 </template>
 
@@ -278,7 +282,7 @@ const toggleSelect = () => {
 
 // 月份切换操作
 let offsetTemp = 1;
-const currentMonth = ref(getYearMonthFromDate(offsetTemp * -1));
+const currentMonth = ref(getYearMonthFromDate(offsetTemp * -2));
 // 选择月份
 const selectMonth = async (value: string | undefined) => {
   if (!value) {
@@ -326,4 +330,129 @@ const getValidateData = async (list: Record[][]) => {
 }
 
 
+const canvasRef = ref();
+
+
+const exportImage = () => {
+  const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+  canvas.width = canvasRef.value.clientWidth;
+  const scale = window.devicePixelRatio || 1; // 获取设备像素比（通常 Retina 为 2）
+ 
+
+  const ctx = canvas.getContext('2d');
+  
+  const data = reportList.value.map(item => {
+    return checkList.value.map(key => item[key as keyof Report]);
+  });
+
+  const rows = data.length;
+  const cols = data[0].length;
+  canvas.width = (cols * 100 + 2) * scale;
+  canvas.height = (rows * 19 + 2) * scale;
+  const tableData = [
+    exportHeaders.value,
+    ...data
+  ];
+  drawAdvancedTable(ctx, {
+    data: tableData,
+  });
+  downloadCanvasImage(canvas);
+}
+
+const drawAdvancedTable = (ctx: any, options: any) => {
+  const {
+    data,
+    x = 1,
+    y = 20,
+    cellWidth = 100,
+    cellHeight = 19,
+    textColor = '#000000',
+    headerTextColor = '#000000',
+    fontSize = 14,
+    fontFamily = 'SimSun, Songti SC, serif'
+  } = options;
+  ctx.translate(-0.5,-0.5)
+  // 设置细线样式
+  ctx.lineWidth = 1;
+  const rows = data.length;
+  const cols = data[0].length;
+
+  ctx.font = `${fontSize}px ${fontFamily}`;
+  ctx.textBaseline = 'middle';
+
+  const sheetName = dayjs(reportDate.value).format("YYYY年MM月");
+  const fileName = `${sheetName}上班（加班）工分汇算`;
+  ctx.beginPath();
+  // 绘制标题行
+  ctx.moveTo(1, 1);
+  ctx.lineTo(1, 20);
+
+  // 
+  ctx.moveTo(1,1);
+  ctx.lineTo(1 + (cols) * cellWidth, 1)
+
+  // 
+  ctx.moveTo(1 + (cols) * cellWidth, 1);
+  ctx.lineTo(1 + (cols) * cellWidth, 20);
+  ctx.stroke();
+
+  const title = fileName.toString();
+  const titleTextWidth = ctx.measureText(title).width;
+  ctx.fillText(
+    title,
+        1 + (1 + (cols) * cellWidth - titleTextWidth) / 2,
+        1 + cellHeight / 2
+      );
+  
+  // 绘制表格内容
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      const cellX = x + j * cellWidth;
+      const cellY = y + i * cellHeight;
+      ctx.beginPath();
+      // 如果是第一列，绘制左边框
+      if (j === 0) {
+                ctx.moveTo(cellX, cellY);
+                ctx.lineTo(cellX, cellY + cellHeight);
+            }
+
+      if(i === rows - 1){
+        ctx.moveTo(cellX, cellY + cellHeight);
+        ctx.lineTo(cellX + cellWidth, cellY + cellHeight);
+      }
+
+      // 总是绘制右边框
+      ctx.moveTo(cellX + cellWidth, cellY);
+      ctx.lineTo(cellX + cellWidth, cellY + cellHeight);
+      
+      // 总是绘制上边框
+      ctx.moveTo(cellX, cellY);
+      ctx.lineTo(cellX + cellWidth, cellY);
+
+      ctx.stroke();
+
+      // 设置文本颜色
+      ctx.fillStyle = i === 0 ? headerTextColor : textColor;
+
+      // 绘制文本（居中显示）
+      const text = data[i][j].toString();
+      const textWidth = ctx.measureText(text).width;
+      ctx.fillText(
+        text,
+        cellX + (cellWidth - textWidth) / 2,
+        cellY + cellHeight / 2
+      );
+    }
+  }
+}
+
+const downloadCanvasImage = (canvas: HTMLCanvasElement, filename = 'image.png') => {
+  const imageURL = canvas.toDataURL('image/png'); // 生成图片数据
+  const link = document.createElement('a'); // 创建 <a> 标签
+  link.href = imageURL; // 设置图片数据为链接
+  link.download = filename; // 设置下载文件名
+  document.body.appendChild(link); // 将链接添加到页面
+  link.click(); // 触发下载
+  document.body.removeChild(link); // 移除链接
+}
 </script>
