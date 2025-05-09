@@ -21,8 +21,8 @@
         <div class="flex flex-col gap-12 p-10 card-back">
           <div class="flex flex-col items-center justify-center gap-3">
             <h1>恭喜你!！今日已赚</h1>
-            <div class="flex gap-2">
-              <div v-for="item in displayDigits" class="overflow-hidden text-4xl h-[40px] font-bold text-green-500">
+            <div class="flex gap-1">
+              <div v-for="item in displayDigits" class="overflow-hidden text-5xl h-[48px] font-bold text-green-500">
                 <div v-if="[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(+item)"
                   class="flex flex-col w-[1ch] transition-all duration-700 filter drop-shadow-md"
                   :style="{ transform: `translateY(${-1 * +item * 10}%)` }">
@@ -76,7 +76,6 @@
 <script setup lang='ts'>
 import Decimal from 'decimal.js';
 import { FormRules } from 'element-plus/es/components/form/src/types';
-
 
 const displayDigits = computed(() => {
   return money.value.toString().split('');
@@ -238,11 +237,5 @@ updateWorkTimeDisplay();
 
 .bg {
   background-image: linear-gradient(to top, #a18cd1 0%, #fbc2eb 100%);
-}
-
-.text-gradient {
-  // background-image: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
-  // -webkit-background-clip: text;
-  // -webkit-text-fill-color: transparent;
 }
 </style>
