@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-center w-screen h-screen">
+  <div class="flex items-center justify-center w-screen h-screen bg">
     <div class="card">
       <div class="card-inner">
         <div class="card-front">
@@ -21,7 +21,25 @@
         <div class="flex flex-col gap-12 p-10 card-back">
           <div class="flex flex-col items-center justify-center gap-3">
             <h1>恭喜你!！今日已赚</h1>
-            <p class="text-6xl font-bold text-green-500"> ¥ {{ money }}</p>
+            <div class="flex gap-2">
+              <div v-for="item in displayDigits" class="overflow-hidden text-4xl h-[40px] font-bold text-green-500">
+                <div v-if="[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(+item)"
+                  class="flex flex-col w-[1ch] transition-all duration-700 filter drop-shadow-md"
+                  :style="{ transform: `translateY(${-1 * +item * 10}%)` }">
+                  <span>0</span>
+                  <span>1</span>
+                  <span>2</span>
+                  <span>3</span>
+                  <span>4</span>
+                  <span>5</span>
+                  <span>6</span>
+                  <span>7</span>
+                  <span>8</span>
+                  <span>9</span>
+                </div>
+                <div v-else class="filter drop-shadow-md">{{ item }}</div>
+              </div>
+            </div>
           </div>
           <div class="flex w-full gap-12">
             <div
@@ -51,12 +69,19 @@
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
 <script setup lang='ts'>
 import Decimal from 'decimal.js';
 import { FormRules } from 'element-plus/es/components/form/src/types';
+
+
+const displayDigits = computed(() => {
+  return money.value.toString().split('');
+})
+
 interface LoginForm {
   salary: number;
   days: number;
@@ -178,7 +203,7 @@ updateWorkTimeDisplay();
 
 .card-front,
 .card-back {
-  border-radius: 12px;
+  border-radius: 20px;
   position: absolute;
   width: 100%;
   height: 100%;
@@ -195,6 +220,29 @@ updateWorkTimeDisplay();
 .card-back {
   transform: rotateY(180deg);
   /* 让文字正过来 */
-  background-image: linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%);
+  transform: rotateY(180deg);
+  background: rgba(255, 255, 255, 0.2);
+  /* 半透明背景 */
+  backdrop-filter: blur(10px);
+  /* 毛玻璃效果 */
+  -webkit-backdrop-filter: blur(10px);
+  /* Safari 支持 */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  /* 添加轻微边框增强效果 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  /* 增强层次感 */
+}
+
+.bg {
+  background-image: linear-gradient(to top, #a18cd1 0%, #fbc2eb 100%);
+}
+
+.text-gradient {
+  // background-image: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+  // -webkit-background-clip: text;
+  // -webkit-text-fill-color: transparent;
 }
 </style>
