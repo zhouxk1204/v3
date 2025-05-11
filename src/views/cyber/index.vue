@@ -18,28 +18,10 @@
             </el-button>
           </el-form>
         </div>
-        <div class="flex flex-col gap-12 p-10 card-back">
+        <div class="flex flex-col gap-5 p-10 card-back">
           <div class="flex flex-col items-center justify-center gap-3">
-            <h1>恭喜你!！今日已赚</h1>
-            <div class="flex gap-1">
-              <div v-for="item in displayDigits" class="overflow-hidden text-5xl h-[48px] font-bold text-green-500">
-                <div v-if="[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(+item)"
-                  class="flex flex-col w-[1ch] transition-all duration-700 filter drop-shadow-md"
-                  :style="{ transform: `translateY(${-1 * +item * 10}%)` }">
-                  <span>0</span>
-                  <span>1</span>
-                  <span>2</span>
-                  <span>3</span>
-                  <span>4</span>
-                  <span>5</span>
-                  <span>6</span>
-                  <span>7</span>
-                  <span>8</span>
-                  <span>9</span>
-                </div>
-                <div v-else class="filter drop-shadow-md">{{ item }}</div>
-              </div>
-            </div>
+            <h1 class="font-bold text-purple-500">今日目前累计已赚</h1>
+            <rollingDigits :value="money"></rollingDigits>
           </div>
           <div class="flex w-full gap-12">
             <div
@@ -66,6 +48,9 @@
               </p>
             </div>
           </div>
+          <div class="flex items-center justify-center">
+            <button class="px-4 py-2 text-xl font-bold text-white bg-purple-500 border-none shadow-xl rounded-xl active:bg-purple-600">下班咯</button>
+          </div>
         </div>
       </div>
     </div>
@@ -76,10 +61,8 @@
 <script setup lang='ts'>
 import Decimal from 'decimal.js';
 import { FormRules } from 'element-plus/es/components/form/src/types';
+import rollingDigits from './rolling-digits.vue';
 
-const displayDigits = computed(() => {
-  return money.value.toString().split('');
-})
 
 interface LoginForm {
   salary: number;
@@ -128,10 +111,9 @@ const getSpreed = (ratio: number) => {
   return new Decimal(step.value).times(ratio).toNumber().toFixed(4);
 }
 
-const money = ref('0.00');
+const money = ref('000.0000');
 setInterval(() => {
   const du = getWorkedDuration();
-  console.log("%c Line:107 🥚 du", "color:#3f7cff", du);
   money.value = new Decimal(du).div(1000).times(step.value).toNumber().toFixed(4);
   updateWorkTimeDisplay();
 }, 1000);
@@ -182,7 +164,7 @@ updateWorkTimeDisplay();
 </script>
 <style lang="scss" scoped>
 .card {
-  width: 800px;
+  width: 1000px;
   height: calc(800px * 0.618);
   perspective: 1200px;
 }
