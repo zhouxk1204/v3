@@ -124,7 +124,7 @@
         <template v-if="previewUrl.length > 0">
           <el-button @click="previewUrl = ''" v-if="!isUpload">上一步</el-button>
           <el-button type="primary" @click="updateAvatar" v-if="previewUrl.length > 0" :loading="isUpload">{{ isUpload ?
-          '上传中' : '上传并保存' }}</el-button>
+            '上传中' : '上传并保存' }}</el-button>
         </template>
         <el-button v-else @click="uploadAvatar = false">取消</el-button>
       </div>
@@ -145,7 +145,7 @@ const isUpload = ref(false);
 
 const { user } = storeToRefs(useStore().user);
 const avatar = computed(() => {
-  return user.value.avatar || new URL("../../assets/img/avatar.jpg", import.meta.url).href;
+  return user.value.avatar || new URL("../../../assets/img/avatar.jpg", import.meta.url).href;
 })
 
 const uploadAvatar = ref(false);

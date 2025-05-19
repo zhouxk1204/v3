@@ -64,11 +64,11 @@
               <p>胃镜岗位工分：<el-tag type="danger" effect="dark">{{ item.totalGastroscopy }}</el-tag></p>
               <p>时间工分合计：<el-tag type="success" effect="dark">{{ item.total }}</el-tag></p>
               <p>本月上班天数：<span class="text-red-500">{{ item.workDayCount
-                  }}&nbsp;天</span></p>
+              }}&nbsp;天</span></p>
               <p v-if="item.leave > 0">本月补休天数：<el-text type="success" size="large">{{ item.leave
-                  }}&nbsp;天</el-text></p>
+              }}&nbsp;天</el-text></p>
               <p v-if="item.serve > 0">本月科务天数：<span class="text-purple-500" size="large">{{ item.serve
-                  }}&nbsp;天</span></p>
+              }}&nbsp;天</span></p>
             </div>
           </el-card>
         </el-watermark>
@@ -109,7 +109,6 @@ import { getRecordList, updateRecords } from "@/api/report.api";
 import { FieldItem } from "@/components/Form/form";
 import { DayRatioSettingForm } from "@/config/form.config";
 import { DayRatioSettingTable, ReportTable } from "@/config/table.config";
-import useDate from "@/hooks/useDate";
 import { ExportExcelOption, useExcel } from "@/hooks/useExcel";
 import { useReport } from "@/hooks/useReport";
 import useStore from "@/store";
@@ -162,7 +161,6 @@ const reportDate = ref<string>("");
 const originData = ref<Record[]>([]);
 const initReport = async (list: Record[][], showSuccess: boolean = true) => {
   if (list.length > 0) {
-    getValidateData(list);
     const { reports, errors, currentDate } = await useReport(list);
     reportList.value = reports;
     errorList.value = errors;
@@ -282,7 +280,7 @@ const toggleSelect = () => {
 
 // 月份切换操作
 let offsetTemp = 1;
-const currentMonth = ref(getYearMonthFromDate(offsetTemp * -2));
+const currentMonth = ref(getYearMonthFromDate(offsetTemp * -1));
 // 选择月份
 const selectMonth = async (value: string | undefined) => {
   if (!value) {
@@ -325,25 +323,22 @@ const isNextDisabled = computed(() => {
 
 selectMonth(currentMonth.value);
 
-const getValidateData = async (list: Record[][]) => {
-  await useDate(currentMonth.value, 1, list)
-}
-
-
 const canvasRef = ref();
-
 
 const exportImage = () => {
   const canvas = document.getElementById('canvas') as HTMLCanvasElement;
   canvas.width = canvasRef.value.clientWidth;
   const scale = window.devicePixelRatio || 1; // 获取设备像素比（通常 Retina 为 2）
- 
+
 
   const ctx = canvas.getContext('2d');
-  
+
   const data = reportList.value.map(item => {
     return checkList.value.map(key => item[key as keyof Report]);
   });
+
+  const sheetName = dayjs(reportDate.value).format("YYYY年MM月");
+  const fileName = `${sheetName}上班（加班）工分汇算`;
 
   const rows = data.length;
   const cols = data[0].length;
@@ -355,13 +350,15 @@ const exportImage = () => {
   ];
   drawAdvancedTable(ctx, {
     data: tableData,
+    fileName
   });
-  downloadCanvasImage(canvas);
+  downloadCanvasImage(canvas, fileName);
 }
 
 const drawAdvancedTable = (ctx: any, options: any) => {
   const {
     data,
+    fileName,
     x = 1,
     y = 20,
     cellWidth = 100,
@@ -371,7 +368,7 @@ const drawAdvancedTable = (ctx: any, options: any) => {
     fontSize = 14,
     fontFamily = 'SimSun, Songti SC, serif'
   } = options;
-  ctx.translate(-0.5,-0.5)
+  ctx.translate(-0.5, -0.5)
   // 设置细线样式
   ctx.lineWidth = 1;
   const rows = data.length;
@@ -380,15 +377,13 @@ const drawAdvancedTable = (ctx: any, options: any) => {
   ctx.font = `${fontSize}px ${fontFamily}`;
   ctx.textBaseline = 'middle';
 
-  const sheetName = dayjs(reportDate.value).format("YYYY年MM月");
-  const fileName = `${sheetName}上班（加班）工分汇算`;
   ctx.beginPath();
   // 绘制标题行
   ctx.moveTo(1, 1);
   ctx.lineTo(1, 20);
 
   // 
-  ctx.moveTo(1,1);
+  ctx.moveTo(1, 1);
   ctx.lineTo(1 + (cols) * cellWidth, 1)
 
   // 
@@ -400,10 +395,10 @@ const drawAdvancedTable = (ctx: any, options: any) => {
   const titleTextWidth = ctx.measureText(title).width;
   ctx.fillText(
     title,
-        1 + (1 + (cols) * cellWidth - titleTextWidth) / 2,
-        1 + cellHeight / 2
-      );
-  
+    1 + (1 + (cols) * cellWidth - titleTextWidth) / 2,
+    1 + cellHeight / 2
+  );
+
   // 绘制表格内容
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
@@ -412,11 +407,11 @@ const drawAdvancedTable = (ctx: any, options: any) => {
       ctx.beginPath();
       // 如果是第一列，绘制左边框
       if (j === 0) {
-                ctx.moveTo(cellX, cellY);
-                ctx.lineTo(cellX, cellY + cellHeight);
-            }
+        ctx.moveTo(cellX, cellY);
+        ctx.lineTo(cellX, cellY + cellHeight);
+      }
 
-      if(i === rows - 1){
+      if (i === rows - 1) {
         ctx.moveTo(cellX, cellY + cellHeight);
         ctx.lineTo(cellX + cellWidth, cellY + cellHeight);
       }
@@ -424,7 +419,7 @@ const drawAdvancedTable = (ctx: any, options: any) => {
       // 总是绘制右边框
       ctx.moveTo(cellX + cellWidth, cellY);
       ctx.lineTo(cellX + cellWidth, cellY + cellHeight);
-      
+
       // 总是绘制上边框
       ctx.moveTo(cellX, cellY);
       ctx.lineTo(cellX + cellWidth, cellY);

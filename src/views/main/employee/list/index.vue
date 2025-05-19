@@ -8,16 +8,18 @@
   <div class="flex flex-col gap-2 hidden-sm-and-up">
     <el-card v-for="item in tableData" shadow="never">
       <template #header>
-        <span class="font-bold">{{item.name}}</span>
+        <span class="font-bold">{{ item.name }}</span>
       </template>
       <div class="flex flex-col gap-2 text-sm">
-        <p>职工系数：<el-tag type="warning">{{item.factor}}</el-tag></p>
-        <p>职工性别：<el-tag :type="item.genderId === '1' ? 'primary': 'danger'">{{item.gender}}</el-tag></p>
-        <p>职工职称：<el-tag :type="[ TagType.primary, TagType.warning, TagType.danger][+item.titleId % 3]">{{item.title}}</el-tag></p>
-        <p>职工职位：<el-tag :type="item.positionId === '1' ? 'primary': 'info'">{{item.position}}</el-tag></p>
-        <p>存续状态：<el-tag :type="item.statusId === '1' ? 'success': 'info'">{{item.status}}</el-tag></p>
-      
-        <p v-if="item.entryDate.length">入职年月：{{item.entryDate}}</p>
+        <p>职工系数：<el-tag type="warning">{{ item.factor }}</el-tag></p>
+        <p>职工性别：<el-tag :type="item.genderId === '1' ? 'primary' : 'danger'">{{ item.gender }}</el-tag></p>
+        <p>职工职称：<el-tag
+            :type="[TagType.primary, TagType.warning, TagType.danger][+item.titleId % 3]">{{ item.title }}</el-tag>
+        </p>
+        <p>职工职位：<el-tag :type="item.positionId === '1' ? 'primary' : 'info'">{{ item.position }}</el-tag></p>
+        <p>存续状态：<el-tag :type="item.statusId === '1' ? 'success' : 'info'">{{ item.status }}</el-tag></p>
+
+        <p v-if="item.entryDate.length">入职年月：{{ item.entryDate }}</p>
       </div>
     </el-card>
   </div>
@@ -93,7 +95,7 @@ const form = computed<FormItem[]>(() => {
 
 const actionForm = computed<FormItem[]>(() => {
   return [
-   {
+    {
       field: 'no',
       label: 'No.',
       type: 'number',
@@ -196,7 +198,7 @@ const columns: TableColumn[] = [
       type: 'tag',
       color: (val: string) => {
         const index = selectOptionObj.title.findIndex(e => e.label == val);
-        return [ TagType.primary, TagType.warning, TagType.danger][index % 3];
+        return [TagType.primary, TagType.warning, TagType.danger][index % 3];
       }
     },
   },
@@ -296,7 +298,7 @@ const onConfirm = (data: any) => {
     })
   } else if (mode.value === 'edit') {
     const id = tableData.value.find(e => e.no === editRowNo.value)?.id ?? "";
-    if(id.length === 0) {
+    if (id.length === 0) {
       ElMessage.error('职员信息更新失败！');
       return;
     }
@@ -324,6 +326,7 @@ const onToggle = () => {
 
 const getTableData = async (data?: EmployeeSearchForm) => {
   const res = await getEmployeeInfoList(data);
+  console.log("%c Line:327 🍡 res", "color:#42b983", res);
   tableData.value = res.data;
 }
 getTableData();
