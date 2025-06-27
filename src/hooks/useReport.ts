@@ -9,10 +9,10 @@ import {
 } from "@/constants";
 import { Record, Report } from "@/types/report";
 
-import Decimal from "decimal.js";
+import useStore from "@/store";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-import useStore from "@/store";
+import Decimal from "decimal.js";
 
 dayjs.extend(isBetween);
 
@@ -36,20 +36,20 @@ interface RatioInfo {
 }
 
 export async function useReport(data: Record[][]) {
-  console.log("%c Line:39 🥝 data", "color:#ea7e5c", data);
   const reports: Report[] = [];
   // 保存报表所在的日期
-  let currentDate = data[0][0].date;
-  console.log("%c Line:42 🍒 currentDate", "color:#f5ce50", currentDate);
+  let currentDate = data.filter((e) => e.length > 0)[0][0].date;
   // 异常记录
   const errors: string[] = [];
   // 职工列表
   const employeeList = await useStore().employee2.getEmployeeTempList(
     currentDate
   );
-  console.log("%c Line:46 🍅 employeeList", "color:#b03734", employeeList);
 
   for (let item of data) {
+    if (item.length === 0) {
+      continue;
+    }
     const employee = employeeList.find(
       (el) => el.name === item[0].employeeName
     );
@@ -62,6 +62,11 @@ export async function useReport(data: Record[][]) {
       let hasError: boolean = false;
       for (let e of item) {
         const { record, date } = e;
+        // 如果date和currentDate月份不一致，则跳过该记录
+        if (dayjs(date).month() !== dayjs(currentDate).month()) {
+          continue;
+        }
+
         if (record === WORK_TYPE_INFO.SERVE.label) {
           const serve: Point = {
             typeId: WORK_TYPE_INFO.SERVE.id,
