@@ -16,6 +16,7 @@
     "@types/color-thief-node": "^1.0.4",
     "@types/marked": "^6.0.0",
     "@types/uuid": "^9.0.7",
+    "@vueuse/core": "^13.9.0",
     "animate.css": "^4.1.1",
     "axios": "^1.6.5",
     "axios-retry": "^4.0.0",
