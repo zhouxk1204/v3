@@ -13,7 +13,7 @@
           修改
         </el-button>
         <el-button type="danger" plain :icon="Delete" :disabled="multipleSelection.length === 0"
-          @click="handleDelete(multipleSelection.map(e => e.no))">
+          @click="handleDelete(multipleSelection.map((e:any) => e.no))">
           删除
         </el-button>
       </el-col>
@@ -106,7 +106,14 @@ const toggleSearch = () => {
 };
 
 const tableData = ref<FileInfo[]>([]);
-const handleSearchFromAction = async (formData: FileSearchForm | undefined) => {
+const handleSearchFromAction = async (formData: FileSearchForm | null) => {
+  if(formData === null) {
+    formData = {
+      name: '',
+      typeId: '',
+      statusId: ''
+    }
+  }
   const data = await getFileList(formData);
   tableData.value = data.data;
 }

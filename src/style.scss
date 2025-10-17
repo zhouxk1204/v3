@@ -1,7 +1,11 @@
 /* 导入Tailwind CSS */
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+// @import "tailwindcss/base";
+// @import "tailwindcss/components";
+// @import "tailwindcss/utilities";
+@use "tailwindcss/base";
+@use "tailwindcss/components";
+@use "tailwindcss/utilities";
+
 @import "animate.css";
 
 @import url("https://fonts.googleapis.com/css?family=Arvo|Cookie|Josefin+Sans|Lora|Roboto+Slab:300|Sanchez|Teko:500");

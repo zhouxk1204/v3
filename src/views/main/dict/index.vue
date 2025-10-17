@@ -13,7 +13,7 @@
           修改
         </el-button>
         <el-button type="danger" plain :icon="Delete" :disabled="multipleSelection.length === 0"
-          @click="handleDelete(multipleSelection.map(e => e.dictId))">
+          @click="handleDelete(multipleSelection.map((e:any) => e.dictId))">
           删除
         </el-button>
       </el-col>
@@ -24,7 +24,7 @@
           @click="handleEdit(multipleSelection[0])" circle>
         </el-button>
         <el-button type="danger" plain :icon="Delete" :disabled="multipleSelection.length === 0"
-          @click="handleDelete(multipleSelection.map(e => e.dictId))" circle>
+          @click="handleDelete(multipleSelection.map((e:any) => e.dictId))" circle>
         </el-button>
       </el-col>
       <el-col :span="7" class="flex justify-end">

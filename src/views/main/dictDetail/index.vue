@@ -9,7 +9,7 @@
       <el-button type="success" plain :icon="Edit" :disabled="!(multipleSelection.length === 1)"
         @click="handleEdit(multipleSelection[0])">修改</el-button>
       <el-button type="danger" plain :icon="Delete" :disabled="multipleSelection.length === 0"
-        @click="handleDelete(multipleSelection.map(e => e.dictCode))">删除</el-button>
+        @click="handleDelete(multipleSelection.map((e:any) => e.dictCode))">删除</el-button>
       <el-button type="warning" plain :icon="Close" @click="handleClose">关闭</el-button>
     </el-col>
     <el-col :span="12" class="flex justify-end">
@@ -77,7 +77,7 @@ import { DictDetailForm, DictDetailSearchForm, DictDetailVO } from "@/types/dict
 import { Close, Delete, Edit, Plus, Refresh, Search } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from 'vue-router';
 import ActionForm from './ActionForm.vue';
-import SearchForm from './SearchForm.vue'
+import SearchForm from './SearchForm.vue';
 
 const searchFormVisible = ref(true);
 const handleSearchFromAction = async (formData: DictDetailSearchForm | null) => {

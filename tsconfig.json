@@ -7,7 +7,7 @@
     "skipLibCheck": true,
 
     /* Bundler mode */
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -20,15 +20,18 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
+    /* Interop */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
 
-    // 配置路径别名
+    /* 路径别名 */
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["element-plus/global", "node", "vite/client"] // 找不到命名空间“NodeJS”。
+
+    /* 类型声明 */
+    "types": ["node", "vite/client", "element-plus/global"]
   },
   "include": [
     "env.d.ts",
