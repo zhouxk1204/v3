@@ -1,5 +1,5 @@
 <template>
-  <div class="inline-block text-3xl font-bold max-sm:text-xl">
+  <div class="inline-block font-bold max-sm:text-xl">
     <p class="inline font-bold text-red-300 max-sm:text-xl">
       {{ typedText }}
     </p>
