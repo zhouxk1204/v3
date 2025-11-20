@@ -72,12 +72,12 @@
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import FlippingCard from '../../components/FlippingCard/index.vue';
+import FlippingCard from "../../components/FlippingCard/index.vue";
 
 const previewUrl = ref<string | null>(null);
 const radius = ref(30);
 const previewImg = ref<HTMLImageElement | null>(null);
-const maxRadius = ref(200);
+const maxRadius = ref(20);
 const format = ref("png");
 
 const onFileChange = (event: Event) => {
@@ -100,7 +100,14 @@ const onFileChange = (event: Event) => {
     const img = new Image();
     img.src = reader.result as string;
     img.onload = () => {
-      maxRadius.value = Math.min(img.naturalWidth, img.naturalHeight) / 2;
+      // 获取 CSS 显示尺寸
+      const cssW = previewImg.value?.clientWidth || 0;
+      const cssH = previewImg.value?.clientHeight || 0;
+
+      // 按显示区域来算最大可圆角
+      const maxCssRadius = Math.min(cssW, cssH) / 2;
+      // 转换为真实像素最大圆角
+      maxRadius.value = maxCssRadius;
     };
   };
 
@@ -111,58 +118,45 @@ const downloadCropped = () => {
   const img = previewImg.value;
   if (!img) return;
 
-  const w = img.naturalWidth;
-  const h = img.naturalHeight;
-  const r = radius.value;
-  console.log("%c Line:135 🥟 r", "color:#f5ce50", r);
+  // 图片真实像素
+  const realWidth = img.naturalWidth;
+  const realHeight = img.naturalHeight;
+  // CSS 显示尺寸
+  const cssWidth = img.clientWidth;
+
+  // 比例（CSS → 实际像素）
+  const scaleX = realWidth / cssWidth;
+
+  // 将 CSS 圆角 px 转换为真实像素圆角
+  const realRadius = radius.value * scaleX;
 
   const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
+  canvas.width = realWidth;
+  canvas.height = realHeight;
   const ctx = canvas.getContext("2d")!;
 
-  ctx.clearRect(0, 0, w, h);
+  ctx.clearRect(0, 0, realWidth, realHeight);
 
-  // 开始绘制圆角矩形路径（精确圆角）
+  const r = realRadius;
+
   ctx.beginPath();
-
-  // 起点：左上角弧的右侧点
   ctx.moveTo(r, 0);
-
-  // 顶部直线 → 到右上角前
-  ctx.lineTo(w - r, 0);
-
-  // 右上角精确圆弧
-  ctx.arc(w - r, r, r, -Math.PI / 2, 0);
-
-  // 右侧直线 → 到右下角前
-  ctx.lineTo(w, h - r);
-
-  // 右下角精确圆弧
-  ctx.arc(w - r, h - r, r, 0, Math.PI / 2);
-
-  // 底部直线 → 到左下角前
-  ctx.lineTo(r, h);
-
-  // 左下角精确圆弧
-  ctx.arc(r, h - r, r, Math.PI / 2, Math.PI);
-
-  // 左侧直线 → 到左上角前
+  ctx.lineTo(realWidth - r, 0);
+  ctx.arc(realWidth - r, r, r, -Math.PI / 2, 0);
+  ctx.lineTo(realWidth, realHeight - r);
+  ctx.arc(realWidth - r, realHeight - r, r, 0, Math.PI / 2);
+  ctx.lineTo(r, realHeight);
+  ctx.arc(r, realHeight - r, r, Math.PI / 2, Math.PI);
   ctx.lineTo(0, r);
-
-  // 左上角精确圆弧
   ctx.arc(r, r, r, Math.PI, Math.PI * 1.5);
-
   ctx.closePath();
   ctx.clip();
 
-  // 绘制图片
-  ctx.drawImage(img, 0, 0, w, h);
+  ctx.drawImage(img, 0, 0, realWidth, realHeight);
 
-  // 下载文件
   const a = document.createElement("a");
   a.href = canvas.toDataURL("image/" + format.value);
-  a.download = "temp" + new Date().getTime() + "." + format.value;
+  a.download = "rounded_" + Date.now() + "." + format.value;
   a.click();
 };
 </script>
