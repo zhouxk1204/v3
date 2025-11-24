@@ -53,13 +53,14 @@
           <option value="jpg">JPG</option>
           <option value="webp">WEBP</option>
         </select>
-
+<!-- 
         <button
           class="px-4 py-2 text-center text-white bg-blue-600 rounded shadow cursor-pointer hover:bg-blue-500 focus:outline-none"
           @click="downloadCropped"
         >
           下载裁剪后的图片
-        </button>
+        </button> -->
+        <Button  @click="downloadCropped">下载裁剪后的图片</Button>
       </div>
     </div>
 
@@ -72,8 +73,8 @@
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
+import Button from '../../components/Button/index.vue';
 import FlippingCard from "../../components/FlippingCard/index.vue";
-
 const previewUrl = ref<string | null>(null);
 const radius = ref(30);
 const previewImg = ref<HTMLImageElement | null>(null);
