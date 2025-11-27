@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AMap: typeof import('./components/AMap/index.vue')['default']
+    Button: typeof import('./components/Button/index.vue')['default']
     Card: typeof import('./components/Card/index.vue')['default']
     Dropdown: typeof import('./components/Dropdown/index.vue')['default']
     EchartBar: typeof import('./components/EchartBar/index.vue')['default']
@@ -80,8 +81,10 @@ declare module 'vue' {
     ScaleInOut: typeof import('./components/ScaleInOut/index.vue')['default']
     Search: typeof import('./components/Search/index.vue')['default']
     StepFadeIn: typeof import('./components/StepFadeIn/index.vue')['default']
+    Switch: typeof import('./components/Switch/index.vue')['default']
     Table: typeof import('./components/Table/index.vue')['default']
     Table2: typeof import('./components/Table2/index.vue')['default']
+    Trae: typeof import('./components/Trae/index.vue')['default']
     Typewriter: typeof import('./components/Typewriter/index.vue')['default']
     UploadCos: typeof import('./components/UploadCos/index.vue')['default']
     UploadExcel: typeof import('./components/UploadExcel/index.vue')['default']
