@@ -83,14 +83,33 @@ class DistortionEffect {
     canvas.height = height
     console.log("%c Line:84 🥪 height", "color:#465975", height);
     const ctx = canvas.getContext('2d')
-    ctx.fillStyle = '#000000'
+    ctx.fillStyle = '#76ed95'
     ctx.fillRect(0, 0, width, height)
-    ctx.fillStyle = '#ffffff'
-    const fontSize = Math.min(width, height) * 0.5
+    ctx.fillStyle = '#000'
+    
+    // 使用更精确的方法计算字体大小，让文字完全填满容器高度
+    // 从容器高度开始尝试，直到文字能完全适应
+    let fontSize = height * 1.3
     ctx.font = `bold ${fontSize}px Arial`
+    
+    // 调整文字基线为top，这样可以从顶部开始测量
+    ctx.textBaseline = 'top'
     ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText(text, width/2, height/2)
+    
+    // 测量文字高度
+    const metrics = ctx.measureText(text)
+    const textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
+    console.log("%c Line:102 🌽 textHeight", "color:#ed9ec7", textHeight);
+    
+    // 如果文字高度超过容器，缩小字体
+    if (textHeight > height) {
+      fontSize = fontSize * height / textHeight
+      ctx.font = `bold ${fontSize}px Arial`
+    }
+    
+    // 绘制文字，从顶部开始，确保文字完全填满高度
+    ctx.fillText(text, width/2, -14)
+    
     return new THREE.CanvasTexture(canvas)
   }
 
@@ -197,8 +216,8 @@ class DistortionEffect {
     this.dataTexture.needsUpdate = true
 
     // 调试信息
-    console.log('Mouse:',this.mouse.x.toFixed(2),this.mouse.y.toFixed(2),
-      'vX/vY:',this.mouse.vX.toFixed(3),this.mouse.vY.toFixed(3))
+    // console.log('Mouse:',this.mouse.x.toFixed(2),this.mouse.y.toFixed(2),
+    //   'vX/vY:',this.mouse.vX.toFixed(3),this.mouse.vY.toFixed(3))
   }
 
   animate() {
