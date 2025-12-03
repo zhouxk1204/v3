@@ -8,6 +8,7 @@ module.exports = {
     extend: {
       fontFamily: {
         plate: ['"OCR A Std"', '"Courier New"', 'Courier', 'monospace'],
+        flip: ['Oswald', 'sans-serif'],
       },
       borderColor: {
         ep: "var(--el-border-color)", // Use the custom CSS variable for border color

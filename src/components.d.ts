@@ -68,6 +68,7 @@ declare module 'vue' {
     ElUpload: typeof import('element-plus/es')['ElUpload']
     ElWatermark: typeof import('element-plus/es')['ElWatermark']
     FillUp: typeof import('./components/FillUp/index.vue')['default']
+    FlipCard: typeof import('./components/FlipCard/index.vue')['default']
     FlippingCard: typeof import('./components/FlippingCard/index.vue')['default']
     Form: typeof import('./components/Form/index.vue')['default']
     Form2: typeof import('./components/Form2/index.vue')['default']

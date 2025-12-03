@@ -1,6 +1,16 @@
 <template>
-  <div class="w-[90%] mx-auto">
-    <h1 class="w-full mb-10 text-4xl font-bold text-center">制作圆角图片</h1>
+  <div class="w-screen h-screen">
+      <Trae
+      text="HELLO"
+      :gridSize="15"
+      :mouseRadius="0.25"
+      :relaxation="0.9"
+    />
+    </div>
+  <!-- <div class="w-[90%] mx-auto"> -->
+    
+
+    <!-- <h1 class="w-full mb-10 text-4xl font-bold text-center">制作圆角图片</h1>
     <div class="flex gap-4">
       <div class="flex flex-col flex-1 gap-3">
         <h2 class="text-2xl font-bold">图片预览</h2>
@@ -52,15 +62,15 @@
           <option value="png">PNG</option>
           <option value="jpg">JPG</option>
           <option value="webp">WEBP</option>
-        </select>
-<!-- 
+        </select> -->
+        <!-- 
         <button
           class="px-4 py-2 text-center text-white bg-blue-600 rounded shadow cursor-pointer hover:bg-blue-500 focus:outline-none"
           @click="downloadCropped"
         >
           下载裁剪后的图片
         </button> -->
-        <Button  @click="downloadCropped">下载裁剪后的图片</Button>
+        <!-- <Button @click="downloadCropped">下载裁剪后的图片</Button>
       </div>
     </div>
 
@@ -68,18 +78,18 @@
       <FlippingCard class="flex-1"></FlippingCard>
       <FlippingCard class="flex-1"></FlippingCard>
       <FlippingCard class="flex-1"></FlippingCard>
-    </div>
-  </div>
+    </div> -->
+  <!-- </div> -->
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import Button from '../../components/Button/index.vue';
-import FlippingCard from "../../components/FlippingCard/index.vue";
+import Trae from "../../components/Trae/index.vue";
 const previewUrl = ref<string | null>(null);
 const radius = ref(30);
 const previewImg = ref<HTMLImageElement | null>(null);
 const maxRadius = ref(20);
 const format = ref("png");
+
 
 const onFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
