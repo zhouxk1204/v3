@@ -14,6 +14,9 @@ importers:
       '@element-plus/icons-vue':
         specifier: ^2.3.1
         version: 2.3.2(vue@3.5.22(typescript@5.9.3))
+      '@fireworks-js/vue':
+        specifier: ^2.10.8
+        version: 2.10.8(vue@3.5.22(typescript@5.9.3))
       '@types/color-thief-node':
         specifier: ^1.0.4
         version: 1.0.4
@@ -362,6 +365,11 @@ packages:
 
   '@fast-csv/parse@4.3.6':
     resolution: {integrity: sha512-uRsLYksqpbDmWaSmzvJcuApSEe38+6NQZBUsuAyMZKqHxH0g1wcJgsKUvN3WC8tewaqFjBMMGrkHmC+T7k8LvA==}
+
+  '@fireworks-js/vue@2.10.8':
+    resolution: {integrity: sha512-XcLfgSO5OHxV6ffn3T3KC0vgJa1in3oLB/Laqzfgc3OBtx2bpwsfbayZNNiQdscRijl1yxHTC0fqe0q83m/dzg==}
+    peerDependencies:
+      vue: '>=3.0.0'
 
   '@floating-ui/core@1.7.3':
     resolution: {integrity: sha512-sGnvb5dmrJaKEZ+LDIpguvdX3bDlEllmv4/ClQ9awcmCZrlx5jQyyMWFM5kBI+EyNOCDDiKk8il0zeuX3Zlg/w==}
@@ -1400,6 +1408,9 @@ packages:
   find-up@5.0.0:
     resolution: {integrity: sha512-78/PXT1wlLLDgTzDs7sjq9hzz0vXD+zn+7wypEe4fXQxCmdmqfGsEPQxmiCSQI3ajFV91bVSsvNtrJRiW6nGng==}
     engines: {node: '>=10'}
+
+  fireworks-js@2.10.8:
+    resolution: {integrity: sha512-UZNxeJvRmQzLisN4iriWXqKojG9TDJqc0dPmkUw0/+AEQQ3w8z1Jx2YdFSiBGSVb/u4dPTQXU109GMVblzhfpg==}
 
   follow-redirects@1.15.11:
     resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
@@ -2671,6 +2682,11 @@ snapshots:
       lodash.isundefined: 3.0.1
       lodash.uniq: 4.5.0
 
+  '@fireworks-js/vue@2.10.8(vue@3.5.22(typescript@5.9.3))':
+    dependencies:
+      fireworks-js: 2.10.8
+      vue: 3.5.22(typescript@5.9.3)
+
   '@floating-ui/core@1.7.3':
     dependencies:
       '@floating-ui/utils': 0.2.10
@@ -3750,6 +3766,8 @@ snapshots:
     dependencies:
       locate-path: 6.0.0
       path-exists: 4.0.0
+
+  fireworks-js@2.10.8: {}
 
   follow-redirects@1.15.11: {}
 
