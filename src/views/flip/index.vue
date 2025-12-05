@@ -1,50 +1,58 @@
 <template>
-  <div class="flex flex-col items-center justify-center w-screen h-full gap-6 bg-black text-[#ababab] font-bold">
-    <!-- 控制菜单 -->
-    <div class="flex flex-col items-center gap-4 md:flex-row">
-      <button @click="toggleHourFormat" class="px-4 py-2 bg-gray-700 rounded">
-        切换 {{ is24Hour ? '12小时制' : '24小时制' }}
-      </button>
-
-      <input type="datetime-local" v-model="targetDateStr" class="px-2 py-1 text-black rounded" />
-      <button @click="startCountdown" class="px-4 py-2 bg-green-600 rounded">开始倒计时</button>
-
-      <input
-        type="text"
-        v-model="customText"
-        placeholder="自定义文字"
-        class="px-2 py-1 text-black rounded"
-      />
-    </div>
+  <div
+    class="flex flex-col items-center justify-center w-screen h-full gap-8 font-bold dark:bg-black"
+  >
+    <button
+      type="button"
+      class="fixed p-2 text-gray-600 transition-transform duration-300 border-2 border-solid rounded-full top-2 right-2 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:animate-spin dark:border-gray-600"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+      >
+        <path
+          fill="currentColor"
+          d="M19.14 12.94c.04-.3.06-.61.06-.94c0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6s3.6 1.62 3.6 3.6s-1.62 3.6-3.6 3.6"
+        />
+      </svg>
+    </button>
 
     <!-- 时间显示 -->
-    <div class="flex flex-col items-center gap-10 md:flex-row">
-      <div class="relative flex">
+    <div
+      class="flex flex-col items-center md:flex-row"
+      :style="{ gap: gap / 2 + 'px' }"
+    >
+      <div class="relative flex overflow-hidden rounded-2xl">
         <div
-          class="absolute text-3xl text-[#ababab] z-50 transition-all duration-300 -left-10"
-          :class="isAM && !is24Hour ? 'top-4' : 'bottom-2'"
-          v-if="!is24Hour"
+          class="absolute z-30 text-black transition-all left-2 dark:text-white"
+          :class="isAM && !is24Hour ? 'top-0' : 'bottom-0'"
+          :style="{ fontSize: cardWidth / 5 + 'px' }"
+          v-if="mode === 'time' && !is24Hour"
         >
-          {{ isAM ? 'AM' : 'PM' }}
+          {{ isAM ? "AM" : "PM" }}
         </div>
 
-        <FlipCard :value="timeArray[0]" />
-        <FlipCard :value="timeArray[1]" />
+        <FlipCard :value="timeArray[0]" :width="cardWidth" />
+        <FlipCard :value="timeArray[1]" :width="cardWidth" />
       </div>
 
-      <div class="flex">
-        <FlipCard :value="timeArray[2]" />
-        <FlipCard :value="timeArray[3]" />
+      <div class="flex overflow-hidden rounded-2xl">
+        <FlipCard :value="timeArray[2]" :width="cardWidth" />
+        <FlipCard :value="timeArray[3]" :width="cardWidth" />
       </div>
 
-      <div class="hidden md:flex">
-        <FlipCard :value="timeArray[4]" />
-        <FlipCard :value="timeArray[5]" />
+      <div class="hidden overflow-hidden rounded-2xl md:flex">
+        <FlipCard :value="timeArray[4]" :width="cardWidth" />
+        <FlipCard :value="timeArray[5]" :width="cardWidth" />
       </div>
     </div>
 
     <!-- 自定义文字 -->
-    <div class="text-xl mt-4 text-[#ababab]">{{ customText }}</div>
+    <div class="text-xl text-[#ababab] px-10">{{ customText }}</div>
+
+    <!-- 烟花 -->
     <Fireworks
       v-if="showFireworks"
       :options="fireworksOptions"
@@ -55,105 +63,68 @@
 
 <script setup lang="ts">
 import FlipCard from "@/components/FlipCard/index.vue";
-import { Fireworks } from "@fireworks-js/vue";
+import { Fireworks, FireworksOptions } from "@fireworks-js/vue";
 import { computed, ref } from "vue";
+const mode = ref<"time" | "countdown">("time");
 
-// 控制烟花显示
+const is24Hour = ref(false); // 小时制
+const customText = ref(
+  "每个羽翼的扇动，都是对过往的告别，飞向那座山，拥抱自我。"
+); // 自定义文字
+
+const timeArray = ref([0, 0, 0, 0, 0, 0]);
+const hour = ref(0);
+
 const showFireworks = ref(false);
-
-// 烟花参数，可自定义
-const fireworksOptions = {
-  speed: 7,                 // 粒子飞行速度
-  acceleration: 1.15,       // 粒子加速度
-  friction: 0.9,            // 摩擦系数，越小粒子飞得越远
-  particles: 200,           // 每次爆炸产生的粒子数量
-  trace: 6,                 // 尾迹长度
-  explosion: 10,            // 爆炸数量级
-  gravity: 0.12,            // 重力
-  flickering: 50,           // 粒子闪烁强度（0~100），不是 boolean
-  brightness: { min: 60, max: 100 }, // 亮度范围
+const fireworksOptions: FireworksOptions = {
+  acceleration: 1.15,
+  friction: 0.97,
+  particles: 500,
+  explosion: 10,
+  gravity: 0.98,
+  flickering: 50,
+  brightness: { min: 50, max: 80 },
+  rocketsPoint: { min: 20, max: 80 },
 };
 
-// --- 基础状态 ---
-const timeArray = ref<number[]>([0, 0, 0, 0, 0, 0]);
-const hour = ref(0);
-const is24Hour = ref(true);
-const targetDateStr = ref<string>(''); // 用户选择的目标时间
-const customText = ref<string>('');   // 自定义文字
-const isCountdown = ref(false);
-
-// --- 计算 AM/PM ---
 const isAM = computed(() => hour.value < 12);
 
-// --- 更新显示时间函数 ---
+// 更新时钟或倒计时
 const updateTime = () => {
   const now = new Date();
-
-  if (isCountdown.value && targetDateStr.value) {
-    const target = new Date(targetDateStr.value);
-    let diff = target.getTime() - now.getTime();
-
-    if (diff <= 0) {
-      // 倒计时结束
-      isCountdown.value = false;
-      diff = 0;
-
-      // 播放烟花
-      showFireworks.value = true;
-
-      // 3秒后自动隐藏烟花
-      setTimeout(() => {
-        showFireworks.value = false;
-      }, 1000 * 100);
-    }
-
-    // 计算剩余时间
-    const totalSeconds = Math.floor(diff / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    // 分解为每位数字
-    timeArray.value = [
-      Math.floor(hours / 10),
-      hours % 10,
-      Math.floor(minutes / 10),
-      minutes % 10,
-      Math.floor(seconds / 10),
-      seconds % 10,
-    ];
-    return;
-  }
-
-  // 正常显示时间
-  let hourVal = now.getHours();
-  const m = now.getMinutes();
-  const s = now.getSeconds();
-  const displayHour = is24Hour.value ? hourVal : hourVal % 12 || 12;
-
+  const h = now.getHours();
+  hour.value = h;
+  const displayHour = is24Hour.value ? h : h % 12 || 12;
   timeArray.value = [
     Math.floor(displayHour / 10),
     displayHour % 10,
-    Math.floor(m / 10),
-    m % 10,
-    Math.floor(s / 10),
-    s % 10,
+    Math.floor(now.getMinutes() / 10),
+    now.getMinutes() % 10,
+    Math.floor(now.getSeconds() / 10),
+    now.getSeconds() % 10,
   ];
 };
 
-// --- 切换小时制 ---
-const toggleHourFormat = () => {
-  is24Hour.value = !is24Hour.value;
-};
-
-// --- 开始倒计时 ---
-const startCountdown = () => {
-  if (targetDateStr.value) {
-    isCountdown.value = true;
-  }
-};
-
-// --- 初始化定时器 ---
 updateTime();
 setInterval(updateTime, 1000);
+
+const gap = ref(50); // 可配置间隔(px)
+const cardWidth = ref(0);
+const computeWidth = () => {
+  const containerWidth = window.innerWidth;
+  const isMobile = containerWidth < 768;
+  const N = isMobile ? 2 : 6;
+  const G = isMobile ? gap.value * N : 3.5 * gap.value;
+  cardWidth.value = (containerWidth - G) / N;
+};
+
+// 初始化 + 监听 resize
+onMounted(() => {
+  computeWidth();
+  window.addEventListener("resize", computeWidth);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", computeWidth);
+});
 </script>

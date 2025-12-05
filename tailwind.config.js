@@ -3,12 +3,11 @@ const colors = require("tailwindcss/colors");
 
 module.exports = {
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
-  darkMode: "class", // or 'media' or 'class'
+  darkMode: "media", // or 'media' or 'class'
   theme: {
     extend: {
       fontFamily: {
         plate: ['"OCR A Std"', '"Courier New"', 'Courier', 'monospace'],
-        flip: ['Oswald', 'sans-serif'],
       },
       borderColor: {
         ep: "var(--el-border-color)", // Use the custom CSS variable for border color
@@ -31,6 +30,7 @@ module.exports = {
       },
       animation: {
         zoom: "zoomInOut 10s ease-in-out infinite alternate",
+        'spin-slow': 'spin 1s linear infinite',
       },
     },
   },

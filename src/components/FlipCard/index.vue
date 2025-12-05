@@ -1,10 +1,6 @@
 <template>
-  <div
-    class="relative bg-black select-none rounded-xl perspective-midrange font-flip"
-    :style="style"
-    :class="{ active: flipping }"
-  >
-    <div class="absolute left-0 z-40 w-full h-1 -translate-y-1/2 bg-inherit top-1/2">&nbsp;</div>
+  <div class="flip-card" :style="style" :class="{ active: flipping }">
+    <div class="divider">&nbsp;</div>
     <div :num="current" class="face"></div>
     <div :num="next" class="back"></div>
   </div>
@@ -15,12 +11,12 @@ import { computed, ref, watch } from "vue";
 
 const props = defineProps<{
   value: number; // 外部传入数字
+  width: number; // 卡片宽度
 }>();
 
 const aspectRatio = 3 / 5;
 const fontRatio = 1;
-const width = ref(128);
-const height = computed(() => Math.floor(width.value / aspectRatio));
+const height = computed(() => Math.floor(props.width / aspectRatio));
 const fontSize = computed(() => Math.floor(height.value / fontRatio));
 
 const current = ref(props.value); // 初始即同步
@@ -29,7 +25,7 @@ const flipping = ref(false);
 
 const style = computed(() => {
   return {
-    width: `${width.value}px`,
+    width: `${props.width}px`,
     height: `${height.value}px`,
     lineHeight: `${height.value}px`,
     fontSize: `${fontSize.value}px`,
@@ -54,27 +50,98 @@ watch(
 );
 </script>
 <style lang="scss" scoped>
+.flip-card {
+  position: relative;
+  background: var(--flip-bg);
+  user-select: none;
+  border-radius: 0.75rem;
+  font-family: "helvetica", sans-serif;
+  perspective: 1200px;
+  color: var(--flip-text);
+}
+
+.divider {
+  position: absolute;
+  left: 0;
+  z-index: 40;
+  width: 100%;
+  height: 0.25rem; // h-1
+  top: 50%;
+  transform: translateY(-50%);
+  background: inherit;
+}
+
+/* 公共结构 */
+%half-block {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: var(--flip-bg);
+  overflow: hidden;
+  text-align: center;
+  color: inherit;
+}
+
 .face {
-  @apply before:z-30 before:text-center before:content-[attr(num)] before:absolute before:left-0 before:right-0 before:bg-black before:overflow-hidden before:top-0 before:bottom-1/2 before:rounded-t-[10px];
-  @apply after:z-10 after:text-center after:content-[attr(num)] after:absolute after:left-0 after:right-0 after:bg-black after:overflow-hidden after:top-1/2 after:bottom-0 after:rounded-b-[10px] after:leading-[0px];
+  &::before {
+    @extend %half-block;
+    z-index: 30;
+    content: attr(num);
+    top: 0;
+    bottom: 50%;
+  }
+
+  &::after {
+    @extend %half-block;
+    z-index: 10;
+    content: attr(num);
+    top: 50%;
+    bottom: 0;
+    line-height: 0;
+  }
 }
 
-.active .face::before {
-  transform-origin: 50% 100%;
-  animation: frontFlipDown 600ms ease-in-out both;
-  backface-visibility: hidden;
-  line-height: inherit;
+.back {
+  &::before {
+    @extend %half-block;
+    z-index: 10;
+    content: attr(num);
+    top: 0;
+    bottom: 50%;
+    line-height: inherit;
+  }
+
+  &::after {
+    @extend %half-block;
+    z-index: 20;
+    content: attr(num);
+    top: 50%;
+    bottom: 0;
+    line-height: 0;
+    transform-origin: 50% 0%;
+    transform: rotateX(180deg);
+  }
 }
 
-.active .back:after {
-  animation: backFlipDown 600ms ease-in-out both;
+/* 激活动画 */
+.flip-card.active {
+  .face::before {
+    transform-origin: 50% 100%;
+    animation: frontFlipDown 600ms ease-in-out both;
+    backface-visibility: hidden;
+    line-height: inherit;
+  }
+
+  .back::after {
+    animation: backFlipDown 600ms ease-in-out both;
+  }
 }
 
+/* 动画 */
 @keyframes frontFlipDown {
   0% {
     transform: rotateX(0deg);
   }
-
   100% {
     transform: rotateX(-180deg);
   }
@@ -84,25 +151,12 @@ watch(
   0% {
     transform: rotateX(180deg);
   }
-
   100% {
     transform: rotateX(0deg);
   }
 }
 
-.back {
-  @apply before:z-10 before:text-center before:content-[attr(num)] before:absolute before:left-0 before:right-0 before:bg-black before:overflow-hidden before:top-0 before:bottom-1/2 before:rounded-t-[10px];
-  @apply after:z-20 after:text-center after:content-[attr(num)] after:absolute after:left-0 after:right-0 after:bg-black after:overflow-hidden after:top-1/2 after:bottom-0 after:rounded-b-[10px] after:leading-[0px];
-  &:after {
-    transform-origin: 50% 0%;
-    transform: rotateX(180deg);
-  }
-  &::before {
-    line-height: inherit;
-  }
-}
-
-/* 通用优化 */
+/* 优化 */
 .face::before,
 .face::after,
 .back::before,

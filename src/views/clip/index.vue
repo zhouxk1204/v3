@@ -82,94 +82,93 @@
   <!-- </div> -->
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
-import Trae from "../../components/Trae/index.vue";
-const previewUrl = ref<string | null>(null);
-const radius = ref(30);
-const previewImg = ref<HTMLImageElement | null>(null);
-const maxRadius = ref(20);
-const format = ref("png");
+// import { ref } from "vue";
+// const previewUrl = ref<string | null>(null);
+// const radius = ref(30);
+// const previewImg = ref<HTMLImageElement | null>(null);
+// const maxRadius = ref(20);
+// const format = ref("png");
 
 
-const onFileChange = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
+// const onFileChange = (event: Event) => {
+//   const target = event.target as HTMLInputElement;
+//   const file = target.files?.[0];
 
-  if (!file) return;
+//   if (!file) return;
 
-  if (!file.type.startsWith("image/")) {
-    alert("请选择图片文件");
-    return;
-  }
+//   if (!file.type.startsWith("image/")) {
+//     alert("请选择图片文件");
+//     return;
+//   }
 
-  const reader = new FileReader();
+//   const reader = new FileReader();
 
-  reader.onload = () => {
-    previewUrl.value = reader.result as string;
+//   reader.onload = () => {
+//     previewUrl.value = reader.result as string;
 
-    // 加载图片计算最大圆角
-    const img = new Image();
-    img.src = reader.result as string;
-    img.onload = () => {
-      // 获取 CSS 显示尺寸
-      const cssW = previewImg.value?.clientWidth || 0;
-      const cssH = previewImg.value?.clientHeight || 0;
+//     // 加载图片计算最大圆角
+//     const img = new Image();
+//     img.src = reader.result as string;
+//     img.onload = () => {
+//       // 获取 CSS 显示尺寸
+//       const cssW = previewImg.value?.clientWidth || 0;
+//       const cssH = previewImg.value?.clientHeight || 0;
 
-      // 按显示区域来算最大可圆角
-      const maxCssRadius = Math.min(cssW, cssH) / 2;
-      // 转换为真实像素最大圆角
-      maxRadius.value = maxCssRadius;
-    };
-  };
+//       // 按显示区域来算最大可圆角
+//       const maxCssRadius = Math.min(cssW, cssH) / 2;
+//       // 转换为真实像素最大圆角
+//       maxRadius.value = maxCssRadius;
+//     };
+//   };
 
-  reader.readAsDataURL(file);
-};
+//   reader.readAsDataURL(file);
+// };
 
-const downloadCropped = () => {
-  const img = previewImg.value;
-  if (!img) return;
+// const downloadCropped = () => {
+//   const img = previewImg.value;
+//   if (!img) return;
 
-  // 图片真实像素
-  const realWidth = img.naturalWidth;
-  const realHeight = img.naturalHeight;
-  // CSS 显示尺寸
-  const cssWidth = img.clientWidth;
+//   // 图片真实像素
+//   const realWidth = img.naturalWidth;
+//   const realHeight = img.naturalHeight;
+//   // CSS 显示尺寸
+//   const cssWidth = img.clientWidth;
 
-  // 比例（CSS → 实际像素）
-  const scaleX = realWidth / cssWidth;
+//   // 比例（CSS → 实际像素）
+//   const scaleX = realWidth / cssWidth;
 
-  // 将 CSS 圆角 px 转换为真实像素圆角
-  const realRadius = radius.value * scaleX;
+//   // 将 CSS 圆角 px 转换为真实像素圆角
+//   const realRadius = radius.value * scaleX;
 
-  const canvas = document.createElement("canvas");
-  canvas.width = realWidth;
-  canvas.height = realHeight;
-  const ctx = canvas.getContext("2d")!;
+//   const canvas = document.createElement("canvas");
+//   canvas.width = realWidth;
+//   canvas.height = realHeight;
+//   const ctx = canvas.getContext("2d")!;
 
-  ctx.clearRect(0, 0, realWidth, realHeight);
+//   ctx.clearRect(0, 0, realWidth, realHeight);
 
-  const r = realRadius;
+//   const r = realRadius;
 
-  ctx.beginPath();
-  ctx.moveTo(r, 0);
-  ctx.lineTo(realWidth - r, 0);
-  ctx.arc(realWidth - r, r, r, -Math.PI / 2, 0);
-  ctx.lineTo(realWidth, realHeight - r);
-  ctx.arc(realWidth - r, realHeight - r, r, 0, Math.PI / 2);
-  ctx.lineTo(r, realHeight);
-  ctx.arc(r, realHeight - r, r, Math.PI / 2, Math.PI);
-  ctx.lineTo(0, r);
-  ctx.arc(r, r, r, Math.PI, Math.PI * 1.5);
-  ctx.closePath();
-  ctx.clip();
+//   ctx.beginPath();
+//   ctx.moveTo(r, 0);
+//   ctx.lineTo(realWidth - r, 0);
+//   ctx.arc(realWidth - r, r, r, -Math.PI / 2, 0);
+//   ctx.lineTo(realWidth, realHeight - r);
+//   ctx.arc(realWidth - r, realHeight - r, r, 0, Math.PI / 2);
+//   ctx.lineTo(r, realHeight);
+//   ctx.arc(r, realHeight - r, r, Math.PI / 2, Math.PI);
+//   ctx.lineTo(0, r);
+//   ctx.arc(r, r, r, Math.PI, Math.PI * 1.5);
+//   ctx.closePath();
+//   ctx.clip();
 
-  ctx.drawImage(img, 0, 0, realWidth, realHeight);
+//   ctx.drawImage(img, 0, 0, realWidth, realHeight);
 
-  const a = document.createElement("a");
-  a.href = canvas.toDataURL("image/" + format.value);
-  a.download = "rounded_" + Date.now() + "." + format.value;
-  a.click();
-};
+//   const a = document.createElement("a");
+//   a.href = canvas.toDataURL("image/" + format.value);
+//   a.download = "rounded_" + Date.now() + "." + format.value;
+//   a.click();
+// };
 </script>
 <style>
 .board {

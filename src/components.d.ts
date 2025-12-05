@@ -9,7 +9,6 @@ declare module 'vue' {
   export interface GlobalComponents {
     AMap: typeof import('./components/AMap/index.vue')['default']
     Button: typeof import('./components/Button/index.vue')['default']
-    Card: typeof import('./components/Card/index.vue')['default']
     Dropdown: typeof import('./components/Dropdown/index.vue')['default']
     EchartBar: typeof import('./components/EchartBar/index.vue')['default']
     EchartPile: typeof import('./components/EchartPile/index.vue')['default']
