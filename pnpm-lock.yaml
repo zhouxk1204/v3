@@ -20,9 +20,6 @@ importers:
       '@types/color-thief-node':
         specifier: ^1.0.4
         version: 1.0.4
-      '@types/marked':
-        specifier: ^6.0.0
-        version: 6.0.0
       '@types/uuid':
         specifier: ^9.0.7
         version: 9.0.8
@@ -86,6 +83,9 @@ importers:
       postcss-100vh-fix:
         specifier: ^1.0.2
         version: 1.0.2(postcss@8.5.6)
+      solarlunar:
+        specifier: ^2.0.7
+        version: 2.0.7
       tailwindcss-animatecss:
         specifier: ^3.0.4
         version: 3.0.5(tailwindcss@3.4.18)
@@ -801,10 +801,6 @@ packages:
 
   '@types/lodash@4.17.20':
     resolution: {integrity: sha512-H3MHACvFUEiujabxhaI/ImO6gUrd8oOurg7LQtS7mbwIXA/cUqWrvBsaeJ23aZEPk1TAYkurjfMbSELfoCXlGA==}
-
-  '@types/marked@6.0.0':
-    resolution: {integrity: sha512-jmjpa4BwUsmhxcfsgUit/7A9KbrC48Q0q8KvnY107ogcjGgTFDlIL3RpihNpx2Mu1hM4mdFQjoVc4O6JoGKHsA==}
-    deprecated: This is a stub types definition. marked provides its own type definitions, so you do not need this installed.
 
   '@types/ndarray@1.0.14':
     resolution: {integrity: sha512-oANmFZMnFQvb219SSBIhI1Ih/r4CvHDOzkWyJS/XRqkMrGH5/kaPSA1hQhdIBzouaE+5KpE/f5ylI9cujmckQg==}
@@ -2199,6 +2195,9 @@ packages:
   simple-swizzle@0.2.4:
     resolution: {integrity: sha512-nAu1WFPQSMNr2Zn9PGSZK9AGn4t/y97lEm+MXTtUDwfP0ksAIX4nO+6ruD9Jwut4C49SB1Ws+fbXsm/yScWOHw==}
 
+  solarlunar@2.0.7:
+    resolution: {integrity: sha512-2SfuCCgAAxFU5MTMYuKGbRgRLcPTJQf3azMEw/GmBpHXA7N2eAQJStSqktZJjnq4qRCboBPnqEB866+PCregag==}
+
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
@@ -3004,10 +3003,6 @@ snapshots:
       '@types/lodash': 4.17.20
 
   '@types/lodash@4.17.20': {}
-
-  '@types/marked@6.0.0':
-    dependencies:
-      marked: 15.0.12
 
   '@types/ndarray@1.0.14': {}
 
@@ -4601,6 +4596,8 @@ snapshots:
   simple-swizzle@0.2.4:
     dependencies:
       is-arrayish: 0.3.4
+
+  solarlunar@2.0.7: {}
 
   source-map-js@1.2.1: {}
 

@@ -2,11 +2,17 @@
   <div
     class="flex flex-col items-center justify-center w-screen h-full gap-8 font-bold dark:bg-black"
   >
+    <h1 class="text-xl font-bold text-black sm:text-2xl dark:text-white">
+      {{ currentDate }}
+    </h1>
     <!-- 时间显示 -->
     <div
       @click="isShowSettings = true"
       class="flex items-center"
-      :style="{ gap: settings.commonConfig.gap + 'px', flexDirection: isMobile && !isMobileLandscape ? 'column' : 'row' }"
+      :style="{
+        gap: settings.commonConfig.gap + 'px',
+        flexDirection: isMobile && !isMobileLandscape ? 'column' : 'row',
+      }"
     >
       <div class="relative flex overflow-hidden rounded-2xl">
         <div
@@ -37,8 +43,8 @@
     </div>
 
     <!-- 自定义文字 -->
-    <div class="text-xl text-[#ababab] px-10">
-      {{ settings.commonConfig.slogn }}
+    <div class="px-10 text-xl font-bold text-black sm:text-2xl dark:text-white">
+      {{ displaySlogan }}
     </div>
 
     <!-- 烟花 -->
@@ -59,20 +65,36 @@
 <script setup lang="ts">
 import FlipCard from "@/components/FlipCard/index.vue";
 import { Fireworks, FireworksOptions } from "@fireworks-js/vue";
+import dayjs from "dayjs";
 import { computed, onMounted, onUnmounted, ref, watchEffect } from "vue";
 import PopupSettings from "./comp/PopupSettings.vue";
+import { Settings } from "./type";
+import { getDateStr } from "./utils";
+const currentDate = ref("");
+
+const displaySlogan = computed(() => {
+  const list = settings.value.commonConfig.specialSlogans || [];
+  if (!list.length) return settings.value.commonConfig.slogn;
+
+  const today = dayjs().format("YYYY-MM-DD");
+
+  const hit = list.find((item) => item.date === today);
+
+  return hit?.text || settings.value.commonConfig.slogn;
+});
 
 /* ------------------------------
    Popup 控制 & 全局设置
 ------------------------------ */
 const isShowSettings = ref(false);
 
-const settings = ref({
+const settings = ref<Settings>({
   mode: "time",
   commonConfig: {
     gap: 40,
     slogn: "每个羽翼的扇动，都是对过往的告别，飞向那座山，拥抱自我。",
     size: 1,
+    specialSlogans: [],
   },
   timeConfig: {
     is24Hour: false,
@@ -109,8 +131,8 @@ const fireworksOptions: FireworksOptions = {
 const triggerFireworks = () => {
   isShowFireworks.value = true;
   setTimeout(() => {
-     isShowFireworks.value = false;
-     settings.value.mode = "time";
+    isShowFireworks.value = false;
+    settings.value.mode = "time";
   }, settings.value.countdownConfig.duration * 1000);
 };
 
@@ -119,7 +141,10 @@ const triggerFireworks = () => {
 ------------------------------ */
 const updateCountdown = () => {
   const now = Date.now();
-  let diff = Math.max(0, Math.floor((settings.value.countdownConfig.targetTime - now) / 1000));
+  let diff = Math.max(
+    0,
+    Math.floor((settings.value.countdownConfig.targetTime - now) / 1000)
+  );
 
   if (diff === 0 && settings.value.countdownConfig.showFireworks) {
     triggerFireworks();
@@ -131,9 +156,12 @@ const updateCountdown = () => {
   const s = diff % 60;
 
   timeArray.value = [
-    Math.floor(h / 10), h % 10,
-    Math.floor(m / 10), m % 10,
-    Math.floor(s / 10), s % 10,
+    Math.floor(h / 10),
+    h % 10,
+    Math.floor(m / 10),
+    m % 10,
+    Math.floor(s / 10),
+    s % 10,
   ];
 };
 
@@ -148,9 +176,12 @@ const updateTimeMode = () => {
   const displayHour = settings.value.timeConfig.is24Hour ? h : h % 12 || 12;
 
   timeArray.value = [
-    Math.floor(displayHour / 10), displayHour % 10,
-    Math.floor(now.getMinutes() / 10), now.getMinutes() % 10,
-    Math.floor(now.getSeconds() / 10), now.getSeconds() % 10,
+    Math.floor(displayHour / 10),
+    displayHour % 10,
+    Math.floor(now.getMinutes() / 10),
+    now.getMinutes() % 10,
+    Math.floor(now.getSeconds() / 10),
+    now.getSeconds() % 10,
   ];
 };
 
@@ -158,6 +189,7 @@ const updateTimeMode = () => {
    主循环：根据 mode 自动更新
 ------------------------------ */
 const updateTime = () => {
+  currentDate.value = getDateStr(dayjs());
   settings.value.mode === "countdown" ? updateCountdown() : updateTimeMode();
 };
 
@@ -211,14 +243,13 @@ const computeWidth = () => {
   const containerWidth = window.innerWidth;
   const cardCount = calcCardCount();
   const gap = settings.value.commonConfig.gap;
-  
+
   const totalGap =
-    isMobile.value && !isMobileLandscape.value
-      ? gap * cardCount
-      : gap * 3;
+    isMobile.value && !isMobileLandscape.value ? gap * cardCount : gap * 3;
 
   cardWidth.value =
-    ((containerWidth - totalGap) / cardCount) * settings.value.commonConfig.size;
+    ((containerWidth - totalGap) / cardCount) *
+    settings.value.commonConfig.size;
 };
 
 // 自动根据 settings 更新卡片尺寸（更智能）
@@ -244,4 +275,3 @@ onUnmounted(() => {
   window.removeEventListener("resize", computeWidth);
 });
 </script>
-

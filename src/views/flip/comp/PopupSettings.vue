@@ -95,6 +95,46 @@
         ></textarea>
       </div>
 
+      <!-- ===================== 特定日期标语 ===================== -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="font-medium">特定日期标语</span>
+          <button class="text-sm text-blue-500" @click="addSpecialSlogan">
+            + 添加
+          </button>
+        </div>
+
+        <div
+          v-for="(item, index) in localData.commonConfig.specialSlogans"
+          :key="index"
+          class="flex items-center gap-2"
+        >
+          <input
+            type="date"
+            class="p-2 bg-gray-100 rounded dark:bg-gray-700"
+            v-model="item.date"
+          />
+
+          <input
+            type="text"
+            placeholder="当天显示的标语"
+            class="flex-1 p-2 bg-gray-100 rounded dark:bg-gray-700"
+            v-model="item.text"
+          />
+
+          <button class="text-red-500" @click="removeSpecialSlogan(index)">
+            ✕
+          </button>
+        </div>
+
+        <p
+          v-if="!localData.commonConfig.specialSlogans.length"
+          class="text-sm text-gray-400"
+        >
+          暂无特定日期标语
+        </p>
+      </div>
+
       <div>
         <label class="font-medium"
           >整体缩放：{{ localData.commonConfig.size }}</label
@@ -186,6 +226,22 @@ updateTargetTimeInput();
 watch(targetTimeInput, (val) => {
   localData.value.countdownConfig.targetTime = new Date(val).getTime();
 });
+
+// 确保存在（兼容旧数据）
+if (!localData.value.commonConfig.specialSlogans) {
+  localData.value.commonConfig.specialSlogans = [];
+}
+
+function addSpecialSlogan() {
+  localData.value.commonConfig.specialSlogans.push({
+    date: "",
+    text: "",
+  });
+}
+
+function removeSpecialSlogan(index: number) {
+  localData.value.commonConfig.specialSlogans.splice(index, 1);
+}
 </script>
 
 <style scoped>
