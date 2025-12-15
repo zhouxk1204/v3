@@ -20,30 +20,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 
 const props = defineProps<{
   current: number;
   total: number;
 }>();
 
-const emit = defineEmits<{
-  (e: "update:current", value: number): void;
-}>();
-
-/* v-model 代理 */
-const progress = computed({
-  get: () => props.current,
-  set: (value: number) => emit("update:current", value),
-});
-
 /* mm:ss */
 function formatTime(sec: number) {
-  console.log("%c Line:41 🍭 sec", "color:#ea7e5c", sec);
   const m = Math.floor(sec / 60);
-  console.log("%c Line:42 🥑 m", "color:#4fff4B", m);
   const s = Math.floor(sec % 60);
-  console.log("%c Line:44 🍋 s", "color:#ed9ec7", s);
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 </script>

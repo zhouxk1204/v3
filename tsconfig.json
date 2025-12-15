@@ -23,7 +23,6 @@
     /* Interop */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "ignoreDeprecations": "6.0",
     /* 路径别名 */
     "baseUrl": ".",
     "paths": {

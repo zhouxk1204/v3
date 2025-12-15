@@ -31,7 +31,7 @@ import { PlayerAction } from "./type";
 const coverUrl = "https://picsum.photos/800";
 const isPlaying = ref(false);
 const handleControl = (action: PlayerAction) => {
-  console.log("%c Line:32 🍉 volume.value", "color:#93c0a4", volume.value);
+  console.log("%c Line:34 🎂 action", "color:#7f2b82", action);
 };
 const current = ref(0);
 const timer = setInterval(()=> {
