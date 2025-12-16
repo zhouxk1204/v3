@@ -2,7 +2,9 @@
   <div class="flex items-center justify-center bg" :style="bgStyle">
     <section class="w-[80vw] sm:w-[24vw]">
       <!-- 封面 -->
-      <fade-image :src="currentMeta.cover" class="w-full shadow-2xl select-none rounded-2xl aspect-square"></fade-image>
+      <fade-image :src="currentMeta.cover" class="w-full transition-transform shadow-2xl select-none rounded-2xl aspect-square" :style="{
+        transform: isPlaying ? 'scale(1)' : 'scale(0.75)'
+      }"></fade-image>
 
       <!-- Audio -->
       <audio
@@ -26,11 +28,11 @@
       </div>
 
       <!-- 时间 -->
-      <div class="relative pb-.5">
+      <div class="relative pb-1">
         <Time :current="current" :total="total" />
-        <div class="absolute bottom-0 flex gap-2 px-2 py-0.5 overflow-hidden -translate-x-1/2 border border-gray-100/60 rounded-xl left-1/2">
-          <img src="../../assets/img/flac.png" alt="flac" srcset="" class="w-5 brightness-0 invert opacity-60">
-          <span class="text-xs text-gray-100/60">无损</span>
+        <div class="absolute bottom-0 flex gap-1 item-center px-2 py-0.5 overflow-hidden -translate-x-1/2 border-2 border-gray-100/60 rounded-xl left-1/2 scale-75">
+          <img src="../../assets/img/flac.png" alt="flac" srcset="" class="w-6 brightness-0 invert opacity-60">
+          <span class="text-xs font-bold text-gray-100/60">无损</span>
         </div>
       </div>
 
@@ -65,7 +67,7 @@ const isPlaying = ref(false);
 const isLoading = ref(false);
 const current = ref(0);
 const total = ref(0);
-const volume = ref(0);
+const volume = ref(0.5);
 
 /* ------------------ 背景 ------------------ */
 const bgStyle = computed(() => ({

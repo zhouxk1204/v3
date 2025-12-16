@@ -34,7 +34,13 @@
           class="flex items-center justify-center gap-1 px-4 rounded-md bg-[#d60017] text-white text-[13px] h-[28px]"
         >
           <Icon icon="f7:play-fill" width="16"></Icon>
-          <span>Play</span>
+          <span>播放</span>
+        </button>
+        <button
+          class="flex items-center justify-center gap-1 px-4 rounded-md bg-[#d60017] text-white text-[13px] h-[28px]"
+        >
+          <Icon icon="f7:play-fill" width="16"></Icon>
+          <span>随机播放</span>
         </button>
       </div>
     </div>
