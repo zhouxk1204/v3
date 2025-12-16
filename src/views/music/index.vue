@@ -1,55 +1,229 @@
 <template>
   <div class="flex items-center justify-center bg" :style="bgStyle">
     <section class="w-[80vw] sm:w-[24vw]">
-      <img
-        :src="coverUrl"
-        alt="cover"
-        class="w-full shadow-2xl select-none rounded-2xl aspect-square"
+      <!-- 封面 -->
+      <fade-image :src="currentMeta.cover" class="w-full shadow-2xl select-none rounded-2xl aspect-square"></fade-image>
+
+      <!-- Audio -->
+      <audio
+        v-if="currentAudio"
+        ref="audioRef"
+        :src="currentAudio"
+        preload="metadata"
+        @loadedmetadata="onLoadedMetadata"
+        @timeupdate="onTimeUpdate"
+        @play="onPlay"
+        @pause="onPause"
+        @ended="onEnded"
+        @waiting="isLoading = true"
+        @canplay="isLoading = false"
       />
 
-      <div class="my-5 text-2xl font-bold break-words text-white/90 w-96">
-        <h2>Anyone</h2>
-        <p class="text-xl text-white/80">Tylor Swift</p>
+      <!-- 标题 -->
+      <div class="my-5 text-xl font-bold break-words text-white/90 w-96">
+        <h2>{{ currentMeta.title }}</h2>
+        <p class="text-lg text-white/80">{{ currentMeta.artist }}</p>
       </div>
 
-      <Time :current="current" :total="360"></Time>
+      <!-- 时间 -->
+      <div class="relative pb-.5">
+        <Time :current="current" :total="total" />
+        <div class="absolute bottom-0 flex gap-2 px-2 py-0.5 overflow-hidden -translate-x-1/2 border border-gray-100/60 rounded-xl left-1/2">
+          <img src="../../assets/img/flac.png" alt="flac" srcset="" class="w-5 brightness-0 invert opacity-60">
+          <span class="text-xs text-gray-100/60">无损</span>
+        </div>
+      </div>
 
-      <Control v-model="isPlaying" @control="handleControl($event)" class="pt-4 pb-8"></Control>
-
-      <Slider class="w-full" v-model="volume"></Slider>
+      <!-- 控制 -->
+      <Control
+        class="pt-4 pb-8"
+        :loading="isLoading"
+        :playing="isPlaying"
+        @control="handleControl"
+      />
+      <!-- <Icon icon="mdi:shuffle-variant" width="25" />
+      <Icon icon="mdi:repeat-one" width="25" />
+      <Icon icon="mdi:loop" width="25" /> -->
+      <!-- 音量 -->
+      <Slider class="w-full" v-model="volume" />
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import type { AudioMeta } from "@/components/MusicPlayer/type";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import Control from "./component/Control/index.vue";
+import FadeImage from "./component/FadeImage/index.vue";
 import Slider from "./component/Slider/index.vue";
 import Time from "./component/Time/index.vue";
 import { PlayerAction } from "./type";
 
-const coverUrl = "https://picsum.photos/800";
+/* ------------------ 基础状态 ------------------ */
+const audioRef = ref<HTMLAudioElement | null>(null);
 const isPlaying = ref(false);
-const handleControl = (action: PlayerAction) => {
-  console.log("%c Line:34 🎂 action", "color:#7f2b82", action);
-};
+const isLoading = ref(false);
 const current = ref(0);
-const timer = setInterval(()=> {
-  current.value += 1;
-  if(current.value === 360) {
-    clearInterval(timer)
-  }
-}, 1000)
+const total = ref(0);
+const volume = ref(0);
 
-/* ------------------ 样式变量 ------------------ */
+/* ------------------ 背景 ------------------ */
 const bgStyle = computed(() => ({
-  "--bg-image": `url(${coverUrl})`,
+  "--bg-image": `url(${currentMeta.value.cover})`,
 }));
 
-const volume = ref<number>(0.5);
+/* ------------------ 音频列表 ------------------ */
+const audios = ref<string[]>(
+  Object.values(
+    import.meta.glob('@/assets/audio/*.flac', {
+      eager: true,
+      query: '?url',
+      import: 'default',
+    })
+  )
+)
+const currentAudioIndex = ref(0); 
 
+const currentAudio = computed((): string => {
+  return audios.value[currentAudioIndex.value] || "";
+});
+
+/* ------------------ 元数据 ------------------ */
+const currentMeta = ref<AudioMeta>({
+  title: "unknown title",
+  artist: "unknown artist",
+  cover: "",
+});
+
+const audioMetaList = ref<AudioMeta[]>([]);
+
+/* ------------------ 控制逻辑 ------------------ */
+const handleControl = (action: PlayerAction) => {
+  if (action === PlayerAction.Toggle) togglePlay();
+  else track(action);
+};
+
+const togglePlay = async () => {
+  const audio = audioRef.value;
+  if (!audio) return;
+
+  try {
+    if (audio.paused) {
+      isLoading.value = true;
+      await audio.play();
+    } else {
+      audio.pause();
+    }
+  } catch (err) {
+    console.error("播放失败:", err);
+  }
+};
+
+/* ------------------ Audio 事件 ------------------ */
+const onLoadedMetadata = () => {
+  const audio = audioRef.value;
+  if (!audio) return;
+
+  total.value = Math.floor(audio.duration);
+  current.value = 0;
+  getAudioMeta();
+};
+
+const onTimeUpdate = () => {
+  const audio = audioRef.value;
+  if (!audio) return;
+
+  current.value = Math.floor(audio.currentTime);
+};
+
+const onPlay = () => {
+  isPlaying.value = true;
+  isLoading.value = false;
+};
+
+const onPause = () => {
+  isPlaying.value = false;
+};
+
+const onEnded = () => {
+  track(PlayerAction.Next);
+};
+
+/* ------------------ 音量 ------------------ */
+watch(volume, (v) => {
+  if (audioRef.value) audioRef.value.volume = v;
+});
+
+/* ------------------ 切歌 ------------------ */
+const track = async (action: PlayerAction) => {
+  if (action === PlayerAction.Prev) {
+    currentAudioIndex.value =
+      currentAudioIndex.value > 0
+        ? currentAudioIndex.value - 1
+        : audios.value.length - 1;
+  } else {
+    currentAudioIndex.value =
+      currentAudioIndex.value < audios.value.length - 1
+        ? currentAudioIndex.value + 1
+        : 0;
+  }
+
+  await nextTick();
+
+  const audio = audioRef.value;
+  if (audio) {
+    try {
+      isPlaying.value = true;
+      await audio.play();
+    } catch (e) {
+      isPlaying.value = false;
+      console.error(e);
+    }
+  }
+};
+
+/* ------------------ 读取 FLAC 元信息 ------------------ */
+const getAudioMeta = () => {
+  const audioUrl = audioRef.value?.src;
+  if (!audioUrl) return;
+
+  const cache = audioMetaList.value[currentAudioIndex.value];
+  if (cache) {
+    currentMeta.value = cache;
+    return;
+  }
+
+  (window as any).jsmediatags.read(audioUrl, {
+    onSuccess: (tag: any) => {
+      const { title, artist, picture } = tag.tags;
+
+      const meta: AudioMeta = {
+        title: title || "unknown title",
+        artist: artist || "unknown artist",
+        cover: "",
+      };
+
+      if (picture) {
+        const buffer = new Uint8Array(picture.data);
+        const blob = new Blob([buffer], { type: picture.format });
+        meta.cover = URL.createObjectURL(blob);
+      }
+
+      currentMeta.value = meta;
+      audioMetaList.value[currentAudioIndex.value] = meta;
+    },
+    onError: (err: any) => {
+      console.error("读取音频信息失败:", err);
+    },
+  });
+};
+
+onMounted(() => {
+  if (audioRef.value) audioRef.value.volume = volume.value;
+});
 </script>
-<style lang="scss" scoped>
+
+<style scoped lang="scss">
 @keyframes rotating {
   from {
     transform: rotate(0deg);
@@ -58,22 +232,19 @@ const volume = ref<number>(0.5);
     transform: rotate(360deg);
   }
 }
+
 .bg {
   position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
+  inset: 0;
 }
+
 .bg::before {
   z-index: -1;
   content: "";
   position: fixed;
-  top: -50%;
-  left: -50%;
+  inset: -50%;
   width: 300%;
   height: 300%;
-  overflow: visible;
   background-image: var(--bg-image);
   background-size: cover;
   background-position: center;

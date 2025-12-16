@@ -7,7 +7,7 @@
       v-model="volume"
       :min="0"
       :max="1"
-      :step="0.1"
+      :step="0.01"
     />
     <Icon icon="vaadin:volume-up" width="25" class="volume" />
   </label>

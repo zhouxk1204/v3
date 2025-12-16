@@ -67,7 +67,7 @@ function formatTime(sec: number) {
 }
 
 .slider:hover .level {
-  height: calc(var(--slider-height) * 2);
+  height: calc(var(--slider-height) * 1);
 }
 
 /* time */

@@ -10,6 +10,7 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { computed } from "vue";
 import { ControlItem, PlayerAction } from "../../type";
@@ -17,11 +18,10 @@ import { ControlItem, PlayerAction } from "../../type";
 /* ---------------- props / emits ---------------- */
 
 const props = defineProps<{
-  modelValue: boolean;
+  playing: boolean;
 }>();
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
   (e: "control", action: PlayerAction): void;
 }>();
 
@@ -34,7 +34,7 @@ const controlButtons = computed<ControlItem[]>(() => [
   },
   {
     action: PlayerAction.Toggle,
-    icon: `tabler:player-${props.modelValue ? "pause" : "play"}-filled`,
+    icon: `tabler:player-${props.playing ? "pause" : "play"}-filled`,
   },
   {
     action: PlayerAction.Next,
@@ -44,15 +44,12 @@ const controlButtons = computed<ControlItem[]>(() => [
 
 /* ---------------- events ---------------- */
 
-function onControlClick(action: PlayerAction) {
-  if (action === PlayerAction.Toggle) {
-    emit("update:modelValue", !props.modelValue);
-  } else {
-    emit("control", action);
-  }
-}
+const onControlClick = (action: PlayerAction) => {
+  emit("control", action);
+};
 </script>
-<style>
+
+<style scoped>
 .control-btn {
   @apply flex items-center justify-center
     w-16 h-16

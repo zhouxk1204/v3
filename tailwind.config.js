@@ -17,6 +17,7 @@ module.exports = {
       },
       boxShadow: {
         primary: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px", // Add custom box-shadow
+        radiosity: "0 10px 20px 0 rgba(0, 0, 0, .1)"
       },
       keyframes: {
         zoomInOut: {
