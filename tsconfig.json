@@ -23,11 +23,10 @@
     /* Interop */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-
     /* 路径别名 */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
 
     /* 类型声明 */

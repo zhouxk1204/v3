@@ -3,7 +3,7 @@ const colors = require("tailwindcss/colors");
 
 module.exports = {
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
-  darkMode: "class", // or 'media' or 'class'
+  darkMode: "media", // or 'media' or 'class'
   theme: {
     extend: {
       fontFamily: {
@@ -17,6 +17,7 @@ module.exports = {
       },
       boxShadow: {
         primary: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px", // Add custom box-shadow
+        radiosity: "0 10px 20px 0 rgba(0, 0, 0, .1)"
       },
       keyframes: {
         zoomInOut: {
@@ -30,6 +31,7 @@ module.exports = {
       },
       animation: {
         zoom: "zoomInOut 10s ease-in-out infinite alternate",
+        'spin-slow': 'spin 1s linear infinite',
       },
     },
   },
