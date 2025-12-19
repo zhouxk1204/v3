@@ -120,9 +120,6 @@ importers:
       '@types/file-saver':
         specifier: ^2.0.5
         version: 2.0.7
-      '@types/jsmediatags':
-        specifier: ^3.9.6
-        version: 3.9.6
       '@types/lodash':
         specifier: ^4.17.20
         version: 4.17.20
@@ -792,9 +789,6 @@ packages:
 
   '@types/file-saver@2.0.7':
     resolution: {integrity: sha512-dNKVfHd/jk0SkR/exKGj2ggkB45MAkzvWCaqLUUgkyjITkGNzH8H+yUwr+BLJUBjZOe9w8X3wgmXhZDRg1ED6A==}
-
-  '@types/jsmediatags@3.9.6':
-    resolution: {integrity: sha512-a2IVxVGXBCCVzONBFKGBb2mnTNMAt0shl+Mb5+wM5YVxymhgqNilr/7/x+XePYM2DnmWwCYlBRjq+8q7nsp2PA==}
 
   '@types/lodash-es@4.17.12':
     resolution: {integrity: sha512-0NgftHUcV4v34VhXm8QBSftKVXtbkBG3ViCjs6+eJ5a6y6Mi/jiFGPc1sC7QK+9BFhWrURE3EOggmWaSxL9OzQ==}
@@ -2995,8 +2989,6 @@ snapshots:
   '@types/estree@1.0.8': {}
 
   '@types/file-saver@2.0.7': {}
-
-  '@types/jsmediatags@3.9.6': {}
 
   '@types/lodash-es@4.17.12':
     dependencies:

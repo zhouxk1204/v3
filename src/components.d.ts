@@ -73,6 +73,7 @@ declare module 'vue' {
     Form2: typeof import('./components/Form2/index.vue')['default']
     FormItem: typeof import('./components/FormItem/index.vue')['default']
     Image: typeof import('./components/Image/index.vue')['default']
+    LoadingScreen: typeof import('./components/LoadingScreen/index.vue')['default']
     MenuItem: typeof import('./components/MenuItem/index.vue')['default']
     MusicPlayer: typeof import('./components/MusicPlayer/index.vue')['default']
     RollingNumber: typeof import('./components/RollingNumber/index.vue')['default']

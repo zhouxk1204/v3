@@ -58,8 +58,15 @@ const onControlClick = (action: PlayerAction) => {
     cursor-pointer
     transition duration-150 ease-out;
 
-  @apply hover:bg-black/20
-    active:bg-black/30
-    active:scale-[0.96];
+  @media (hover: hover) {
+    .control-btn:hover {
+      background-color: rgb(0 0 0 / 0.2);
+    }
+
+    .control-btn:active {
+      background-color: rgb(0 0 0 / 0.3);
+      transform: scale(0.96);
+    }
+  }
 }
 </style>
