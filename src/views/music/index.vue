@@ -4,13 +4,13 @@
   <div v-else class="flex items-center justify-center bg" :style="bgStyle">
     <section
       :class="isMobileLandscape ? 'flex px-20 gap-20' : ''"
-      class="block w-full px-10"
+      class="block w-full px-10 sm:w-2/3 sm:px-0 lg:w-1/3 lg:px-0"
     >
       <!-- 封面 -->
-      <div class="landscape:flex-1">
+      <div class="flex items-center">
         <FadeImage
           :src="currentMeta.cover"
-          class="w-full shadow-2xl select-none rounded-2xl aspect-square cover"
+          class="shadow-2xl select-none rounded-2xl aspect-square cover "
           :class="{ playing: isPlaying, animated: hasPlayedOnce }"
         />
 
@@ -29,7 +29,7 @@
           @canplay="isLoading = false"
         />
       </div>
-      <div class="flex flex-col justify-center landscape:flex-1">
+      <div class="flex flex-col justify-center">
         <!-- 标题 -->
         <div class="w-full my-5 text-xl font-bold break-words text-white/90">
           <h2>{{ currentMeta.title }}</h2>
@@ -40,11 +40,12 @@
         <div class="relative pb-1">
           <Time :current="current" :total="total" />
           <div
-            class="absolute bottom-0 left-1/2 -translate-x-1/2 scale-75 flex gap-1 px-2 py-0.5 border-2 border-gray-100/60 rounded-xl"
+            class="absolute bottom-1 left-1/2 scale-75 origin-bottom -translate-x-1/2 flex gap-1 px-2 py-0.5 border-2 border-gray-100/60 rounded-xl"
           >
             <img
               src="../../assets/img/flac.png"
               class="w-6 brightness-0 invert opacity-60"
+              alt="无损"
             />
             <span class="text-xs font-bold text-gray-100/60">无损</span>
           </div>
@@ -94,7 +95,7 @@ const audioRef = ref<HTMLAudioElement | null>(null);
 
 const current = ref(0);
 const total = ref(0);
-const volume = ref(0);
+const volume = ref(1);
 
 /* ================== 音频列表 ================== */
 const audioList = ref<string[]>([]);
