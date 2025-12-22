@@ -52,16 +52,23 @@
         <span class="flex-[2]">Artist</span>
         <span class="flex-1">Time</span>
       </div>
-      <div class="flex items-center py-1" v-for="item in mockList">
+      <div class="flex items-center p-2 hover:bg-black/5 group rounded-[5px] text-[13px]" v-for="item in mockList">
         <div class="flex-[3] flex items-center gap-3">
-          <img
+          <div class="relative">
+            <img
             :src="item.cover"
             alt="cover"
-            height="46px"
-            width="46px"
+            height="40px"
+            width="40px"
             class="rounded-[5px]"
-          />
-          <p class="text-xs text-[rgba(0, 0, 0, .56)] font-[600]">
+            />
+            <div class="absolute inset-0 hidden bg-[rgba(0,0,0,.45)] group-hover:block rounded-[5px] overflow-hidden">
+              <button class="flex items-center justify-center w-full h-full text-white">
+                <Icon icon="tabler:player-play-filled" width="16" />
+              </button>
+            </div>
+          </div>
+          <p class="text-[rgba(0, 0, 0, .56)] font-[600]">
             {{ item.title }}
           </p>
         </div>
