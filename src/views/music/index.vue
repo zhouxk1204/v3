@@ -10,7 +10,7 @@
       <div class="flex items-center">
         <FadeImage
           :src="currentMeta.cover"
-          class="shadow-2xl select-none rounded-2xl aspect-square cover "
+          class="shadow-2xl select-none rounded-2xl aspect-square cover"
           :class="{ playing: isPlaying, animated: hasPlayedOnce }"
         />
 
@@ -40,7 +40,7 @@
         <div class="relative pb-1">
           <Time :current="current" :total="total" />
           <div
-            class="absolute bottom-1 left-1/2 scale-75 origin-bottom -translate-x-1/2 flex gap-1 px-2 py-0.5 border-2 border-gray-100/60 rounded-xl"
+            class="absolute bottom-1 left-1/2 scale-75 origin-bottom -translate-x-1/2 flex gap-1 px-2 py-0.5 border-2 border-gray-100/60 rounded-xl mix-blend-difference"
           >
             <img
               src="../../assets/img/flac.png"
@@ -67,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { createURL } from "@/utils";
+import { createURL } from "@/utils/index.ts";
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import Control from "./component/Control/index.vue";
 import FadeImage from "./component/FadeImage/index.vue";
@@ -83,13 +83,13 @@ const loading = ref(true); // 元数据初始化 loading
 const isLoading = ref(false); // 播放缓冲 loading
 const isPlaying = ref(false);
 
-const hasPlayedOnce = ref(false)
+const hasPlayedOnce = ref(false);
 
 watch(isPlaying, (playing) => {
   if (playing) {
-    hasPlayedOnce.value = true
+    hasPlayedOnce.value = true;
   }
-})
+});
 
 const audioRef = ref<HTMLAudioElement | null>(null);
 
@@ -218,9 +218,14 @@ const waitForJsMediaTags = (interval = 100, timeout = 5000): Promise<any> =>
     }, interval);
   });
 
-const readAudioMeta = (url: string, jsmediatags: any): Promise<AudioMeta> =>
-  new Promise((resolve) => {
-    jsmediatags.read(url, {
+const readAudioMeta = async (
+  url: string,
+  jsmediatags: any
+): Promise<AudioMeta> => {
+  const res = await fetch(url);
+  const blob = await res.blob();
+  return new Promise((resolve) => {
+    jsmediatags.read(blob, {
       onSuccess: (tag: any) => {
         const { title, artist, picture } = tag.tags;
         const meta: AudioMeta = {
@@ -241,20 +246,55 @@ const readAudioMeta = (url: string, jsmediatags: any): Promise<AudioMeta> =>
       onError: () => resolve(EMPTY_AUDIO_META),
     });
   });
+};
 
 const loadAllAudioMeta = async () => {
   loading.value = true;
+
   try {
+    // 2️⃣ 等待 jsmediatags 加载完成
     const jsmediatags = await waitForJsMediaTags();
-    audioMetaList.value = await Promise.all(
-      audioList.value.map((url) => readAudioMeta(url, jsmediatags))
+    console.log("%c Line:255 🥛 jsmediatags", "color:#4fff4B", jsmediatags);
+
+    // 3️⃣ 读取所有音频的 metadata
+    audioMetaList.value = await mapWithConcurrency(audioList.value, (url) =>
+      readAudioMeta(url, jsmediatags)
     );
   } catch (err) {
-    console.error(err);
+    console.error("loadAllAudioMeta error:", err);
   } finally {
     loading.value = false;
   }
 };
+
+const limit = 2;
+
+async function mapWithConcurrency<T, R>(
+  list: T[],
+  worker: (item: T) => Promise<R>
+): Promise<R[]> {
+  const result: R[] = [];
+  const executing: Promise<void>[] = [];
+
+  for (const item of list) {
+    const p = worker(item).then((r) => {
+      result.push(r);
+    });
+
+    executing.push(p);
+
+    if (executing.length >= limit) {
+      await Promise.race(executing);
+      executing.splice(
+        executing.findIndex((e) => e === p),
+        1
+      );
+    }
+  }
+
+  await Promise.all(executing);
+  return result;
+}
 
 /* ================== 生命周期 ================== */
 
@@ -307,13 +347,23 @@ onMounted(() => {
 }
 
 @keyframes play-bounce {
-  0%   { transform: scale(0.75); }
-  60%  { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0.75);
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes pause-back {
-  0%   { transform: scale(1); }
-  100% { transform: scale(0.75); }
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0.75);
+  }
 }
 </style>

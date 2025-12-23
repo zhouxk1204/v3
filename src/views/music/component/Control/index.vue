@@ -6,7 +6,7 @@
       class="control-btn"
       @click="onControlClick(btn.action)"
     >
-      <Icon :icon="btn.icon" width="44" class="icon" />
+      <Icon :icon="btn.icon" width="44" class="icon mix-blend-difference"  />
     </div>
   </div>
 </template>

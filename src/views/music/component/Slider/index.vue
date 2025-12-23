@@ -1,15 +1,15 @@
 <template>
   <label class="slider">
-    <Icon icon="vaadin:volume-off" width="25" class="volume" />
+    <Icon icon="vaadin:volume-off" width="25" class="volume mix-blend-difference" />
     <input
       type="range"
-      class="level"
+      class="level mix-blend-difference"
       v-model="volume"
       :min="0"
       :max="1"
       :step="0.01"
     />
-    <Icon icon="vaadin:volume-up" width="25" class="volume" />
+    <Icon icon="vaadin:volume-up" width="25" class="volume mix-blend-difference" />
   </label>
 </template>
 

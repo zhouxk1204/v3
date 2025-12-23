@@ -150,6 +150,7 @@ const onChange = (uploadFile: UploadFile) => {
     Region: props.cosOption.region,
     Key: key,              /* 存储在桶里的对象键（例如:1.jpg，a/b/test.txt，图片.jpg）支持中文，必须字段 */
     Body: file, // 上传文件对象
+    ContentType: 'audio/flac',
     SliceSize: props.cosOption.sliceSize ?? 1024 * 1024 * 5,     /* 触发分块上传的阈值，超过5MB使用分块上传，小于5MB使用简单上传。可自行设置，非必须 */
     onTaskReady: (tid: string) => {
       progressInfo.value.taskId = tid;
