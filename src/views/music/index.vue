@@ -40,7 +40,7 @@
         <div class="relative pb-1">
           <Time :current="current" :total="total" />
           <div
-            class="absolute bottom-1 left-1/2 scale-75 origin-bottom -translate-x-1/2 flex gap-1 px-2 py-0.5 border-2 border-gray-100/60 rounded-xl mix-blend-difference"
+            class="absolute bottom-1 left-1/2 scale-75 origin-bottom -translate-x-1/2 flex gap-1 px-2 py-0.5 border-2 border-gray-100/60 rounded-xl"
           >
             <img
               src="../../assets/img/flac.png"
@@ -67,7 +67,6 @@
 </template>
 
 <script setup lang="ts">
-import { createURL } from "@/utils/index.ts";
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import Control from "./component/Control/index.vue";
 import FadeImage from "./component/FadeImage/index.vue";
@@ -99,9 +98,9 @@ const volume = ref(1);
 
 /* ================== 音频列表 ================== */
 const audioList = ref<string[]>([]);
-audioList.value = Object.keys(import.meta.glob("@/assets/audio/*.flac")).map(
-  (path) => createURL(path)
-);
+audioList.value = [
+  "https://cloud.zhouxk.fun/music/%E6%9C%80%E5%88%9D%E7%9A%84%E8%AE%B0%E5%BF%86-%E5%BE%90%E4%BD%B3%E8%8E%B9.flac",
+];
 const currentAudioIndex = ref(0);
 
 /* ================== 元数据 ================== */
@@ -218,14 +217,9 @@ const waitForJsMediaTags = (interval = 100, timeout = 5000): Promise<any> =>
     }, interval);
   });
 
-const readAudioMeta = async (
-  url: string,
-  jsmediatags: any
-): Promise<AudioMeta> => {
-  const res = await fetch(url);
-  const blob = await res.blob();
-  return new Promise((resolve) => {
-    jsmediatags.read(blob, {
+const readAudioMeta = (url: string, jsmediatags: any): Promise<AudioMeta> =>
+  new Promise((resolve) => {
+    jsmediatags.read(url, {
       onSuccess: (tag: any) => {
         const { title, artist, picture } = tag.tags;
         const meta: AudioMeta = {
@@ -246,55 +240,20 @@ const readAudioMeta = async (
       onError: () => resolve(EMPTY_AUDIO_META),
     });
   });
-};
 
 const loadAllAudioMeta = async () => {
   loading.value = true;
-
   try {
-    // 2️⃣ 等待 jsmediatags 加载完成
     const jsmediatags = await waitForJsMediaTags();
-    console.log("%c Line:255 🥛 jsmediatags", "color:#4fff4B", jsmediatags);
-
-    // 3️⃣ 读取所有音频的 metadata
-    audioMetaList.value = await mapWithConcurrency(audioList.value, (url) =>
-      readAudioMeta(url, jsmediatags)
+    audioMetaList.value = await Promise.all(
+      audioList.value.map((url) => readAudioMeta(url, jsmediatags))
     );
   } catch (err) {
-    console.error("loadAllAudioMeta error:", err);
+    console.error(err);
   } finally {
     loading.value = false;
   }
 };
-
-const limit = 2;
-
-async function mapWithConcurrency<T, R>(
-  list: T[],
-  worker: (item: T) => Promise<R>
-): Promise<R[]> {
-  const result: R[] = [];
-  const executing: Promise<void>[] = [];
-
-  for (const item of list) {
-    const p = worker(item).then((r) => {
-      result.push(r);
-    });
-
-    executing.push(p);
-
-    if (executing.length >= limit) {
-      await Promise.race(executing);
-      executing.splice(
-        executing.findIndex((e) => e === p),
-        1
-      );
-    }
-  }
-
-  await Promise.all(executing);
-  return result;
-}
 
 /* ================== 生命周期 ================== */
 

@@ -1,5 +1,5 @@
 <template>
-  <button>vue3</button>
+  <button><slot></slot></button>
 </template>
 
 <script setup lang='ts'>
