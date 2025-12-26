@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-end gap-3 p-2 bg-white rounded-lg shadow-sm">
+  <div class="flex justify-end gap-3 p-2 bg-white rounded-lg">
     <!-- 新增按钮 -->
     <button
       @click="emitAdd"

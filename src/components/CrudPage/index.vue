@@ -2,7 +2,7 @@
 <template>
   <div class="p-6 space-y-6">
     <!-- 🔍 搜索区 -->
-    <div v-if="$slots.search" class="p-4 bg-white shadow-sm rounded-xl">
+    <div v-if="$slots.search" class="p-4 bg-white rounded-xl">
       <slot name="search" />
     </div>
 
@@ -12,7 +12,7 @@
     </div>
 
     <!-- 📋 表格 -->
-    <div class="bg-white shadow-sm rounded-xl">
+    <div class="bg-white rounded-xl">
       <slot name="table" />
     </div>
 

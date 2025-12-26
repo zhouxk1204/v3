@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 bg-white shadow-sm rounded-xl">
+  <div class="p-4 bg-white rounded-xl">
     <div class="flex items-end gap-4">
       <!-- 专辑名称 -->
       <div>

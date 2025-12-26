@@ -1,5 +1,5 @@
 <template>
-  <table class="w-full text-sm text-left border-collapse">
+  <table class="w-full overflow-hidden text-sm text-left">
     <thead class="text-gray-600 bg-gray-50">
       <tr>
         <!-- 多选 -->
