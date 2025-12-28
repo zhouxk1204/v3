@@ -54,11 +54,11 @@ const props = defineProps<{
   data: any[];
   columns: Column[];
   rowKey?: string;
-  selectedIds: number[];
+  selectedIds: string[];
 }>();
 
 const emit = defineEmits<{
-  (e: "update:selectedIds", val: number[]): void;
+  (e: "update:selectedIds", val: string[]): void;
 }>();
 
 const rowKey = props.rowKey ?? "id";

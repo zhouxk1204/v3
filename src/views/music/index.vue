@@ -9,16 +9,17 @@
       <!-- 封面 -->
       <div class="flex items-center">
         <FadeImage
-          :src="currentMeta.cover"
+          v-if="currentMeta.coverImage"
+          :src="currentMeta.coverImage"
           class="shadow-2xl select-none rounded-2xl aspect-square cover"
           :class="{ playing: isPlaying, animated: hasPlayedOnce }"
         />
 
         <!-- Audio -->
         <audio
-          v-if="currentMeta.url"
+          v-if="currentMeta.filePath"
           ref="audioRef"
-          :src="currentMeta.url"
+          :src="currentMeta.filePath"
           preload="metadata"
           @loadedmetadata="onLoadedMetadata"
           @timeupdate="onTimeUpdate"
@@ -33,7 +34,7 @@
         <!-- 标题 -->
         <div class="w-full my-5 text-xl font-bold break-words text-white/90">
           <h2>{{ currentMeta.title }}</h2>
-          <p class="text-lg text-white/80">{{ currentMeta.artist }}</p>
+          <p class="text-lg text-white/80">{{ currentMeta.artistName }}</p>
         </div>
 
         <!-- 时间 -->
@@ -67,13 +68,15 @@
 </template>
 
 <script setup lang="ts">
+import { getSongList } from "@/api/music/song.ts";
+import { SongTableData } from "@/types/music/song.ts";
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import Control from "./component/Control/index.vue";
 import FadeImage from "./component/FadeImage/index.vue";
 import Slider from "./component/Slider/index.vue";
 import Time from "./component/Time/index.vue";
 import { useIsMobileLandscape } from "./hooks/useIsMobileLandscape.ts";
-import { AudioMeta, EMPTY_AUDIO_META, PlayerAction } from "./type";
+import { PlayerAction } from "./type";
 
 const isMobileLandscape = useIsMobileLandscape();
 /* ================== 基础状态 ================== */
@@ -97,24 +100,19 @@ const total = ref(0);
 const volume = ref(1);
 
 /* ================== 音频列表 ================== */
-const audioList = ref<string[]>([]);
-audioList.value = [
-  "https://cloud.zhouxk.fun/music/%E6%9C%80%E5%88%9D%E7%9A%84%E8%AE%B0%E5%BF%86-%E5%BE%90%E4%BD%B3%E8%8E%B9.flac",
-];
+const audioList = ref<SongTableData[]>([]);
+
 const currentAudioIndex = ref(0);
 
 /* ================== 元数据 ================== */
-
-const audioMetaList = ref<AudioMeta[]>([]);
-
-const currentMeta = computed<AudioMeta>(() => {
-  return audioMetaList.value[currentAudioIndex.value] ?? EMPTY_AUDIO_META;
+const currentMeta = computed<SongTableData>(() => {
+  return audioList.value[currentAudioIndex.value];
 });
 
 /* ================== 背景 ================== */
 
 const bgStyle = computed(() => ({
-  "--bg-image": `url(${currentMeta.value.cover})`,
+  "--bg-image": `url(${currentMeta.value.coverImage})`,
 }));
 
 /* ================== 播放控制 ================== */
@@ -193,72 +191,76 @@ watch(volume, (v) => {
 });
 
 /* ================== jsmediatags ================== */
+// const getJsMediaTagsSafe = () => {
+//   try {
+//     return (window as any)?.jsmediatags ?? null;
+//   } catch {
+//     return null;
+//   }
+// };
 
-const getJsMediaTagsSafe = () => {
-  try {
-    return (window as any)?.jsmediatags ?? null;
-  } catch {
-    return null;
-  }
-};
+// const waitForJsMediaTags = (interval = 100, timeout = 5000): Promise<any> =>
+//   new Promise((resolve, reject) => {
+//     const start = Date.now();
+//     const timer = setInterval(() => {
+//       const lib = getJsMediaTagsSafe();
+//       if (lib) {
+//         clearInterval(timer);
+//         resolve(lib);
+//       } else if (Date.now() - start > timeout) {
+//         clearInterval(timer);
+//         reject(new Error("jsmediatags 加载超时"));
+//       }
+//     }, interval);
+//   });
 
-const waitForJsMediaTags = (interval = 100, timeout = 5000): Promise<any> =>
-  new Promise((resolve, reject) => {
-    const start = Date.now();
-    const timer = setInterval(() => {
-      const lib = getJsMediaTagsSafe();
-      if (lib) {
-        clearInterval(timer);
-        resolve(lib);
-      } else if (Date.now() - start > timeout) {
-        clearInterval(timer);
-        reject(new Error("jsmediatags 加载超时"));
-      }
-    }, interval);
-  });
+// const readAudioMeta = (url: string, jsmediatags: any): Promise<AudioMeta> =>
+//   new Promise((resolve) => {
+//     jsmediatags.read(url, {
+//       onSuccess: (tag: any) => {
+//         const { title, artist, picture } = tag.tags;
+//         const meta: AudioMeta = {
+//           title: title || EMPTY_AUDIO_META.title,
+//           artist: artist || EMPTY_AUDIO_META.artist,
+//           cover: EMPTY_AUDIO_META.cover,
+//           url,
+//         };
 
-const readAudioMeta = (url: string, jsmediatags: any): Promise<AudioMeta> =>
-  new Promise((resolve) => {
-    jsmediatags.read(url, {
-      onSuccess: (tag: any) => {
-        const { title, artist, picture } = tag.tags;
-        const meta: AudioMeta = {
-          title: title || EMPTY_AUDIO_META.title,
-          artist: artist || EMPTY_AUDIO_META.artist,
-          cover: EMPTY_AUDIO_META.cover,
-          url,
-        };
+//         if (picture) {
+//           const buffer = new Uint8Array(picture.data);
+//           const blob = new Blob([buffer], { type: picture.format });
+//           meta.cover = URL.createObjectURL(blob);
+//         }
 
-        if (picture) {
-          const buffer = new Uint8Array(picture.data);
-          const blob = new Blob([buffer], { type: picture.format });
-          meta.cover = URL.createObjectURL(blob);
-        }
+//         resolve(meta);
+//       },
+//       onError: () => resolve(EMPTY_AUDIO_META),
+//     });
+//   });
 
-        resolve(meta);
-      },
-      onError: () => resolve(EMPTY_AUDIO_META),
-    });
-  });
-
-const loadAllAudioMeta = async () => {
-  loading.value = true;
-  try {
-    const jsmediatags = await waitForJsMediaTags();
-    audioMetaList.value = await Promise.all(
-      audioList.value.map((url) => readAudioMeta(url, jsmediatags))
-    );
-  } catch (err) {
-    console.error(err);
-  } finally {
-    loading.value = false;
-  }
-};
+// const loadAllAudioMeta = async () => {
+//   loading.value = true;
+//   try {
+//     const jsmediatags = await waitForJsMediaTags();
+//     audioMetaList.value = await Promise.all(
+//       audioList.value.map((url) => readAudioMeta(url, jsmediatags))
+//     );
+//   } catch (err) {
+//     console.error(err);
+//   } finally {
+//     loading.value = false;
+//   }
+// };
 
 /* ================== 生命周期 ================== */
+const fetchSongs = async () => {
+  const res = await getSongList();
+  audioList.value = res.data;
+  loading.value = false;
+};
 
 onMounted(() => {
-  loadAllAudioMeta();
+  fetchSongs();
 });
 </script>
 

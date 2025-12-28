@@ -59,16 +59,21 @@ import { computed, reactive, ref } from "vue";
 import AlbumForm from "./AlbumForm.vue";
 import AlbumSearch from "./AlbumSearch.vue";
 
-import { deleteAlbum, getAlbumList } from "@/api/music/album";
+import { useAlbumStore } from "@/store/music/album";
 import type { AlbumSearchForm, AlbumTableData } from "@/types/music/album";
+const albumStore = useAlbumStore();
 
 const searchForm = reactive<AlbumSearchForm>({
   title: "",
-  artistId: undefined,
+  artistId: "",
 });
 
-const tableData = ref<AlbumTableData[]>([]);
-const selectedIds = ref<number[]>([]);
+const tableData = computed(() => albumStore.albumList);
+
+const selectedIds = computed({
+  get: () => albumStore.selectedIds,
+  set: v => (albumStore.selectedIds = v),
+});
 
 const showModal = ref(false);
 const modalMode = ref<"add" | "edit">("add");
@@ -77,7 +82,7 @@ const currentRow = ref<AlbumTableData | null>(null);
 const columns = [
   { title: "ID", key: "albumId" },
   { title: "专辑名称", key: "title" },
-  { title: "歌手ID", key: "artistId" },
+  { title: "歌手", key: "artistId" },
   { title: "封面", key: "coverImage" },
   { title: "发布日期", key: "releaseDate" },
 ];
@@ -86,18 +91,16 @@ const modalTitle = computed(() =>
   modalMode.value === "add" ? "新增专辑" : "编辑专辑"
 );
 
-const fetchTableData = async () => {
-  const res = await getAlbumList(searchForm);
-  tableData.value = res.data;
-  selectedIds.value = [];
+const fetchTableData = () => {
+  albumStore.fetchAlbumList(searchForm);
 };
 
-fetchTableData();
+albumStore.fetchAlbumList();
 
 const resetSearch = () => {
   searchForm.title = "";
   searchForm.artistId = undefined;
-  fetchTableData();
+  albumStore.fetchAlbumList();
 };
 
 const openAdd = () => {
@@ -107,20 +110,19 @@ const openAdd = () => {
 };
 
 const openEdit = () => {
-  currentRow.value =
-    tableData.value.find(i => i.albumId === selectedIds.value[0]) || null;
+  currentRow.value = albumStore.getAlbumById(selectedIds.value[0]);
   modalMode.value = "edit";
   showModal.value = true;
 };
 
 const handleDelete = async () => {
+  if (!selectedIds.value.length) return;
   if (!confirm("确认删除？")) return;
-  await deleteAlbum(selectedIds.value);
-  fetchTableData();
+  await albumStore.removeAlbum(selectedIds.value);
 };
 
 const handleSuccess = () => {
   showModal.value = false;
-  fetchTableData();
+  albumStore.fetchAlbumList();
 };
 </script>

@@ -1,30 +1,30 @@
 export interface AlbumSearchForm {
   title?: string;
-  artistId?: number;
+  artistId?: string;
 }
 
 export interface AlbumTableData {
-  albumId: number;
+  albumId: string;
   title: string;
-  artistId: number;
+  artistId: string;
   coverImage: string;
   releaseDate: string;
 }
 
 export interface AlbumAddInfo {
   title: string;
-  artistId: number;
+  artistId: string;
   releaseDate?: string;
   coverImage?: string;
 }
 
 export interface AlbumUpdateInfo extends AlbumAddInfo {
-  albumId: number;
+  albumId: string;
 }
 
 export interface AlbumForm {
   title: string;
-  artistId: number | null;
+  artistId: string;
   releaseDate: string;
   description: string;
   coverImage: File | null;

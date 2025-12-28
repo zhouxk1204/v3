@@ -1,30 +1,33 @@
 export interface SongSearchForm {
   title?: string;
-  artist_id?: number;
-  album_id?: number;
+  artistId?: string;
+  albumId?: string;
 }
 
 export interface SongTableData {
-  song_id: number;
+  songId?: string;
   title: string;
+  artistId: string;
+  artistName: string;
+  albumId?: string;
+  // genre_id?: string;
+  releaseDate?: string;
   duration: number;
-  artist_id: number;
-  album_id: number;
-  cover_image: string;
-  file_path: string;
+  coverImage?: string;
+  filePath?: string | undefined;
 }
 
 export interface SongAddInfo {
   title: string;
-  artist_id: number;
-  album_id?: number;
-  genre_id?: number;
+  artistId: string;
+  albumId?: string;
+  // genre_id?: string;
   duration: number;
-  release_date?: string;
-  cover_image?: string;
-  file_path: string;
+  releaseDate?: string;
+  coverImage?: string;
+  filePath: string | undefined;
 }
 
 export interface SongUpdateInfo extends SongAddInfo {
-  song_id: number;
+  songId: string;
 }

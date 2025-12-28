@@ -27,8 +27,8 @@ export const updateSongInfo = (body: SongUpdateInfo) => {
 /**
  * 删除歌曲
  */
-export const deleteSong = (songId: number) => {
+export const deleteSong = (songId: string) => {
   return http.post<ResponseData<{}>>("/music/song/delete", {
-    song_id: songId,
+    songId: songId,
   });
 };

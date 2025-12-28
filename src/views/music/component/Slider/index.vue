@@ -26,7 +26,6 @@ const emit = defineEmits<{
 const volume = computed({
   get: () => props.modelValue,
   set: (value: number) => {
-    console.log("%c Line:29 🥔 value", "color:#ea7e5c", value);
     emit("update:modelValue", +value)
   },
 });

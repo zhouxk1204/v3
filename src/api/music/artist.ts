@@ -27,8 +27,8 @@ export const updateArtistInfo = (body: ArtistUpdateInfo) => {
 /**
  * 删除歌手
  */
-export const deleteArtist = (artistId: number) => {
+export const deleteArtist = (artistIds: string[]) => {
   return http.post<ResponseData<{}>>("/music/artist/delete", {
-    artist_id: artistId,
+    artistIds,
   });
 };

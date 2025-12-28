@@ -1,148 +1,142 @@
 <template>
-  <form class="song-form" @submit.prevent="submitForm">
-    <!-- 歌曲名称 -->
-    <div class="form-item">
-      <label>歌曲名称</label>
-      <input v-model="form.title" type="text" required />
-    </div>
-
-    <!-- 主歌手ID -->
-    <div class="form-item">
-      <label>主歌手ID</label>
-      <input v-model="form.artist_id" type="number" required />
-    </div>
-
-    <!-- 专辑ID -->
-    <div class="form-item">
-      <label>所属专辑ID</label>
-      <input v-model="form.album_id" type="number" />
-    </div>
-
-    <!-- 音乐类型ID -->
-    <div class="form-item">
-      <label>音乐类型ID</label>
-      <input v-model="form.genre_id" type="number" />
-    </div>
-
-    <!-- 发布日期 -->
-    <div class="form-item">
-      <label>发布日期</label>
-      <input v-model="form.release_date" type="date" />
-    </div>
-
-    <!-- 歌曲封面 -->
-    <div class="form-item">
-      <label>歌曲封面</label>
-      <input type="file" accept="image/*" @change="handleCoverChange" />
-      <img
-        v-if="coverPreview"
-        :src="coverPreview"
-        class="preview"
-        alt="歌曲封面预览"
+  <CrudPage>
+    <!-- 搜索 -->
+    <template #search>
+      <SongSearch
+        v-model="searchForm"
+        @search="fetchTableData"
+        @reset="resetSearch"
       />
-    </div>
+    </template>
 
-    <!-- 音乐文件 -->
-    <div class="form-item">
-      <label>音乐文件</label>
-      <input type="file" accept="audio/*" @change="handleAudioChange" />
-    </div>
+    <!-- 工具栏 -->
+    <template #toolbar>
+      <CrudToolbar
+        :selectedIds="selectedIds"
+        @add="openAdd"
+        @edit="openEdit"
+        @delete="handleDelete"
+      />
+    </template>
 
-    <div class="form-actions">
-      <button type="submit">提交</button>
-      <button type="reset" @click="resetForm">重置</button>
-    </div>
-  </form>
+    <!-- 表格 -->
+    <template #table>
+      <CrudTable
+        row-key="songId"
+        :columns="columns"
+        :data="tableData"
+        v-model:selectedIds="selectedIds"
+      >
+        <template #coverImage="{ row }">
+          <img :src="row.coverImage" class="object-cover w-12 h-12 rounded" />
+        </template>
+
+        <template #filePath="{ row }">
+          <audio :src="row.filePath" controls class="w-40" />
+        </template>
+      </CrudTable>
+    </template>
+
+    <!-- 弹窗 -->
+    <template #modal>
+      <CrudModal v-if="showModal" :title="modalTitle">
+        <SongForm
+          :isEdit="modalMode === 'edit'"
+          :modelValue="currentRow"
+          @submit="handleSubmit"
+          @cancel="showModal = false"
+        />
+      </CrudModal>
+    </template>
+  </CrudPage>
 </template>
 
-<script setup>
-import { useCos } from "@/hooks/useCos";
-import { reactive, ref } from "vue";
+<script setup lang="ts">
+import { computed, reactive, ref } from "vue";
 
-const form = reactive({
+import CrudModal from "@/components/CrudModal/index.vue";
+import CrudPage from "@/components/CrudPage/index.vue";
+import CrudTable from "@/components/CrudTable/index.vue";
+import CrudToolbar from "@/components/CrudToolbar/index.vue";
+
+import SongForm from "./SongForm.vue";
+import SongSearch from "./SongSearch.vue";
+
+import { addSongInfo, deleteSong, getSongList, updateSongInfo } from "@/api/music/song";
+
+import type { SongAddInfo, SongSearchForm, SongTableData, SongUpdateInfo } from "@/types/music/song";
+
+const searchForm = reactive<SongSearchForm>({
   title: "",
-  artist_id: "",
-  album_id: "",
-  genre_id: "",
-  release_date: "",
-  duration: 0,
-  audioFile: null,
-  coverFile: null
+  artistId: "",
 });
 
-const coverPreview = ref("");
+const tableData = ref<SongTableData[]>([]);
+const selectedIds = ref<string[]>([]);
 
-const handleCoverChange = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+const showModal = ref(false);
+const modalMode = ref<"add" | "edit">("add");
+const currentRow = ref<SongTableData>();
 
-  form.coverFile = file;
-  coverPreview.value = URL.createObjectURL(file);
+const columns = [
+  { title: "ID", key: "songId" },
+  { title: "歌曲名称", key: "title" },
+  { title: "歌手", key: "artistId" },
+  { title: "专辑", key: "albumId" },
+  // { title: "类型ID", key: "genreId" },
+  { title: "封面", key: "coverImage" },
+  { title: "时长(秒)", key: "duration" },
+  { title: "发布日期", key: "releaseDate" },
+  { title: "音频", key: "filePath" },
+];
+
+const modalTitle = computed(() =>
+  modalMode.value === "add" ? "新增歌曲" : "编辑歌曲"
+);
+
+const fetchTableData = async () => {
+  const res = await getSongList(searchForm);
+  tableData.value = res.data;
+  selectedIds.value = [];
 };
 
-const handleAudioChange = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+fetchTableData();
 
-  form.audioFile = file;
-
-  // 获取音频时长（秒）
-  const audio = new Audio(URL.createObjectURL(file));
-  audio.onloadedmetadata = () => {
-    form.duration = Math.floor(audio.duration);
-  };
+const resetSearch = () => {
+  searchForm.title = "";
+  searchForm.artistId = "";
+  fetchTableData();
 };
 
-const submitForm = async () => {
-  const formData = new FormData();
-  formData.append("title", form.title);
-  formData.append("artist_id", form.artist_id);
-  formData.append("album_id", form.album_id);
-  formData.append("genre_id", form.genre_id);
-  formData.append("release_date", form.release_date);
-  formData.append("duration", form.duration);
+const openAdd = () => {
+  modalMode.value = "add";
+  currentRow.value = undefined;
+  showModal.value = true;
+};
 
-  const cos = useCos({
-    bucket: "peach-1322235980",
-    region: "ap-chengdu",
-    prefix: "/song/",
-    stsUrl: "https://api.zhouxk.fun/sts",
-  });
+const openEdit = () => {
+  currentRow.value =
+    tableData.value.find((i) => i.songId === selectedIds.value[0]) ||
+    undefined;
+  modalMode.value = "edit";
+  showModal.value = true;
+};
 
-  // 上传封面
-  if (form.coverFile) {
-    const coverType = form.coverFile.name.split(".").pop();
-    const coverRes = await cos.upload({
-      uploadBody: form.coverFile,
-      type: coverType,
-    });
-    formData.append("cover_image", `https://${coverRes.Location}`);
+const handleDelete = async () => {
+  if (!selectedIds.value.length) return;
+  if (!confirm("确认删除该歌曲？")) return;
+
+  await deleteSong(selectedIds.value[0]);
+  fetchTableData();
+};
+
+const handleSubmit = async (form: SongAddInfo | SongUpdateInfo) => {
+  if (modalMode.value === "add") {
+    await addSongInfo(form as SongAddInfo);
+  } else {
+    await updateSongInfo(form as SongUpdateInfo);
   }
-
-  // 上传音频
-  if (form.audioFile) {
-    const audioType = form.audioFile.name.split(".").pop();
-    const audioRes = await cos.upload({
-      uploadBody: form.audioFile,
-      type: audioType,
-    });
-    formData.append("file_path", `https://${audioRes.Location}`);
-  }
-
-  console.log("提交歌曲", formData);
-};
-
-const resetForm = () => {
-  coverPreview.value = "";
-  Object.assign(form, {
-    title: "",
-    artist_id: "",
-    album_id: "",
-    genre_id: "",
-    release_date: "",
-    duration: 0,
-    audioFile: null,
-    coverFile: null
-  });
+  showModal.value = false;
+  fetchTableData();
 };
 </script>

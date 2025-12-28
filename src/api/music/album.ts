@@ -27,8 +27,8 @@ export const updateAlbumInfo = (body: AlbumUpdateInfo) => {
 /**
  * 删除专辑
  */
-export const deleteAlbum = (albumIds: number[]) => {
+export const deleteAlbum = (albumIds: string[]) => {
   return http.post<ResponseData<{}>>("/music/album/delete", {
-    album_id: albumIds.join(","),
+    albumId: albumIds.join(","),
   });
 };

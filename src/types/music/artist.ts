@@ -4,22 +4,21 @@ export interface ArtistSearchForm {
 }
 
 export interface ArtistTableData {
-  artist_id: number;
+  artistId: string;
   name: string;
   country: string;
-  birth_date: string;
+  birthDate: string;
   avatar: string;
-  created_at: string;
 }
 
 export interface ArtistAddInfo {
   name: string;
   country?: string;
-  birth_date?: string;
+  birthDate?: string;
   bio?: string;
   avatar?: string;
 }
 
 export interface ArtistUpdateInfo extends ArtistAddInfo {
-  artist_id: number;
+  artistId: string;
 }

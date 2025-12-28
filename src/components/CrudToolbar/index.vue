@@ -1,11 +1,11 @@
 <template>
-  <div class="flex justify-end gap-3 p-2 bg-white rounded-lg">
+  <div class="flex gap-3 p-2 bg-white rounded-lg">
     <!-- 新增按钮 -->
     <button
       @click="emitAdd"
       class="px-4 py-2 text-sm font-medium text-white transition bg-green-600 rounded-lg shadow hover:bg-green-700 active:scale-95"
     >
-      + 新增
+      新增
     </button>
 
     <!-- 编辑按钮 -->
@@ -38,8 +38,8 @@
   </div>
 </template>
 <script setup lang="ts">
-const props = defineProps<{
-  selectedIds: number[];
+defineProps<{
+  selectedIds: string[];
 }>();
 
 const emit = defineEmits<{

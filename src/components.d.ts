@@ -12,7 +12,6 @@ declare module 'vue' {
     CrudModal: typeof import('./components/CrudModal/index.vue')['default']
     CrudPage: typeof import('./components/CrudPage/index.vue')['default']
     CrudTable: typeof import('./components/CrudTable/index.vue')['default']
-    'CrudTable.vue': typeof import('./components/CrudTable.vue/index.vue')['default']
     CrudToolbar: typeof import('./components/CrudToolbar/index.vue')['default']
     Dropdown: typeof import('./components/Dropdown/index.vue')['default']
     EchartBar: typeof import('./components/EchartBar/index.vue')['default']

@@ -97,10 +97,10 @@ const emit = defineEmits<{
 
 const localForm = reactive<AlbumUpdateInfo | AlbumAddInfo>({
   title: props.modelValue?.title || "",
-  artistId: props.modelValue?.artistId || -1,
+  artistId: props.modelValue?.artistId || "",
   releaseDate: props.modelValue?.releaseDate || "",
   coverImage: props.modelValue?.coverImage || "",
-  albumId: props.modelValue?.albumId ?? -1,
+  albumId: props.modelValue?.albumId ?? "",
 });
 
 const isEdit = props.isEdit ?? false;

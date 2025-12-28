@@ -1,13 +1,13 @@
 <!-- components/CrudPage.vue -->
 <template>
-  <div class="p-6 space-y-6">
+  <div>
     <!-- 🔍 搜索区 -->
-    <div v-if="$slots.search" class="p-4 bg-white rounded-xl">
+    <div v-if="$slots.search">
       <slot name="search" />
     </div>
 
     <!-- ➕ 操作区 -->
-    <div v-if="$slots.toolbar" class="flex justify-end">
+    <div v-if="$slots.toolbar">
       <slot name="toolbar" />
     </div>
 

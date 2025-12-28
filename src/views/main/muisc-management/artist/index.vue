@@ -1,159 +1,151 @@
 <template>
-  <form class="artist-form" @submit.prevent="submitForm">
-    <!-- 歌手姓名 -->
-    <div class="form-item">
-      <label>歌手姓名</label>
-      <input
-        v-model="form.name"
-        type="text"
-        placeholder="请输入歌手姓名"
-        required
+  <CrudPage>
+    <!-- 搜索区 -->
+    <template #search>
+      <ArtistSearch
+        v-model="searchForm"
+        @search="fetchTableData"
+        @reset="resetSearch"
       />
-    </div>
+    </template>
 
-    <!-- 国家/地区 -->
-    <div class="form-item">
-      <label>国家 / 地区</label>
-      <input v-model="form.country" type="text" placeholder="如：中国、美国" />
-    </div>
+    <!-- 工具栏 -->
+    <template #toolbar>
+      <CrudToolbar
+        :selectedIds="selectedIds"
+        @add="openAdd"
+        @edit="openEdit"
+        @delete="handleDelete"
+      />
+    </template>
 
-    <!-- 出生日期 -->
-    <div class="form-item">
-      <label>出生日期</label>
-      <input v-model="form.birthDate" type="date" />
-    </div>
+    <!-- 表格 -->
+    <template #table>
+      <CrudTable
+        row-key="artistId"
+        :columns="columns"
+        :data="tableData"
+        v-model:selectedIds="selectedIds"
+      >
+        <template #avatar="{ row }">
+          <img :src="row.avatar" class="object-cover w-12 h-12 rounded-full" />
+        </template>
+      </CrudTable>
+    </template>
 
-    <!-- 歌手图片 -->
-    <div class="form-item">
-      <label>歌手图片</label>
-      <input type="file" accept="image/*" @change="handleFileChange" />
-      <img v-if="previewUrl" :src="previewUrl" class="preview" alt="预览图" />
-    </div>
-
-    <!-- 歌手简介 -->
-    <div class="form-item">
-      <label>歌手简介</label>
-      <textarea
-        v-model="form.bio"
-        placeholder="请输入歌手简介"
-        rows="4"
-      ></textarea>
-    </div>
-
-    <!-- 操作按钮 -->
-    <div class="form-actions">
-      <button type="submit">提交</button>
-      <button type="reset" @click="resetForm">重置</button>
-    </div>
-  </form>
+    <!-- 弹窗 -->
+    <template #modal>
+      <CrudModal v-if="showModal" :title="modalTitle">
+        <ArtistForm
+          :isEdit="modalMode === 'edit'"
+          :modelValue="currentRow"
+          @submit="handleSubmit"
+          @cancel="showModal = false"
+        />
+      </CrudModal>
+    </template>
+  </CrudPage>
 </template>
 
 <script setup lang="ts">
-import { addArtistInfo, getArtistList } from "@/api/music/artist";
+import { computed, reactive, ref } from "vue";
+
+import CrudModal from "@/components/CrudModal/index.vue";
+import CrudPage from "@/components/CrudPage/index.vue";
+import CrudTable from "@/components/CrudTable/index.vue";
+import CrudToolbar from "@/components/CrudToolbar/index.vue";
+
+import ArtistForm from "./ArtistForm.vue";
+import ArtistSearch from "./ArtistSearch.vue";
+
+
 import { useCos } from "@/hooks/useCos";
-import type { ArtistAddInfo } from "@/types/music/artist";
-import { onBeforeUnmount, reactive, ref } from "vue";
+import { useArtistStore } from "@/store/music/artist";
+import type {
+  ArtistAddInfo,
+  ArtistSearchForm,
+  ArtistTableData,
+  ArtistUpdateInfo,
+} from "@/types/music/artist";
 
-interface ArtistForm {
-  name: string;
-  country: string;
-  birthDate: string;
-  bio: string;
-  image: File | null;
-}
-
-const form = reactive<ArtistForm>({
+const artistStore = useArtistStore();
+const searchForm = reactive<ArtistSearchForm>({
   name: "",
   country: "",
-  birthDate: "",
-  bio: "",
-  image: null,
 });
 
-const previewUrl = ref<string>("");
-
-/** 获取列表（示例） */
-getArtistList().then((res) => {
-  console.log(res);
+const tableData = computed(() => artistStore.artistList);
+const selectedIds = computed({
+  get: () => artistStore.selectedIds,
+  set: (val) => (artistStore.selectedIds = val),
 });
 
-/** 选择图片 */
-const handleFileChange = (e: Event) => {
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
+const showModal = ref(false);
+const modalMode = ref<"add" | "edit">("add");
+const currentRow = ref<ArtistTableData>();
 
-  // 释放旧的 URL，防止内存泄漏
-  if (previewUrl.value) {
-    URL.revokeObjectURL(previewUrl.value);
-  }
+  const columns = [
+  { title: "歌手", key: "name" },
+  { title: "国籍", key: "country" },
+  { title: "头像", key: "avatar" },
+  { title: "出生日期", key: "birthDate" },
+];
 
-  form.image = file;
-  previewUrl.value = URL.createObjectURL(file);
+const modalTitle = computed(() =>
+  modalMode.value === "add" ? "新增歌手" : "编辑歌手"
+);
+
+const fetchTableData = async () => {
+  artistStore.fetchArtistList(searchForm);
 };
 
-/** 提交表单 */
-const submitForm = async () => {
-  if (!form.image) {
-    alert("请上传歌手图片");
-    return;
-  }
+fetchTableData();
 
-  const artistAddInfo: ArtistAddInfo = {
-    name: form.name,
-    country: form.country,
-    birth_date: form.birthDate,
-    bio: form.bio,
-    avatar: "",
-  };
-
-  // 更安全的获取文件后缀
-  const ext = form.image.name.split(".").pop() || "jpg";
-
-  const cos = useCos({
-    bucket: "peach-1322235980",
-    region: "ap-chengdu",
-    prefix: "/artist/",
-    stsUrl: "https://api.zhouxk.fun/sts",
-  });
-
-  try {
-    const data = await cos.upload({
-      uploadBody: form.image,
-      type: ext,
-    }) as unknown as { Location: string };
-
-    artistAddInfo.avatar = `https://${data.Location}`;
-
-    await addArtistInfo(artistAddInfo);
-
-    console.log("提交成功", artistAddInfo);
-    resetForm();
-  } catch (err) {
-    console.error("提交失败", err);
-  }
+const resetSearch = () => {
+  searchForm.name = "";
+  searchForm.country = "";
+  fetchTableData();
 };
 
-/** 重置 */
-const resetForm = () => {
-  if (previewUrl.value) {
-    URL.revokeObjectURL(previewUrl.value);
-  }
-
-  previewUrl.value = "";
-  Object.assign(form, {
-    name: "",
-    country: "",
-    birthDate: "",
-    bio: "",
-    image: null,
-  });
+const openAdd = () => {
+  modalMode.value = "add";
+  currentRow.value = undefined;
+  showModal.value = true;
 };
 
-/** 组件卸载时释放 URL */
-onBeforeUnmount(() => {
-  if (previewUrl.value) {
-    URL.revokeObjectURL(previewUrl.value);
-  }
+const openEdit = () => {
+  currentRow.value = artistStore.getArtistById(selectedIds.value[0]);
+  modalMode.value = "edit";
+  showModal.value = true;
+};
+
+const handleDelete = async () => {
+  if (!selectedIds.value.length) return;
+  if (!confirm("确认删除该歌手？")) return;
+  await artistStore.removeArtist(selectedIds.value);
+};
+
+const cos = useCos({
+  bucket: "peach-1322235980",
+  region: "ap-chengdu",
+  prefix: "/artist/",
+  stsUrl: "https://api.zhouxk.fun/sts",
 });
+
+const handleSubmit = async (form: ArtistAddInfo | ArtistUpdateInfo) => {
+  if (modalMode.value === "add") {
+    const file = form.avatar as unknown as File;
+    if (file) {
+      const res: any = await cos.upload({
+        uploadBody: file,
+        type: file.name.split(".").pop() || "jpg",
+      });
+      form.avatar = `https://${res.Location}`;
+    }
+    await artistStore.addArtist(form as ArtistAddInfo);
+  } else {
+    await artistStore.updateArtist(form as ArtistUpdateInfo);
+  }
+  showModal.value = false;
+};
 </script>

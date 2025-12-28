@@ -1,10 +1,3 @@
-<!--
- * @Author: 周小康
- * @Date: 2024-09-06 16:30:12
- * @LastEditors: 周小康
- * @LastEditTime: 2024-09-06 16:30:31
- * @Description: 
--->
 <template>
   <el-form :inline="true" :model="form" class="mb-2" v-if="visible">
     <el-form-item label="字典名称">
