@@ -7,19 +7,19 @@
       class="block w-full px-10 sm:w-2/3 sm:px-0 lg:w-1/3 lg:px-0"
     >
       <!-- 封面 -->
-      <div class="flex items-center">
+      <div class="flex items-center flex-1">
         <FadeImage
-          v-if="currentMeta.coverImage"
-          :src="currentMeta.coverImage"
+          v-if="currentMeta.coverUrl"
+          :src="currentMeta.coverUrl"
           class="shadow-2xl select-none rounded-2xl aspect-square cover"
           :class="{ playing: isPlaying, animated: hasPlayedOnce }"
         />
 
         <!-- Audio -->
         <audio
-          v-if="currentMeta.filePath"
+          v-if="currentMeta.fileUrl"
           ref="audioRef"
-          :src="currentMeta.filePath"
+          :src="currentMeta.fileUrl"
           preload="metadata"
           @loadedmetadata="onLoadedMetadata"
           @timeupdate="onTimeUpdate"
@@ -68,8 +68,8 @@
 </template>
 
 <script setup lang="ts">
-import { getSongList } from "@/api/music/song.ts";
-import { SongTableData } from "@/types/music/song.ts";
+import { querySongList } from "@/api/music/song.ts";
+import { SongListItem } from "@/types/music/song.ts";
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import Control from "./component/Control/index.vue";
 import FadeImage from "./component/FadeImage/index.vue";
@@ -100,19 +100,19 @@ const total = ref(0);
 const volume = ref(1);
 
 /* ================== 音频列表 ================== */
-const audioList = ref<SongTableData[]>([]);
+const audioList = ref<SongListItem[]>([]);
 
 const currentAudioIndex = ref(0);
 
 /* ================== 元数据 ================== */
-const currentMeta = computed<SongTableData>(() => {
+const currentMeta = computed<SongListItem>(() => {
   return audioList.value[currentAudioIndex.value];
 });
 
 /* ================== 背景 ================== */
 
 const bgStyle = computed(() => ({
-  "--bg-image": `url(${currentMeta.value.coverImage})`,
+  "--bg-image": `url(${currentMeta.value.coverUrl})`,
 }));
 
 /* ================== 播放控制 ================== */
@@ -190,71 +190,9 @@ watch(volume, (v) => {
   if (audioRef.value) audioRef.value.volume = v;
 });
 
-/* ================== jsmediatags ================== */
-// const getJsMediaTagsSafe = () => {
-//   try {
-//     return (window as any)?.jsmediatags ?? null;
-//   } catch {
-//     return null;
-//   }
-// };
-
-// const waitForJsMediaTags = (interval = 100, timeout = 5000): Promise<any> =>
-//   new Promise((resolve, reject) => {
-//     const start = Date.now();
-//     const timer = setInterval(() => {
-//       const lib = getJsMediaTagsSafe();
-//       if (lib) {
-//         clearInterval(timer);
-//         resolve(lib);
-//       } else if (Date.now() - start > timeout) {
-//         clearInterval(timer);
-//         reject(new Error("jsmediatags 加载超时"));
-//       }
-//     }, interval);
-//   });
-
-// const readAudioMeta = (url: string, jsmediatags: any): Promise<AudioMeta> =>
-//   new Promise((resolve) => {
-//     jsmediatags.read(url, {
-//       onSuccess: (tag: any) => {
-//         const { title, artist, picture } = tag.tags;
-//         const meta: AudioMeta = {
-//           title: title || EMPTY_AUDIO_META.title,
-//           artist: artist || EMPTY_AUDIO_META.artist,
-//           cover: EMPTY_AUDIO_META.cover,
-//           url,
-//         };
-
-//         if (picture) {
-//           const buffer = new Uint8Array(picture.data);
-//           const blob = new Blob([buffer], { type: picture.format });
-//           meta.cover = URL.createObjectURL(blob);
-//         }
-
-//         resolve(meta);
-//       },
-//       onError: () => resolve(EMPTY_AUDIO_META),
-//     });
-//   });
-
-// const loadAllAudioMeta = async () => {
-//   loading.value = true;
-//   try {
-//     const jsmediatags = await waitForJsMediaTags();
-//     audioMetaList.value = await Promise.all(
-//       audioList.value.map((url) => readAudioMeta(url, jsmediatags))
-//     );
-//   } catch (err) {
-//     console.error(err);
-//   } finally {
-//     loading.value = false;
-//   }
-// };
-
 /* ================== 生命周期 ================== */
 const fetchSongs = async () => {
-  const res = await getSongList();
+  const res = await querySongList();
   audioList.value = res.data;
   loading.value = false;
 };
