@@ -4,7 +4,7 @@
     <div class="space-y-1">
       <label class="text-sm font-medium text-gray-700">歌手名称</label>
       <input
-        v-model="localForm.name"
+        v-model="form.name"
         required
         type="text"
         class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -15,7 +15,7 @@
     <div class="space-y-1">
       <label class="text-sm font-medium text-gray-700">国家</label>
       <input
-        v-model="localForm.country"
+        v-model="form.country"
         type="text"
         class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500"
       />
@@ -25,7 +25,7 @@
     <div class="space-y-1">
       <label class="text-sm font-medium text-gray-700">出生日期</label>
       <input
-        v-model="localForm.birthDate"
+        v-model="form.birthDate"
         type="date"
         class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500"
       />
@@ -62,34 +62,47 @@
 
 <script setup lang="ts">
 import type {
-  ArtistAddInfo,
-  ArtistTableData,
-  ArtistUpdateInfo,
+  ArtistFormSubmit,
+  ArtistListItem
 } from "@/types/music/artist";
-import { onBeforeUnmount, reactive, ref } from "vue";
+import { computed, onBeforeUnmount, reactive, ref } from "vue";
+
+/**
+ * UI 表单模型（只服务于表单）
+ */
+interface ArtistFormModel {
+  id?: string;
+  name: string;
+  country?: string;
+  birthDate?: string;
+  avatarUrl?: string | File;
+}
 
 const props = defineProps<{
-  modelValue?: ArtistTableData;
+  modelValue?: ArtistListItem;
   isEdit?: boolean;
 }>();
 
 const emit = defineEmits<{
-  (e: "submit", payload: ArtistAddInfo | ArtistUpdateInfo): void;
+  (e: "submit", payload: ArtistFormSubmit): void;
   (e: "cancel"): void;
 }>();
 
-const localForm = reactive<ArtistAddInfo | ArtistUpdateInfo>({
+const isEdit = computed(() => props.isEdit ?? false);
+
+/** 本地表单状态 */
+const form = reactive<ArtistFormModel>({
+  id: props.modelValue?.id,
   name: props.modelValue?.name || "",
-  country: props.modelValue?.country || "",
-  birthDate: props.modelValue?.birthDate || "",
-  avatar: props.modelValue?.avatar || "",
-  ...(props.modelValue?.artistId
-    ? { artistId: props.modelValue.artistId }
-    : {}),
+  country: props.modelValue?.country,
+  birthDate: props.modelValue?.birthDate,
+  avatarUrl: props.modelValue?.avatarUrl,
 });
 
-const isEdit = props.isEdit ?? false;
-const previewUrl = ref(localForm.avatar || "");
+/** 头像预览 */
+const previewUrl = ref<string | undefined>(
+  typeof form.avatarUrl === "string" ? form.avatarUrl : undefined
+);
 
 const handleAvatarChange = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0];
@@ -99,12 +112,27 @@ const handleAvatarChange = (e: Event) => {
     URL.revokeObjectURL(previewUrl.value);
   }
 
-  localForm.avatar = file as unknown as string;
+  form.avatarUrl = file;
   previewUrl.value = URL.createObjectURL(file);
 };
 
 const handleSubmit = () => {
-  emit("submit", localForm);
+  if (isEdit.value) {
+    emit("submit", {
+      id: form.id!,
+      name: form.name,
+      country: form.country,
+      birthDate: form.birthDate,
+      avatarUrl: form.avatarUrl,
+    });
+  } else {
+    emit("submit", {
+      name: form.name,
+      country: form.country,
+      birthDate: form.birthDate,
+      avatarUrl: form.avatarUrl,
+    });
+  }
 };
 
 onBeforeUnmount(() => {

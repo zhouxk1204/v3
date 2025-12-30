@@ -62,7 +62,7 @@ import CrudToolbar from "@/components/CrudToolbar/index.vue";
 import SongForm from "./SongForm.vue";
 import SongSearch from "./SongSearch.vue";
 
-import { addSongInfo, deleteSong, getSongList, updateSongInfo } from "@/api/music/song";
+import { deleteSong, getSongList } from "@/api/music/song";
 
 import type { SongAddInfo, SongSearchForm, SongTableData, SongUpdateInfo } from "@/types/music/song";
 
@@ -81,8 +81,8 @@ const currentRow = ref<SongTableData>();
 const columns = [
   { title: "ID", key: "songId" },
   { title: "歌曲名称", key: "title" },
-  { title: "歌手", key: "artistId" },
-  { title: "专辑", key: "albumId" },
+  { title: "歌手", key: "artistName" },
+  { title: "专辑", key: "albumName" },
   // { title: "类型ID", key: "genreId" },
   { title: "封面", key: "coverImage" },
   { title: "时长(秒)", key: "duration" },
@@ -131,12 +131,13 @@ const handleDelete = async () => {
 };
 
 const handleSubmit = async (form: SongAddInfo | SongUpdateInfo) => {
-  if (modalMode.value === "add") {
-    await addSongInfo(form as SongAddInfo);
-  } else {
-    await updateSongInfo(form as SongUpdateInfo);
-  }
+  console.log("%c Line:134 🥃 form", "color:#ffdd4d", form);
+  // if (modalMode.value === "add") {
+  //   await addSongInfo(form as SongAddInfo);
+  // } else {
+  //   await updateSongInfo(form as SongUpdateInfo);
+  // }
   showModal.value = false;
-  fetchTableData();
+  // fetchTableData();
 };
 </script>

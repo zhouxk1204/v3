@@ -2,8 +2,8 @@
   <div class="p-4 bg-white rounded-xl">
     <div class="flex items-end gap-5">
       <!-- 歌手名称 -->
-      <div class="flex items-center gap-2 font-bold">
-        <label class="block mb-1 text-sm text-gray-600">歌手名称</label>
+      <div class="flex items-center gap-2">
+        <label class="text-sm text-gray-600">歌手名称</label>
         <input
           v-model="localSearch.name"
           type="text"
@@ -13,8 +13,8 @@
       </div>
 
       <!-- 国家 -->
-       <div class="flex items-center gap-2 font-bold">
-        <label class="block mb-1 text-sm text-gray-600">国家</label>
+      <div class="flex items-center gap-2">
+        <label class="text-sm text-gray-600">国家</label>
         <input
           v-model="localSearch.country"
           type="text"
@@ -41,23 +41,30 @@
 </template>
 
 <script setup lang="ts">
-import type { ArtistSearchForm } from "@/types/music/artist";
-import { reactive } from "vue";
+import type { ArtistQueryParams } from "@/types/music/artist";
+import { reactive, watch } from "vue";
 
 const props = defineProps<{
-  modelValue?: ArtistSearchForm;
+  modelValue?: ArtistQueryParams;
 }>();
 
 const emit = defineEmits<{
-  (e: "search", payload: ArtistSearchForm): void;
+  (e: "search", payload: ArtistQueryParams): void;
   (e: "reset"): void;
-  (e: "update:modelValue", val: ArtistSearchForm): void;
+  (e: "update:modelValue", val: ArtistQueryParams): void;
 }>();
 
-const localSearch = reactive<ArtistSearchForm>({
-  name: props.modelValue?.name || "",
-  country: props.modelValue?.country || "",
+const localSearch = reactive<ArtistQueryParams>({
+  name: props.modelValue?.name ?? "",
+  country: props.modelValue?.country ?? "",
 });
+
+/** 同步 v-model */
+watch(
+  () => localSearch,
+  (val) => emit("update:modelValue", { ...val }),
+  { deep: true }
+);
 
 const onSearch = () => {
   emit("search", { ...localSearch });

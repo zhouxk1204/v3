@@ -25,7 +25,13 @@ export const useAlbumStore = defineStore(
         searchForm.value = { ...params };
       }
       const res = await getAlbumList(searchForm.value);
-      albumList.value = res.data;
+      const {data} = res;
+      albumList.value = data.map(e => {
+        return{
+          ...e,
+          albumId: e.albumId.toString(),
+        }
+      });
       selectedIds.value = [];
     };
 

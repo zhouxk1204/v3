@@ -1,34 +1,45 @@
-import { ArtistAddInfo, ArtistSearchForm, ArtistTableData, ArtistUpdateInfo } from "@/types/music/artist";
+import {
+  ArtistCreatePayload,
+  ArtistListItem,
+  ArtistQueryParams,
+  ArtistUpdatePayload,
+} from "@/types/music/artist";
 import { http, ResponseData } from "../request";
 
 /**
- * 歌手列表查询
+ * 获取歌手列表
  */
-export const getArtistList = (params?: ArtistSearchForm): Promise<ResponseData<ArtistTableData[]>> => {
-  return http.get<ResponseData<ArtistTableData[]>>("/music/artist/query", {
+export const fetchArtistList = (
+  params?: ArtistQueryParams
+): Promise<ResponseData<ArtistListItem[]>> => {
+  return http.get("/music/artist/query", {
     params: params ?? {},
   });
 };
 
 /**
- * 新增歌手
+ * 创建歌手
  */
-export const addArtistInfo = (body: ArtistAddInfo) => {
-  return http.post<ResponseData<{}>>("/music/artist/insert", body);
+export const createArtist = (
+  payload: ArtistCreatePayload
+): Promise<ResponseData<void>> => {
+  return http.post("/music/artist/insert", payload);
 };
 
 /**
  * 更新歌手
  */
-export const updateArtistInfo = (body: ArtistUpdateInfo) => {
-  return http.post<ResponseData<{}>>("/music/artist/update", body);
+export const updateArtist = (
+  payload: ArtistUpdatePayload
+): Promise<ResponseData<void>> => {
+  return http.post("/music/artist/update", payload);
 };
 
 /**
- * 删除歌手
+ * 删除歌手（批量）
  */
-export const deleteArtist = (artistIds: string[]) => {
-  return http.post<ResponseData<{}>>("/music/artist/delete", {
-    artistIds,
-  });
+export const deleteArtists = (
+  ids: string[]
+): Promise<ResponseData<void>> => {
+  return http.post("/music/artist/delete", { ids });
 };

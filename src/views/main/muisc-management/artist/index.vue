@@ -3,7 +3,7 @@
     <!-- 搜索区 -->
     <template #search>
       <ArtistSearch
-        v-model="searchForm"
+        v-model="artistQueryParams"
         @search="fetchTableData"
         @reset="resetSearch"
       />
@@ -22,13 +22,16 @@
     <!-- 表格 -->
     <template #table>
       <CrudTable
-        row-key="artistId"
+        row-key="id"
         :columns="columns"
         :data="tableData"
         v-model:selectedIds="selectedIds"
       >
-        <template #avatar="{ row }">
-          <img :src="row.avatar" class="object-cover w-12 h-12 rounded-full" />
+        <template #avatarUrl="{ row }">
+          <img
+            :src="row.avatarUrl"
+            class="object-cover w-12 h-12 rounded-full"
+          />
         </template>
       </CrudTable>
     </template>
@@ -58,36 +61,44 @@ import CrudToolbar from "@/components/CrudToolbar/index.vue";
 import ArtistForm from "./ArtistForm.vue";
 import ArtistSearch from "./ArtistSearch.vue";
 
-
 import { useCos } from "@/hooks/useCos";
 import { useArtistStore } from "@/store/music/artist";
+
 import type {
-  ArtistAddInfo,
-  ArtistSearchForm,
-  ArtistTableData,
-  ArtistUpdateInfo,
+  ArtistCreatePayload,
+  ArtistFormSubmit,
+  ArtistListItem,
+  ArtistQueryParams,
+  ArtistUpdatePayload,
 } from "@/types/music/artist";
 
 const artistStore = useArtistStore();
-const searchForm = reactive<ArtistSearchForm>({
+
+/** 查询参数 */
+const artistQueryParams = reactive<ArtistQueryParams>({
   name: "",
   country: "",
 });
 
+/** 表格数据 */
 const tableData = computed(() => artistStore.artistList);
-const selectedIds = computed({
+
+/** 选中行 */
+const selectedIds = computed<string[]>({
   get: () => artistStore.selectedIds,
   set: (val) => (artistStore.selectedIds = val),
 });
 
+/** 弹窗状态 */
 const showModal = ref(false);
 const modalMode = ref<"add" | "edit">("add");
-const currentRow = ref<ArtistTableData>();
+const currentRow = ref<ArtistListItem | undefined>();
 
-  const columns = [
+/** 表格列 */
+const columns = [
   { title: "歌手", key: "name" },
   { title: "国籍", key: "country" },
-  { title: "头像", key: "avatar" },
+  { title: "头像", key: "avatarUrl", slot: "avatarUrl" },
   { title: "出生日期", key: "birthDate" },
 ];
 
@@ -95,36 +106,43 @@ const modalTitle = computed(() =>
   modalMode.value === "add" ? "新增歌手" : "编辑歌手"
 );
 
+/** 查询 */
 const fetchTableData = async () => {
-  artistStore.fetchArtistList(searchForm);
+  await artistStore.loadArtistList(artistQueryParams);
 };
 
 fetchTableData();
 
+/** 重置查询 */
 const resetSearch = () => {
-  searchForm.name = "";
-  searchForm.country = "";
+  artistQueryParams.name = "";
+  artistQueryParams.country = "";
   fetchTableData();
 };
 
+/** 新增 */
 const openAdd = () => {
   modalMode.value = "add";
   currentRow.value = undefined;
   showModal.value = true;
 };
 
+/** 编辑 */
 const openEdit = () => {
+  if (!selectedIds.value.length) return;
   currentRow.value = artistStore.getArtistById(selectedIds.value[0]);
   modalMode.value = "edit";
   showModal.value = true;
 };
 
+/** 删除 */
 const handleDelete = async () => {
   if (!selectedIds.value.length) return;
   if (!confirm("确认删除该歌手？")) return;
-  await artistStore.removeArtist(selectedIds.value);
+  await artistStore.removeArtists(selectedIds.value);
 };
 
+/** COS 上传 */
 const cos = useCos({
   bucket: "peach-1322235980",
   region: "ap-chengdu",
@@ -132,20 +150,27 @@ const cos = useCos({
   stsUrl: "https://api.zhouxk.fun/sts",
 });
 
-const handleSubmit = async (form: ArtistAddInfo | ArtistUpdateInfo) => {
+/** 表单提交 */
+const handleSubmit = async (
+  form: ArtistFormSubmit
+) => {
+  // 新增
   if (modalMode.value === "add") {
-    const file = form.avatar as unknown as File;
-    if (file) {
+    const {avatarUrl, ...rest} = form;
+
+    if (avatarUrl instanceof File) {
       const res: any = await cos.upload({
-        uploadBody: file,
-        type: file.name.split(".").pop() || "jpg",
+        uploadBody: avatarUrl,
+        type: avatarUrl.name.split(".").pop() || "jpg",
       });
-      form.avatar = `https://${res.Location}`;
+      const url = `https://${res.Location}`;
+      const artistCreatePayload: ArtistCreatePayload = {...rest, avatarUrl: url};
+      await artistStore.addArtist(artistCreatePayload);
     }
-    await artistStore.addArtist(form as ArtistAddInfo);
   } else {
-    await artistStore.updateArtist(form as ArtistUpdateInfo);
+    await artistStore.editArtist(form as ArtistUpdatePayload);
   }
+
   showModal.value = false;
 };
 </script>

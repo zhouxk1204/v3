@@ -10,7 +10,6 @@ export interface SongTableData {
   artistId: string;
   artistName: string;
   albumId?: string;
-  // genre_id?: string;
   releaseDate?: string;
   duration: number;
   coverImage?: string;
@@ -21,13 +20,19 @@ export interface SongAddInfo {
   title: string;
   artistId: string;
   albumId?: string;
-  // genre_id?: string;
   duration: number;
   releaseDate?: string;
   coverImage?: string;
-  filePath: string | undefined;
+  filePath?: string | undefined;
 }
 
-export interface SongUpdateInfo extends SongAddInfo {
+export interface SongUpdateInfo{
   songId: string;
+  title: string;
+  artistId: string;
+  albumId?: string;
+  duration: number;
+  releaseDate?: string;
+  coverImage?: string;
+  filePath?: string | undefined;
 }

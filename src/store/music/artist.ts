@@ -2,65 +2,67 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 
 import {
-  addArtistInfo,
-  deleteArtist,
-  getArtistList,
-  updateArtistInfo,
-} from "@/api/music/artist";
-
-import type {
-  ArtistAddInfo,
-  ArtistSearchForm,
-  ArtistTableData,
-  ArtistUpdateInfo,
+  ArtistCreatePayload,
+  ArtistListItem,
+  ArtistQueryParams,
+  ArtistUpdatePayload,
 } from "@/types/music/artist";
+
+import {
+  createArtist,
+  deleteArtists,
+  fetchArtistList,
+  updateArtist,
+} from "@/api/music/artist";
 
 export const useArtistStore = defineStore(
   "artist",
   () => {
-    /** 歌手列表 */
-    const artistList = ref<ArtistTableData[]>([]);
+    /** 歌手列表（表格数据） */
+    const artistList = ref<ArtistListItem[]>([]);
 
-    /** 选中行 */
+    /** 选中行 ID */
     const selectedIds = ref<string[]>([]);
 
-    /** 获取列表 */
-    const fetchArtistList = async (search?: ArtistSearchForm) => {
-      const res = await getArtistList(search || {});
+    /** 查询列表 */
+    const loadArtistList = async (params?: ArtistQueryParams) => {
+      const res = await fetchArtistList(params ?? {});
       artistList.value = res.data;
       selectedIds.value = [];
     };
 
-    /** 新增 */
-    const addArtist = async (data: ArtistAddInfo) => {
-      await addArtistInfo(data);
-      await fetchArtistList();
+    /** 新增歌手 */
+    const addArtist = async (payload: ArtistCreatePayload) => {
+      await createArtist(payload);
+      await loadArtistList();
     };
 
-    /** 编辑 */
-    const updateArtist = async (data: ArtistUpdateInfo) => {
-      await updateArtistInfo(data);
-      await fetchArtistList();
+    /** 更新歌手 */
+    const editArtist = async (payload: ArtistUpdatePayload) => {
+      await updateArtist(payload);
+      await loadArtistList();
     };
 
-    /** 删除 */
-    const removeArtist = async (ids: string[]) => {
-      await deleteArtist(ids);
-      await fetchArtistList();
+    /** 删除歌手（批量） */
+    const removeArtists = async (ids: string[]) => {
+      if (!ids.length) return;
+      await deleteArtists(ids);
+      await loadArtistList();
     };
 
-    /** 根据 id 找歌手 */
-    const getArtistById = (id: string) =>
-      artistList.value.find((i) => i.artistId === id);
+    /** 根据 id 获取歌手（列表内查） */
+    const getArtistById = (id: string) => {
+      return artistList.value.find((item) => item.id === id);
+    };
 
     return {
       artistList,
       selectedIds,
 
-      fetchArtistList,
+      loadArtistList,
       addArtist,
-      updateArtist,
-      removeArtist,
+      editArtist,
+      removeArtists,
       getArtistById,
     };
   },
