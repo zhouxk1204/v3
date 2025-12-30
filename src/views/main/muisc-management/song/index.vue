@@ -27,12 +27,12 @@
         :data="tableData"
         v-model:selectedIds="selectedIds"
       >
-        <template #coverImage="{ row }">
-          <img :src="row.coverImage" class="object-cover w-12 h-12 rounded" />
+        <template #coverUrl="{ row }">
+          <img :src="row.coverUrl" class="object-cover w-12 h-12 rounded" />
         </template>
 
-        <template #filePath="{ row }">
-          <audio :src="row.filePath" controls class="w-40" />
+        <template #fileUrl="{ row }">
+          <audio :src="row.fileUrl" controls class="w-60" />
         </template>
       </CrudTable>
     </template>
@@ -62,32 +62,39 @@ import CrudToolbar from "@/components/CrudToolbar/index.vue";
 import SongForm from "./SongForm.vue";
 import SongSearch from "./SongSearch.vue";
 
-import { deleteSong, getSongList } from "@/api/music/song";
+import {
+  createSong,
+  deleteSongs,
+  querySongList,
+  updateSong,
+} from "@/api/music/song";
+import { useCos } from "@/hooks/useCos";
+import type {
+  SongCreatePayload,
+  SongFormSubmit,
+  SongListItem,
+  SongQueryParams,
+  SongUpdatePayload,
+} from "@/types/music/song";
 
-import type { SongAddInfo, SongSearchForm, SongTableData, SongUpdateInfo } from "@/types/music/song";
-
-const searchForm = reactive<SongSearchForm>({
+const searchForm = reactive<SongQueryParams>({
   title: "",
   artistId: "",
 });
 
-const tableData = ref<SongTableData[]>([]);
+const tableData = ref<SongListItem[]>([]);
 const selectedIds = ref<string[]>([]);
 
 const showModal = ref(false);
 const modalMode = ref<"add" | "edit">("add");
-const currentRow = ref<SongTableData>();
+const currentRow = ref<SongListItem>();
 
 const columns = [
-  { title: "ID", key: "songId" },
+  { title: "封面", key: "coverUrl" },
   { title: "歌曲名称", key: "title" },
   { title: "歌手", key: "artistName" },
-  { title: "专辑", key: "albumName" },
-  // { title: "类型ID", key: "genreId" },
-  { title: "封面", key: "coverImage" },
-  { title: "时长(秒)", key: "duration" },
   { title: "发布日期", key: "releaseDate" },
-  { title: "音频", key: "filePath" },
+  { title: "音频", key: "fileUrl" },
 ];
 
 const modalTitle = computed(() =>
@@ -95,12 +102,10 @@ const modalTitle = computed(() =>
 );
 
 const fetchTableData = async () => {
-  const res = await getSongList(searchForm);
+  const res = await querySongList(searchForm);
   tableData.value = res.data;
   selectedIds.value = [];
 };
-
-fetchTableData();
 
 const resetSearch = () => {
   searchForm.title = "";
@@ -115,9 +120,7 @@ const openAdd = () => {
 };
 
 const openEdit = () => {
-  currentRow.value =
-    tableData.value.find((i) => i.songId === selectedIds.value[0]) ||
-    undefined;
+  currentRow.value = tableData.value.find((i) => i.id === selectedIds.value[0]);
   modalMode.value = "edit";
   showModal.value = true;
 };
@@ -126,18 +129,66 @@ const handleDelete = async () => {
   if (!selectedIds.value.length) return;
   if (!confirm("确认删除该歌曲？")) return;
 
-  await deleteSong(selectedIds.value[0]);
+  await deleteSongs(selectedIds.value);
   fetchTableData();
 };
 
-const handleSubmit = async (form: SongAddInfo | SongUpdateInfo) => {
-  console.log("%c Line:134 🥃 form", "color:#ffdd4d", form);
-  // if (modalMode.value === "add") {
-  //   await addSongInfo(form as SongAddInfo);
-  // } else {
-  //   await updateSongInfo(form as SongUpdateInfo);
-  // }
+const cos = useCos({
+  bucket: "peach-1322235980",
+  region: "ap-chengdu",
+  prefix: "/song/",
+  stsUrl: "https://api.zhouxk.fun/sts",
+});
+const handleSubmit = async (form: SongFormSubmit) => {
+  if (modalMode.value === "edit") {
+    const songCreatePayload: SongCreatePayload = {
+      title: form.title,
+      duration: form.duration,
+      albumId: form.albumId,
+      artistId: form.artistId,
+      genreId: form.genreId,
+      releaseDate: form.releaseDate,
+      fileUrl: "",
+      coverUrl: "",
+      createdBy: "",
+    };
+    const { audioFile, coverFile } = form;
+
+    if (audioFile) {
+      const res: any = await cos.upload({
+        uploadBody: audioFile,
+        type: audioFile.name.split(".").pop() || "mp3",
+      });
+      songCreatePayload.fileUrl = `https://${res.Location}`;
+    }
+    if (coverFile) {
+      const res: any = await cos.upload({
+        uploadBody: coverFile,
+        type: coverFile.name.split(".").pop() || "jpg",
+      });
+      songCreatePayload.coverUrl = `https://${res.Location}`;
+    }
+
+    await createSong(songCreatePayload);
+  } else {
+    const songUpdatePayload: SongUpdatePayload = {
+      id: form.id ?? "",
+      title: form.title,
+      duration: form.duration,
+      albumId: form.albumId,
+      artistId: form.artistId,
+      genreId: form.genreId,
+      releaseDate: form.releaseDate,
+      fileUrl: "",
+      coverUrl: "",
+    };
+
+    await updateSong(songUpdatePayload);
+  }
+
   showModal.value = false;
-  // fetchTableData();
+  fetchTableData();
 };
+
+fetchTableData();
 </script>

@@ -96,9 +96,9 @@ const currentRow = ref<ArtistListItem | undefined>();
 
 /** 表格列 */
 const columns = [
+  { title: "头像", key: "avatarUrl", slot: "avatarUrl" },
   { title: "歌手", key: "name" },
   { title: "国籍", key: "country" },
-  { title: "头像", key: "avatarUrl", slot: "avatarUrl" },
   { title: "出生日期", key: "birthDate" },
 ];
 

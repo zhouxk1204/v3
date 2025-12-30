@@ -56,7 +56,7 @@
     </div>
 
     <!-- 歌曲封面 -->
-    <div class="space-y-2" v-if="isEdit">
+    <div class="space-y-2" v-if="!isEdit">
       <label class="text-sm font-medium">歌曲封面</label>
       <input type="file" accept="image/*" @change="handleCoverChange" />
 
@@ -68,7 +68,7 @@
     </div>
 
     <!-- 音乐文件 -->
-    <div class="space-y-2" v-if="isEdit">
+    <div class="space-y-2" v-if="!isEdit">
       <label class="text-sm font-medium">音乐文件</label>
       <input type="file" accept="audio/*" @change="handleAudioChange" />
 
@@ -100,16 +100,14 @@
 <script setup lang="ts">
 import { useAlbumStore } from "@/store/music/album";
 import { useArtistStore } from "@/store/music/artist";
-import { SongAddInfo, SongTableData, SongUpdateInfo } from "@/types/music/song";
+import { SongForm, SongFormSubmit, SongListItem } from "@/types/music/song";
 import { onBeforeUnmount, reactive, ref } from "vue";
 
 const artistStore = useArtistStore();
 const albumStore = useAlbumStore();
 
 const artistList = computed(() => artistStore.artistList);
-console.log("%c Line:110 🥐 artistList", "color:#6ec1c2", artistList.value);
 const albumList = computed(() => albumStore.albumList);
-console.log("%c Line:112 🍫 albumList", "color:#6ec1c2", albumList);
 
 onMounted(() => {
   if (!artistStore.artistList.length) {
@@ -121,33 +119,33 @@ onMounted(() => {
 });
 
 const props = defineProps<{
-  modelValue?: SongTableData;
+  modelValue?: SongListItem;
   isEdit?: boolean;
 }>();
 
 const emit = defineEmits<{
-  (e: "submit", payload: SongAddInfo | SongUpdateInfo): void;
+  (e: "submit", payload: SongFormSubmit): void;
   (e: "cancel"): void;
 }>();
 
 const isEdit = props.isEdit ?? false;
 
 /** 表单数据（ID 全 string） */
-const form = reactive<SongAddInfo | SongUpdateInfo>({
-  songId: props.modelValue?.songId || "",
+const form = reactive<SongForm>({
+  id: props.modelValue?.id,
   title: props.modelValue?.title || "",
   artistId: props.modelValue?.artistId || "",
   albumId: props.modelValue?.albumId || "",
   releaseDate: props.modelValue?.releaseDate || "",
   duration: props.modelValue?.duration || 0,
-  coverImage: props.modelValue?.coverImage,
-  filePath: props.modelValue?.filePath,
+  coverUrl: props.modelValue?.coverUrl,
+  fileUrl: props.modelValue?.fileUrl,
 });
 
 const coverFile = ref<File | null>(null);
 const audioFile = ref<File | null>(null);
 
-const coverPreview = ref<string>(props.modelValue?.coverImage || "");
+const coverPreview = ref<string>(props.modelValue?.coverUrl || "");
 
 /** 选择封面 */
 const handleCoverChange = (e: Event) => {
@@ -178,36 +176,17 @@ const handleAudioChange = (e: Event) => {
 
 /** 提交 */
 const submitForm = async () => {
-  if (props.isEdit) {
-    // const cos = useCos({
-    //   bucket: "peach-1322235980",
-    //   region: "ap-chengdu",
-    //   prefix: "/song/",
-    //   stsUrl: "https://api.zhouxk.fun/sts",
-    // });
-
-    // // 上传封面
-    // if (coverFile.value) {
-    //   const res: any = await cos.upload({
-    //     uploadBody: coverFile.value,
-    //     type: coverFile.value.name.split(".").pop() || "jpg",
-    //   });
-    //   form.coverImage = `https://${res.Location}`;
-    // }
-
-    // // 上传音频
-    // if (audioFile.value) {
-    //   const res: any = await cos.upload({
-    //     uploadBody: audioFile.value,
-    //     type: audioFile.value.name.split(".").pop() || "mp3",
-    //   });
-    //   form.filePath = `https://${res.Location}`;
-    // }
-  }
-
-  /** 这里直接把 form 丢给接口即可 */
-  console.log("提交歌曲数据", { ...form });
-  emit("submit", form);
+  const data: SongFormSubmit = {
+    id: form.id,
+    title: form.title,
+    duration: form.duration,
+    albumId: form.albumId,
+    artistId: form.artistId,
+    releaseDate: form.albumId,
+    audioFile: audioFile.value,
+    coverFile: coverFile.value,
+  };
+  emit("submit", data);
 };
 
 /** 释放 URL */

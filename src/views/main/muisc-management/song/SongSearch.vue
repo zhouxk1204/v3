@@ -21,8 +21,8 @@
           <option value="">全部</option>
           <option
             v-for="artist in artistList"
-            :key="artist.artistId"
-            :value="artist.artistId"
+            :key="artist.id"
+            :value="artist.id"
           >
             {{ artist.name }}
           </option>
@@ -63,7 +63,7 @@ const artistStore = useArtistStore();
 /** 确保有数据（防止刷新页面没缓存） */
 onMounted(() => {
   if (!artistStore.artistList.length) {
-    artistStore.fetchArtistList();
+    artistStore.loadArtistList();
   }
 });
 

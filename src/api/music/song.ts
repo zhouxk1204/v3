@@ -1,11 +1,18 @@
-import { SongAddInfo, SongSearchForm, SongTableData, SongUpdateInfo } from "@/types/music/song";
+import type {
+  SongCreatePayload,
+  SongListItem,
+  SongQueryParams,
+  SongUpdatePayload
+} from "@/types/music/song";
 import { http, ResponseData } from "../request";
 
 /**
  * 歌曲列表查询
  */
-export const getSongList = (params?: SongSearchForm) => {
-  return http.get<ResponseData<SongTableData[]>>("/music/song/query", {
+export const querySongList = (
+  params?: SongQueryParams
+): Promise<ResponseData<SongListItem[]>> => {
+  return http.get("/music/song/query", {
     params: params ?? {},
   });
 };
@@ -13,22 +20,28 @@ export const getSongList = (params?: SongSearchForm) => {
 /**
  * 新增歌曲
  */
-export const addSongInfo = (body: SongAddInfo) => {
-  return http.post<ResponseData<{}>>("/music/song/insert", body);
+export const createSong = (
+  body: SongCreatePayload
+): Promise<ResponseData<{}>> => {
+  return http.post("/music/song/insert", body);
 };
 
 /**
  * 更新歌曲
  */
-export const updateSongInfo = (body: SongUpdateInfo) => {
-  return http.post<ResponseData<{}>>("/music/song/update", body);
+export const updateSong = (
+  body: SongUpdatePayload
+): Promise<ResponseData<{}>> => {
+  return http.post("/music/song/update", body);
 };
 
 /**
- * 删除歌曲
+ * 删除歌曲（批量）
  */
-export const deleteSong = (songId: string) => {
-  return http.post<ResponseData<{}>>("/music/song/delete", {
-    songId: songId,
+export const deleteSongs = (
+  ids: string[]
+): Promise<ResponseData<{}>> => {
+  return http.post("/music/song/delete", {
+    ids,
   });
 };
