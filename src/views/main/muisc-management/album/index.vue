@@ -55,7 +55,7 @@ import CrudModal from "@/components/CrudModal/index.vue";
 import CrudPage from "@/components/CrudPage/index.vue";
 import CrudTable from "@/components/CrudTable/index.vue";
 import CrudToolbar from "@/components/CrudToolbar/index.vue";
-import { computed, reactive, ref } from "vue";
+import { computed, ref } from "vue";
 import AlbumForm from "./AlbumForm.vue";
 import AlbumSearch from "./AlbumSearch.vue";
 
@@ -63,7 +63,7 @@ import { useAlbumStore } from "@/store/music/album";
 import type { AlbumSearchForm, AlbumTableData } from "@/types/music/album";
 const albumStore = useAlbumStore();
 
-const searchForm = reactive<AlbumSearchForm>({
+const searchForm = ref<AlbumSearchForm>({
   title: "",
   artistId: "",
 });
@@ -92,14 +92,14 @@ const modalTitle = computed(() =>
 );
 
 const fetchTableData = () => {
-  albumStore.fetchAlbumList(searchForm);
+  albumStore.fetchAlbumList(searchForm.value);
 };
 
 albumStore.fetchAlbumList();
 
 const resetSearch = () => {
-  searchForm.title = "";
-  searchForm.artistId = undefined;
+  searchForm.value.title = "";
+  searchForm.value.artistId = undefined;
   albumStore.fetchAlbumList();
 };
 

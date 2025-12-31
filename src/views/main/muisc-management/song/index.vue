@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, ref } from "vue";
 
 import CrudModal from "@/components/CrudModal/index.vue";
 import CrudPage from "@/components/CrudPage/index.vue";
@@ -77,7 +77,7 @@ import type {
   SongUpdatePayload,
 } from "@/types/music/song";
 
-const searchForm = reactive<SongQueryParams>({
+const searchForm = ref<SongQueryParams>({
   title: "",
   artistId: "",
 });
@@ -102,14 +102,14 @@ const modalTitle = computed(() =>
 );
 
 const fetchTableData = async () => {
-  const res = await querySongList(searchForm);
+  const res = await querySongList(searchForm.value);
   tableData.value = res.data;
   selectedIds.value = [];
 };
 
 const resetSearch = () => {
-  searchForm.title = "";
-  searchForm.artistId = "";
+  searchForm.value.title = "";
+  searchForm.value.artistId = "";
   fetchTableData();
 };
 

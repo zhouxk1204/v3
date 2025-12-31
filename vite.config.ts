@@ -16,6 +16,7 @@ export default defineConfig({
     drop: ["debugger"], // 删除 debugger
   },
   build: {
+    chunkSizeWarningLimit: 1000,
     minify: "esbuild", // or 'esbuild' for faster builds
     terserOptions: {
       compress: {
@@ -24,14 +25,9 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            return id
-              .toString()
-              .split("node_modules/")[1]
-              .split("/")[0]
-              .toString();
-          }
+        manualChunks: {
+          vue: ["vue", "vue-router", "pinia"],
+          element: ["element-plus"],
         },
       },
     },

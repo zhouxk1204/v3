@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, ref } from "vue";
 
 import CrudModal from "@/components/CrudModal/index.vue";
 import CrudPage from "@/components/CrudPage/index.vue";
@@ -75,7 +75,7 @@ import type {
 const artistStore = useArtistStore();
 
 /** 查询参数 */
-const artistQueryParams = reactive<ArtistQueryParams>({
+const artistQueryParams = ref<ArtistQueryParams>({
   name: "",
   country: "",
 });
@@ -108,15 +108,15 @@ const modalTitle = computed(() =>
 
 /** 查询 */
 const fetchTableData = async () => {
-  await artistStore.loadArtistList(artistQueryParams);
+  await artistStore.loadArtistList(artistQueryParams.value);
 };
 
 fetchTableData();
 
 /** 重置查询 */
 const resetSearch = () => {
-  artistQueryParams.name = "";
-  artistQueryParams.country = "";
+  artistQueryParams.value.name = "";
+  artistQueryParams.value.country = "";
   fetchTableData();
 };
 
