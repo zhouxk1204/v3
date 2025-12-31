@@ -1,12 +1,14 @@
 <template>
- <nav>
-   <header class="flex items-center justify-center border-b shadow-sm h-11 border-b-black/10">
-    <a href="#">
-      <span class="font-bold text-[15px]">Music</span>
-    </a>
-  </header>
- </nav>
   <div class="overflow-auto h-[100dvh]">
+    <nav>
+      <header
+        class="flex items-center justify-center border-b-2 shadow-sm h-11 border-b-black/5"
+      >
+        <a href="#">
+          <span class="font-bold text-[15px]">Music</span>
+        </a>
+      </header>
+    </nav>
     <div
       class="flex flex-col items-center gap-[18px] sm:gap-8 pb-0 pt-10 sm:p-10 sm:flex-row"
     >
@@ -74,10 +76,10 @@
         class="flex items-center p-2 hover:bg-black/5 group rounded-[5px] text-[13px]"
         v-for="(music, index) in audioList"
         :style="{
-          backgroundColor: index % 2 === 0 ? 'rgba(0,0,0,0.015)' : '#fff'
+          backgroundColor: index % 2 === 0 ? 'rgba(0,0,0,0.015)' : '#fff',
         }"
       >
-        <div class="flex-[3] flex items-center gap-3" >
+        <div class="flex-[3] flex items-center gap-3">
           <div class="relative">
             <img
               :src="music.coverUrl"
@@ -98,7 +100,9 @@
           </div>
           <p class="text-black/85 font-[600] flex flex-col">
             <span class="text-black/85 text-[13px]">{{ music.title }}</span>
-            <span class="text-black/55 sm:hidden text-[13px]">{{ music.artistName }}</span>
+            <span class="text-black/55 sm:hidden text-[13px]">{{
+              music.artistName
+            }}</span>
           </p>
         </div>
         <span class="flex-[2] text-black/55 pl-3 hidden sm:flex">
