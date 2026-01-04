@@ -1,5 +1,8 @@
 <template>
-  <div class="overflow-auto h-[100dvh]">
+  <div class="overflow-auto h-[100dvh] relative">
+    <div class="fixed bottom-[5px] px-3 w-full z-10">
+      <MiniPlayer></MiniPlayer>
+    </div>
     <nav>
       <header
         class="flex items-center justify-center border-b-2 shadow-sm h-11 border-b-black/5"
@@ -73,10 +76,16 @@
         <span class="flex items-center flex-1 pl-3 border-l">Time</span>
       </div>
       <div
+        @click="onClickListItem(index)"
         class="flex items-center p-2 hover:bg-black/5 group rounded-[5px] text-[13px]"
         v-for="(music, index) in audioList"
         :style="{
-          backgroundColor: index % 2 === 0 ? 'rgba(0,0,0,0.015)' : '#fff',
+          backgroundColor:
+            selectIndex === index
+              ? '#D60017'
+              : index % 2 === 0
+              ? 'rgba(0,0,0,0.015)'
+              : '#fff',
         }"
       >
         <div class="flex-[3] flex items-center gap-3">
@@ -99,17 +108,23 @@
             </div>
           </div>
           <p class="text-black/85 font-[600] flex flex-col">
-            <span class="text-black/85 text-[13px]">{{ music.title }}</span>
-            <span class="text-black/55 sm:hidden text-[13px]">{{
-              music.artistName
-            }}</span>
+            <span
+              class="text-[13px]"
+              :class="selectIndex === index ? 'text-white' : 'text-black/85'"
+              >{{ music.title }}</span
+            >
+            <span
+              class="sm:hidden text-[13px]"
+              :class="selectIndex === index ? 'text-white' : 'text-black/55'"
+              >{{ music.artistName }}</span
+            >
           </p>
         </div>
-        <span class="flex-[2] text-black/55 pl-3 hidden sm:flex">
+        <span class="flex-[2] pl-3 hidden sm:flex"  :class="selectIndex === index ? 'text-white' : 'text-black/55'">
           {{ music.artistName }}</span
         >
         <span class="flex-[2] text-black/55 pl-3"></span>
-        <div class="flex-1 pl-3 text-black/55">
+        <div class="flex-1 pl-3"  :class="selectIndex === index ? 'text-white' : 'text-black/55'">
           <time>{{ secondsToMmSs(music.duration) }}</time>
         </div>
       </div>
@@ -119,12 +134,16 @@
         {{ audioList.length }} songs, 2 hours 27 minutes
       </p>
     </section>
+
+    
   </div>
 </template>
 
 <script setup lang="ts">
 import { querySongList } from "@/api/music/song";
 import { SongListItem } from "@/types/music/song";
+
+const selectIndex = ref(-1);
 
 const audioList = ref<SongListItem[]>([]);
 const initMusicList = async () => {
@@ -138,5 +157,9 @@ const secondsToMmSs = (seconds: number): string => {
   const mm = Math.floor(seconds / 60);
   const ss = seconds % 60;
   return `${mm.toString().padStart(2, "0")}:${ss.toString().padStart(2, "0")}`;
+};
+
+const onClickListItem = (index: number) => {
+  selectIndex.value = index;
 };
 </script>

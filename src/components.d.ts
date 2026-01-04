@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AMap: typeof import('./components/AMap/index.vue')['default']
     Button: typeof import('./components/Button/index.vue')['default']
+    copy: typeof import('./components/MusicPlayer copy/index.vue')['default']
     CrudModal: typeof import('./components/CrudModal/index.vue')['default']
     CrudPage: typeof import('./components/CrudPage/index.vue')['default']
     CrudTable: typeof import('./components/CrudTable/index.vue')['default']
@@ -79,7 +80,9 @@ declare module 'vue' {
     Image: typeof import('./components/Image/index.vue')['default']
     LoadingScreen: typeof import('./components/LoadingScreen/index.vue')['default']
     MenuItem: typeof import('./components/MenuItem/index.vue')['default']
+    MiniPlayer: typeof import('./components/MiniPlayer/index.vue')['default']
     MusicPlayer: typeof import('./components/MusicPlayer/index.vue')['default']
+    MusicPlayerBar: typeof import('./components/MusicPlayerBar/index.vue')['default']
     RollingNumber: typeof import('./components/RollingNumber/index.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
