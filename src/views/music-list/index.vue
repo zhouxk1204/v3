@@ -1,7 +1,7 @@
 <template>
-  <div class="overflow-auto h-[100dvh] relative">
+  <div class="relative overflow-auto h-dvh">
     <div class="fixed bottom-[5px] px-3 w-full z-10">
-      <MiniPlayer></MiniPlayer>
+      <MiniPlayer coverUrl="" :state="'pause'" title="123"></MiniPlayer>
     </div>
     <nav>
       <header
@@ -98,13 +98,33 @@
               class="rounded-[5px]"
             />
             <div
-              class="absolute inset-0 hidden bg-black/45 group-hover:block rounded-[5px] overflow-hidden"
+              v-if="selectIndex === index || playingIndex === index"
+              @click="onClickCover($event, index)"
+              class="absolute inset-0 bg-black/40 rounded-[5px] overflow-hidden flex items-center justify-center"
             >
-              <button
-                class="flex items-center justify-center w-full h-full text-white"
-              >
-                <Icon icon="tabler:player-play-filled" width="16" />
-              </button>
+              <!-- loading -->
+              <Icon
+                v-if="isLoading && playingIndex === index"
+                icon="line-md:loading-twotone-loop"
+                width="18"
+                class="text-white"
+              />
+
+              <!-- pause -->
+              <Icon
+                v-else-if="isPlaying && playingIndex === index"
+                icon="tabler:player-pause-filled"
+                width="18"
+                class="text-white"
+              />
+
+              <!-- play -->
+              <Icon
+                v-else
+                icon="tabler:player-play-filled"
+                width="18"
+                class="text-white"
+              />
             </div>
           </div>
           <p class="text-black/85 font-[600] flex flex-col">
@@ -120,30 +140,37 @@
             >
           </p>
         </div>
-        <span class="flex-[2] pl-3 hidden sm:flex"  :class="selectIndex === index ? 'text-white' : 'text-black/55'">
+        <span
+          class="flex-[2] pl-3 hidden sm:flex"
+          :class="selectIndex === index ? 'text-white' : 'text-black/55'"
+        >
           {{ music.artistName }}</span
         >
         <span class="flex-[2] text-black/55 pl-3"></span>
-        <div class="flex-1 pl-3"  :class="selectIndex === index ? 'text-white' : 'text-black/55'">
+        <div
+          class="flex-1 pl-3"
+          :class="selectIndex === index ? 'text-white' : 'text-black/55'"
+        >
           <time>{{ secondsToMmSs(music.duration) }}</time>
         </div>
       </div>
     </div>
-    <section class="pt-3 pb-[43px] pl-[25px]">
+    <section class="pt-3 pb-24 pl-[25px]">
       <p class="pt-[45px] text-black/55 pl-3 text-[13px]">
         {{ audioList.length }} songs, 2 hours 27 minutes
       </p>
     </section>
-
-    
   </div>
 </template>
 
 <script setup lang="ts">
 import { querySongList } from "@/api/music/song";
 import { SongListItem } from "@/types/music/song";
-
+  
 const selectIndex = ref(-1);
+const playingIndex = ref(-1);
+const isLoading = ref(false); // 当前是否在加载音频
+const isPlaying = ref(false); // 当前是否在播放
 
 const audioList = ref<SongListItem[]>([]);
 const initMusicList = async () => {
@@ -161,5 +188,37 @@ const secondsToMmSs = (seconds: number): string => {
 
 const onClickListItem = (index: number) => {
   selectIndex.value = index;
+  console.log(
+    "%c Line:169 🍫 selectIndex.value",
+    "color:#3f7cff",
+    selectIndex.value
+  );
+};
+
+const onClickCover = async (event: Event, index: number) => {
+  event.stopPropagation();
+
+  // 如果点的是当前播放的歌 → 切换播放/暂停
+  if (playingIndex.value === index) {
+    if (isPlaying.value) {
+      pause();
+    } else {
+      play();
+    }
+    return;
+  }
+
+  // 切歌
+  selectIndex.value = index;
+  playingIndex.value = index;
+  // await loadAndPlay(index);
+};
+
+const play = () => {
+  isPlaying.value = true;
+};
+
+const pause = () => {
+  isPlaying.value = false;
 };
 </script>
