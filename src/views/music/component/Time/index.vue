@@ -3,7 +3,7 @@
     <!-- range -->
     <input
       type="range"
-      class="level mix-blend-difference"
+      class="level"
       v-model.number="props.current"
       :min="0"
       :max="props.total"
@@ -12,7 +12,7 @@
     />
 
     <!-- time -->
-    <div class="time mix-blend-difference">
+    <div class="time">
       <span>{{ formatTime(props.current) }}</span>
       <span>-{{ formatTime(props.total - props.current) }}</span>
     </div>
@@ -77,5 +77,6 @@ function formatTime(sec: number) {
   font-size: 12px;
   color: var(--text-color);
   opacity: 0.85;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 </style>

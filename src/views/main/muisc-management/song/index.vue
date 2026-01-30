@@ -140,7 +140,7 @@ const cos = useCos({
   stsUrl: "https://api.zhouxk.fun/sts",
 });
 const handleSubmit = async (form: SongFormSubmit) => {
-  if (modalMode.value === "edit") {
+  if (modalMode.value === "add") {
     const songCreatePayload: SongCreatePayload = {
       title: form.title,
       duration: form.duration,

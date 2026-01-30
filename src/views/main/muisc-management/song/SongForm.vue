@@ -182,7 +182,7 @@ const submitForm = async () => {
     duration: form.duration,
     albumId: form.albumId,
     artistId: form.artistId,
-    releaseDate: form.albumId,
+    releaseDate: form.releaseDate,
     audioFile: audioFile.value,
     coverFile: coverFile.value,
   };

@@ -6,7 +6,7 @@
       class="control-btn"
       @click="onControlClick(btn.action)"
     >
-      <Icon :icon="btn.icon" width="44" class="icon mix-blend-difference"  />
+      <Icon :icon="btn.icon" width="44" class="icon text-white drop-shadow-lg"  />
     </div>
   </div>
 </template>
@@ -54,19 +54,19 @@ const onControlClick = (action: PlayerAction) => {
   @apply flex items-center justify-center
     w-16 h-16
     rounded-full
-    text-white/80
+    text-white
     cursor-pointer
     transition duration-150 ease-out;
+}
 
-  @media (hover: hover) {
-    .control-btn:hover {
-      background-color: rgb(0 0 0 / 0.2);
-    }
+@media (hover: hover) {
+  .control-btn:hover {
+    background-color: rgb(0 0 0 / 0.2);
+  }
 
-    .control-btn:active {
-      background-color: rgb(0 0 0 / 0.3);
-      transform: scale(0.96);
-    }
+  .control-btn:active {
+    background-color: rgb(0 0 0 / 0.3);
+    transform: scale(0.96);
   }
 }
 </style>
