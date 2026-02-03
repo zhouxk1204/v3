@@ -27,17 +27,19 @@
         <FadeImage
           v-if="currentMeta.coverUrl"
           :src="currentMeta.coverUrl"
-          class="shadow-2xl select-none rounded-2xl aspect-square cover w-full"
+          class="w-full shadow-2xl select-none rounded-2xl aspect-square cover"
           :class="{ playing: isPlaying, animated: hasPlayedOnce }"
         />
       </div>
       <div class="flex flex-col justify-center">
         <!-- 标题 -->
-        <div
-          class="w-full my-5 text-xl font-bold break-words"
-        >
-          <h2 class="text-white drop-shadow-lg">{{ currentMeta?.title || '加载中...' }}</h2>
-          <p class="text-sm text-white/70 drop-shadow-lg">{{ currentMeta?.artistName || '未知歌手' }}</p>
+        <div class="w-full my-5 text-xl font-bold break-words">
+          <h2 class="text-white drop-shadow-lg">
+            {{ currentMeta?.title || "加载中..." }}
+          </h2>
+          <p class="text-sm text-white/70 drop-shadow-lg">
+            {{ currentMeta?.artistName || "未知歌手" }}
+          </p>
         </div>
 
         <!-- 时间 -->
@@ -51,7 +53,9 @@
               class="w-6 brightness-0 invert drop-shadow-lg"
               alt="无损"
             />
-            <span class="text-xs font-bold text-white drop-shadow-lg">高品质</span>
+            <span class="text-xs font-bold text-white drop-shadow-lg"
+              >高品质</span
+            >
           </div>
         </div>
 
@@ -70,9 +74,14 @@
         <div class="flex justify-center mt-4">
           <button
             @click="showPlaylist = true"
-            class="flex items-center justify-center w-12 h-12 rounded-full bg-black/20 backdrop-blur-sm hover:bg-black/30 transition-all duration-200"
+            class="flex items-center justify-center w-12 h-12 transition-all duration-200 rounded-full hover:bg-black/30"
+            :class="showPlaylist ? 'bg-black/20 backdrop-blur-sm' : ''"
           >
-            <Icon icon="formkit:list" width="36" class="text-white drop-shadow-lg" />
+            <Icon
+              icon="formkit:list"
+              width="36"
+              class="text-white drop-shadow-lg"
+            />
           </button>
         </div>
       </div>
@@ -87,39 +96,45 @@
       >
         <!-- Sheet 内容 -->
         <div class="playlist-sheet-content">
-        <!-- 歌曲列表 -->
-        <div class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-          <div class="space-y-1">
+          <!-- 歌曲列表 -->
+          <div
+            class="flex-1 px-4 py-4 overflow-y-auto sm:px-6 lg:px-8 sm:py-6 lg:py-8"
+          >
+            <div class="space-y-1">
               <div
                 v-for="(song, index) in audioList"
                 :key="song.id"
                 @click="switchToSong(index)"
-                class="flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all duration-200"
+                class="flex items-center gap-3 p-2 transition-all duration-200 rounded-lg cursor-pointer"
                 :class="[
                   index === currentAudioIndex
                     ? 'bg-black/20 backdrop-blur-sm'
-                    : 'hover:bg-black/10'
+                    : 'hover:bg-black/10',
                 ]"
               >
                 <!-- 歌曲封面 -->
-                <div class="w-10 h-10 flex-shrink-0 relative">
+                <div class="relative flex-shrink-0 w-10 h-10">
                   <img
                     v-if="song.coverUrl"
                     :src="song.coverUrl"
                     :alt="song.title"
-                    class="w-full h-full object-cover rounded"
+                    class="object-cover w-full h-full rounded"
                   />
                   <div
                     v-else
-                    class="w-full h-full bg-black/20 backdrop-blur-sm rounded flex items-center justify-center"
+                    class="flex items-center justify-center w-full h-full rounded bg-black/20 backdrop-blur-sm"
                   >
-                    <Icon icon="tabler:music" width="16" class="text-white drop-shadow-lg" />
+                    <Icon
+                      icon="tabler:music"
+                      width="16"
+                      class="text-white drop-shadow-lg"
+                    />
                   </div>
-                  
+
                   <!-- 播放图标覆盖在封面上 -->
                   <div
                     v-if="index === currentAudioIndex && isPlaying"
-                    class="absolute inset-0 flex items-center justify-center bg-black/50 rounded"
+                    class="absolute inset-0 flex items-center justify-center rounded bg-black/50"
                   >
                     <Icon
                       icon="tabler:volume"
@@ -131,10 +146,12 @@
 
                 <!-- 歌曲信息 -->
                 <div class="flex-1 min-w-0">
-                  <h3 class="font-medium text-white drop-shadow-lg truncate text-sm">
+                  <h3
+                    class="text-sm font-medium text-white truncate drop-shadow-lg"
+                  >
                     {{ song.title }}
                   </h3>
-                  <p class="text-xs text-white drop-shadow-lg truncate">
+                  <p class="text-xs text-white truncate drop-shadow-lg">
                     {{ song.artistName }}
                   </p>
                 </div>
@@ -145,7 +162,7 @@
                 </div>
               </div>
             </div>
-        </div>
+          </div>
         </div>
       </div>
     </Transition>
@@ -195,12 +212,12 @@ const currentAudioIndex = ref(0);
 const currentMeta = computed<SongListItem>(() => {
   if (!audioList.value || audioList.value.length === 0) {
     return {
-      id: '',
-      title: '加载中...',
-      artistName: '未知歌手',
+      id: "",
+      title: "加载中...",
+      artistName: "未知歌手",
       duration: 0,
-      fileUrl: '',
-      coverUrl: ''
+      fileUrl: "",
+      coverUrl: "",
     };
   }
   return audioList.value[currentAudioIndex.value] || audioList.value[0];
@@ -217,16 +234,16 @@ const bgStyle = computed(() => ({
 const playCurrent = async () => {
   const audio = audioRef.value;
   if (!audio) {
-    console.error('音频元素不存在');
+    console.error("音频元素不存在");
     return;
   }
 
   try {
     isLoading.value = true;
-    console.log('开始播放:', currentMeta.value.title);
+    console.log("开始播放:", currentMeta.value.title);
     await audio.play();
     isPlaying.value = true;
-    console.log('播放成功');
+    console.log("播放成功");
   } catch (err) {
     isPlaying.value = false;
     console.error("播放失败:", err);
@@ -262,38 +279,38 @@ const handleControl = (action: PlayerAction) => {
 
 // 切换到指定歌曲
 const switchToSong = async (index: number) => {
-  console.log('切换到歌曲:', index, audioList.value[index]?.title);
-  
+  console.log("切换到歌曲:", index, audioList.value[index]?.title);
+
   // 切换到新歌曲
   currentAudioIndex.value = index;
-  
+
   // 等待 DOM 更新
   await nextTick();
-  
+
   // 等待音频元素加载
   const audio = audioRef.value;
   if (!audio) {
-    console.error('音频元素未找到');
+    console.error("音频元素未找到");
     return;
   }
-  
+
   // 重新加载音频源
   audio.load();
-  
+
   // 等待元数据加载完成后播放
   const playWhenReady = () => {
-    audio.removeEventListener('loadedmetadata', playWhenReady);
+    audio.removeEventListener("loadedmetadata", playWhenReady);
     playCurrent();
   };
-  
-  audio.addEventListener('loadedmetadata', playWhenReady);
+
+  audio.addEventListener("loadedmetadata", playWhenReady);
 };
 
 // 格式化时长显示
 const formatDuration = (seconds: number): string => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 };
 
 /* ================== Audio 事件 ================== */
@@ -353,7 +370,8 @@ onMounted(() => {
 }
 
 @keyframes floating {
-  0%, 100% {
+  0%,
+  100% {
     transform: rotate(0deg) scale(1.2) translateX(0px) translateY(0px);
   }
   25% {
