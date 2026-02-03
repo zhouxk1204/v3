@@ -1,11 +1,11 @@
 import { useAiModel } from "./useAiModel";
 
 // 定义一个常量对象，包含不同任务的评分
-const Temperature = {
+export const Temperature = {
   CODE_GENERATION_MATH_SOLVING: 0.0,
   DATA_EXTRACTION_ANALYSIS: 1.0,
   GENERAL_CONVERSATION: 1.3,
-  TRANSLATION: 1.3,
+  TRANSLATION: 0.3,
   CREATIVE_WRITING_POETRY: 1.5,
 } as const;
 
@@ -60,7 +60,7 @@ export function useAiRequest() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
           signal: controller.signal, // Attach the signal to the fetch request
-        }
+        },
       );
 
       console.log(response);
