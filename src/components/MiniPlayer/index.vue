@@ -21,7 +21,7 @@
 
     <div class="flex items-center gap-3 text-3xl text-black/80">
       <button v-for="item in controlButtons" @click="onClickItem(item.action)">
-        <Icon :icon="item.icon"/>
+        <Icon :icon="item.icon" />
       </button>
     </div>
   </div>
@@ -46,23 +46,21 @@ const error = ref(false);
 const props = defineProps<{
   coverUrl: string;
   state: "pause" | "play";
-  title: string
+  title: string;
 }>();
 
-const emit = defineEmits<{
-  (e: "track", data: Record<string, string | number>): void;
-  (e: "state", data: Record<string, string | number>): void;
-}>();
-
+// const emit = defineEmits<{
+//   (e: "track", data: Record<string, string | number>): void;
+//   (e: "state", data: Record<string, string | number>): void;
+// }>();
 
 const onError = () => {
   error.value = true;
 };
 
-const onClickItem = (action: PlayerAction)=> {
-  if(action === PlayerAction.Next){
-
+const onClickItem = (action: PlayerAction) => {
+  if (action === PlayerAction.Next) {
   }
-}
+};
 </script>
 <style lang="scss" scoped></style>
