@@ -68,7 +68,6 @@ onBeforeUnmount(() => tl?.kill())
 .title-mask {
   overflow: hidden;
   white-space: nowrap;
-  /* width: 100%; */
 }
 
 .title-track {
@@ -79,8 +78,6 @@ onBeforeUnmount(() => tl?.kill())
 
 .title {
   white-space: nowrap;
-  font-weight: 600;
-  font-size: 18px;
 }
 
 .clone {

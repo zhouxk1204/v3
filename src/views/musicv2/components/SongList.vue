@@ -1,11 +1,11 @@
 <template>
-  <div class="flex-1">
+  <div class="flex-1 pb-4">
     <div class="space-y-1">
       <div
         v-for="(song, index) in songs"
         :key="song.id"
         @click="$emit('select', index)"
-        class="flex items-center gap-3 p-2 transition-all duration-200 rounded-lg cursor-pointer"
+        class="flex items-center gap-3 p-2 transition-all duration-200 rounded cursor-pointer"
         :class="[
           index === currentIndex
             ? 'bg-black/20 backdrop-blur-sm'
@@ -46,10 +46,10 @@
 
         <!-- 歌曲信息 -->
         <div class="flex-1 min-w-0">
-          <h3 class="text-sm font-medium text-white truncate drop-shadow-lg">
+          <h3 class="text-[15px] font-medium text-white truncate drop-shadow-lg">
             {{ song.title }}
           </h3>
-          <p class="text-xs text-white truncate drop-shadow-lg">
+          <p class="text-[13px] text-white truncate drop-shadow-lg">
             {{ song.artistName }}
           </p>
         </div>

@@ -94,7 +94,6 @@ declare module 'vue' {
     Table: typeof import('./components/Table/index.vue')['default']
     Table2: typeof import('./components/Table2/index.vue')['default']
     Test: typeof import('./components/DistortEffect/test.vue')['default']
-    Trae: typeof import('./components/Trae/index.vue')['default']
     Typewriter: typeof import('./components/Typewriter/index.vue')['default']
     UploadCos: typeof import('./components/UploadCos/index.vue')['default']
     UploadExcel: typeof import('./components/UploadExcel/index.vue')['default']
