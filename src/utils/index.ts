@@ -149,3 +149,5 @@ export function dataURLtoFile(dataURL: string, filename: string) {
   var file = new File([blob], filename, { type: mimeString });
   return file;
 }
+
+export { replaceCosUrl, replaceCosUrlsInArray } from './cos';

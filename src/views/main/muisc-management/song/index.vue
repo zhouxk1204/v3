@@ -76,6 +76,7 @@ import type {
   SongQueryParams,
   SongUpdatePayload,
 } from "@/types/music/song";
+import { replaceCosUrlsInArray } from "@/utils/cos";
 
 const searchForm = ref<SongQueryParams>({
   title: "",
@@ -103,7 +104,9 @@ const modalTitle = computed(() =>
 
 const fetchTableData = async () => {
   const res = await querySongList(searchForm.value);
-  tableData.value = res.data;
+  // 多个字段
+const songs = replaceCosUrlsInArray(res.data, ['coverUrl', 'fileUrl']);
+  tableData.value = songs;
   selectedIds.value = [];
 };
 
@@ -137,7 +140,7 @@ const cos = useCos({
   bucket: "peach-1322235980",
   region: "ap-chengdu",
   prefix: "/song/",
-  stsUrl: "https://api.zhouxk.fun/sts",
+  stsUrl: import.meta.env.APP_COS_STS_URL,
 });
 const handleSubmit = async (form: SongFormSubmit) => {
   if (modalMode.value === "add") {

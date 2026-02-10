@@ -65,11 +65,11 @@ import { useCos } from "@/hooks/useCos";
 import { useArtistStore } from "@/store/music/artist";
 
 import type {
-  ArtistCreatePayload,
-  ArtistFormSubmit,
-  ArtistListItem,
-  ArtistQueryParams,
-  ArtistUpdatePayload,
+    ArtistCreatePayload,
+    ArtistFormSubmit,
+    ArtistListItem,
+    ArtistQueryParams,
+    ArtistUpdatePayload,
 } from "@/types/music/artist";
 
 const artistStore = useArtistStore();
@@ -147,7 +147,7 @@ const cos = useCos({
   bucket: "peach-1322235980",
   region: "ap-chengdu",
   prefix: "/artist/",
-  stsUrl: "https://api.zhouxk.fun/sts",
+  stsUrl: import.meta.env.APP_COS_STS_URL,
 });
 
 /** 表单提交 */

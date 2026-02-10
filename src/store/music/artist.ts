@@ -14,6 +14,7 @@ import {
   fetchArtistList,
   updateArtist,
 } from "@/api/music/artist";
+import { replaceCosUrlsInArray } from "@/utils/cos";
 
 export const useArtistStore = defineStore(
   "artist",
@@ -27,7 +28,8 @@ export const useArtistStore = defineStore(
     /** 查询列表 */
     const loadArtistList = async (params?: ArtistQueryParams) => {
       const res = await fetchArtistList(params ?? {});
-      artistList.value = res.data;
+      const artists = replaceCosUrlsInArray(res.data, ['avatarUrl']);
+      artistList.value = artists;
       selectedIds.value = [];
     };
 

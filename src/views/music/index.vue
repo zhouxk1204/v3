@@ -172,6 +172,7 @@
 <script setup lang="ts">
 import { querySongList } from "@/api/music/song.ts";
 import { SongListItem } from "@/types/music/song.ts";
+import { replaceCosUrlsInArray } from "@/utils/cos.ts";
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import Control from "./component/Control/index.vue";
 import FadeImage from "./component/FadeImage/index.vue";
@@ -350,7 +351,8 @@ watch(volume, (v) => {
 /* ================== 生命周期 ================== */
 const fetchSongs = async () => {
   const res = await querySongList();
-  audioList.value = res.data;
+  const songs = replaceCosUrlsInArray(res.data, ['coverUrl', 'fileUrl']);
+  audioList.value = songs;
   loading.value = false;
 };
 

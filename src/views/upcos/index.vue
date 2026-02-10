@@ -10,6 +10,6 @@ const cosOption = ref<CosOption>({
   bucket: 'peach-1322235980', // 存储桶
   region: 'ap-chengdu', // 地区
   prefix: '/music/', // 存储桶文件夹路径 /xx/
-  stsUrl: 'https://api.zhouxk.fun/sts',
+  stsUrl: import.meta.env.APP_COS_STS_URL,
 })
 </script>

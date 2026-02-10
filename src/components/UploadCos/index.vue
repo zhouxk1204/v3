@@ -98,7 +98,7 @@ const getCloudFilePath = (fileName: string, prefix: string): string => {
 }
 
 const cos = new COS({
-  Domain: 'cloud.zhouxk.fun', // 自定义源站域名
+  Domain: import.meta.env.APP_COS_DOMAIN, // 自定义源站域名
   Protocol: 'https:', // 请求协议
   getAuthorization: (_, callback) => {
     // getAuthorization 必选参数

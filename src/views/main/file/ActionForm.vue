@@ -100,7 +100,7 @@ const submit = async (formEl: FormInstance | undefined) => {
           bucket: 'peach-1322235980', // 存储桶
           region: 'ap-chengdu', // 地区
           prefix: '/love/', // 存储桶文件夹路径 /xx/
-          stsUrl: 'https://api.zhouxk.fun/sts',
+          stsUrl: import.meta.env.APP_COS_STS_URL,
         });
         const data: any = await cos.upload({
           uploadBody: uploadUserFile.raw as File,
