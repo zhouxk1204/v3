@@ -227,7 +227,9 @@ async function translateAll() {
           chunkResult += contentChunk;
         },
         onDone() {
-          translatedParts.push(chunkResult);
+          // 清理翻译结果中开头的括号内容，如 (笑) (惊讶) 等
+          const cleanedResult = chunkResult.replace(/^(\d+\n[\d:,\s\->]+\n)\([^)]+\)\s*/gm, '$1');
+          translatedParts.push(cleanedResult);
         },
         onError(err) {
           console.error("翻译失败：", err);
