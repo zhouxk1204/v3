@@ -1,15 +1,23 @@
 <template>
   <label class="slider">
-    <Icon icon="vaadin:volume-off" width="25" class="volume text-white drop-shadow-lg" />
+    <Icon
+      icon="vaadin:volume-off"
+      width="25"
+      class="text-white volume drop-shadow-lg"
+    />
     <input
       type="range"
-      class="level"
+      class="w-full level"
       v-model="volume"
       :min="0"
       :max="1"
       :step="0.01"
     />
-    <Icon icon="vaadin:volume-up" width="25" class="volume text-white drop-shadow-lg" />
+    <Icon
+      icon="vaadin:volume-up"
+      width="25"
+      class="text-white volume drop-shadow-lg"
+    />
   </label>
 </template>
 
@@ -26,7 +34,7 @@ const emit = defineEmits<{
 const volume = computed({
   get: () => props.modelValue,
   set: (value: number) => {
-    emit("update:modelValue", +value)
+    emit("update:modelValue", +value);
   },
 });
 </script>
@@ -83,8 +91,23 @@ const volume = computed({
   -webkit-appearance: none;
   width: 0;
   height: 0;
-  -webkit-box-shadow: -200px 0 0 200px var(--level-color);
-  box-shadow: -200px 0 0 200px var(--level-color);
+  /* 用超大值覆盖整条轨道，避免宽度变化导致左边空白 */
+  -webkit-box-shadow: -1000px 0 0 1000px var(--level-color);
+  box-shadow: -1000px 0 0 1000px var(--level-color);
+}
+
+/* Firefox 已填充进度 */
+.slider .level::-moz-range-progress {
+  background: var(--level-color);
+  height: var(--slider-height);
+  border-radius: var(--slider-border-radius);
+}
+
+/* Firefox 轨道 */
+.slider .level::-moz-range-track {
+  background: var(--slider-bg);
+  height: var(--slider-height);
+  border-radius: var(--slider-border-radius);
 }
 
 .slider:hover .level {

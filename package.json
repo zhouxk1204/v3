@@ -34,6 +34,7 @@
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
     "marked": "^15.0.6",
+    "pdfjs-dist": "^5.4.624",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.0",
     "postcss-100vh-fix": "^1.0.2",
@@ -58,14 +59,14 @@
     "autoprefixer": "^10.4.15",
     "events": "^3.3.0",
     "postcss": "^8.4.29",
-    "sass": "^1.69.5",
+    "sass": "^1.97.3",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.6.3",
     "unplugin-auto-import": "^0.17.3",
     "unplugin-icons": "^0.18.2",
     "unplugin-vue-components": "^0.26.0",
     "util": "^0.12.4",
-    "vite": "^5.3.3",
+    "vite": "^7.3.1",
     "vue-tsc": "^2.1.6"
   }
 }

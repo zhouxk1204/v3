@@ -63,20 +63,20 @@ import SongForm from "./SongForm.vue";
 import SongSearch from "./SongSearch.vue";
 
 import {
-  createSong,
-  deleteSongs,
-  querySongList,
-  updateSong,
+    createSong,
+    deleteSongs,
+    querySongList,
+    updateSong,
 } from "@/api/music/song";
 import { useCos } from "@/hooks/useCos";
 import type {
-  SongCreatePayload,
-  SongFormSubmit,
-  SongListItem,
-  SongQueryParams,
-  SongUpdatePayload,
+    SongCreatePayload,
+    SongFormSubmit,
+    SongListItem,
+    SongQueryParams,
+    SongUpdatePayload,
 } from "@/types/music/song";
-import { replaceCosUrlsInArray } from "@/utils/cos";
+import { buildCosUrlsInArray } from "@/utils/cos";
 
 const searchForm = ref<SongQueryParams>({
   title: "",
@@ -99,13 +99,13 @@ const columns = [
 ];
 
 const modalTitle = computed(() =>
-  modalMode.value === "add" ? "新增歌曲" : "编辑歌曲"
+  modalMode.value === "add" ? "新增歌曲" : "编辑歌曲",
 );
 
 const fetchTableData = async () => {
   const res = await querySongList(searchForm.value);
   // 多个字段
-const songs = replaceCosUrlsInArray(res.data, ['coverUrl', 'fileUrl']);
+  const songs = buildCosUrlsInArray(res.data, ["coverUrl", "fileUrl"]);
   tableData.value = songs;
   selectedIds.value = [];
 };

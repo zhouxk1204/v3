@@ -1,19 +1,16 @@
 <template>
-  <!-- 全屏 Loading -->
-  <div
-    v-if="isInitialLoading"
-    class="fixed inset-0 bg-white z-50 flex items-center justify-center"
-  >
-    <div class="flex flex-col items-center gap-4">
-      <div class="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-      <p class="text-gray-600 text-sm">加载中...</p>
-    </div>
-  </div>
+  <loading-screen v-if="isInitialLoading"></loading-screen>
 
-  <div class="h-full bg-black/20 bg flex justify-center" :style="bgStyle">
-    <div class="flex flex-col h-full max-w-[430px]">
-      <div ref="miniRef" class="fixed top-0 left-0 w-full flex flex-col items-center">
-        <div class="flex gap-4 items-center px-8 pb-1 max-w-[430px] w-full">
+  <div class="flex justify-center h-full bg-black/20 bg" :style="bgStyle">
+    <div class="flex flex-col w-full h-full" :style="{ maxWidth }">
+      <div
+        ref="miniRef"
+        class="fixed top-0 left-0 flex flex-col items-center w-full"
+      >
+        <div
+          class="flex items-center w-full gap-4 px-8 pb-1"
+          :style="{ maxWidth }"
+        >
           <div ref="coverRef2" class="w-[60px] h-[60px] flex-none">
             <img
               :src="currentMeta.coverUrl"
@@ -32,8 +29,8 @@
         </div>
         <div
           ref="playListRef"
-          class="overflow-y-auto hide-scrollbar px-8 max-w-[430px] w-full"
-          :style="{ maxHeight: playListMaxHeight }"
+          class="w-full px-8 overflow-y-auto hide-scrollbar"
+          :style="{ maxHeight: playListMaxHeight, maxWidth }"
         >
           <PlayModeSelector v-model="playMode" />
           <SongList
@@ -45,7 +42,7 @@
         </div>
       </div>
 
-      <div class="px-8 flex flex-col gap-4 pt-10">
+      <div class="flex flex-col gap-4 px-8 pt-10">
         <img
           ref="coverRef"
           :src="currentMeta.coverUrl"
@@ -123,14 +120,16 @@
 <script setup lang="ts">
 import { querySongList } from "@/api/music/song";
 import { SongListItem } from "@/types/music/song";
-import PlayTime from "./components/PlayTime.vue";
+import { buildCosUrlsInArray } from "@/utils/cos";
 import gsap from "gsap";
+import _ from "lodash";
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import AppleMarqueeTitle from "./components/AppleMarqueeTitle.vue";
 import PlayControl, { PlayerAction } from "./components/PlayControl.vue";
 import PlayModeSelector, {
   type PlayMode,
 } from "./components/PlayModeSelector.vue";
+import PlayTime from "./components/PlayTime.vue";
 import SongList from "./components/SongList.vue";
 import VolumeBar from "./components/VolumeBar.vue";
 
@@ -140,6 +139,7 @@ const audioRef = ref<HTMLAudioElement | null>(null);
 const current = ref(0);
 const total = ref(0);
 const volume = ref(1);
+const maxWidth = "600px";
 
 // 加载状态追踪
 const loadingState = ref({
@@ -192,11 +192,11 @@ const switchToSong = async (index: number) => {
 const originalAudioList = ref<SongListItem[]>([]); // 原始列表
 const audioList = ref<SongListItem[]>([]); // 显示列表
 
-const currentAudioIndex = ref(0);
+const currentAudioIndex = ref(-1);
 
 /* ================== 元数据 ================== */
 const currentMeta = computed<SongListItem>(() => {
-  if (!audioList.value || audioList.value.length === 0) {
+  if (audioList.value.length === 0 || currentAudioIndex.value < 0) {
     return {
       id: "",
       title: "加载中...",
@@ -206,7 +206,7 @@ const currentMeta = computed<SongListItem>(() => {
       coverUrl: "",
     };
   }
-  return audioList.value[currentAudioIndex.value] || audioList.value[0];
+  return audioList.value[0];
 });
 
 /* ================== Audio 事件 ================== */
@@ -217,7 +217,9 @@ const onCoverLoad = () => {
 };
 
 const onCoverError = () => {
-  console.error("封面加载失败");
+  if (!isInitialLoading.value) {
+    console.error("封面加载失败");
+  }
   loadingState.value.coverLoaded = true; // 即使失败也标记为完成
   checkLoadingComplete();
 };
@@ -313,8 +315,16 @@ const playCurrent = async () => {
 const fetchSongs = async () => {
   try {
     const res = await querySongList();
-    originalAudioList.value = res.data;
-    audioList.value = [...res.data]; // 初始化显示列表
+    const list = res.data as SongListItem[];
+    if (list.length === 0) {
+      loadingState.value.songsLoaded = true; // 没有歌曲也标记为完成
+      checkLoadingComplete();
+      return;
+    }
+    const songs = buildCosUrlsInArray(list, ["coverUrl", "fileUrl"]);
+    audioList.value = songs; // 初始化显示列表
+    originalAudioList.value = _.cloneDeep(songs); // 保存原始列表
+    currentAudioIndex.value = 0; // 默认选中第一首
     loadingState.value.songsLoaded = true;
     checkLoadingComplete();
   } catch (error) {
@@ -380,6 +390,8 @@ const updatePlayListHeight = () => {
 // 初始化 miniRef 的位置
 onMounted(() => {
   fetchSongs();
+  // 媒体键
+  setupMediaSession();
 
   if (playListRef.value) {
     gsap.set(playListRef.value, {
@@ -446,12 +458,15 @@ watch(isPlaying, (playing) => {
 });
 
 // 监听封面 URL 变化，重置加载状态（切歌时）
-watch(() => currentMeta.value.coverUrl, () => {
-  if (!isInitialLoading.value) {
-    // 只在初始加载完成后才重置（避免影响初始加载）
-    loadingState.value.coverLoaded = false;
-  }
-});
+watch(
+  () => currentMeta.value.coverUrl,
+  () => {
+    if (!isInitialLoading.value) {
+      // 只在初始加载完成后才重置（避免影响初始加载）
+      loadingState.value.coverLoaded = false;
+    }
+  },
+);
 
 const togglePlay = () => {
   const audio = audioRef.value;
@@ -630,33 +645,88 @@ const playMode = ref<PlayMode>("repeat-list");
 // 监听播放模式变化，更新播放列表顺序
 watch(playMode, (mode) => {
   if (mode === "shuffle") {
-    // 随机模式：打乱列表
-    const currentSong = audioList.value[currentAudioIndex.value];
-    const shuffled = [...originalAudioList.value];
+    const list = [...originalAudioList.value];
 
-    // Fisher-Yates 洗牌算法
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    const currentIndex = currentAudioIndex.value;
+    const currentSong =
+      currentIndex >= 0 ? audioList.value[currentIndex] : null;
+
+    // Fisher-Yates 洗牌
+    const shuffle = (arr: any[]) => {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    };
+
+    if (currentSong) {
+      // 1️⃣ 有正在播放的歌：当前歌曲置顶，其余随机
+      const rest = list.filter((song) => song.id !== currentSong.id);
+      const shuffledRest = shuffle(rest);
+
+      audioList.value = [currentSong, ...shuffledRest];
+      currentAudioIndex.value = 0;
+    } else {
+      // 2️⃣ 没有正在播放：全量随机
+      audioList.value = shuffle(list);
+      currentAudioIndex.value = 0;
     }
-
-    audioList.value = shuffled;
-
-    // 更新当前歌曲的索引
-    currentAudioIndex.value = audioList.value.findIndex(
-      (song) => song.id === currentSong.id,
-    );
   } else {
-    // 列表循环或单曲循环：恢复原始顺序
-    const currentSong = audioList.value[currentAudioIndex.value];
+    // 🔁 恢复顺序播放
+    const currentSong = audioList.value[currentAudioIndex.value] ?? null;
+
     audioList.value = [...originalAudioList.value];
 
-    // 更新当前歌曲的索引
-    currentAudioIndex.value = audioList.value.findIndex(
-      (song) => song.id === currentSong.id,
-    );
+    if (currentSong) {
+      currentAudioIndex.value = audioList.value.findIndex(
+        (song) => song.id === currentSong.id,
+      );
+    } else {
+      currentAudioIndex.value = 0;
+    }
   }
 });
+
+watch(
+  () => currentMeta.value?.coverUrl,
+  (cover) => {
+    if (cover) {
+      setFavicon(cover);
+    }
+  },
+);
+
+const setFavicon = (url: string) => {
+  let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = "icon";
+    link.type = "image/png";
+    document.head.appendChild(link);
+  }
+
+  // 防缓存（很关键，不然可能不刷新）
+  link.href = `${url}?t=${Date.now()}`;
+};
+
+const setupMediaSession = () => {
+  if (!("mediaSession" in navigator)) return;
+
+  navigator.mediaSession.setActionHandler("play", togglePlay);
+  navigator.mediaSession.setActionHandler("pause", togglePlay);
+  navigator.mediaSession.setActionHandler("nexttrack", () => track("next"));
+  navigator.mediaSession.setActionHandler("previoustrack", () => track("prev"));
+
+  // 可选：快进/快退
+  navigator.mediaSession.setActionHandler("seekforward", () => {
+    if (audioRef.value) audioRef.value.currentTime += 10;
+  });
+  navigator.mediaSession.setActionHandler("seekbackward", () => {
+    if (audioRef.value) audioRef.value.currentTime -= 10;
+  });
+};
 </script>
 <style scoped lang="scss">
 .hide-scrollbar {

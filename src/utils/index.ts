@@ -38,7 +38,7 @@ export function deepCopy<T>(source: T): T {
  */
 export function isStringExistArrayElement(
   target: string,
-  array: string[]
+  array: string[],
 ): boolean {
   return array.map((item) => target.indexOf(item) > -1).some((el) => el);
 }
@@ -72,7 +72,7 @@ export function isEmpty(value: Value): boolean {
  */
 export function createURL(
   relativePath: string,
-  baseURL: string = import.meta.url
+  baseURL: string = import.meta.url,
 ): string {
   const absoluteURL = new URL(relativePath, baseURL).href;
   return absoluteURL;
@@ -88,7 +88,7 @@ export function createURL(
 export function compareObjectsWithoutProperty(
   obj1: Object,
   obj2: Object,
-  excludedProperty: string
+  excludedProperty: string,
 ) {
   // 复制对象并删除指定属性
   const copy1 = _.omit(obj1, excludedProperty);
@@ -150,4 +150,4 @@ export function dataURLtoFile(dataURL: string, filename: string) {
   return file;
 }
 
-export { replaceCosUrl, replaceCosUrlsInArray } from './cos';
+export { buildCosUrlsInArray } from "./cos";

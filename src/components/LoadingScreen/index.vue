@@ -1,5 +1,7 @@
 <template>
-  <div class="flex items-center justify-center w-full h-full dark:bg-black">
+  <div
+    class="relative z-50 flex items-center justify-center w-full h-full bg-white dark:bg-black"
+  >
     <svg class="svg">
       <path class="path"></path>
     </svg>
