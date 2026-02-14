@@ -33,6 +33,7 @@
     "highlight.js": "^11.11.1",
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
+    "lunar-javascript": "^1.7.7",
     "marked": "^15.0.6",
     "pdfjs-dist": "^5.4.624",
     "pinia": "^2.1.7",
