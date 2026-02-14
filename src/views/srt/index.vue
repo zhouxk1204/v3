@@ -143,7 +143,7 @@
 </template>
 <script setup lang="ts">
 import { nextTick, ref } from "vue";
-import { Temperature, useAiRequest } from "../ai/useAiRequest";
+import { Temperature, useAiRequest } from "../ai2/useAiRequest";
 import { buildTranslatePrompt } from "./utils/prompt";
 import { buildSrt, chunkSrtWithContext, parseSrt } from "./utils/srt";
 
@@ -223,7 +223,7 @@ async function translateAll() {
             },
           ],
         },
-        onProcess(contentChunk) {
+        onProcess(contentChunk: string) {
           chunkResult += contentChunk;
         },
         onDone() {
@@ -231,7 +231,7 @@ async function translateAll() {
           const cleanedResult = chunkResult.replace(/^(\d+\n[\d:,\s\->]+\n)\([^)]+\)\s*/gm, '$1');
           translatedParts.push(cleanedResult);
         },
-        onError(err) {
+        onError(err: string) {
           console.error("翻译失败：", err);
           alert("翻译失败：" + err);
           isTranslating.value = false;
