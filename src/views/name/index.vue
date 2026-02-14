@@ -105,13 +105,38 @@
               </div>
               <div class="flex-1 min-w-[180px]">
                 <label class="block mb-1 text-xs font-medium text-amber-700">时辰</label>
-                <select v-model="birthShichen" @change="calculateBazi"
-                  class="px-3 py-2 w-full text-sm rounded-lg border border-amber-300 bg-white focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  :disabled="isGenerating">
-                  <option v-for="shichen in shichenOptions" :key="shichen.value" :value="shichen.value">
-                    {{ shichen.label }}
-                  </option>
-                </select>
+                <div class="relative shichen-dropdown">
+                  <button
+                    type="button"
+                    @click="shichenDropdownOpen = !shichenDropdownOpen"
+                    class="px-3 py-2 w-full text-sm text-left rounded-lg border border-amber-300 bg-white focus:ring-2 focus:ring-amber-500 focus:border-transparent flex items-center justify-between"
+                    :disabled="isGenerating"
+                  >
+                    <span>{{ shichenOptions.find(s => s.value === birthShichen)?.label || '请选择时辰' }}</span>
+                    <svg class="w-4 h-4 ml-2 transition-transform" :class="{ 'rotate-180': shichenDropdownOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </button>
+                  
+                  <!-- 下拉选项 -->
+                  <div
+                    v-show="shichenDropdownOpen"
+                    class="absolute z-10 mt-1 w-full bg-white rounded-lg border border-amber-300 shadow-lg max-h-60 overflow-y-auto"
+                  >
+                    <button
+                      v-for="shichen in shichenOptions"
+                      :key="shichen.value"
+                      type="button"
+                      @click="selectShichen(shichen.value)"
+                      :class="[
+                        'w-full px-3 py-2 text-sm text-left hover:bg-amber-50 transition-colors',
+                        birthShichen === shichen.value ? 'bg-amber-100 text-amber-800 font-medium' : 'text-gray-700'
+                      ]"
+                    >
+                      {{ shichen.label }}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -379,6 +404,7 @@ const birthYear = ref<number>();
 const birthMonth = ref<number>();
 const birthDay = ref<number>();
 const birthShichen = ref<string>('子时');
+const shichenDropdownOpen = ref(false);
 const baziProfile = ref<BaziProfile>();
 const isGenerating = ref(false);
 const nameCards = ref<NameCard[]>([]);
@@ -433,6 +459,29 @@ watch(childGender, () => {
   if (enableWuXing.value && birthYear.value && birthMonth.value && birthDay.value) {
     calculateBazi();
   }
+});
+
+// 选择时辰
+const selectShichen = (value: string) => {
+  birthShichen.value = value;
+  shichenDropdownOpen.value = false;
+  calculateBazi();
+};
+
+// 点击外部关闭下拉框
+const closeShichenDropdown = (event: MouseEvent) => {
+  const target = event.target as HTMLElement;
+  if (!target.closest('.shichen-dropdown')) {
+    shichenDropdownOpen.value = false;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('click', closeShichenDropdown);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', closeShichenDropdown);
 });
 
 // 计算八字和五行

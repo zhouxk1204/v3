@@ -1,6 +1,4 @@
 // src/utils/bazi.ts
-// lunar-javascript 没有官方类型，这里用 any 兜底
-// 你也可以自己补 d.ts
 import { Lunar } from 'lunar-javascript';
 
 export type Gender = 'male' | 'female';
@@ -89,7 +87,7 @@ export function calcBaziProfile(input: BirthInput): BaziProfile {
 
   const { strong, lack } = analyzeWuXing(wuXingCount);
 
-  const priority = buildPriorityByGender(strong, lack, input.gender);
+  const priority = buildPriorityByGender(lack, strong, input.gender);
 
   const weights = buildWeights(priority);
 
@@ -117,24 +115,26 @@ function analyzeWuXing(wuXingCount: Record<WuXing, number>) {
   return { strong, lack };
 }
 
+/**
+ * 命理优先级构建
+ * - 缺什么补什么（主逻辑）
+ * - 性别只影响优先顺序，不直接决定五行
+ */
 function buildPriorityByGender(
   lack: WuXing[],
   strong: WuXing[],
   gender: Gender
 ) {
-  const baseOrder = [...lack]; // 缺什么补什么
+  const baseOrder = [...lack];
 
-  // 性别只影响排序，不直接指定五行
   if (gender === 'female') {
-    // 柔性五行稍微靠前
+    const soft: WuXing[] = ['水', '木'];
     baseOrder.sort((a, b) => {
-      const soft = ['水', '木'];
       return (soft.includes(b) ? 1 : 0) - (soft.includes(a) ? 1 : 0);
     });
   } else {
-    // 刚性五行稍微靠前
+    const hard: WuXing[] = ['金', '火'];
     baseOrder.sort((a, b) => {
-      const hard = ['金', '火'];
       return (hard.includes(b) ? 1 : 0) - (hard.includes(a) ? 1 : 0);
     });
   }
@@ -146,27 +146,35 @@ function buildPriorityByGender(
   };
 }
 
+/**
+ * 权重模型（命理权重核心）
+ */
 function buildWeights(priority: {
   main: WuXing;
   secondary?: WuXing;
   avoid: WuXing[];
 }) {
   const base: Record<WuXing, number> = {
-    金: 0.2,
-    木: 0.2,
-    水: 0.2,
-    火: 0.2,
-    土: 0.2,
+    金: 0.3,
+    木: 0.3,
+    水: 0.3,
+    火: 0.3,
+    土: 0.3,
   };
 
+  // 主补
   base[priority.main] = 1.0;
 
-  if (priority.secondary) {
+  // 次补
+  if (priority.secondary && priority.secondary !== priority.main) {
     base[priority.secondary] = 0.6;
   }
 
+  // 忌加强（如果与主补冲突，主补优先）
   priority.avoid.forEach((wx) => {
-    base[wx] = 0.1;
+    if (wx !== priority.main && wx !== priority.secondary) {
+      base[wx] = 0.1;
+    }
   });
 
   return base;
