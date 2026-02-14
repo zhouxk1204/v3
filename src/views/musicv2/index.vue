@@ -206,7 +206,7 @@ const currentMeta = computed<SongListItem>(() => {
       coverUrl: "",
     };
   }
-  return audioList.value[0];
+  return audioList.value[currentAudioIndex.value];
 });
 
 /* ================== Audio 事件 ================== */
