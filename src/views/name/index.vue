@@ -14,15 +14,19 @@
           <div>
             <label class="block mb-2 text-sm font-medium text-gray-700">父亲姓名 <span class="text-red-500">*</span></label>
             <input v-model="fatherName" type="text" placeholder="请输入父亲姓名（生成的姓与父亲一致）"
+              @input="validateAndCleanName('father')"
               class="px-4 py-3 w-full rounded-lg border border-gray-300 transition-all focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               :disabled="isGenerating" />
-            <p v-if="fatherSurname" class="mt-1 text-xs text-gray-500">本次生成的名字将姓「{{ fatherSurname }}」</p>
+            <p v-if="fatherNameError" class="mt-1 text-xs text-red-500">{{ fatherNameError }}</p>
+            <p v-else-if="fatherSurname" class="mt-1 text-xs text-gray-500">本次生成的名字将姓「{{ fatherSurname }}」</p>
           </div>
           <div>
             <label class="block mb-2 text-sm font-medium text-gray-700">母亲姓名</label>
             <input v-model="motherName" type="text" placeholder="请输入母亲姓名（用于参考）"
+              @input="validateAndCleanName('mother')"
               class="px-4 py-3 w-full rounded-lg border border-gray-300 transition-all focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               :disabled="isGenerating" />
+            <p v-if="motherNameError" class="mt-1 text-xs text-red-500">{{ motherNameError }}</p>
           </div>
         </div>
 
@@ -82,26 +86,16 @@
               <span class="text-xs text-amber-600">💡 本工具采用节气换月的专业八字算法</span>
             </div>
             <div class="flex flex-wrap gap-3 items-end">
-              <div class="flex-1 min-w-[120px]">
-                <label class="block mb-1 text-xs font-medium text-amber-700">年份</label>
-                <input v-model.number="birthYear" type="number" placeholder="如：2024" min="1900" max="2100"
-                  @input="calculateBazi"
+              <div class="flex-1 min-w-[200px]">
+                <label class="block mb-1 text-xs font-medium text-amber-700">出生日期</label>
+                <input 
+                  v-model="birthDate" 
+                  type="date" 
+                  @change="onBirthDateChange"
                   class="px-3 py-2 w-full text-sm rounded-lg border border-amber-300 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  :disabled="isGenerating" />
-              </div>
-              <div class="flex-1 min-w-[100px]">
-                <label class="block mb-1 text-xs font-medium text-amber-700">月份</label>
-                <input v-model.number="birthMonth" type="number" placeholder="1-12" min="1" max="12"
-                  @input="calculateBazi"
-                  class="px-3 py-2 w-full text-sm rounded-lg border border-amber-300 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  :disabled="isGenerating" />
-              </div>
-              <div class="flex-1 min-w-[100px]">
-                <label class="block mb-1 text-xs font-medium text-amber-700">日期</label>
-                <input v-model.number="birthDay" type="number" placeholder="1-31" min="1" max="31"
-                  @input="calculateBazi"
-                  class="px-3 py-2 w-full text-sm rounded-lg border border-amber-300 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  :disabled="isGenerating" />
+                  :disabled="isGenerating" 
+                  :max="new Date().toISOString().split('T')[0]"
+                />
               </div>
               <div class="flex-1 min-w-[180px]">
                 <label class="block mb-1 text-xs font-medium text-amber-700">时辰</label>
@@ -238,7 +232,7 @@
             ]" :disabled="isGenerating">
               关闭
             </button>
-            <button @click="enableZibei = true; nameLength = 'three'" :class="[
+            <button @click="enableZibei = true; nameLength = 3" :class="[
               'px-6 py-2.5 text-sm font-medium transition-all',
               enableZibei
                 ? 'bg-indigo-600 text-white shadow-md'
@@ -383,6 +377,7 @@
 
 <script setup lang="ts">
 import { BaziProfile } from '@/utils/bazi';
+import { buildStructuredPrompt } from './prompt';
 
 
 type Tier = 'normal' | 'rare' | 'best';
@@ -396,14 +391,17 @@ interface NameCard {
 
 const fatherName = ref('');
 const motherName = ref('');
+const fatherNameError = ref('');
+const motherNameError = ref('');
 const childGender = ref<'male' | 'female'>('male');
 const selectedStyle = ref('random');
-const nameLength = ref<'two' | 'three' | 'four'>('three');
+const nameLength = ref<2 | 3 | 4>(3);
 const goldChance = ref<number | string>('0.6');
 const nameCount = ref<number>(5);
 const enableZibei = ref(false);
 const zibeiChar = ref('');
 const enableWuXing = ref(false);
+const birthDate = ref('');
 const birthYear = ref<number>();
 const birthMonth = ref<number>();
 const birthDay = ref<number>();
@@ -441,9 +439,9 @@ const wuxingColors: Record<string, { bg: string; text: string; ring: string; ico
 };
 
 const nameLengthOptions = [
-  { label: '两字', value: 'two' as const },
-  { label: '三字', value: 'three' as const },
-  { label: '四字', value: 'four' as const },
+  { label: '两字', value: 2 as const },
+  { label: '三字', value: 3 as const },
+  { label: '四字', value: 4 as const },
 ];
 
 // 父亲姓（取首字）
@@ -457,8 +455,9 @@ watch(fatherSurname, () => {
   usedNameParts.value = [];
 });
 
-// 性别切换时，如果五行开启且字段填满，则重新计算
+// 性别切换时，如果五行开启且字段填满，则重新计算；同时清空usedNameParts
 watch(childGender, () => {
+  usedNameParts.value = [];
   if (enableWuXing.value && birthYear.value && birthMonth.value && birthDay.value) {
     calculateBazi();
   }
@@ -467,6 +466,26 @@ watch(childGender, () => {
 // 名字个数切换时，清空已生成的名字
 watch(nameCount, () => {
   nameCards.value = [];
+});
+
+// 名字字数切换时，清空usedNameParts
+watch(nameLength, () => {
+  usedNameParts.value = [];
+});
+
+// 风格切换时，清空usedNameParts
+watch(selectedStyle, () => {
+  usedNameParts.value = [];
+});
+
+// 同步年月日到日期选择器
+watch([birthYear, birthMonth, birthDay], () => {
+  if (birthYear.value && birthMonth.value && birthDay.value) {
+    const year = birthYear.value;
+    const month = String(birthMonth.value).padStart(2, '0');
+    const day = String(birthDay.value).padStart(2, '0');
+    birthDate.value = `${year}-${month}-${day}`;
+  }
 });
 
 // 选择时辰
@@ -491,6 +510,43 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', closeShichenDropdown);
 });
+
+// 验证并清理姓名（只允许汉字，自动去除空格）
+const validateAndCleanName = (type: 'father' | 'mother') => {
+  const nameRef = type === 'father' ? fatherName : motherName;
+  const errorRef = type === 'father' ? fatherNameError : motherNameError;
+  
+  // 自动去除所有空格
+  const cleaned = nameRef.value.replace(/\s+/g, '');
+  
+  // 检查是否全为汉字
+  const chineseRegex = /^[\u4e00-\u9fa5]+$/;
+  
+  if (cleaned && !chineseRegex.test(cleaned)) {
+    errorRef.value = '姓名只能包含汉字';
+    // 只保留汉字部分
+    nameRef.value = cleaned.replace(/[^\u4e00-\u9fa5]/g, '');
+  } else {
+    errorRef.value = '';
+    nameRef.value = cleaned;
+  }
+};
+
+// 处理日期选择器变化
+const onBirthDateChange = () => {
+  if (birthDate.value) {
+    const date = new Date(birthDate.value);
+    birthYear.value = date.getFullYear();
+    birthMonth.value = date.getMonth() + 1;
+    birthDay.value = date.getDate();
+    calculateBazi();
+  } else {
+    birthYear.value = undefined;
+    birthMonth.value = undefined;
+    birthDay.value = undefined;
+    baziProfile.value = undefined;
+  }
+};
 
 // 计算八字和五行
 const calculateBazi = async () => {
@@ -529,191 +585,160 @@ const nameStyles = [
   { label: '克制高级', value: 'modern' }
 ];
 
-const GLOBAL_RULE = `
-规则:
-- 优先低频字
-- 禁用高频名用字(轩 宇 泽 涵 梓 宸 熙 诺 然)
-- 名字自然真实
-- 避免重复用字
-`;
+const stylePromptMap: Record<string, any> = {
+  random: {
+    name: "随机混合风格",
+    core_requirement: "每个名字风格必须明显不同",
+    style_types: ["古风", "文艺", "简约", "寓意", "诗词"],
+    rules: [
+      "10个名字中至少包含3种不同风格",
+      "相邻名字风格不能相同",
+      "整体需多样化，避免雷同"
+    ],
+    forbidden: ["所有名字风格相似", "只使用一种风格"]
+  },
 
-const stylePromptMap: Record<string, string> = {
+  classic: {
+    name: "古典文人风格",
+    core_requirement: "必须具有传统文化气质",
+    character_traits: {
+      atmosphere: ["典雅", "端庄", "书卷气"],
+      imagery: ["山川", "玉石", "德行", "文墨", "琴棋"],
+      tone: "厚重、雅致"
+    },
+    preferred_chars: {
+      examples: ["文", "雅", "书", "墨", "玉", "琴", "棋", "诗", "礼", "德"],
+      radicals: ["玉旁", "文旁", "言旁"]
+    },
+    forbidden: ["现代感强的字", "口语化字词", "网络流行字"]
+  },
 
-  random: `
-风格混合
-要求: 气质明显不同
-`.trim(),
+  literary: {
+    name: "文艺清新风格",
+    core_requirement: "必须有书卷气与温润感",
+    character_traits: {
+      atmosphere: ["柔和", "温润", "清新", "文艺"],
+      imagery: ["自然", "光影", "风月", "季节", "情绪"],
+      tone: "轻盈、舒展"
+    },
+    preferred_chars: {
+      examples: ["清", "雨", "风", "月", "云", "溪", "晨", "暮", "柔", "静"],
+      types: ["自然意象字", "情绪感字"]
+    },
+    forbidden: ["厚重字", "刚硬字", "过于古板的字"]
+  },
 
-  classic: `
-古典文人
-气质: 典雅/书卷气
-意象: 德行 山川 玉石
-`.trim(),
+  minimal: {
+    name: "极简现代风格",
+    core_requirement: "结构干净利落，易读易写",
+    character_traits: {
+      atmosphere: ["简约", "大气", "克制", "清晰"],
+      structure: "笔画少、结构简单",
+      tone: "利落有力"
+    },
+    preferred_chars: {
+      examples: ["一", "之", "可", "宁", "安", "平", "正", "明", "远", "行"],
+      requirements: ["常见字", "笔画≤10", "结构简单"]
+    },
+    forbidden: ["生僻字", "复杂偏旁", "笔画繁多的字", "过度修饰"]
+  },
 
-  literary: `
-文艺
-气质: 温润/柔和/情绪感
-意象: 自然 光影 季节
-`.trim(),
+  meaningful: {
+    name: "寓意导向风格",
+    core_requirement: "名字必须承载明确美好的含义",
+    character_traits: {
+      themes: ["品德", "志向", "成长", "祝福", "智慧"],
+      clarity: "寓意清晰可解释",
+      tone: "积极向上"
+    },
+    preferred_chars: {
+      examples: ["德", "智", "慧", "志", "远", "成", "达", "贤", "善", "仁"],
+      types: ["品德字", "志向字", "成长字"]
+    },
+    forbidden: ["空泛抽象", "寓意不明", "消极含义"]
+  },
 
-  minimal: `
-极简现代
-特点: 简洁 克制 清晰
-避免复杂字
-`.trim(),
+  poetic: {
+    name: "诗意风格",
+    core_requirement: "必须有诗词意境或画面感",
+    character_traits: {
+      atmosphere: ["含蓄", "意境", "韵味", "画面感"],
+      imagery: ["古诗词意象", "自然景物", "情感氛围"],
+      tone: "诗性、审美"
+    },
+    preferred_chars: {
+      examples: ["烟", "雨", "霜", "雪", "江", "山", "月", "风", "云", "梦"],
+      types: ["诗词常用字", "意象字", "情感字"]
+    },
+    forbidden: ["直接引用诗句", "过于直白", "缺乏意境"],
+    note: "不必强行引用原句，但需有诗性"
+  },
 
-  meaningful: `
-寓意导向
-要求: 含义明确 可解释
-方向: 成长 品德 志向
-`.trim(),
+  nation: {
+    name: "年代责任感风格",
+    core_requirement: "体现家国情怀与时代责任",
+    character_traits: {
+      atmosphere: ["稳重", "理想", "家国", "担当"],
+      themes: ["建设", "奋斗", "理想", "责任"],
+      tone: "厚重、有力"
+    },
+    preferred_chars: {
+      examples: ["国", "建", "强", "伟", "志", "勇", "军", "民", "华", "兴"],
+      types: ["家国字", "理想字", "责任字"]
+    },
+    forbidden: ["轻浮字", "过于个人化", "缺乏责任感"]
+  },
 
-  poetic: `
-诗意
-特点: 意境 画面感 含蓄
-避免直接诗句
-`.trim(),
+  national_day: {
+    name: "喜庆光明风格",
+    core_requirement: "必须体现喜庆、光明、希望",
+    character_traits: {
+      atmosphere: ["喜庆", "光明", "希望", "繁荣"],
+      imagery: ["光", "明", "盛", "辉", "耀", "庆"],
+      tone: "明亮、积极"
+    },
+    preferred_chars: {
+      examples: ["光", "明", "辉", "耀", "盛", "庆", "欢", "喜", "昌", "荣"],
+      types: ["光明字", "喜庆字", "繁荣字"]
+    },
+    forbidden: ["暗淡字", "消极字", "冷色调字"]
+  },
 
-  nation: `
-年代责任感
-气质: 稳重 理想 家国
-`.trim(),
+  nature: {
+    name: "自然风格",
+    core_requirement: "名字中必须包含自然意象",
+    character_traits: {
+      atmosphere: ["自然", "清新", "广阔", "生机"],
+      imagery: ["山", "川", "风", "林", "海", "云", "雨", "雪"],
+      tone: "开阔、自然"
+    },
+    preferred_chars: {
+      examples: ["山", "川", "林", "海", "风", "云", "雨", "雪", "松", "竹"],
+      requirements: ["必须含自然元素", "至少1个自然意象字"]
+    },
+    forbidden: ["人工意象", "城市意象", "无自然元素"],
+    strict_rule: "每个名字必须包含≥1个自然意象字"
+  },
 
-  national_day: `
-喜庆光明
-意象: 光 明 盛 希望
-`.trim(),
-
-  nature: `
-自然风格
-必须含自然意象
-山 川 风 林 海
-`.trim(),
-
-  modern: `
-现代高级
-气质: 克制 冷静 高级感
-`.trim(),
+  modern: {
+    name: "现代高级风格",
+    core_requirement: "体现现代审美与高级感",
+    character_traits: {
+      atmosphere: ["克制", "冷静", "高级", "精致"],
+      style: "简约不简单",
+      tone: "现代、精致"
+    },
+    preferred_chars: {
+      examples: ["一", "之", "然", "若", "可", "宁", "予", "言", "思", "行"],
+      types: ["现代感字", "简约字", "高级感字"]
+    },
+    forbidden: ["过于传统", "老气", "复杂繁琐", "土气"]
+  }
 };
 
 const MAX_VALIDATION_RETRIES = 3;
 
 /** 构建「步骤 + 校验」式提示词（仅 user 内容，system 固定） */
-function buildStructuredPrompt(options: {
-  surname: string;
-  usedNameParts: string[];
-  mother: string;
-  gender: 'male' | 'female';
-  styleLabel: string;
-  styleDesc: string;
-  nameLength: 'two' | 'three' | 'four';
-  nameCount: number;
-  baziProfile?: BaziProfile;
-  enableZibei?: boolean;
-  zibeiChar?: string;
-}): string {
-
-  const {
-    surname,
-    usedNameParts,
-    mother,
-    gender,
-    styleLabel,
-    styleDesc,
-    nameLength,
-    nameCount,
-    baziProfile,
-    enableZibei,
-    zibeiChar
-  } = options;
-
-  /* ======================
-     性别描述（简化但高权重）
-  ====================== */
-  const genderDesc =
-    gender === 'male'
-      ? '名字气质需阳刚、大气、有力量感'
-      : '名字气质需柔美、优雅、有气质';
-
-  /* ======================
-     禁用名（逐行提高识别率）
-  ====================== */
-  // const bannedSection =
-  //   usedNameParts.length > 0
-  //     ? usedNameParts.join('\n')
-  //     : '无';
-
-  /* ======================
-     字辈规则
-  ====================== */
-  const zibeiRule =
-    enableZibei && zibeiChar
-      ? `所有名字必须为三字名：${surname}${zibeiChar}X（第二字固定为「${zibeiChar}」）。`
-      : '';
-
-  /* ======================
-     字数规则
-  ====================== */
-  const lengthRule =
-    enableZibei && zibeiChar
-      ? ''
-      : nameLength === 'two'
-        ? '全部为两字名。'
-        : nameLength === 'three'
-          ? '全部为三字名。'
-          : nameLength === 'four'
-            ? '全部为四字名。'
-            : '';
-
-  /* ======================
-     ⭐ 五行补缺（最高优先级）
-     —— 改为“生成约束”
-  ====================== */
-  const wuxingRule = baziProfile
-    ? `
-【最高优先级：五行补缺（必须满足）】
-
-生成每一个名字时必须检查：
-
-1. 名字中必须包含 ≥1 个「${baziProfile.priority.main}」属性字。
-2. 若不满足，必须重新生成该名字。
-3. 避免强化：${baziProfile.priority.avoid.join('、')} 属性。
-
-五行优先级高于：
-风格 > 音律 > 稀有度 > 文艺性。
-`
-    : '';
-
-  /* ======================
-     最终 Prompt
-  ====================== */
-  return `
-${wuxingRule}
-【硬性规则（不可违反）】
-1. 姓氏固定为「${surname}」。
-2. ${zibeiRule}
-3. 所有名字必须互不相同。
-4. ${genderDesc}
-【参考规则】
-- 母亲姓名：${mother || '未提供'}
-- 不得直接使用母亲完整姓名。
-【风格偏好（非强制）】
-- ${styleLabel}：${styleDesc}
-- 名字自然、真实、避免生造字组合。
-【字数要求】
-${lengthRule}
-【稀有度限制】
-- 仅可使用：普通 / 稀有 / 最佳
-- 最多1个「最佳」
-- 最多2个「稀有」
-- 至少1个「稀有」
-【输出格式（严格）】
-- 输出 ${nameCount} 行
-- 格式：名字|寓意|稀有度
-- 不允许输出解释或额外文本
-`;
-}
-
 /** 本地校验：重复、禁用、父母字、字数、稀有度、字辈 */
 function validateNameCards(
   cards: NameCard[],
@@ -721,7 +746,7 @@ function validateNameCards(
     surname: string;
     usedNameParts: string[];
     mother: string;
-    nameLength: 'two' | 'three' | 'four' | 'both';
+    nameLength: 2 | 3 | 4 | 'both';
     enableZibei?: boolean;
     zibeiChar?: string;
   }
@@ -741,9 +766,11 @@ function validateNameCards(
   }
 
   // 禁用列表
-  // for (const p of nameParts) {
-  //   if (usedNameParts.includes(p)) errors.push(`命中禁用名：${p}`);
-  // }
+  for (const p of nameParts) {
+    if (usedNameParts.includes(p)) {
+      console.warn(`命中禁用名：${p}`);
+    }
+  }
 
   // 父母字：①不得直接使用父母完整名字 ②名中来自父母姓名的字最多 1 个（含 1 个合法，不报错）
   const parentChars = new Set([surname, ...(mother ? mother.split('').filter((c) => c.trim()) : [])]);
@@ -782,13 +809,13 @@ function validateNameCards(
     if (two < 1) errors.push(`两字名不足 1 个（当前 ${two}）`);
     if (three < 1) errors.push(`三字名不足 1 个（当前 ${three}）`);
     if (four < 1) errors.push(`四字名不足 1 个（当前 ${four}）`);
-  } else if (nameLength === 'two') {
+  } else if (nameLength === 2) {
     const invalid = cards.filter((c) => c.name.length !== 2);
     if (invalid.length) errors.push(`存在非两字名：${invalid.map((c) => c.name).join('、')}`);
-  } else if (nameLength === 'three') {
+  } else if (nameLength === 3) {
     const invalid = cards.filter((c) => c.name.length !== 3);
     if (invalid.length) errors.push(`存在非三字名：${invalid.map((c) => c.name).join('、')}`);
-  } else if (nameLength === 'four') {
+  } else if (nameLength === 4) {
     const invalid = cards.filter((c) => c.name.length !== 4);
     if (invalid.length) errors.push(`存在非四字名：${invalid.map((c) => c.name).join('、')}`);
   }
@@ -955,6 +982,17 @@ const generateNames = async () => {
   const surname = fatherSurname.value;
   if (!surname) return;
 
+  // 验证父母姓名
+  if (fatherNameError.value) {
+    ElMessage.error('父亲姓名格式不正确，只能包含汉字');
+    return;
+  }
+  
+  if (motherName.value && motherNameError.value) {
+    ElMessage.error('母亲姓名格式不正确，只能包含汉字');
+    return;
+  }
+
   if (nameCards.value.length > 0) {
     const parts = nameCards.value.map((c) =>
       c.name.startsWith(surname) ? c.name.slice(surname.length) : c.name
@@ -966,13 +1004,9 @@ const generateNames = async () => {
   nameCards.value = [];
 
   const styleLabel = nameStyles.find((s) => s.value === selectedStyle.value)?.label ?? selectedStyle.value;
-  // const styleDesc = stylePromptMap[selectedStyle.value] ?? '风格不限';
-  const styleDesc =
-    GLOBAL_RULE +
-    "\n风格:\n" +
-    stylePromptMap[selectedStyle.value];
+  const styleDesc = stylePromptMap[selectedStyle.value] ?? '风格不限';
+  
   const mother = motherName.value.trim();
-
   // 使用已计算的八字结果
   if (enableWuXing.value && !baziProfile.value) {
     ElMessage.error('请先填写完整的出生时间');
