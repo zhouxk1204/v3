@@ -51,6 +51,57 @@
             />
           </div>
 
+          <!-- 时间轴校对开关 -->
+          <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">⏱️</span>
+                <label class="text-sm font-medium text-gray-700">时间轴校对</label>
+              </div>
+              <button
+                @click="enableFrameRateConversion = !enableFrameRateConversion"
+                :class="[
+                  'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                  enableFrameRateConversion ? 'bg-blue-500' : 'bg-gray-300'
+                ]"
+              >
+                <span
+                  :class="[
+                    'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                    enableFrameRateConversion ? 'translate-x-6' : 'translate-x-1'
+                  ]"
+                />
+              </button>
+            </div>
+            
+            <div v-if="enableFrameRateConversion" class="space-y-3 animate-fadeIn">
+              <div class="flex items-center gap-4">
+                <div class="flex-1">
+                  <label class="block text-xs font-medium text-gray-600 mb-1">原始帧率 (fps)</label>
+                  <input 
+                    v-model.number="originalFps" 
+                    type="number"
+                    step="0.01"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm"
+                    placeholder="30"
+                  />
+                </div>
+                <div class="flex-1">
+                  <label class="block text-xs font-medium text-gray-600 mb-1">目标帧率 (fps)</label>
+                  <input 
+                    type="text"
+                    value="29.97"
+                    disabled
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-sm text-gray-600"
+                  />
+                </div>
+              </div>
+              <p class="text-xs text-gray-600">
+                💡 翻译完成后将自动转换时间轴为 29.97 fps
+              </p>
+            </div>
+          </div>
+
           <!-- 剧情摘要输入 -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -80,6 +131,31 @@
             rows="8"
             readonly
           />
+
+          <!-- 转换前后对比 -->
+          <div v-if="beforeConversion" class="mt-6 space-y-4">
+            <div class="border-t pt-4">
+              <h4 class="text-sm font-semibold text-gray-700 mb-3">⏱️ 时间轴转换对比</h4>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- 转换前 -->
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="text-red-600 font-semibold text-sm">转换前 ({{ originalFps }} fps)</span>
+                  </div>
+                  <div class="text-xs text-gray-700 font-mono whitespace-pre-wrap max-h-40 overflow-y-auto">{{ beforeConversion }}</div>
+                </div>
+                
+                <!-- 转换后 -->
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="text-green-600 font-semibold text-sm">转换后 (29.97 fps)</span>
+                  </div>
+                  <div class="text-xs text-gray-700 font-mono whitespace-pre-wrap max-h-40 overflow-y-auto">{{ afterConversion }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- 操作按钮区域 -->
@@ -152,6 +228,10 @@ const summaryJa = ref("");
 const resultSrt = ref("");
 const isTranslating = ref(false);
 const fileInput = ref<HTMLInputElement>();
+const originalFps = ref(30);
+const beforeConversion = ref("");
+const afterConversion = ref("");
+const enableFrameRateConversion = ref(false);
 
 const { getResult, abortRequest } = useAiRequest();
 
@@ -247,6 +327,12 @@ async function translateAll() {
 
   resultSrt.value = translatedParts.join("\n\n");
   
+  // 如果启用了时间轴校对，自动转换帧率
+  if (enableFrameRateConversion.value) {
+    await nextTick();
+    convertFrameRate();
+  }
+  
   // 延迟一下再关闭 loading
   setTimeout(() => {
     isTranslating.value = false;
@@ -264,4 +350,107 @@ function downloadSrt() {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+function convertFrameRate() {
+  if (!resultSrt.value) {
+    if (!enableFrameRateConversion.value) {
+      alert("请先翻译字幕");
+    }
+    return;
+  }
+
+  if (!originalFps.value || originalFps.value <= 0) {
+    alert("请输入有效的原始帧率");
+    return;
+  }
+
+  const targetFps = 29.97;
+  const ratio = targetFps / originalFps.value;
+
+  // 保存转换前的前几行用于对比
+  const lines = resultSrt.value.split('\n');
+  const previewLines = lines.slice(0, 10).join('\n');
+  beforeConversion.value = previewLines;
+
+  // 解析 SRT 内容
+  const convertedLines: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    
+    // 检查是否是时间轴行 (格式: 00:00:00,000 --> 00:00:00,000)
+    if (line.includes('-->')) {
+      const [startTime, endTime] = line.split('-->').map(t => t.trim());
+      const convertedStart = convertTimestamp(startTime, ratio);
+      const convertedEnd = convertTimestamp(endTime, ratio);
+      convertedLines.push(`${convertedStart} --> ${convertedEnd}`);
+    } else {
+      convertedLines.push(line);
+    }
+  }
+
+  resultSrt.value = convertedLines.join('\n');
+  
+  // 保存转换后的前几行用于对比
+  const afterLines = convertedLines.slice(0, 10).join('\n');
+  afterConversion.value = afterLines;
+  
+  if (!enableFrameRateConversion.value) {
+    alert(`时间轴已转换为 ${targetFps} fps`);
+  }
+}
+
+function convertTimestamp(timestamp: string, ratio: number): string {
+  // 解析时间戳 (格式: 00:00:00,000)
+  const match = timestamp.match(/(\d{2}):(\d{2}):(\d{2}),(\d{3})/);
+  if (!match) return timestamp;
+
+  const hours = parseInt(match[1]);
+  const minutes = parseInt(match[2]);
+  const seconds = parseInt(match[3]);
+  const milliseconds = parseInt(match[4]);
+
+  // 转换为总毫秒数
+  const totalMs = (hours * 3600 + minutes * 60 + seconds) * 1000 + milliseconds;
+
+  // 应用帧率转换
+  const newTotalMs = Math.round(totalMs * ratio);
+
+  // 防止负时间
+  if (newTotalMs < 0) {
+    return "00:00:00,000";
+  }
+
+  // 转换回时:分:秒,毫秒格式
+  const newHours = Math.floor(newTotalMs / 3600000);
+  const newMinutes = Math.floor((newTotalMs % 3600000) / 60000);
+  const newSeconds = Math.floor((newTotalMs % 60000) / 1000);
+  const newMilliseconds = newTotalMs % 1000;
+
+  // 格式化为两位数/三位数
+  const hh = String(newHours).padStart(2, '0');
+  const mm = String(newMinutes).padStart(2, '0');
+  const ss = String(newSeconds).padStart(2, '0');
+  const ms = String(newMilliseconds).padStart(3, '0');
+
+  return `${hh}:${mm}:${ss},${ms}`;
+}
+
 </script>
+
+<style scoped>
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+</style>

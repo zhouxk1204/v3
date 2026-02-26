@@ -85,6 +85,14 @@ const categories = ref<Category[]>([
         icon: '🎴',
         route: '/name',
         color: 'from-orange-400 to-red-400'
+      },
+      {
+        id: 'stone',
+        name: '肾结石饮食分析',
+        description: '分析饮食模式与肾结石风险，提供科学营养建议',
+        icon: '🏥',
+        route: '/stone',
+        color: 'from-green-400 to-teal-400'
       }
     ]
   }
