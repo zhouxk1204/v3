@@ -218,8 +218,8 @@
   </div>
 </template>
 <script setup lang="ts">
+import { chatCompletions } from "@/api/deepseek/index.api";
 import { nextTick, ref } from "vue";
-import { Temperature, useAiRequest } from "../ai2/useAiRequest";
 import { buildTranslatePrompt } from "./utils/prompt";
 import { buildSrt, chunkSrtWithContext, parseSrt } from "./utils/srt";
 
@@ -232,8 +232,6 @@ const originalFps = ref(30);
 const beforeConversion = ref("");
 const afterConversion = ref("");
 const enableFrameRateConversion = ref(false);
-
-const { getResult, abortRequest } = useAiRequest();
 
 function triggerFileInput() {
   fileInput.value?.click();
@@ -284,43 +282,36 @@ async function translateAll() {
     const contextSrtJa = buildSrt(context);
     const chunkSrtJa = buildSrt(chunk);
 
-    let chunkResult = "";
-
     try {
-      await getResult({
-        body: {
-          model: "deepseek-chat",
-          temperature: Temperature.TRANSLATION,
-          context: [
-            {
-              role: "user",
-              content: buildTranslatePrompt(
-                summaryJa.value,
-                contextSrtJa,
-                chunkSrtJa,
-              ),
-              reasoning_content: "",
-            },
-          ],
-        },
-        onProcess(contentChunk: string) {
-          chunkResult += contentChunk;
-        },
-        onDone() {
-          // 清理翻译结果中开头的括号内容，如 (笑) (惊讶) 等
-          const cleanedResult = chunkResult.replace(/^(\d+\n[\d:,\s\->]+\n)\([^)]+\)\s*/gm, '$1');
-          translatedParts.push(cleanedResult);
-        },
-        onError(err: string) {
-          console.error("翻译失败：", err);
-          alert("翻译失败：" + err);
-          isTranslating.value = false;
-          abortRequest();
-          throw err; // 重新抛出错误以停止循环
-        },
-      });
-    } catch (error) {
-      // 如果出错，停止翻译
+      const response = await chatCompletions({
+        context: [
+          {
+            role: "user",
+            content: buildTranslatePrompt(
+              summaryJa.value,
+              contextSrtJa,
+              chunkSrtJa,
+            ),
+          },
+        ],
+        model: "deepseek-chat",
+        temperature: 0.3,
+      }, 120000); // 2分钟超时
+
+      const chunkResult = response?.choices?.[0]?.message?.content || "";
+      
+      if (!chunkResult) {
+        throw new Error('未收到有效响应');
+      }
+
+      // 清理翻译结果中开头的括号内容，如 (笑) (惊讶) 等
+      const cleanedResult = chunkResult.replace(/^(\d+\n[\d:,\s\->]+\n)\([^)]+\)\s*/gm, '$1');
+      translatedParts.push(cleanedResult);
+
+    } catch (error: any) {
+      console.error("翻译失败：", error);
+      alert("翻译失败：" + (error.message || error));
+      isTranslating.value = false;
       return;
     }
   }

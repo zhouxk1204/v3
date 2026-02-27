@@ -1,14 +1,6 @@
 <template>
-  <div ref="chatContainerDomRef" class="relative flex flex-col items-center overflow-hidden h-100dvh pb-[150px]"
+  <div ref="chatContainerDomRef" class="relative flex flex-col items-center overflow-auto h-[100dvh] pb-[150px]"
     :class="chatList.length === 0 ? 'justify-center' : ''">
-    <!-- <div class="fixed left-0 right-0 z-10 flex items-center justify-center bottom-40">
-      <button @click="onGoToBottom" v-show="!isBottom && isScrollbarShow"
-        class="flex items-center justify-center w-10 h-10 bg-white border rounded-full shadow-xl">
-        <el-icon>
-          <Bottom />
-        </el-icon>
-      </button>
-    </div> -->
     <div v-if="chatList.length !== 0"
       class="hide-scrollbar max-w-[768px] w-full flex-1 overflow-y-auto overflow-x-hidden py-5 flex flex-col gap-8 px-4 relative">
       <div v-for="(item, index) in chatList" class="flex w-full gap-2"
@@ -41,14 +33,15 @@
             v-html="renderMarkdown(item.content)">
           </div>
           <div class="flex gap-[2px]" v-if="item.role !== 'user' && !isLoading">
-            <el-tooltip class="box-item" effect="dark" content="复制" placement="bottom">
-              <button @click="onCopyResult(item.content)"
+            <el-tooltip class="box-item" effect="dark" :content="copiedIndex === index ? '已复制' : '复制'"
+              placement="bottom">
+              <button @click="onCopyResult(item.content, index)"
                 class="flex items-center justify-center hover:bg-[#f1f1f1] active:bg-[#f1f1f1] rounded-xl w-8 h-8">
-                <el-icon size='18'>
-                  <CopyDocument />
-                </el-icon>
-                <el-icon size='18'>
+                <el-icon size='18' v-if="copiedIndex === index">
                   <Check />
+                </el-icon>
+                <el-icon size='18' v-else>
+                  <CopyDocument />
                 </el-icon>
               </button>
             </el-tooltip>
@@ -84,12 +77,6 @@
                 style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" />
               <span class="text-xs text-gray-400">{{ contextMode ? '开启' : '关闭' }}记忆</span>
             </div>
-            <!-- <button @click="onChat"
-              :class="isQuestionEmpty ? 'text-[#f1f1f1] bg-[#cecece] cursor-not-allowed' : 'text-white bg-black'"
-              class="flex items-center justify-center w-8 h-8 overflow-hidden rounded-full" :disabled="isQuestionEmpty">
-              <img src="../../../public/icons/stop.svg" alt="send" v-if="isLoading" class="w-7 h-7">
-              <img src="../../../public/icons/up.svg" alt="send" v-else>
-            </button> -->
             <div v-show="isLoading" class="w-10 h-10 p-1 text-white bg-black rounded-full cursor-pointer">
               <img src="../../../public/icons/stop.svg" alt="stop" @click="abortRequest">
             </div>
@@ -106,46 +93,32 @@
 </template>
 
 <script setup lang='ts'>
+import { chatStream, type StreamChunk } from '@/api/deepseek/index.api';
 import { ArrowDown, ArrowUp, Check, CopyDocument } from "@element-plus/icons-vue";
 import hljs from 'highlight.js';
-import 'highlight.js/styles/atom-one-light.css'; // 引入样式
+import 'highlight.js/styles/atom-one-light.css';
 import _ from "lodash";
-import { marked } from 'marked'; // 引入 marked 库
+import { marked } from 'marked';
+import { onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { useAiModel } from "./useAiModel";
-import { useAiRequest } from "./useAiRequest";
 
+const route = useRoute()
 
 // 模型定义相关
 const { models, currentModel, isDeepThinking } = useAiModel();
 
-// ai接口调用
-const { getResult, abortRequest } = useAiRequest();
+// 中止请求的函数
+let abortCurrentRequest: (() => void) | null = null;
 
 const isLoading = ref(false);
 const isShowReasoning = ref(true);
+const copiedIndex = ref<number | null>(null);
 const chatList = ref<{
   role: string,
   content: string
   reasoning_content: string
 }[]>([
-  // {
-  //   "role": "user",
-  //   "content": "你是什么模型",
-  //   "reasoning_content": '',
-  // },
-  // {
-  //   "role": "user",
-  //   "content": "五个ts的工具函数"
-  // },
-  // {
-  //   "role": "assistant",
-  //   "content": "以下是五个常用的 TypeScript 工具函数示例，涵盖了常见的开发需求：\n\n---\n\n### 1. **深拷贝对象**\n```typescript\nfunction deepClone<T>(obj: T): T {\n  return JSON.parse(JSON.stringify(obj));\n}\n\n// 示例\nconst original = { a: 1, b: { c: 2 } };\nconst cloned = deepClone(original);\nconsole.log(cloned); // { a: 1, b: { c: 2 } }\n```\n\n---\n\n### 2. **防抖函数**\n```typescript\nfunction debounce<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => void {\n  let timeoutId: ReturnType<typeof setTimeout>;\n  return (...args: Parameters<T>) => {\n    clearTimeout(timeoutId);\n    timeoutId = setTimeout(() => fn(...args), delay);\n  };\n}\n\n// 示例\nconst logMessage = debounce((message: string) => {\n  console.log(message);\n}, 300);\n\nlogMessage(\"Hello, World!\"); // 300ms 后打印 \"Hello, World!\"\n```\n\n---\n\n### 3. **节流函数**\n```typescript\nfunction throttle<T extends (...args: any[]) => any>(fn: T, limit: number): (...args: Parameters<T>) => void {\n  let inThrottle: boolean;\n  return (...args: Parameters<T>) => {\n    if (!inThrottle) {\n      fn(...args);\n      inThrottle = true;\n      setTimeout(() => (inThrottle = false), limit);\n    }\n  };\n}\n\n// 示例\nconst logScroll = throttle(() => {\n  console.log(\"Scrolling...\");\n}, 1000);\n\nwindow.addEventListener(\"scroll\", logScroll); // 每 1 秒最多打印一次 \"Scrolling...\"\n```\n\n---\n\n### 4. **检查对象是否为空**\n```typescript\nfunction isEmpty(obj: Record<string, any>): boolean {\n  return Object.keys(obj).length === 0;\n}\n\n// 示例\nconst emptyObj = {};\nconst nonEmptyObj = { a: 1 };\n\nconsole.log(isEmpty(emptyObj)); // true\nconsole.log(isEmpty(nonEmptyObj)); // false\n```\n\n---\n\n### 5. **生成随机字符串**\n```typescript\nfunction generateRandomString(length: number): string {\n  const chars = \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\";\n  let result = \"\";\n  for (let i = 0; i < length; i++) {\n    result += chars.charAt(Math.floor(Math.random() * chars.length));\n  }\n  return result;\n}\n\n// 示例\nconst randomStr = generateRandomString(10);\nconsole.log(randomStr); // 例如 \"aB3dE7fG9h\"\n```\n\n---\n\n这些工具函数可以帮助你在 TypeScript 项目中更高效地处理常见任务。如果需要进一步优化或扩展功能，可以根据具体需求进行调整。"
-  // }
-  // {
-  //   "role": "assistant",
-  //   "reasoning_content": '您好！我是由中国的深度求索（DeepSeek）公司开发的智能助手DeepSeek-R1。如您有任何任何问题，我会尽我所能为您提供帮助。',
-  //   "content": "您好！我是由中国的深度求索（DeepSeek）公司开发的智能助手DeepSeek-R1。如您有任何任何问题，我会尽我所能为您提供帮助。"
-  // }
 ]);
 
 const slogans = [
@@ -165,15 +138,19 @@ const form = reactive({
   question: ''
 })
 
+// 接收来自 json-prompt-generator 的测试数据
+onMounted(() => {
+  const promptFromQuery = route.query.prompt as string
+  if (promptFromQuery) {
+    form.question = promptFromQuery
+  }
+})
+
 // 是否开启上下文模式
 const contextMode = ref(false);
 
 
 const isComposing = ref(false);
-// const isScrollbarShow = ref(false);
-// const chatAreaDomRef = ref();
-
-// const { isBottom, checkScrollbar } = useScrollBar(chatAreaDomRef.value);
 
 const isQuestionEmpty = computed<boolean>(() => {
   return form.question.length === 0;
@@ -202,32 +179,46 @@ const onChat = () => {
   const currentIndex = chatList.value.length - 1;
 
   isLoading.value = true;
-  getResult({
-    body: {
-      context: context,
+
+  abortCurrentRequest = chatStream(
+    {
+      context: context.map(item => ({
+        role: item.role as 'user' | 'assistant' | 'system',
+        content: item.content
+      })),
       model: currentModel.value.value,
       temperature: 1.0,
     },
-    onProcess: (contentChunk, reasoningContentChunk) => {
+    (chunk: StreamChunk) => {
+      const contentChunk = chunk.choices[0]?.delta?.content || "";
+      const reasoningContentChunk = isDeepThinking.value
+        ? chunk.choices[0]?.delta?.reasoning_content || ""
+        : "";
+
       chatList.value[currentIndex].content += contentChunk;
-      console.log('answer.content', answer.content);
       if (isDeepThinking.value) {
         chatList.value[currentIndex].reasoning_content += reasoningContentChunk;
       }
     },
-    onError: (errorMessage: string) => {
-      console.error('onError', errorMessage);
+    (error: Error) => {
+      console.error('onError', error);
       isLoading.value = false;
-      chatList.value[currentIndex].content = '服务器繁忙，请稍后再试。'
+      chatList.value[currentIndex].content = '服务器繁忙，请稍后再试。';
     },
-    onDone: () => {
+    () => {
       isLoading.value = false;
     }
-  });
+  );
 
   form.question = '';
-
 }
+
+const abortRequest = () => {
+  if (abortCurrentRequest) {
+    abortCurrentRequest();
+    abortCurrentRequest = null;
+  }
+};
 
 const onEnter = (event: any) => {
   if (event.key === "Enter" && !event.shiftKey && !event.altKey && !isComposing.value) {
@@ -235,75 +226,6 @@ const onEnter = (event: any) => {
     onChat();
   }
 }
-
-// async function fetchStreamData(questionItem: {
-//   role: string,
-//   content: string
-// }) {
-//   let message = '';
-//   let reasoningContext = '';
-//   chatList.value.push({
-//     role: 'assistant',
-//     content: "",
-//     reasoning_content: "",
-//   });
-//   const body = {
-//     context: contextMode.value ? chatList.value : [questionItem],
-//     model: currentModel.value.value,
-//     temperature: 1,
-//   }
-//   const response = await fetch(import.meta.env.APP_API_BASE_URL + "/chat/ask", {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify(body),
-//   });
-
-//   // 获取可读流的 reader
-//   if (!response.body) {
-//     throw Error('body is null')
-//   }
-
-//   const reader = response.body.getReader();
-//   const decoder = new TextDecoder('utf-8');
-
-//   const currentIndex = chatList.value.length - 1;
-
-//   while (true) {
-//     // 逐块读取流数据
-//     const { value, done } = await reader.read();
-//     if (done) {
-//       break;
-//     }; // 读取完成
-
-//     // 解码数据
-//     const lines = decoder.decode(value).split('\n');
-
-//     // 解析每一行流式数据
-//     for (let line of lines) {
-//       if (line.startsWith('data:')) {
-//         const jsonString = line.replace('data: ', '').trim();
-
-//         // 检查流结束标识
-//         if (jsonString === '[DONE]') {
-//           isLoading.value = true;
-//           return;
-//         }
-
-//         try {
-//           const data = JSON.parse(jsonString);
-//           const content = data.choices[0]?.delta?.content || '';
-//           const reason = data.choices[0]?.delta?.reasoning_content || '';
-//           message += content;
-//           reasoningContext += reason;
-//           chatList.value[currentIndex].content = message;
-//           chatList.value[currentIndex].reasoning_content = reasoningContext;
-//         } catch (error) {
-//           chatList.value[currentIndex].content = '系统繁忙，请稍后再试！';
-//         }
-//       }
-//     }
-//   }
-// }
 
 const renderMarkdown = (content: string) => {
   // 使用 marked 解析 Markdown 为 HTML
@@ -336,38 +258,44 @@ const renderMarkdown = (content: string) => {
         button.addEventListener('click', () => {
           const text = button.getAttribute('data-clipboard-text');
           if (text) {
-            // 执行复制操作
-            onCopyResult(text);
+            // 执行复制操作（代码块复制不需要索引）
+            navigator.clipboard.writeText(text)
+              .then(() => {
+                ElMessage({
+                  message: '复制成功',
+                  type: 'success',
+                });
+              })
+              .catch(err => {
+                console.error('复制失败:', err);
+              });
           }
         });
         // 标记为已注册
         button.setAttribute('data-click-registered', 'true');
       }
     });
-    // isScrollbarShow.value = checkScrollbar();
   });
   return html;
 }
 
-const onCopyResult = (content: string) => {
+const onCopyResult = (content: string, index: number) => {
   navigator.clipboard.writeText(content)
     .then(() => {
+      copiedIndex.value = index;
       ElMessage({
         message: '复制成功',
         type: 'success',
-      })
+      });
+      // 2秒后重置复制状态
+      setTimeout(() => {
+        copiedIndex.value = null;
+      }, 2000);
     })
     .catch(err => {
       console.error('复制失败:', err);
     });
 }
-
-// const onGoToBottom = () => {
-//   chatAreaDomRef.value.scrollTo({
-//     top: chatAreaDomRef.value.scrollHeight,
-//     behavior: 'smooth'
-//   })
-// }
 
 </script>
 <style lang="scss" scoped>

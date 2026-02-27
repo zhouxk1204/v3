@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-auto px-4 py-8 h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+  <div class="overflow-auto px-4 py-8 h-screen bg-gray-50">
     <div class="mx-auto max-w-5xl">
       <!-- 标题 -->
       <div class="mb-8 text-center">
@@ -30,38 +30,12 @@
           >
             <option value="unknown">不确定</option>
             <option value="normal">未发现异常</option>
-            <option value="crystal">发现尿液结晶</option>
-            <option value="history">曾患肾结石</option>
-            <option value="current">正在患肾结石</option>
+            <option value="has_condition">患有肾脏结晶或肾结石</option>
           </select>
         </div>
 
-        <!-- 结晶类型（仅在发现结晶时显示） -->
-        <div v-if="diagnosisData.status === 'crystal'" class="mb-6">
-          <label class="block text-sm font-medium text-gray-700 mb-3">结晶类型</label>
-          <div class="space-y-2">
-            <label
-              v-for="type in crystalTypes"
-              :key="type.value"
-              class="flex items-start p-4 border-2 rounded-xl cursor-pointer transition-all hover:shadow-md"
-              :class="diagnosisData.crystalType === type.value ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'"
-            >
-              <input
-                type="radio"
-                :value="type.value"
-                v-model="diagnosisData.crystalType"
-                class="mt-1 mr-3"
-              />
-              <div class="flex-1">
-                <div class="font-medium text-gray-800 mb-1">{{ type.label }}</div>
-                <p class="text-sm text-gray-600">{{ type.description }}</p>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <!-- 结石详细信息（仅在有结石时显示） -->
-        <div v-if="diagnosisData.status === 'history' || diagnosisData.status === 'current'" class="space-y-6">
+        <!-- 结石/结晶详细信息（仅在患有结晶或结石时显示） -->
+        <div v-if="diagnosisData.status === 'has_condition'" class="space-y-6">
           <!-- 结石位置 -->
           <div>
             <div class="flex justify-between items-center mb-3">
@@ -92,8 +66,13 @@
                       <Icon icon="ep:first-aid-kit" class="text-indigo-600" width="22" />
                     </div>
                     <div>
-                      <div class="font-bold text-gray-800 text-lg">{{ loc.position }}</div>
-                      <div v-if="loc.detail && loc.detail !== 'unknown'" class="text-sm text-indigo-600">{{ loc.detail }}</div>
+                      <div class="flex items-center gap-2">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full" :class="loc.type === 'crystal' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'">
+                          {{ loc.type === 'crystal' ? '结晶' : '结石' }}
+                        </span>
+                        <div class="font-bold text-gray-800 text-lg">{{ loc.position }}</div>
+                      </div>
+                      <div v-if="loc.detail && loc.detail !== 'unknown'" class="text-sm text-indigo-600 mt-1">{{ loc.detail }}</div>
                     </div>
                   </div>
                   <button
@@ -104,15 +83,15 @@
                   </button>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                  <div class="p-3 bg-gray-50 rounded-lg">
+                  <div v-if="loc.type === 'stone'" class="p-3 bg-gray-50 rounded-lg">
                     <div class="text-xs text-gray-500 mb-1">直径</div>
                     <div class="text-sm font-medium text-gray-800">{{ diameterOptions.find(o => o.value === loc.maxDiameter)?.label || '未知' }}</div>
                   </div>
-                  <div v-if="isKidneyPosition(loc.position)" class="p-3 bg-gray-50 rounded-lg">
+                  <div v-if="loc.type === 'stone' && isKidneyPosition(loc.position)" class="p-3 bg-gray-50 rounded-lg">
                     <div class="text-xs text-gray-500 mb-1">积水</div>
                     <div class="text-sm font-medium text-gray-800">{{ hydronephrosisOptions.find(o => o.value === loc.hydronephrosis)?.label || '未知' }}</div>
                   </div>
-                  <div class="p-3 bg-gray-50 rounded-lg" :class="isKidneyPosition(loc.position) ? '' : 'col-span-2'">
+                  <div class="p-3 bg-gray-50 rounded-lg" :class="loc.type === 'crystal' || !isKidneyPosition(loc.position) ? 'col-span-2' : ''">
                     <div class="text-xs text-gray-500 mb-1">疼痛</div>
                     <div class="text-sm font-medium text-gray-800">{{ painOptions.find(o => o.value === loc.pain)?.label || '未知' }}</div>
                   </div>
@@ -123,12 +102,12 @@
         </div>
       </div>
 
-      <!-- 第二部分：当日饮水 -->
+      <!-- 第二部分：今日饮水 -->
       <div class="p-6 mb-6 bg-white rounded-2xl shadow-xl">
         <div class="flex justify-between items-center mb-4">
           <div class="flex gap-2 items-center">
             <Icon icon="ep:coffee-cup" class="text-blue-600" width="24" />
-            <h2 class="text-xl font-bold text-gray-800">当日饮水记录</h2>
+            <h2 class="text-xl font-bold text-gray-800">今日饮水记录</h2>
           </div>
           <button
             @click="showDrinkModal = true"
@@ -137,6 +116,70 @@
             <Icon icon="ep:circle-plus" class="text-white" width="20" />
             <span>添加饮水</span>
           </button>
+        </div>
+
+        <!-- 饮水量计算输入 -->
+        <div class="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <div class="flex items-center gap-2 mb-4">
+            <Icon icon="ep:data-analysis" class="text-blue-600" width="20" />
+            <h3 class="text-sm font-bold text-gray-800">个性化饮水量计算</h3>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-2">
+                <Icon icon="ep:scale" class="inline-block mr-1" width="14" />
+                体重（kg）
+              </label>
+              <input
+                v-model.number="waterInput.weightKg"
+                type="number"
+                min="0"
+                step="0.1"
+                placeholder="输入体重"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-2">
+                <Icon icon="ep:odometer" class="inline-block mr-1" width="14" />
+                今日步数
+              </label>
+              <input
+                v-model.number="waterInput.steps"
+                type="number"
+                min="0"
+                placeholder="输入步数"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-2">
+                <Icon icon="ep:alarm-clock" class="inline-block mr-1" width="14" />
+                久坐时长（小时）
+              </label>
+              <input
+                v-model.number="waterInput.sedentaryHours"
+                type="number"
+                min="0"
+                max="24"
+                step="0.5"
+                placeholder="输入久坐时长"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+          <div v-if="recommendedWater > 0" class="mt-4 p-3 bg-white rounded-lg border-2 border-blue-300">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <Icon icon="ep:trophy" class="text-blue-600" width="20" />
+                <span class="text-sm font-medium text-gray-700">推荐每日饮水量：</span>
+              </div>
+              <span class="text-xl font-bold text-blue-600">{{ recommendedWater }}ml</span>
+            </div>
+            <div class="mt-2 text-xs text-gray-600">
+              基于体重、运动量和久坐时间科学计算，建议达到此目标以预防肾结石
+            </div>
+          </div>
         </div>
         
         <div v-if="drinks.length === 0" class="text-gray-500 text-center py-12">
@@ -148,7 +191,7 @@
           <div
             v-for="(drink, index) in drinks"
             :key="index"
-            class="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-100 transition-all hover:shadow-md"
+            class="flex justify-between items-center p-4 bg-blue-50 rounded-xl border border-blue-100 transition-all hover:shadow-md"
           >
             <div class="flex items-center gap-3">
               <Icon :icon="getDrinkIcon(drink.type)" class="text-blue-600" width="24" />
@@ -164,8 +207,62 @@
               <Icon icon="ep:delete" class="text-red-500" width="20" />
             </button>
           </div>
-          <div class="mt-4 p-4 bg-gradient-to-r from-blue-100 to-cyan-100 rounded-xl border-2 border-blue-200">
-            <div class="flex items-center justify-center gap-2">
+          <div class="mt-4 p-6 bg-blue-100 rounded-xl border-2 border-blue-200">
+            <div v-if="recommendedWater > 0" class="flex items-center justify-between gap-8">
+              <!-- 环形图 -->
+              <div class="relative w-32 h-32 flex-shrink-0">
+                <svg class="w-32 h-32 transform -rotate-90">
+                  <circle
+                    cx="64"
+                    cy="64"
+                    r="56"
+                    fill="none"
+                    stroke="#e0f2fe"
+                    stroke-width="16"
+                  />
+                  <circle
+                    cx="64"
+                    cy="64"
+                    r="56"
+                    fill="none"
+                    :stroke="waterProgress >= 100 ? '#10b981' : waterProgress >= 70 ? '#3b82f6' : waterProgress >= 50 ? '#f59e0b' : '#ef4444'"
+                    stroke-width="16"
+                    :stroke-dasharray="`${(waterProgress / 100) * 351.86} 351.86`"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <div class="text-2xl font-bold" :class="waterProgress >= 100 ? 'text-green-600' : waterProgress >= 70 ? 'text-blue-600' : waterProgress >= 50 ? 'text-amber-600' : 'text-red-600'">
+                    {{ waterProgress }}%
+                  </div>
+                  <div class="text-xs text-gray-600">完成度</div>
+                </div>
+              </div>
+              
+              <!-- 数据信息 -->
+              <div class="flex-1">
+                <div class="flex items-baseline gap-2 mb-2">
+                  <Icon icon="ep:select" class="text-blue-700" width="20" />
+                  <span class="text-sm text-gray-700">今日总计</span>
+                </div>
+                <div class="flex items-baseline gap-2 mb-3">
+                  <span class="text-3xl font-bold text-blue-800">{{ totalDrinkVolume }}</span>
+                  <span class="text-lg text-gray-600">ml</span>
+                  <span class="text-gray-500 mx-1">/</span>
+                  <span class="text-xl font-medium text-blue-700">{{ recommendedWater }}</span>
+                  <span class="text-sm text-gray-600">ml</span>
+                </div>
+                <div class="text-xs text-gray-600">
+                  <span v-if="waterProgress >= 100" class="text-green-600 font-medium">✓ 已达标！继续保持</span>
+                  <span v-else-if="waterProgress >= 70" class="text-blue-600 font-medium">还差 {{ recommendedWater - totalDrinkVolume }}ml 达标</span>
+                  <span v-else-if="waterProgress >= 50" class="text-amber-600 font-medium">还需努力，距离目标还有 {{ recommendedWater - totalDrinkVolume }}ml</span>
+                  <span v-else class="text-red-600 font-medium">饮水不足，请尽快补充 {{ recommendedWater - totalDrinkVolume }}ml</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 没有设置推荐量时的显示 -->
+            <div v-else class="flex items-center justify-center gap-2">
               <Icon icon="ep:select" class="text-blue-700" width="24" />
               <span class="font-bold text-blue-800 text-lg">总计：{{ totalDrinkVolume }}ml</span>
             </div>
@@ -228,51 +325,7 @@
         </div>
       </div>
 
-      <!-- 第四部分：运动量信息 -->
-      <div class="p-6 mb-6 bg-white rounded-2xl shadow-xl">
-        <div class="flex gap-2 items-center mb-4">
-          <Icon icon="ep:trophy" class="text-purple-600" width="24" />
-          <h2 class="text-xl font-bold text-gray-800">运动量信息</h2>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-100">
-            <div class="flex items-center gap-2 mb-2">
-              <Icon icon="ep:odometer" class="text-purple-600" width="20" />
-              <label class="text-sm font-medium text-gray-700">今日步数</label>
-            </div>
-            <div class="flex items-center gap-2">
-              <input
-                v-model.number="activityData.steps"
-                type="number"
-                min="0"
-                placeholder="输入今日步数"
-                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <span class="text-gray-600 font-medium">步</span>
-            </div>
-          </div>
-          
-          <div class="p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border border-orange-100">
-            <div class="flex items-center gap-2 mb-2">
-              <Icon icon="ep:alarm-clock" class="text-orange-600" width="20" />
-              <label class="text-sm font-medium text-gray-700">久坐时长</label>
-            </div>
-            <div class="flex items-center gap-2">
-              <input
-                v-model.number="activityData.sedentaryHours"
-                type="number"
-                min="0"
-                max="24"
-                step="0.5"
-                placeholder="输入久坐时长"
-                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-              />
-              <span class="text-gray-600 font-medium">小时</span>
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       <!-- 分析结果 -->
       <div v-if="analysisResult" class="space-y-6 mb-6">
@@ -377,7 +430,7 @@
             <div
               v-for="(suggestion, index) in analysisResult.actionSuggestions"
               :key="index"
-              class="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 hover:shadow-lg transition-all flex flex-col"
+              class="p-6 bg-blue-50 rounded-xl border-2 border-blue-200 hover:shadow-lg transition-all flex flex-col"
             >
               <div class="flex items-center gap-2 mb-3">
                 <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
@@ -420,7 +473,6 @@
     <div
       v-if="showDrinkModal"
       class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      @click.self="showDrinkModal = false"
     >
       <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
         <div class="flex items-center gap-2 mb-6">
@@ -483,7 +535,6 @@
     <div
       v-if="showMealModal"
       class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      @click.self="closeMealModal"
     >
       <div class="bg-white rounded-2xl p-6 w-full max-w-md max-h-[85vh] overflow-y-auto shadow-2xl">
         <div class="flex items-center gap-2 mb-6">
@@ -556,19 +607,29 @@
       </div>
     </div>
 
-    <!-- 结石位置添加模态框 -->
+    <!-- 结石/结晶位置添加模态框 -->
     <div
       v-if="showLocationModal"
       class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      @click.self="showLocationModal = false"
     >
       <div class="bg-white rounded-2xl p-6 w-full max-w-md max-h-[85vh] overflow-y-auto shadow-2xl">
         <div class="flex items-center gap-2 mb-6">
           <Icon icon="ep:first-aid-kit" class="text-indigo-600" width="28" />
-          <h3 class="text-2xl font-bold text-gray-800">添加结石位置</h3>
+          <h3 class="text-2xl font-bold text-gray-800">添加结石/结晶位置</h3>
         </div>
         
         <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">类型</label>
+            <select
+              v-model="newLocation.type"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+            >
+              <option value="crystal">肾脏结晶</option>
+              <option value="stone">肾结石</option>
+            </select>
+          </div>
+
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">位置</label>
             <select
@@ -577,7 +638,6 @@
             >
               <option value="左肾">左肾</option>
               <option value="右肾">右肾</option>
-              <option value="双肾">双肾</option>
               <option value="左输尿管">左输尿管</option>
               <option value="右输尿管">右输尿管</option>
             </select>
@@ -598,7 +658,7 @@
             </select>
           </div>
 
-          <div>
+          <div v-if="newLocation.type === 'stone'">
             <label class="block text-sm font-medium text-gray-700 mb-2">结石最大直径</label>
             <select
               v-model="newLocation.maxDiameter"
@@ -612,7 +672,7 @@
             </select>
           </div>
 
-          <div v-if="isKidneyPosition(newLocation.position)">
+          <div v-if="newLocation.type === 'stone' && isKidneyPosition(newLocation.position)">
             <label class="block text-sm font-medium text-gray-700 mb-2">是否出现积水</label>
             <select
               v-model="newLocation.hydronephrosis"
@@ -660,6 +720,8 @@
 </template>
 
 <script setup lang="ts">
+import { chatCompletions } from '@/api/deepseek/index.api'
+import { Icon } from '@iconify/vue'
 import { BarChart, PieChart, RadarChart } from 'echarts/charts'
 import {
   GridComponent,
@@ -668,7 +730,8 @@ import {
 } from 'echarts/components'
 import * as echarts from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { computed, nextTick, ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 echarts.use([
   BarChart,
@@ -690,13 +753,15 @@ interface Meal {
   items: string[]
 }
 
-interface ActivityData {
-  steps: number // 今日步数
-  sedentaryHours: number // 久坐时长（小时）
+interface WaterInput {
+  weightKg: number      // 体重 kg
+  steps: number         // 今日步数
+  sedentaryHours: number // 久坐时间（小时）
 }
 
 interface StoneLocation {
-  position: string // 位置：左肾、右肾、双肾、左输尿管、右输尿管
+  type: 'crystal' | 'stone' // 类型：结晶或结石
+  position: string // 位置：左肾、右肾、左输尿管、右输尿管
   detail?: string // 详细位置：上盏、中盏、下盏、肾盂
   maxDiameter: string // 结石最大直径
   hydronephrosis?: string // 积水程度（仅肾脏位置）
@@ -704,9 +769,8 @@ interface StoneLocation {
 }
 
 interface DiagnosisData {
-  status: 'normal' | 'crystal' | 'history' | 'current' | 'unknown' // 泌尿系统状况
-  crystalType?: 'calcium_oxalate' | 'uric_acid' | 'phosphate' | 'not_specified' | 'unknown' // 结晶类型
-  locations: StoneLocation[] // 结石位置（可多个）
+  status: 'normal' | 'has_condition' | 'unknown' // 泌尿系统状况
+  locations: StoneLocation[] // 结石/结晶位置（可多个）
 }
 
 interface AnalysisResult {
@@ -756,12 +820,12 @@ const saveDiagnosisToStorage = () => {
 
 const diagnosisData = ref<DiagnosisData>({
   status: 'unknown',
-  crystalType: undefined,
   locations: []
 })
 const drinks = ref<Drink[]>([])
 const meals = ref<Meal[]>([])
-const activityData = ref<ActivityData>({
+const waterInput = ref<WaterInput>({
+  weightKg: 0,
   steps: 0,
   sedentaryHours: 0
 })
@@ -785,6 +849,7 @@ const newMeal = ref<Meal>({
 // 结石位置模态框
 const showLocationModal = ref(false)
 const newLocation = ref<StoneLocation>({
+  type: 'stone',
   position: '左肾',
   detail: '',
   maxDiameter: 'unknown',
@@ -792,8 +857,77 @@ const newLocation = ref<StoneLocation>({
   pain: 'none'
 })
 
+// 饮水量计算配置
+const CONFIG = {
+  // 基础需水量（IOM）mlPerKg
+  mlPerKg: 30,
+  // 步数补水（ACSM工程换算）mlPerStep
+  mlPerStep: 0.04,
+  // 久坐修正
+  sedentary: {
+    level1Hours: 8,
+    level1Add: 200,
+    level2Hours: 10,
+    level2Add: 300,
+  },
+  // 肾结石强化目标（EAU/AUA）
+  stoneTargetMl: 3000,
+  // 医学安全范围
+  minMl: 1500,
+  maxMl: 4500,
+}
+
+// 辅助函数
+const clamp = (value: number, min: number, max: number): number => {
+  return Math.min(Math.max(value, min), max)
+}
+
+const round100 = (value: number): number => {
+  return Math.round(value / 100) * 100
+}
+
+// 计算推荐饮水量
+const calculateRecommendedWater = (input: WaterInput): number => {
+  if (input.weightKg <= 0) return 0
+  
+  // 基础需水
+  const base = input.weightKg * CONFIG.mlPerKg
+  
+  // 步数修正
+  const stepExtra = input.steps * CONFIG.mlPerStep
+  
+  // 久坐修正
+  let sedentaryExtra = 0
+  if (input.sedentaryHours >= CONFIG.sedentary.level2Hours) {
+    sedentaryExtra = CONFIG.sedentary.level2Add
+  } else if (input.sedentaryHours >= CONFIG.sedentary.level1Hours) {
+    sedentaryExtra = CONFIG.sedentary.level1Add
+  }
+  
+  // 普通需求
+  const normalNeed = base + stepExtra + sedentaryExtra
+  
+  // 结石强化
+  let recommended = Math.max(normalNeed, CONFIG.stoneTargetMl)
+  
+  // 安全裁剪
+  recommended = clamp(recommended, CONFIG.minMl, CONFIG.maxMl)
+  
+  // UI友好：取整到100ml
+  return round100(recommended)
+}
+
+const recommendedWater = computed(() => {
+  return calculateRecommendedWater(waterInput.value)
+})
+
 const totalDrinkVolume = computed(() => {
   return drinks.value.reduce((sum, drink) => sum + drink.volume, 0)
+})
+
+const waterProgress = computed(() => {
+  if (recommendedWater.value === 0) return 0
+  return Math.min(Math.round((totalDrinkVolume.value / recommendedWater.value) * 100), 100)
 })
 
 const canAnalyze = computed(() => {
@@ -811,34 +945,6 @@ onMounted(() => {
 })
 
 // 诊断选项
-const crystalTypes = [
-  { 
-    value: 'calcium_oxalate', 
-    label: '草酸钙结晶（最常见）', 
-    description: '饮食建议：减少草酸食物（菠菜、坚果、巧克力等）' 
-  },
-  { 
-    value: 'uric_acid', 
-    label: '尿酸结晶', 
-    description: '饮食建议：减少嘌呤食物（海鲜、内脏、啤酒等），避免酸性尿' 
-  },
-  { 
-    value: 'phosphate', 
-    label: '磷酸盐结晶', 
-    description: '饮食建议：注意碱性尿和感染问题' 
-  },
-  { 
-    value: 'not_specified', 
-    label: '医生未说明类型', 
-    description: '建议咨询医生明确结晶类型' 
-  },
-  { 
-    value: 'unknown', 
-    label: '不清楚', 
-    description: '建议进行尿液检查明确结晶类型' 
-  }
-]
-
 const diameterOptions = [
   { value: '<5mm', label: '<5 mm' },
   { value: '5-10mm', label: '5-10 mm' },
@@ -863,21 +969,25 @@ const painOptions = [
 ]
 
 // 位置相关函数
-// 位置相关函数
 const isKidneyPosition = (position: string): boolean => {
-  return position === '左肾' || position === '右肾' || position === '双肾'
+  return position === '左肾' || position === '右肾'
 }
 
 const addLocation = () => {
   const locationToAdd = { ...newLocation.value }
-  // 如果不是肾脏位置，清除积水信息
-  if (!isKidneyPosition(locationToAdd.position)) {
+  // 如果不是肾脏位置或不是结石，清除积水信息
+  if (!isKidneyPosition(locationToAdd.position) || locationToAdd.type === 'crystal') {
     locationToAdd.hydronephrosis = undefined
+  }
+  // 如果是结晶，清除直径信息
+  if (locationToAdd.type === 'crystal') {
+    locationToAdd.maxDiameter = 'unknown'
   }
   diagnosisData.value.locations.push(locationToAdd)
   showLocationModal.value = false
   // 清空表单
   newLocation.value = {
+    type: 'stone',
     position: '左肾',
     detail: '',
     maxDiameter: 'unknown',
@@ -889,6 +999,7 @@ const addLocation = () => {
 const closeLocationModal = () => {
   showLocationModal.value = false
   newLocation.value = {
+    type: 'stone',
     position: '左肾',
     detail: '',
     maxDiameter: 'unknown',
@@ -904,10 +1015,10 @@ const removeLocation = (index: number) => {
 const ratingClass = computed(() => {
   if (!analysisResult.value) return ''
   const score = analysisResult.value.overallScore
-  if (score < 30) return 'bg-gradient-to-br from-green-100 to-emerald-100 text-green-800 border-2 border-green-300'
-  if (score < 60) return 'bg-gradient-to-br from-yellow-100 to-amber-100 text-yellow-800 border-2 border-yellow-300'
-  if (score < 80) return 'bg-gradient-to-br from-orange-100 to-red-100 text-orange-800 border-2 border-orange-300'
-  return 'bg-gradient-to-br from-red-100 to-rose-100 text-red-800 border-2 border-red-300'
+  if (score < 30) return 'bg-green-100 text-green-800 border-2 border-green-300'
+  if (score < 60) return 'bg-yellow-100 text-yellow-800 border-2 border-yellow-300'
+  if (score < 80) return 'bg-orange-100 text-orange-800 border-2 border-orange-300'
+  return 'bg-red-100 text-red-800 border-2 border-red-300'
 })
 
 const riskLevelColor = computed(() => {
@@ -1189,64 +1300,84 @@ const buildPrompt = (): string => {
   const getStatusLabel = (status: string): string => {
     const labels: Record<string, string> = {
       'normal': '未发现异常',
-      'crystal': '发现尿液结晶',
-      'history': '曾患肾结石',
-      'current': '正在患肾结石',
+      'has_condition': '患有肾脏结晶或肾结石',
       'unknown': '不确定'
     }
     return labels[status] || '未知'
   }
 
-  // 获取结晶类型标签和饮食建议
-  const getCrystalTypeInfo = (type?: string) => {
-    if (!type) return null
-    const info: Record<string, { label: string; dietary_advice: string }> = {
-      'calcium_oxalate': {
-        label: '草酸钙结晶（最常见）',
-        dietary_advice: '减少草酸食物（菠菜、坚果、巧克力、浓茶等），增加钙摄入，多喝水稀释尿液'
-      },
-      'uric_acid': {
-        label: '尿酸结晶',
-        dietary_advice: '减少嘌呤食物（海鲜、内脏、啤酒、浓肉汤等），碱化尿液，避免酸性尿'
-      },
-      'phosphate': {
-        label: '磷酸盐结晶',
-        dietary_advice: '注意碱性尿和感染问题，控制磷酸盐摄入，治疗尿路感染'
-      },
-      'not_specified': {
-        label: '医生未说明类型',
-        dietary_advice: '建议咨询医生明确结晶类型，以便制定针对性饮食方案'
-      },
-      'unknown': {
-        label: '不清楚',
-        dietary_advice: '建议进行尿液检查明确结晶类型，以便制定针对性饮食方案'
-      }
-    }
-    return info[type] || null
-  }
-
-  const crystalTypeInfo = diagnosisData.value.status === 'crystal' 
-    ? getCrystalTypeInfo(diagnosisData.value.crystalType)
-    : null
-
   const prompt = {
-    role: '肾结石临床营养助手',
-    task: '分析饮食模式与肾结石风险因素，生成结构化数据',
-    important_notes: [
-      '不提供医学诊断',
-      '基于营养科学解释风险机制',
-      '必须返回严格的JSON格式',
-      '必须根据用户实际输入的数据进行分析，不要编造数据',
-      '风险来源和饮料结构必须基于用户实际输入',
-      '雷达图评分必须基于实际输入，没有相关数据的维度不要评分或给0分',
-      '如果用户有结晶类型信息，必须根据结晶类型给出针对性的饮食建议'
-    ],
+    task: 'kidney_stone_diet_risk_analysis',
+    constraints: {
+      json_only: true,
+      no_data_fabrication: true,
+      risk_sources_from_input_only: true,
+      drink_structure_from_input_only: true,
+      missing_data_rule: '无数据维度使用默认评分或0，不推断'
+    },
+    scoring_rules: {
+      diagnosis_risk: {
+        normal: 30,
+        unknown: 50,
+        has_crystal: 60,
+        stone_lt_5mm: 65,
+        stone_5_10mm: 75,
+        stone_gt_10mm: 85
+      },
+      water_intake_score: {
+        excellent: '>=100%',
+        good: '70-99%',
+        medium: '50-69%',
+        poor: '<50%'
+      },
+      activity_score: {
+        excellent: 'steps>=10000 & sedentary<4',
+        good: 'steps 5000-9999',
+        poor: 'steps<5000 OR sedentary>8',
+        no_data: 50
+      },
+      drink_quality: {
+        excellent: ['白开水', '矿泉水'],
+        good: ['淡茶', '茶'],
+        poor: ['含糖饮料', '碳酸饮料', '酒类']
+      }
+    },
+    analysis_rules: {
+      stone_position_modifier: {
+        lower_calyx: '+5 risk'
+      },
+      hydronephrosis: '+10 risk',
+      pain: '+10 risk',
+      general_prevention_targets: [
+        '每日饮水2500-3000ml',
+        '减少高盐饮食',
+        '避免高草酸或高嘌呤食物',
+        '增加日常活动，避免久坐'
+      ]
+    },
+    output_schema: {
+      overallScore: '0-100 number',
+      riskLevel: ['低风险', '中等风险', '较高风险', '高风险'],
+      riskSources: [{ name: 'string', percentage: 'number (sum=100)' }],
+      drinkStructure: [{ name: 'string', value: 'number(ml)' }],
+      behaviorRadar: {
+        categories: ['饮水充足度', '饮食健康度', '运动活跃度', '饮料选择', '整体习惯'],
+        values: 'array[5] (0-100)'
+      },
+      actionSuggestions: [{ action: 'string', riskReduction: 'number' }]
+    },
     user_data: {
       diagnosis: {
         status: diagnosisData.value.status,
         status_label: getStatusLabel(diagnosisData.value.status),
-        crystal_type: crystalTypeInfo,
-        locations: diagnosisData.value.locations
+        locations: diagnosisData.value.locations.map(loc => ({
+          type: loc.type === 'crystal' ? '肾脏结晶' : '肾结石',
+          position: loc.position,
+          detail: loc.detail,
+          maxDiameter: loc.type === 'stone' ? loc.maxDiameter : undefined,
+          hydronephrosis: loc.type === 'stone' && loc.hydronephrosis ? loc.hydronephrosis : undefined,
+          pain: loc.pain
+        }))
       },
       daily_drinks: drinks.value.map(d => `${d.type} ${d.volume}ml`),
       total_water_intake: `${totalDrinkVolume.value}ml`,
@@ -1254,82 +1385,13 @@ const buildPrompt = (): string => {
         category: m.category,
         items: m.items
       })),
-      activity: {
-        steps: activityData.value.steps,
-        sedentary_hours: activityData.value.sedentaryHours
-      }
-    },
-    output_requirements: {
-      format: '必须返回纯 JSON 格式，不要任何其他文字',
-      structure: {
-        overallScore: '总体风险评分，0-100的数字，根据用户实际输入综合评估',
-        riskLevel: '风险等级，必须是以下之一："低风险"、"中等风险"、"较高风险"、"高风险"',
-        riskSources: '风险来源数组，根据用户实际输入分析，每项包含 name 和 percentage，总和必须为100',
-        drinkStructure: '饮料结构数组，必须基于用户实际输入的饮水记录，每项包含 name 和 value（毫升），如果用户没有输入饮水记录则返回空数组',
-        behaviorRadar: {
-          categories: '固定5个维度：["饮水充足度", "饮食健康度", "运动活跃度", "饮料选择", "整体习惯"]',
-          values: '对应5个维度的评分（0-100分，越高越好），必须根据用户实际输入的数据评分'
-        },
-        actionSuggestions: 'Top 3 改善建议数组，必须基于用户实际问题，每项包含 action 和 riskReduction'
-      },
-      analysis_rules: [
-        '根据诊断状态调整风险评分：',
-        '- 未发现异常(normal)：基础风险分数较低，主要关注预防',
-        '- 发现尿液结晶(crystal)：中等风险，需要积极预防',
-        '- 曾患肾结石(history)：较高风险，容易复发，需要严格控制',
-        '- 正在患肾结石(current)：高风险，需要治疗配合饮食调整',
-        '- 不确定(unknown)：按中等风险评估',
-        '',
-        '结晶类型特定建议（如果用户提供了结晶类型信息）：',
-        '- 草酸钙结晶：重点关注草酸食物摄入（菠菜、甜菜、坚果、巧克力、浓茶），建议增加钙摄入（与草酸结合减少吸收），多喝水',
-        '- 尿酸结晶：重点关注嘌呤食物摄入（海鲜、动物内脏、啤酒、浓肉汤），建议碱化尿液（多吃蔬菜水果），避免高蛋白饮食',
-        '- 磷酸盐结晶：重点关注尿路感染和碱性尿问题，控制磷酸盐摄入，注意尿液pH值',
-        '- 未说明类型或不清楚：给出通用预防建议，建议用户咨询医生明确类型',
-        '',
-        '结石位置和大小影响：',
-        '- 下盏结石：较难自行排出，风险较高',
-        '- 直径>10mm：需要医疗干预',
-        '- 有积水：情况较严重，需要及时就医',
-        '- 正在疼痛：急性期，需要紧急处理',
-        '',
-        '饮水充足度：根据总饮水量评分，2500ml以上为优秀(80-100分)，1500-2500ml为良好(60-80分)，1000-1500ml为一般(40-60分)，1000ml以下为较差(0-40分)',
-        '饮食健康度：根据饮食记录综合评估，考虑高盐、高草酸、高蛋白食物的摄入情况，如果有结晶类型信息，重点评估对应类型的高风险食物',
-        '运动活跃度：根据步数和久坐时长评分，10000步以上且久坐<4小时为优秀(80-100分)，5000-10000步为良好(60-80分)，5000步以下或久坐>8小时为较差(0-60分)，如果没有输入运动数据则给50分',
-        '饮料选择：根据饮料类型评分，白开水、矿泉水为优秀，茶为良好（但草酸钙结晶患者应避免浓茶），含糖饮料、碳酸饮料、酒类为较差（尿酸结晶患者应完全避免啤酒）',
-        '整体习惯：综合考虑饮食时间分布、饮水频率等',
-        '风险来源必须基于实际输入：如饮水不足、高盐饮食、高草酸食物、高嘌呤食物、久坐、含糖饮料等，如果有结晶类型，优先标注该类型的特定风险因素',
-        '饮料结构必须完全匹配用户输入的饮水记录，不要添加用户没有输入的饮料',
-        '',
-        '改善建议必须针对性：',
-        '- 根据诊断状态给出不同紧迫程度的建议',
-        '- 如果有结晶类型信息，必须给出该类型特定的饮食建议（如草酸钙结晶避免菠菜，尿酸结晶避免海鲜啤酒）',
-        '- 结合结石位置、大小、积水情况给出具体建议',
-        '- 如果正在疼痛，建议及时就医'
-      ],
-      example: {
-        overallScore: 45,
-        riskLevel: '中等风险',
-        riskSources: [
-          { name: '饮水不足', percentage: 35 },
-          { name: '高草酸食物（菠菜、坚果）', percentage: 25 },
-          { name: '高盐饮食', percentage: 18 },
-          { name: '含糖饮料', percentage: 12 },
-          { name: '久坐', percentage: 10 }
-        ],
-        drinkStructure: [
-          { name: '白开水', value: 1000 },
-          { name: '茶', value: 500 },
-          { name: '奶茶', value: 300 }
-        ],
-        behaviorRadar: {
-          categories: ['饮水充足度', '饮食健康度', '运动活跃度', '饮料选择', '整体习惯'],
-          values: [60, 70, 50, 65, 55]
-        },
-        actionSuggestions: [
-          { action: '每天总饮水量增加至2500ml以上，分多次饮用，稀释尿液浓度', riskReduction: 12 },
-          { action: '草酸钙结晶患者应避免菠菜、坚果、巧克力等高草酸食物，每周不超过1次', riskReduction: 8 },
-          { action: '减少奶茶等含糖饮料，改喝白开水或淡茶', riskReduction: 10 }
-        ]
+      water_calculation: {
+        weight_kg: waterInput.value.weightKg,
+        steps: waterInput.value.steps,
+        sedentary_hours: waterInput.value.sedentaryHours,
+        recommended_water_ml: recommendedWater.value,
+        actual_water_ml: totalDrinkVolume.value,
+        completion_rate: waterProgress.value
       }
     }
   }
@@ -1349,56 +1411,26 @@ const analyzeData = async () => {
   try {
     const promptContent = buildPrompt()
     
-    const response = await fetch(import.meta.env.APP_API_BASE_URL + '/chat/ask', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        context: [
-          {
-            role: 'system',
-            content: '你是一位专业的临床营养师，专门从事肾结石预防的饮食指导。你必须返回严格的 JSON 格式数据，不要任何其他文字。分析用户的饮食模式，基于营养科学计算风险评分。',
-            reasoning_content: ''
-          },
-          {
-            role: 'user',
-            content: promptContent,
-            reasoning_content: ''
-          }
-        ],
-        model: 'deepseek-chat',
-        temperature: 0.7
-      })
+    const response = await chatCompletions({
+      context: [
+        {
+          role: 'system',
+          content: '你是肾结石饮食风险分析AI，基于营养科学评估风险。不得提供医学诊断。必须只输出合法JSON，不允许任何解释性文字。禁止编造用户未提供的数据。',
+        },
+        {
+          role: 'user',
+          content: promptContent,
+        }
+      ],
+      model: 'deepseek-chat',
+      temperature: 0.7
     })
 
-    const reader = response.body?.getReader()
-    if (!reader) throw new Error('无法读取响应')
-
-    const decoder = new TextDecoder('utf-8')
-    let buffer = ''
-    let fullText = ''
-
-    while (true) {
-      const { value, done } = await reader.read()
-      if (done) break
-      
-      buffer += decoder.decode(value, { stream: true })
-      const lines = buffer.split('\n')
-      buffer = lines.pop() || ''
-      
-      for (const line of lines) {
-        if (line.startsWith('data:')) {
-          const jsonString = line.replace('data: ', '').trim()
-          if (jsonString === '[DONE]') continue
-          
-          try {
-            const data = JSON.parse(jsonString)
-            const content = data?.choices?.[0]?.delta?.content || ''
-            if (content) fullText += content
-          } catch (e) {
-            // ignore parse errors
-          }
-        }
-      }
+    // 直接从响应中获取内容
+    const fullText = response?.choices?.[0]?.message?.content || ''
+    
+    if (!fullText) {
+      throw new Error('未收到有效响应')
     }
 
     // 解析 JSON 结果
@@ -1411,7 +1443,7 @@ const analyzeData = async () => {
       }
       
       const result = JSON.parse(jsonText)
-      console.log("result",result)
+      console.log("result", result)
       analysisResult.value = result
       
       // 初始化图表

@@ -8,13 +8,13 @@
       </div>
 
       <!-- 工具分类 -->
-      <div v-for="category in categories" :key="category.name" class="mb-12">
-        <h2 class="text-2xl font-semibold text-gray-700 mb-6 flex items-center">
+      <div v-for="category in categories" :key="category.name" class="mb-8">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-4 flex items-center">
           <span class="w-1 h-6 bg-blue-500 mr-3 rounded"></span>
           {{ category.name }}
         </h2>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <ToolCard
             v-for="tool in category.tools"
             :key="tool.id"
@@ -53,11 +53,11 @@ const categories = ref<Category[]>([
     name: '📝 内容创作',
     tools: [
       {
-        id: 'isai',
+        id: 'ai-detector',
         name: 'AI写作检测',
         description: '智能分析AI写作痕迹，一键转换为自然人类化表达',
         icon: '✍️',
-        route: '/isai',
+        route: '/ai-detector',
         color: 'from-purple-400 to-pink-400'
       }
     ]
@@ -66,11 +66,11 @@ const categories = ref<Category[]>([
     name: '🌐 翻译工具',
     tools: [
       {
-        id: 'srt',
+        id: 'subtitle-translator',
         name: 'SRT字幕翻译',
         description: '日文 → 中文 AI 智能翻译，支持批量处理',
         icon: '🎬',
-        route: '/srt',
+        route: '/subtitle-translator',
         color: 'from-blue-400 to-cyan-400'
       }
     ]
@@ -79,20 +79,46 @@ const categories = ref<Category[]>([
     name: '🎲 生活助手',
     tools: [
       {
-        id: 'name',
+        id: 'name-generator',
         name: '抽卡取名',
         description: '根据父母姓名与风格，生成带寓意的好名字',
         icon: '🎴',
-        route: '/name',
+        route: '/name-generator',
         color: 'from-orange-400 to-red-400'
       },
       {
-        id: 'stone',
+        id: 'kidney-stone-analyzer',
         name: '肾结石饮食分析',
         description: '分析饮食模式与肾结石风险，提供科学营养建议',
         icon: '🏥',
-        route: '/stone',
+        route: '/kidney-stone-analyzer',
         color: 'from-green-400 to-teal-400'
+      }
+    ]
+  },
+  {
+    name: '🛠️ 开发工具',
+    tools: [
+      {
+        id: 'json-prompt-generator',
+        name: 'JSON Prompt 生成器',
+        description: '智能生成结构化 JSON Prompt，提升 AI 对话质量',
+        icon: '📋',
+        route: '/json-prompt-generator',
+        color: 'from-indigo-400 to-purple-400'
+      }
+    ]
+  },
+  {
+    name: '💬 AI 助手',
+    tools: [
+      {
+        id: 'peach-ai',
+        name: 'Peach AI',
+        description: '智能对话助手，支持多轮对话和上下文理解',
+        icon: '🍑',
+        route: '/peach-ai',
+        color: 'from-pink-400 to-rose-400'
       }
     ]
   }

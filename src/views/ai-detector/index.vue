@@ -192,6 +192,7 @@
 </template>
 
 <script setup lang="ts">
+import { chatStream } from '@/api/deepseek/index.api';
 import { PieChart } from 'echarts/charts';
 import {
   LegendComponent,
@@ -682,14 +683,15 @@ const analyzeStyle = async () => {
   metrics.value = null;
 
   try {
-    const response = await fetch(import.meta.env.APP_API_BASE_URL + '/chat/ask', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        context: [
-          {
-            role: 'system',
-            content: `你是一个专业的AI写作风格分析专家。请按以下格式分析文本：
+    let detailedAnalysisStarted = false;
+
+    await new Promise<void>((resolve, reject) => {
+      chatStream(
+        {
+          context: [
+            {
+              role: 'system',
+              content: `你是一个专业的AI写作风格分析专家。请按以下格式分析文本：
 
 第一部分（量化指标，必须严格按照以下格式，每行一个指标）：
 AI化程度：XX分
@@ -722,89 +724,72 @@ AI化程度：XX分
 重要：
 1. 必须在开头就给出所有9个量化指标，格式必须严格遵守"指标名：XX分"
 2. 量化指标后必须写"详细分析："作为标题（注意冒号）
-3. 所有指标都必须给出具体分数，不能遗漏`,
-            reasoning_content: ''
-          },
-          {
-            role: 'user',
-            content: `请分析以下文本的AI写作风格特征：\n\n${inputText.value}`,
-            reasoning_content: ''
-          }
-        ],
-        model: 'deepseek-chat',
-        temperature: 1.0
-      })
-    });
+3. 所有指标都必须给出具体分数，不能遗漏`
+            },
+            {
+              role: 'user',
+              content: `请分析以下文本的AI写作风格特征：\n\n${inputText.value}`
+            }
+          ],
+          model: 'deepseek-chat',
+          temperature: 1.0
+        },
+        (chunk) => {
+          const content = chunk.choices[0]?.delta?.content || '';
+          if (content) {
+            analysisResult.value += content;
 
-    const reader = response.body?.getReader();
-    if (!reader) throw new Error('无法读取响应');
+            // 检测是否出现"详细分析"标题
+            if (!detailedAnalysisStarted && analysisResult.value.includes('详细分析')) {
+              detailedAnalysisStarted = true;
 
-    const decoder = new TextDecoder('utf-8');
-    let buffer = '';
-    let detailedAnalysisStarted = false;
-
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
-
-      for (const line of lines) {
-        if (line.startsWith('data:')) {
-          const jsonString = line.replace('data: ', '').trim();
-          if (jsonString === '[DONE]') continue;
-
-          try {
-            const data = JSON.parse(jsonString);
-            const content = data?.choices?.[0]?.delta?.content || '';
-            if (content) {
-              analysisResult.value += content;
-
-              // 检测是否出现"详细分析"标题
-              if (!detailedAnalysisStarted && analysisResult.value.includes('详细分析')) {
-                detailedAnalysisStarted = true;
-
-                // 一次性提取所有指标
-                if (aiScore.value === null) {
-                  const score = extractAIScore(analysisResult.value);
-                  if (score !== null) {
-                    aiScore.value = score;
-                  }
+              // 一次性提取所有指标
+              if (aiScore.value === null) {
+                const score = extractAIScore(analysisResult.value);
+                if (score !== null) {
+                  aiScore.value = score;
                 }
+              }
 
-                if (metrics.value === null) {
-                  const extractedMetrics = extractMetrics(analysisResult.value);
-                  if (extractedMetrics) {
-                    metrics.value = extractedMetrics;
-                  }
+              if (metrics.value === null) {
+                const extractedMetrics = extractMetrics(analysisResult.value);
+                if (extractedMetrics) {
+                  metrics.value = extractedMetrics;
                 }
               }
             }
-          } catch (e) {
-            console.error('解析错误:', e);
           }
+        },
+        (error) => {
+          console.error('分析失败:', error);
+          analysisResult.value = '分析失败，请稍后重试';
+          reject(error);
+        },
+        () => {
+          // 如果前面没有提取到，尝试从完整文本中提取
+          if (aiScore.value === null) {
+            const score = extractAIScore(analysisResult.value);
+            aiScore.value = score !== null ? score : 50;
+          }
+
+          if (metrics.value === null) {
+            const extractedMetrics = extractMetrics(analysisResult.value);
+            if (extractedMetrics) {
+              metrics.value = extractedMetrics;
+            } else {
+              console.warn('未能提取到指标');
+            }
+          }
+          resolve();
         }
-      }
-    }
+      );
+    });
 
-    // 如果前面没有提取到，尝试从完整文本中提取
-    if (aiScore.value === null) {
-      const score = extractAIScore(analysisResult.value);
-      aiScore.value = score !== null ? score : 50;
+  } catch (error: any) {
+    console.error('分析失败:', error);
+    if (!analysisResult.value) {
+      analysisResult.value = '分析失败，请稍后重试';
     }
-
-    if (metrics.value === null) {
-      const extractedMetrics = extractMetrics(analysisResult.value);
-      if (extractedMetrics) {
-        metrics.value = extractedMetrics;
-      } else {
-        console.warn('未能提取到指标');
-      }
-    }
-  } catch (error) {
-    analysisResult.value = '分析失败，请稍后重试';
   } finally {
     isAnalyzing.value = false;
   }
@@ -820,61 +805,44 @@ const rewriteText = async () => {
   try {
     const scenePrompt = scenePrompts[selectedScene.value];
 
-    const response = await fetch(import.meta.env.APP_API_BASE_URL + '/chat/ask', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        context: [
-          {
-            role: 'system',
-            content: `你是一个专业的文本改写专家。请将AI生成的文本改写为更自然、更人性化的表达。改写要求：${scenePrompt}。注意：1. 保持原文核心意思不变 2. 去除AI痕迹和模板化表达 3. 增加自然过渡和个人色彩 4. 使用更生动、更贴近人类的表达方式 5. 直接输出改写后的文本，不要添加任何解释说明。`,
-            reasoning_content: ''
-          },
-          {
-            role: 'user',
-            content: `请将以下文本改写为${scenes.find(s => s.value === selectedScene.value)?.label}风格：\n\n${inputText.value}`,
-            reasoning_content: ''
+    await new Promise<void>((resolve, reject) => {
+      chatStream(
+        {
+          context: [
+            {
+              role: 'system',
+              content: `你是一个专业的文本改写专家。请将AI生成的文本改写为更自然、更人性化的表达。改写要求：${scenePrompt}。注意：1. 保持原文核心意思不变 2. 去除AI痕迹和模板化表达 3. 增加自然过渡和个人色彩 4. 使用更生动、更贴近人类的表达方式 5. 直接输出改写后的文本，不要添加任何解释说明。`
+            },
+            {
+              role: 'user',
+              content: `请将以下文本改写为${scenes.find(s => s.value === selectedScene.value)?.label}风格：\n\n${inputText.value}`
+            }
+          ],
+          model: 'deepseek-chat',
+          temperature: 1.3
+        },
+        (chunk) => {
+          const content = chunk.choices[0]?.delta?.content || '';
+          if (content) {
+            rewrittenText.value += content;
           }
-        ],
-        model: 'deepseek-chat',
-        temperature: 1.3
-      })
+        },
+        (error) => {
+          console.error('改写失败:', error);
+          rewrittenText.value = '改写失败，请稍后重试';
+          reject(error);
+        },
+        () => {
+          resolve();
+        }
+      );
     });
 
-    const reader = response.body?.getReader();
-    if (!reader) throw new Error('无法读取响应');
-
-    const decoder = new TextDecoder('utf-8');
-    let buffer = '';
-
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
-
-      for (const line of lines) {
-        if (line.startsWith('data:')) {
-          const jsonString = line.replace('data: ', '').trim();
-          if (jsonString === '[DONE]') continue;
-
-          try {
-            const data = JSON.parse(jsonString);
-            const content = data?.choices?.[0]?.delta?.content || '';
-            if (content) {
-              rewrittenText.value += content;
-            }
-          } catch (e) {
-            console.error('解析错误:', e);
-          }
-        }
-      }
-    }
-  } catch (error) {
+  } catch (error: any) {
     console.error('改写失败:', error);
-    rewrittenText.value = '改写失败，请稍后重试';
+    if (!rewrittenText.value) {
+      rewrittenText.value = '改写失败，请稍后重试';
+    }
   } finally {
     isRewriting.value = false;
   }

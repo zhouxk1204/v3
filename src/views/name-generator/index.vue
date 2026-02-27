@@ -376,6 +376,7 @@
 </template>
 
 <script setup lang="ts">
+import { chatCompletions } from '@/api/deepseek/index.api';
 import { BaziProfile } from '@/utils/bazi';
 import { buildStructuredPrompt } from './prompt';
 
@@ -930,52 +931,33 @@ const toggleCard = (index: number) => {
 
 /** 请求接口并解析为名字卡片（不校验） */
 async function fetchNameCards(promptUser: string): Promise<NameCard[]> {
-  const response = await fetch(import.meta.env.APP_API_BASE_URL + '/chat/ask', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      context: [
-        {
-          role: 'system',
-          content: `你是一个严格遵守规则的中文姓名取名专家，请逐条执行用户给出的规则，不允许违反。按【硬性规则（不可违反）】在输出前自检，若发现违规请自行修正后再输出。只输出 ${nameCount.value} 行，每行格式：名字|寓意|稀有度。`,
-          reasoning_content: ''
-        },
-        { role: 'user', content: promptUser, reasoning_content: '' }
-      ],
-      model: 'deepseek-chat',
-      temperature: 0.7
-    })
-  });
+  try {
+    const response = await chatCompletions(
+      {
+        context: [
+          {
+            role: 'system',
+            content: `你是一个严格遵守规则的中文姓名取名专家，请逐条执行用户给出的规则，不允许违反。按【硬性规则（不可违反）】在输出前自检，若发现违规请自行修正后再输出。只输出 ${nameCount.value} 行，每行格式：名字|寓意|稀有度。`
+          },
+          { role: 'user', content: promptUser }
+        ],
+        model: 'deepseek-chat',
+        temperature: 0.7
+      },
+      120000 // 2分钟超时
+    );
 
-  const reader = response.body?.getReader();
-  if (!reader) throw new Error('无法读取响应');
-
-  const decoder = new TextDecoder('utf-8');
-  let buffer = '';
-  let fullText = '';
-
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() || '';
-    for (const line of lines) {
-      if (line.startsWith('data:')) {
-        const jsonString = line.replace('data: ', '').trim();
-        if (jsonString === '[DONE]') continue;
-        try {
-          const data = JSON.parse(jsonString);
-          const content = data?.choices?.[0]?.delta?.content || '';
-          if (content) fullText += content;
-        } catch (_e) {
-          /* ignore */
-        }
-      }
+    const fullText = response?.choices?.[0]?.message?.content || '';
+    
+    if (!fullText) {
+      throw new Error('未收到有效响应');
     }
-  }
 
-  return parseNameLines(fullText);
+    return parseNameLines(fullText);
+  } catch (error) {
+    console.error('请求失败:', error);
+    throw error;
+  }
 }
 
 const generateNames = async () => {
