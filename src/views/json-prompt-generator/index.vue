@@ -20,7 +20,7 @@
             <div class="mb-6">
               <div class="flex justify-between items-center mb-2">
                 <label class="block text-sm font-medium text-gray-700">
-                  描述你想要的生成的内容
+                  {{ getInputLabel() }}
                 </label>
                 <button
                   @click="clearInput"
@@ -33,7 +33,7 @@
               </div>
               <textarea
                 v-model="naturalLanguageInput"
-                placeholder="例如：创建一个肾结石饮食分析的 Prompt，需要分析用户的饮食记录，输出风险评分和改善建议..."
+                :placeholder="getPlaceholder()"
                 class="w-full h-64 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none font-mono text-sm"
                 :disabled="isGenerating"
               ></textarea>
@@ -56,6 +56,19 @@
                   <span>快速模式</span>
                 </button>
                 <button
+                  @click="selectedMode = 'clarify'"
+                  :class="[
+                    'flex-1 flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-medium transition-all border-r border-gray-200',
+                    selectedMode === 'clarify'
+                      ? 'bg-orange-600 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ]"
+                  :disabled="isGenerating"
+                >
+                  <Icon icon="ep:chat-dot-round" width="18" />
+                  <span>需求澄清</span>
+                </button>
+                <button
                   @click="selectedMode = 'pro'"
                   :class="[
                     'flex-1 flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-medium transition-all',
@@ -70,7 +83,7 @@
                 </button>
               </div>
               <p class="mt-2 text-xs text-gray-500 text-center">
-                {{ selectedMode === 'fast' ? '快速模式：生成简化的 JSON 结构（task、instruction、output_format）' : '专业模式：生成完整的 JSON 结构（meta、execution、model_requirements、roles、constraints、output_schema）' }}
+                {{ getModeDescription() }}
               </p>
             </div>
 
@@ -180,13 +193,55 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-type Mode = 'fast' | 'pro'
+type Mode = 'fast' | 'pro' | 'clarify'
 
 const selectedMode = ref<Mode>('fast')
 const naturalLanguageInput = ref('')
 const jsonPrompt = ref('')
 const isGenerating = ref(false)
 const isValidJSON = ref(true)
+
+// 获取模式描述
+const getModeDescription = () => {
+  switch (selectedMode.value) {
+    case 'fast':
+      return '快速模式：生成简化的 JSON 结构（task、instruction、output_format）'
+    case 'clarify':
+      return '需求澄清：通过连续提问澄清用户真实需求，直到理解置信度达到95%'
+    case 'pro':
+      return '专业模式：生成完整的 JSON 结构（meta、execution、model_requirements、roles、constraints、output_schema）'
+    default:
+      return ''
+  }
+}
+
+// 获取输入标签
+const getInputLabel = () => {
+  switch (selectedMode.value) {
+    case 'fast':
+      return '描述你想要生成的内容'
+    case 'clarify':
+      return '用一句话描述你的灵感或想法'
+    case 'pro':
+      return '描述你想要生成的内容'
+    default:
+      return '描述你想要生成的内容'
+  }
+}
+
+// 获取 placeholder
+const getPlaceholder = () => {
+  switch (selectedMode.value) {
+    case 'fast':
+      return '例如：创建一个待办事项管理的 Prompt，需要添加、编辑、删除任务，支持优先级排序和完成状态标记...'
+    case 'clarify':
+      return '例如：想做个记录每天喝水量的工具'
+    case 'pro':
+      return '例如：创建一个智能客服系统的 Prompt，需要理解用户问题、查询知识库、生成专业回复，并支持多轮对话...'
+    default:
+      return '请输入你的需求描述...'
+  }
+}
 
 // 清空输入
 const clearInput = () => {
@@ -236,6 +291,66 @@ const buildSystemPrompt = (mode: Mode): string => {
   "instruction": "详细指令",
   "output_format": "输出格式说明"
 }`
+  } else if (mode === 'clarify') {
+    return `${basePrompt}
+
+输出结构（clarify 模式）：
+{
+  "meta": {
+    "version": "1.0",
+    "mode": "clarify",
+    "task_type": "根据用户输入推断任务类型，如 product_design、technical_implementation、data_analysis 等"
+  },
+  "execution": {
+    "interaction_style": "iterative_questioning",
+    "max_questions_per_turn": 1
+  },
+  "interaction_protocol": {
+    "objective": "在提供任何解决方案之前，通过连续提问澄清用户真实需求，直到理解置信度达到95%。",
+    "rules": [
+      "必须先提出问题，不允许直接给出方案或实现建议。",
+      "一次只允许提出一个问题。",
+      "每个问题必须基于用户上一轮回答进行收敛。",
+      "优先确认目标、用户群体、使用场景和成功标准。",
+      "避免过早讨论技术实现。"
+    ]
+  },
+  "confidence_rule": {
+    "threshold": 0.95,
+    "dimensions": [
+      "产品目标是否明确",
+      "核心用户是谁",
+      "主要使用场景",
+      "核心功能范围",
+      "成功标准或期望结果"
+    ],
+    "when_reached": [
+      "总结对需求的理解",
+      "等待用户确认",
+      "确认后才允许进入方案阶段"
+    ]
+  },
+  "handoff_rule": {
+    "next_mode": "pro",
+    "condition": "用户确认需求总结正确"
+  },
+  "roles": {
+    "system": "你是一名产品经理型AI，需要通过逐步提问帮助用户澄清需求，而不是立即设计方案。",
+    "user_context": "用户需求：{用户输入的内容}"
+  },
+  "constraints": [
+    "禁止直接输出方案。",
+    "禁止一次提出多个问题。",
+    "禁止跳过需求确认阶段。",
+    "输出必须为自然语言对话，而不是JSON结构。"
+  ],
+  "expected_behavior": {
+    "first_response": "提出一个用于澄清目标的单一问题。",
+    "question_strategy": "从目标 → 用户 → 场景 → 功能 → 约束逐步收敛"
+  }
+}
+
+注意：roles.user_context 中的 {用户输入的内容} 应该替换为用户实际输入的需求描述。`
   } else {
     return `${basePrompt}
 
