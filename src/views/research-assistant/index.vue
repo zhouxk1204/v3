@@ -280,13 +280,17 @@
               class="p-4 border border-gray-200 rounded-lg hover:border-purple-300 transition-colors">
               <div class="flex items-start gap-3">
                 <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-2">
+                  <!-- PMID 和日期 -->
+                  <div class="flex items-center justify-between mb-2">
                     <span class="text-sm text-gray-500">PMID: 
                       <a :href="`https://pubmed.ncbi.nlm.nih.gov/${article.PMID}`" 
                          target="_blank" 
                          class="text-blue-600 hover:text-blue-800 hover:underline">
                         {{ article.PMID }}
                       </a>
+                    </span>
+                    <span v-if="article.PublicationDate" class="text-sm text-gray-500">
+                      {{ article.PublicationDate }}
                     </span>
                   </div>
                   
@@ -314,16 +318,13 @@
                   
                   <!-- 归纳总结模式 -->
                   <template v-else-if="displayMode === 'summary'">
-                    <div class="text-sm text-gray-700 whitespace-pre-line">
-                      {{ article.summary || '归纳总结中...' }}
+                    <div 
+                      v-if="article.summary"
+                      class="text-sm text-gray-700 prose prose-sm max-w-none"
+                      v-html="renderMarkdown(article.summary)">
                     </div>
+                    <div v-else class="text-sm text-gray-500">归纳总结中...</div>
                   </template>
-                  
-                  <div class="text-sm text-gray-500">
-                    <span v-if="article.Authors" class="mr-4">作者: {{ article.Authors }}</span>
-                    <span v-if="article.PublicationDate" class="mr-4">日期: {{ article.PublicationDate }}</span>
-                    <span v-if="article.Journal" class="mr-4">期刊: {{ article.Journal }}</span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -379,8 +380,10 @@
 <script setup lang="ts">
 import { chatCompletions } from '@/api/deepseek/index.api';
 import { usePaperStore } from '@/store/paper.store';
+import { marked } from 'marked';
 import { computed, ref, watch } from 'vue';
 import { compactPrompt, generateConceptBlocksPrompt, summarizeArticlePrompt, translateArticlePrompt, translateKeywordsPrompt } from './prompt';
+import type { AbstractSection, Article, ConceptBlock, DisplayMode } from './types';
 
 // 使用 Pinia store
 const paperStore = usePaperStore();
@@ -398,44 +401,43 @@ watch(
   { deep: true }
 );
 
-// 关键词类型定义
-interface Keyword {
-  id: string;
-  text: string;
-  field: 'Mesh' | 'tiab' | 'tw';
-  operator: 'OR' | 'NOT';
-}
+// 渲染 Markdown
+const renderMarkdown = (text: string): string => {
+  if (!text) return '';
+  return marked(text) as string;
+};
 
-// 概念块类型定义
-interface ConceptBlock {
-  id: string;
-  name: string;
-  keywords: Keyword[];
-  collapsed: boolean;
-  operator: 'AND' | 'OR';
-}
+// 格式化日期：将 "2024-May-09" 转换为 "2024-05-09" 或 "2024-05"
+const formatPublicationDate = (year: string, month: string, day?: string): string => {
+  const monthMap: Record<string, string> = {
+    'Jan': '01', 'January': '01',
+    'Feb': '02', 'February': '02',
+    'Mar': '03', 'March': '03',
+    'Apr': '04', 'April': '04',
+    'May': '05',
+    'Jun': '06', 'June': '06',
+    'Jul': '07', 'July': '07',
+    'Aug': '08', 'August': '08',
+    'Sep': '09', 'September': '09',
+    'Oct': '10', 'October': '10',
+    'Nov': '11', 'November': '11',
+    'Dec': '12', 'December': '12'
+  };
 
-// 关键词类型定义
-interface Keyword {
-  id: string;
-  text: string;
-  field: 'Mesh' | 'tiab' | 'tw';
-  operator: 'OR' | 'NOT';
-}
-
-// 概念块类型定义
-interface ConceptBlock {
-  id: string;
-  name: string;
-  keywords: Keyword[];
-  collapsed: boolean;
-  operator: 'AND' | 'OR';
-}
-
-// 使用 store 中的状态（不再定义本地 ref）
-// const topic = ref('');
-// const keywords = ref('');
-// const clinicalObservation = ref('');
+  let formattedDate = year;
+  
+  if (month) {
+    // 如果月份是英文名称，转换为数字
+    const monthNum = monthMap[month] || month.padStart(2, '0');
+    formattedDate += '-' + monthNum;
+    
+    if (day) {
+      formattedDate += '-' + day.padStart(2, '0');
+    }
+  }
+  
+  return formattedDate;
+};
 
 const isGenerating = ref(false);
 const isSearching = ref(false);
@@ -447,14 +449,14 @@ const conceptBlocks = ref<ConceptBlock[]>([]);
 const newKeywordText = ref('');
 
 // PubMed 搜索结果
-const pubmedResults = ref<any[]>([]);
+const pubmedResults = ref<Article[]>([]);
 const totalResults = ref(0);
 const resultsPerPage = 5;
 const currentPage = ref(1);
 const pmidList = ref<string[]>([]);
 
 // 显示模式
-const displayMode = ref<'original' | 'translated' | 'summary'>('original');
+const displayMode = ref<DisplayMode>('original');
 const isTranslating = ref(false);
 
 // 拖拽相关
@@ -795,10 +797,10 @@ const fetchPageData = async (page: number) => {
 };
 
 // 解析 PubMed XML
-const parsePubmedXml = (xmlText: string): any[] => {
+const parsePubmedXml = (xmlText: string): Article[] => {
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-  const articles: any[] = [];
+  const articles: Article[] = [];
 
   const articleNodes = xmlDoc.getElementsByTagName('PubmedArticle');
 
@@ -812,7 +814,7 @@ const parsePubmedXml = (xmlText: string): any[] => {
     const title = titleNode.length > 0 ? titleNode[0].textContent || '' : '';
 
     const abstractNodes = articleNode.getElementsByTagName('Abstract');
-    let abstractSections: Array<{ label: string; text: string }> = [];
+    let abstractSections: AbstractSection[] = [];
     
     if (abstractNodes.length > 0) {
       const abstractTextNodes = abstractNodes[0].getElementsByTagName('AbstractText');
@@ -847,14 +849,16 @@ const parsePubmedXml = (xmlText: string): any[] => {
     const pubDateNodes = articleNode.getElementsByTagName('PubDate');
     let publicationDate = '';
     if (pubDateNodes.length > 0) {
-      const year = pubDateNodes[0].getElementsByTagName('Year');
-      const month = pubDateNodes[0].getElementsByTagName('Month');
-      const day = pubDateNodes[0].getElementsByTagName('Day');
+      const yearNodes = pubDateNodes[0].getElementsByTagName('Year');
+      const monthNodes = pubDateNodes[0].getElementsByTagName('Month');
+      const dayNodes = pubDateNodes[0].getElementsByTagName('Day');
 
-      if (year.length > 0) {
-        publicationDate = year[0].textContent || '';
-        if (month.length > 0) publicationDate += '-' + (month[0].textContent || '');
-        if (day.length > 0) publicationDate += '-' + (day[0].textContent || '');
+      if (yearNodes.length > 0) {
+        const year = yearNodes[0].textContent || '';
+        const month = monthNodes.length > 0 ? monthNodes[0].textContent || '' : '';
+        const day = dayNodes.length > 0 ? dayNodes[0].textContent || '' : '';
+        
+        publicationDate = formatPublicationDate(year, month, day);
       }
     }
 
@@ -886,7 +890,7 @@ const translateArticles = async () => {
       let abstractText = '';
       if (article.AbstractSections && article.AbstractSections.length > 0) {
         abstractText = article.AbstractSections
-          .map((section: any) => `${section.label ? section.label + ': ' : ''}${section.text}`)
+          .map((section: AbstractSection) => `${section.label ? section.label + ': ' : ''}${section.text}`)
           .join('\n\n');
       }
 
@@ -938,7 +942,7 @@ const summarizeArticles = async () => {
       let abstractText = '';
       if (article.AbstractSections && article.AbstractSections.length > 0) {
         abstractText = article.AbstractSections
-          .map((section: any) => `${section.label ? section.label + ': ' : ''}${section.text}`)
+          .map((section: AbstractSection) => `${section.label ? section.label + ': ' : ''}${section.text}`)
           .join('\n\n');
       }
 
@@ -972,7 +976,7 @@ const summarizeArticles = async () => {
 };
 
 // 切换显示模式
-const switchDisplayMode = async (mode: 'original' | 'translated' | 'summary') => {
+const switchDisplayMode = async (mode: DisplayMode) => {
   displayMode.value = mode;
   
   if (mode === 'translated' && pubmedResults.value.length > 0) {
@@ -1019,5 +1023,84 @@ const prevPage = async () => {
 
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
+}
+
+/* Markdown 样式 */
+.prose {
+  color: #374151;
+}
+
+.prose :deep(h1),
+.prose :deep(h2),
+.prose :deep(h3),
+.prose :deep(h4) {
+  font-weight: 600;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  color: #1f2937;
+}
+
+.prose :deep(h1) {
+  font-size: 1.25em;
+}
+
+.prose :deep(h2) {
+  font-size: 1.125em;
+}
+
+.prose :deep(h3),
+.prose :deep(h4) {
+  font-size: 1em;
+}
+
+.prose :deep(p) {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose :deep(ul),
+.prose :deep(ol) {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  padding-left: 1.5em;
+}
+
+.prose :deep(li) {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+.prose :deep(strong) {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.prose :deep(em) {
+  font-style: italic;
+}
+
+.prose :deep(code) {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.prose :deep(pre) {
+  background-color: #f3f4f6;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  overflow-x: auto;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose :deep(blockquote) {
+  border-left: 3px solid #d1d5db;
+  padding-left: 1em;
+  color: #6b7280;
+  font-style: italic;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
 }
 </style>

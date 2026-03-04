@@ -1,6 +1,6 @@
 <template>
   <div
-    class="group relative bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden transform hover:-translate-y-2"
+    class="group relative bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden transform hover:-translate-y-2 border-2 border-gray-200 hover:border-blue-400"
     @click="$emit('click')"
   >
     <!-- 渐变背景 -->

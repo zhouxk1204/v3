@@ -50,24 +50,32 @@ interface Category {
 
 const categories = ref<Category[]>([
   {
-    name: '📝 内容创作',
+    name: '🔬 学术科研',
     tools: [
       {
-        id: 'ai-detector',
-        name: 'AI写作检测',
-        description: '智能分析AI写作痕迹，一键转换为自然人类化表达',
-        icon: '✍️',
-        route: '/ai-detector',
-        color: 'from-purple-400 to-pink-400'
+        id: 'research-assistant',
+        name: 'AI 课题科研助手',
+        description: 'PubMed 可视化检索式构建与文献检索，支持中文关键词自动翻译',
+        icon: '📚',
+        route: '/research-assistant',
+        color: 'from-blue-500 to-indigo-500'
       }
     ]
   },
   {
-    name: '🌐 翻译工具',
+    name: '✍️ 文本处理',
     tools: [
       {
+        id: 'ai-detector',
+        name: 'AI 写作检测',
+        description: '智能分析 AI 写作痕迹，一键转换为自然人类化表达',
+        icon: '🔍',
+        route: '/ai-detector',
+        color: 'from-purple-400 to-pink-400'
+      },
+      {
         id: 'subtitle-translator',
-        name: 'SRT字幕翻译',
+        name: 'SRT 字幕翻译',
         description: '日文 → 中文 AI 智能翻译，支持批量处理',
         icon: '🎬',
         route: '/subtitle-translator',
@@ -76,41 +84,41 @@ const categories = ref<Category[]>([
     ]
   },
   {
-    name: '🎲 生活助手',
+    name: '🏥 健康生活',
     tools: [
-      {
-        id: 'name-generator',
-        name: '抽卡取名',
-        description: '根据父母姓名与风格，生成带寓意的好名字',
-        icon: '🎴',
-        route: '/name-generator',
-        color: 'from-orange-400 to-red-400'
-      },
       {
         id: 'kidney-stone-analyzer',
         name: '肾结石饮食分析',
         description: '分析饮食模式与肾结石风险，提供科学营养建议',
-        icon: '🏥',
+        icon: '💊',
         route: '/kidney-stone-analyzer',
         color: 'from-green-400 to-teal-400'
+      },
+      {
+        id: 'name-generator',
+        name: '智能取名助手',
+        description: '根据父母姓名与风格，生成带寓意的好名字',
+        icon: '👶',
+        route: '/name-generator',
+        color: 'from-orange-400 to-red-400'
       }
     ]
   },
   {
-    name: '🛠️ 开发工具',
+    name: '💻 开发工具',
     tools: [
       {
         id: 'json-prompt-generator',
         name: 'JSON Prompt 生成器',
         description: '智能生成结构化 JSON Prompt，提升 AI 对话质量',
-        icon: '📋',
+        icon: '⚙️',
         route: '/json-prompt-generator',
         color: 'from-indigo-400 to-purple-400'
       }
     ]
   },
   {
-    name: '💬 AI 助手',
+    name: '🤖 AI 对话',
     tools: [
       {
         id: 'peach-ai',
