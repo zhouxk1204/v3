@@ -70,47 +70,47 @@ const canAnalyze = computed(() => {
 })
 
 // 判断是否需要在当前牌前添加间隙
-function needGapBefore(index: number): boolean {
-  if (index === 0) return false
+// function needGapBefore(index: number): boolean {
+//   if (index === 0) return false
 
-  const currentTile = props.hand[index]
-  const prevTile = props.hand[index - 1]
+//   const currentTile = props.hand[index]
+//   const prevTile = props.hand[index - 1]
 
-  // 如果当前牌是碰/杠组的第一张（前一张是普通牌，当前是碰/杠）
-  if (prevTile.state === 'normal' && currentTile.state !== 'normal') {
-    return true
-  }
+//   // 如果当前牌是碰/杠组的第一张（前一张是普通牌，当前是碰/杠）
+//   if (prevTile.state === 'normal' && currentTile.state !== 'normal') {
+//     return true
+//   }
 
-  // 如果前一张是碰/杠组的最后一张，当前是普通牌
-  if (prevTile.state !== 'normal' && currentTile.state === 'normal') {
-    // 检查前一张是否是碰/杠组的最后一张
-    // 碰：第三张是横向的
-    // 杠：需要检查是否是第四张
-    if (prevTile.isHorizontal) {
-      // 碰的第三张（横向），后面需要间隙
-      return true
-    }
+//   // 如果前一张是碰/杠组的最后一张，当前是普通牌
+//   if (prevTile.state !== 'normal' && currentTile.state === 'normal') {
+//     // 检查前一张是否是碰/杠组的最后一张
+//     // 碰：第三张是横向的
+//     // 杠：需要检查是否是第四张
+//     if (prevTile.isHorizontal) {
+//       // 碰的第三张（横向），后面需要间隙
+//       return true
+//     }
 
-    // 检查是否是杠的第四张
-    if (prevTile.state === 'gang') {
-      // 向前数，看是否已经有3张相同的杠牌
-      let count = 1
-      for (let i = index - 2; i >= 0; i--) {
-        const t = props.hand[i]
-        if (t.state === 'gang' && t.suit === prevTile.suit && t.num === prevTile.num) {
-          count++
-        } else {
-          break
-        }
-      }
-      if (count >= 3) {
-        return true
-      }
-    }
-  }
+//     // 检查是否是杠的第四张
+//     if (prevTile.state === 'gang') {
+//       // 向前数，看是否已经有3张相同的杠牌
+//       let count = 1
+//       for (let i = index - 2; i >= 0; i--) {
+//         const t = props.hand[i]
+//         if (t.state === 'gang' && t.suit === prevTile.suit && t.num === prevTile.num) {
+//           count++
+//         } else {
+//           break
+//         }
+//       }
+//       if (count >= 3) {
+//         return true
+//       }
+//     }
+//   }
 
-  return false
-}
+//   return false
+// }
 </script>
 
 <style scoped>

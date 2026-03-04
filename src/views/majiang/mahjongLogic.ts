@@ -291,54 +291,54 @@ export function calcFan(hand: Tile[], winCondition: WinCondition): Fan[] {
   return fans
 }
 
-function getBestStructure(tiles: number[]) {
-  if (tiles.length % 3 !== 2) return null
+// function getBestStructure(tiles: number[]) {
+//   if (tiles.length % 3 !== 2) return null
 
-  const unique = [...new Set(tiles)]
-  for (const pairTile of unique) {
-    const counts: Record<number, number> = {}
-    tiles.forEach(t => counts[t] = (counts[t] || 0) + 1)
-    if (counts[pairTile] >= 2) {
-      const rem = [...tiles]
-      rem.splice(rem.indexOf(pairTile), 1)
-      rem.splice(rem.indexOf(pairTile), 1)
-      const mentsu = extractMentsu(rem)
-      if (mentsu !== null) {
-        return { pair: pairTile, mentsuList: mentsu }
-      }
-    }
-  }
-  return null
-}
+//   const unique = [...new Set(tiles)]
+//   for (const pairTile of unique) {
+//     const counts: Record<number, number> = {}
+//     tiles.forEach(t => counts[t] = (counts[t] || 0) + 1)
+//     if (counts[pairTile] >= 2) {
+//       const rem = [...tiles]
+//       rem.splice(rem.indexOf(pairTile), 1)
+//       rem.splice(rem.indexOf(pairTile), 1)
+//       const mentsu = extractMentsu(rem)
+//       if (mentsu !== null) {
+//         return { pair: pairTile, mentsuList: mentsu }
+//       }
+//     }
+//   }
+//   return null
+// }
 
-function extractMentsu(tiles: number[]): Array<{ type: 'ke' | 'shun', tiles: number[] }> | null {
-  if (tiles.length === 0) return []
-  const sorted = [...tiles].sort((a, b) => a - b)
-  const counts: Record<number, number> = {}
-  sorted.forEach(t => counts[t] = (counts[t] || 0) + 1)
-  const first = sorted[0]
+// function extractMentsu(tiles: number[]): Array<{ type: 'ke' | 'shun', tiles: number[] }> | null {
+//   if (tiles.length === 0) return []
+//   const sorted = [...tiles].sort((a, b) => a - b)
+//   const counts: Record<number, number> = {}
+//   sorted.forEach(t => counts[t] = (counts[t] || 0) + 1)
+//   const first = sorted[0]
 
-  if (counts[first] >= 3) {
-    const rem = [...sorted]
-    for (let i = 0; i < 3; i++) rem.splice(rem.indexOf(first), 1)
-    const rest = extractMentsu(rem)
-    if (rest !== null) return [{ type: 'ke', tiles: [first, first, first] }, ...rest]
-  }
+//   if (counts[first] >= 3) {
+//     const rem = [...sorted]
+//     for (let i = 0; i < 3; i++) rem.splice(rem.indexOf(first), 1)
+//     const rest = extractMentsu(rem)
+//     if (rest !== null) return [{ type: 'ke', tiles: [first, first, first] }, ...rest]
+//   }
 
-  const n1 = idToNum(first)
-  const next1 = first + 1, next2 = first + 2
-  const suitOk = idToSuit(first) === idToSuit(next1) && idToSuit(first) === idToSuit(next2)
-  if (suitOk && n1 <= 7 && counts[next1] >= 1 && counts[next2] >= 1) {
-    const rem = [...sorted]
-    rem.splice(rem.indexOf(first), 1)
-    rem.splice(rem.indexOf(next1), 1)
-    rem.splice(rem.indexOf(next2), 1)
-    const rest = extractMentsu(rem)
-    if (rest !== null) return [{ type: 'shun', tiles: [first, next1, next2] }, ...rest]
-  }
+//   const n1 = idToNum(first)
+//   const next1 = first + 1, next2 = first + 2
+//   const suitOk = idToSuit(first) === idToSuit(next1) && idToSuit(first) === idToSuit(next2)
+//   if (suitOk && n1 <= 7 && counts[next1] >= 1 && counts[next2] >= 1) {
+//     const rem = [...sorted]
+//     rem.splice(rem.indexOf(first), 1)
+//     rem.splice(rem.indexOf(next1), 1)
+//     rem.splice(rem.indexOf(next2), 1)
+//     const rest = extractMentsu(rem)
+//     if (rest !== null) return [{ type: 'shun', tiles: [first, next1, next2] }, ...rest]
+//   }
 
-  return null
-}
+//   return null
+// }
 
 export function getBestDiscards(tiles: number[]): Suggestion[] {
   const suggestions: Suggestion[] = []
